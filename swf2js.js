@@ -590,6 +590,59 @@ var instanceId = 0;
     };
 
     /**
+     * @param ctx
+     * @param color
+     * @returns {*}
+     */
+    Utility.prototype.$generateImageTransform = function (ctx, color)
+    {
+        var canvas  = ctx.canvas;
+        var width   = canvas.width|0;
+        var height  = canvas.height|0;
+        var imgData = ctx.getImageData(0, 0, width, height);
+        var pxData  = imgData.data;
+
+        var RedMultiTerm   = +color[0];
+        var GreenMultiTerm = +color[1];
+        var BlueMultiTerm  = +color[2];
+        var AlphaMultiTerm = +color[3];
+        var RedAddTerm     = +color[4];
+        var GreenAddTerm   = +color[5];
+        var BlueAddTerm    = +color[6];
+        var AlphaAddTerm   = +color[7];
+
+        var length = (width * height)|0;
+        if (length > 0) {
+            var i   = 0;
+            var idx = 0;
+            while (i < length) {
+                var R = pxData[idx]|0;
+                idx = (idx + 1)|0;
+
+                var G = pxData[idx]|0;
+                idx = (idx + 1)|0;
+
+                var B = pxData[idx]|0;
+                idx = (idx + 1)|0;
+
+                var A = pxData[idx]|0;
+                idx = (idx + 1)|0;
+
+                pxData[idx - 4] =  this.$max(0, this.$min((R * RedMultiTerm)   + RedAddTerm,   255))|0;
+                pxData[idx - 3] =  this.$max(0, this.$min((G * GreenMultiTerm) + GreenAddTerm, 255))|0;
+                pxData[idx - 2] =  this.$max(0, this.$min((B * BlueMultiTerm)  + BlueAddTerm,  255))|0;
+                pxData[idx - 1] = +this.$max(0, this.$min((A * AlphaMultiTerm) + AlphaAddTerm, 255));
+
+                i = (i + 1)|0;
+            }
+        }
+
+        ctx.putImageData(imgData, 0, 0);
+
+        return ctx;
+    };
+
+    /**
      * @param event
      */
     Utility.prototype.$keyUpAction = function (event)
@@ -3296,17 +3349,23 @@ ConvolutionFilter.prototype.render = function (cache, colorTransform, stage)
             r = (r / divisor)|0;
             g = (g / divisor)|0;
             b = (b / divisor)|0;
-            a = (preserveAlpha) ? data[px + 3] : (a / divisor)|0;
 
             r = (r > 255) ? 255 : (r < 0) ? 0 : r;
             g = (g > 255) ? 255 : (g < 0) ? 0 : g;
             b = (b > 255) ? 255 : (b < 0) ? 0 : b;
-            a = (a > 255) ? 255 : (a < 0) ? 0 : a;
+
+            if (preserveAlpha) {
+                a = data[px + 3];
+            } else {
+                a = (a / divisor)|0;
+                a = (a > 255) ? 255 : (a < 0) ? 0 : a;
+                a = (a + bias)|0;
+            }
 
             out[px    ] = (r + bias)|0;
             out[px + 1] = (g + bias)|0;
             out[px + 2] = (b + bias)|0;
-            out[px + 3] = (a + bias)|0;
+            out[px + 3] = a;
 
             x = (x + 1)|0;
         }
@@ -3326,7 +3385,8 @@ ConvolutionFilter.prototype.render = function (cache, colorTransform, stage)
         ctx = tmp.getContext("2d");
 
         // execute
-        var cRGBA = this.$intToRGBA(this.color, this.alpha * 100);
+        var color = this.$intToRGBA(this.color, this.alpha * 100);
+        var cRGBA = this.$generateColorTransform(color, colorTransform);
         ctx.strokeStyle = "rgba("+ cRGBA.R +", "+ cRGBA.G +", "+ cRGBA.B +", "+ cRGBA.A +")";
         ctx.moveTo(0, 0);
         ctx.lineTo(width, 0);
@@ -3337,6 +3397,7 @@ ConvolutionFilter.prototype.render = function (cache, colorTransform, stage)
     }
 
     ctx.putImageData(pxOut, offset, offset);
+    ctx = this.$generateImageTransform(ctx, colorTransform);
     ctx._offsetX = cache._offsetX + offset;
     ctx._offsetY = cache._offsetY + offset;
 
@@ -3488,6 +3549,7 @@ DisplacementMapFilterMode.prototype.CLAMP  = "clamp";
 DisplacementMapFilterMode.prototype.COLOR  = "color";
 DisplacementMapFilterMode.prototype.IGNORE = "ignore";
 DisplacementMapFilterMode.prototype.WRAP   = "wrap";
+
 /**
  * @constructor
  */
@@ -11721,7 +11783,7 @@ Shape.prototype.executeRender = function (ctx, minScale, colorTransform, isClipD
                             var imageContext = canvas.getContext("2d");
                             imageContext.drawImage(image.canvas, 0, 0, width, height, 0, 0, width, height);
 
-                            image = this.generateImageTransform(imageContext, colorTransform);
+                            image = this.$generateImageTransform(imageContext, colorTransform);
 
                             this.$cacheStore.setCache(bitmapCacheKey, image);
                         }
@@ -11787,59 +11849,6 @@ Shape.prototype.executeRender = function (ctx, minScale, colorTransform, isClipD
     ctx.strokeStyle = resetCss;
     ctx.fillStyle   = resetCss;
     ctx.globalAlpha = 1;
-
-    return ctx;
-};
-
-/**
- * @param ctx
- * @param color
- * @returns {*}
- */
-Shape.prototype.generateImageTransform = function (ctx, color)
-{
-    var canvas  = ctx.canvas;
-    var width   = canvas.width|0;
-    var height  = canvas.height|0;
-    var imgData = ctx.getImageData(0, 0, width, height);
-    var pxData  = imgData.data;
-
-    var RedMultiTerm   = +color[0];
-    var GreenMultiTerm = +color[1];
-    var BlueMultiTerm  = +color[2];
-    var AlphaMultiTerm = +color[3];
-    var RedAddTerm     = +color[4];
-    var GreenAddTerm   = +color[5];
-    var BlueAddTerm    = +color[6];
-    var AlphaAddTerm   = +color[7];
-
-    var length = (width * height)|0;
-    if (length > 0) {
-        var i   = 0;
-        var idx = 0;
-        while (i < length) {
-            var R = pxData[idx]|0;
-            idx = (idx + 1)|0;
-
-            var G = pxData[idx]|0;
-            idx = (idx + 1)|0;
-
-            var B = pxData[idx]|0;
-            idx = (idx + 1)|0;
-
-            var A = pxData[idx]|0;
-            idx = (idx + 1)|0;
-
-            pxData[idx - 4] =  this.$max(0, this.$min((R * RedMultiTerm)   + RedAddTerm,   255))|0;
-            pxData[idx - 3] =  this.$max(0, this.$min((G * GreenMultiTerm) + GreenAddTerm, 255))|0;
-            pxData[idx - 2] =  this.$max(0, this.$min((B * BlueMultiTerm)  + BlueAddTerm,  255))|0;
-            pxData[idx - 1] = +this.$max(0, this.$min((A * AlphaMultiTerm) + AlphaAddTerm, 255));
-
-            i = (i + 1)|0;
-        }
-    }
-
-    ctx.putImageData(imgData, 0, 0);
 
     return ctx;
 };

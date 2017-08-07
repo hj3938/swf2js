@@ -202,17 +202,23 @@ ConvolutionFilter.prototype.render = function (cache, colorTransform, stage)
             r = (r / divisor)|0;
             g = (g / divisor)|0;
             b = (b / divisor)|0;
-            a = (preserveAlpha) ? data[px + 3] : (a / divisor)|0;
 
             r = (r > 255) ? 255 : (r < 0) ? 0 : r;
             g = (g > 255) ? 255 : (g < 0) ? 0 : g;
             b = (b > 255) ? 255 : (b < 0) ? 0 : b;
-            a = (a > 255) ? 255 : (a < 0) ? 0 : a;
+
+            if (preserveAlpha) {
+                a = data[px + 3];
+            } else {
+                a = (a / divisor)|0;
+                a = (a > 255) ? 255 : (a < 0) ? 0 : a;
+                a = (a + bias)|0;
+            }
 
             out[px    ] = (r + bias)|0;
             out[px + 1] = (g + bias)|0;
             out[px + 2] = (b + bias)|0;
-            out[px + 3] = (a + bias)|0;
+            out[px + 3] = a;
 
             x = (x + 1)|0;
         }
@@ -232,7 +238,8 @@ ConvolutionFilter.prototype.render = function (cache, colorTransform, stage)
         ctx = tmp.getContext("2d");
 
         // execute
-        var cRGBA = this.$intToRGBA(this.color, this.alpha * 100);
+        var color = this.$intToRGBA(this.color, this.alpha * 100);
+        var cRGBA = this.$generateColorTransform(color, colorTransform);
         ctx.strokeStyle = "rgba("+ cRGBA.R +", "+ cRGBA.G +", "+ cRGBA.B +", "+ cRGBA.A +")";
         ctx.moveTo(0, 0);
         ctx.lineTo(width, 0);
@@ -243,6 +250,7 @@ ConvolutionFilter.prototype.render = function (cache, colorTransform, stage)
     }
 
     ctx.putImageData(pxOut, offset, offset);
+    ctx = this.$generateImageTransform(ctx, colorTransform);
     ctx._offsetX = cache._offsetX + offset;
     ctx._offsetY = cache._offsetY + offset;
 

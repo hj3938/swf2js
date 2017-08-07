@@ -11,34 +11,7 @@
 <script type="text/javascript">
     var stats = new Stats();
     document.body.appendChild( stats.dom );
-//    swf2js.load("develop", { quality: "high"});
-    var _root = swf2js.createRootMovieClip(400, 400, 1);
-
-    var mc = _root.createMovieClip("mc", 1);
-    mc.loadMovie("./swf/image/filter.jpg");
-    mc.addEventListener("data", function ()
-    {
-        this.x = 100;
-        this.y = 100;
-
-        var filter = new swf2js.ConvolutionFilter(3, 3, [
-            -1, -1, -1,
-            -1,  10, -1,
-            -1,  -1, -1]
-        );
-//        filter.bias = 100;
-//        filter.divisor = 9;
-//        filter.clamp = false;
-//        filter.alpha = 0.5;
-//        filter.preserveAlpha = true;
-
-        this.filters = [filter];
-
-    });
-
-
-
-
+    swf2js.load("develop", { quality: "high"});
 </script>
 </body>
 </html>

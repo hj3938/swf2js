@@ -468,7 +468,7 @@ Shape.prototype.executeRender = function (ctx, minScale, colorTransform, isClipD
                             var imageContext = canvas.getContext("2d");
                             imageContext.drawImage(image.canvas, 0, 0, width, height, 0, 0, width, height);
 
-                            image = this.generateImageTransform(imageContext, colorTransform);
+                            image = this.$generateImageTransform(imageContext, colorTransform);
 
                             this.$cacheStore.setCache(bitmapCacheKey, image);
                         }
@@ -534,59 +534,6 @@ Shape.prototype.executeRender = function (ctx, minScale, colorTransform, isClipD
     ctx.strokeStyle = resetCss;
     ctx.fillStyle   = resetCss;
     ctx.globalAlpha = 1;
-
-    return ctx;
-};
-
-/**
- * @param ctx
- * @param color
- * @returns {*}
- */
-Shape.prototype.generateImageTransform = function (ctx, color)
-{
-    var canvas  = ctx.canvas;
-    var width   = canvas.width|0;
-    var height  = canvas.height|0;
-    var imgData = ctx.getImageData(0, 0, width, height);
-    var pxData  = imgData.data;
-
-    var RedMultiTerm   = +color[0];
-    var GreenMultiTerm = +color[1];
-    var BlueMultiTerm  = +color[2];
-    var AlphaMultiTerm = +color[3];
-    var RedAddTerm     = +color[4];
-    var GreenAddTerm   = +color[5];
-    var BlueAddTerm    = +color[6];
-    var AlphaAddTerm   = +color[7];
-
-    var length = (width * height)|0;
-    if (length > 0) {
-        var i   = 0;
-        var idx = 0;
-        while (i < length) {
-            var R = pxData[idx]|0;
-            idx = (idx + 1)|0;
-
-            var G = pxData[idx]|0;
-            idx = (idx + 1)|0;
-
-            var B = pxData[idx]|0;
-            idx = (idx + 1)|0;
-
-            var A = pxData[idx]|0;
-            idx = (idx + 1)|0;
-
-            pxData[idx - 4] =  this.$max(0, this.$min((R * RedMultiTerm)   + RedAddTerm,   255))|0;
-            pxData[idx - 3] =  this.$max(0, this.$min((G * GreenMultiTerm) + GreenAddTerm, 255))|0;
-            pxData[idx - 2] =  this.$max(0, this.$min((B * BlueMultiTerm)  + BlueAddTerm,  255))|0;
-            pxData[idx - 1] = +this.$max(0, this.$min((A * AlphaMultiTerm) + AlphaAddTerm, 255));
-
-            i = (i + 1)|0;
-        }
-    }
-
-    ctx.putImageData(imgData, 0, 0);
 
     return ctx;
 };

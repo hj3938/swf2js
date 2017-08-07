@@ -23058,7 +23058,11 @@ Packages.prototype = {
             "DisplayObjectContainer": DisplayObjectContainer,
             "InteractiveObject": InteractiveObject,
             "DisplayObject": DisplayObject,
-            "Graphics": Graphics
+            "Graphics": Graphics,
+            "BitmapDataChannel": BitmapDataChannel
+        },
+        "geom": {
+            "Point": Point
         },
         "events": {
             "Event": Event,
@@ -31082,6 +31086,7 @@ Swf2js.prototype.createRootMovieClip = function(width, height, fps, options)
 
     return stage.getParent();
 };
+
         window.swf2js = new Swf2js();
     })(window);
 }

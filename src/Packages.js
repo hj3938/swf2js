@@ -18,7 +18,11 @@ Packages.prototype = {
             "DisplayObjectContainer": DisplayObjectContainer,
             "InteractiveObject": InteractiveObject,
             "DisplayObject": DisplayObject,
-            "Graphics": Graphics
+            "Graphics": Graphics,
+            "BitmapDataChannel": BitmapDataChannel
+        },
+        "geom": {
+            "Point": Point
         },
         "events": {
             "Event": Event,

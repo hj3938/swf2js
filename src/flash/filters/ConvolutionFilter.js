@@ -189,30 +189,30 @@ ConvolutionFilter.prototype.render = function (cache, colorTransform, stage)
                     r = (r + data[cpx    ] * matrix[idx])|0;
                     g = (g + data[cpx + 1] * matrix[idx])|0;
                     b = (b + data[cpx + 2] * matrix[idx])|0;
-                    if (!preserveAlpha) {
-                        a = (a + data[cpx + 3] * matrix[idx])|0;
-                    }
+                    a = (!preserveAlpha)
+                        ? (a + data[cpx + 3] * matrix[idx])|0
+                        : 0;
 
                     cx = (cx + 1)|0;
                 }
+
                 cy = (cy + 1)|0;
             }
+
+            r = (r / divisor)|0;
+            g = (g / divisor)|0;
+            b = (b / divisor)|0;
+            a = (preserveAlpha) ? data[px + 3] : (a / divisor)|0;
 
             r = (r > 255) ? 255 : (r < 0) ? 0 : r;
             g = (g > 255) ? 255 : (g < 0) ? 0 : g;
             b = (b > 255) ? 255 : (b < 0) ? 0 : b;
+            a = (a > 255) ? 255 : (a < 0) ? 0 : a;
 
-
-            out[px    ] = r / divisor + bias;
-            out[px + 1] = g / divisor + bias;
-            out[px + 2] = b / divisor + bias;
-
-            // alpha
-            a = (preserveAlpha)
-                ? data[px + 3] + bias
-                : (a > 255) ? 255 : (a < 0) ? 0 : a;
-
-            out[px + 3] = a / divisor + bias;
+            out[px    ] = (r + bias)|0;
+            out[px + 1] = (g + bias)|0;
+            out[px + 2] = (b + bias)|0;
+            out[px + 3] = (a + bias)|0;
 
             x = (x + 1)|0;
         }

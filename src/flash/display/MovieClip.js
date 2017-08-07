@@ -312,8 +312,8 @@ MovieClip.prototype.loadMovie = function (url, target, SendVarsMethod)
 
                         var loadStage = new Stage();
                         self.$loadStages[loadStage.getId()] = loadStage;
-                        targetMc._url = url;
                         targetMc.reset();
+                        targetMc._url = url;
                         loadStage.setParent(targetMc);
                         targetMc.setLoadStage(loadStage);
                         loadStage.parse(data, targetUrl);
@@ -539,7 +539,6 @@ MovieClip.prototype.loadVariables = function (url, target, method)
  */
 MovieClip.prototype.hitTest = function ()
 {
-    var _this = this;
     var targetMc = arguments[0];
     var x = 0;
     var y = 0;
@@ -553,7 +552,7 @@ MovieClip.prototype.hitTest = function ()
         }
     }
 
-    var bounds = _this.getHitBounds();
+    var bounds = this.getHitBounds();
     var xMax = bounds.xMax;
     var xMin = bounds.xMin;
     var yMax = bounds.yMax;
@@ -570,26 +569,25 @@ MovieClip.prototype.hitTest = function ()
         if (x >= xMin && x <= xMax && y >= yMin && y <= yMax) {
             if (bool) {
                 var matrix = [1,0,0,1,0,0];
-                var mc = _this;
-                var _multiplicationMatrix = _this.multiplicationMatrix;
+                var mc = this;
                 while (true) {
                     var parent = mc.getParent();
                     if (!parent.getParent()) {
                         break;
                     }
-                    matrix = _multiplicationMatrix(parent.getMatrix(), matrix);
+                    matrix = this.$multiplicationMatrix(parent.getMatrix(), matrix);
                     mc = parent;
                 }
-                var _root = _this.getDisplayObject("_root");
+                var _root = this.getDisplayObject("_root");
                 var stage = _root.getStage();
                 var ctx = stage.hitContext;
                 var scale = stage.getScale();
                 x *= scale;
                 y *= scale;
-                y *= _devicePixelRatio;
-                x *= _devicePixelRatio;
+                y *= this.$devicePixelRatio;
+                x *= this.$devicePixelRatio;
 
-                return _this.renderHitTest(ctx, matrix, stage, x, y);
+                return this.renderHitTest(ctx, matrix, stage, x, y);
             } else {
                 return true;
             }

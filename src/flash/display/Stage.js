@@ -525,7 +525,7 @@ Stage.prototype.parse = function (data, url)
     }
 
     var mc  = this.getParent();
-    mc._url = location.href;
+    mc._url = (!mc._url) ? location.href : mc._url;
     if (this.setSwfHeader(bitio, swftag)) {
 
         // parse
@@ -642,9 +642,9 @@ Stage.prototype.parseImage = function ()
         var width  = this.width|0;
         var height = this.height|0;
 
-        var canvas       = this.$cacheStore.getCanvas();
-        canvas.width     = width;
-        canvas.height    = height;
+        var canvas    = self.$cacheStore.getCanvas();
+        canvas.width  = width;
+        canvas.height = height;
 
         var imageContext = canvas.getContext("2d");
         imageContext.drawImage(this, 0, 0, width, height);
@@ -721,7 +721,7 @@ Stage.prototype.parseImage = function ()
             yMin: 0,
             yMax: shapeHeight
         };
-        var data = this.$vtc.convert(shape);
+        var data = self.$vtc.convert(shape);
 
         self.setCharacter(2, {
             tagType: 22,

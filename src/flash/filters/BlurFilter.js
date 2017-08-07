@@ -63,12 +63,11 @@ Object.defineProperties(BlurFilter.prototype, {
 
 /**
  * @param cache
- * @param matrix
  * @param colorTransform
  * @param stage
  * @returns {*}
  */
-BlurFilter.prototype.render = function (cache, matrix, colorTransform, stage)
+BlurFilter.prototype.render = function (cache, colorTransform, stage)
 {
     var _blurX = this.blurX;
     var _blurY = this.blurY;

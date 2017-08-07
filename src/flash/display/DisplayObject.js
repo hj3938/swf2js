@@ -1996,12 +1996,13 @@ DisplayObject.prototype.preRender = function (ctx, matrix, colorTransform, stage
  */
 DisplayObject.prototype.postRender = function(ctx, matrix, colorTransform, stage, obj)
 {
+
     var cache    = obj.preCtx;
     var isFilter = obj.isFilter;
     var cacheKey = obj.cacheKey;
 
     if (isFilter && cacheKey) {
-        cache = this.renderFilter(cache, matrix, colorTransform, stage, cacheKey);
+        cache = this.renderFilter(cache, colorTransform, stage, cacheKey);
     }
 
     var xMin = obj.xMin;
@@ -2108,16 +2109,15 @@ DisplayObject.prototype.getFilterKey = function (filters)
 
 /**
  * @param ctx
- * @param matrix
  * @param colorTransform
  * @param stage
  * @param cacheKey
  * @returns {*}
  */
-DisplayObject.prototype.renderFilter = function (ctx, matrix, colorTransform, stage, cacheKey)
+DisplayObject.prototype.renderFilter = function (ctx, colorTransform, stage, cacheKey)
 {
     var filters = this.getFilters();
-    if (stage.clipMc || !filters || !filters.length) {
+    if (stage.clipMc || !filters || !filters.length || ctx.canvas.width === 0 || ctx.canvas.height === 0) {
         return ctx;
     }
 
@@ -2139,7 +2139,7 @@ DisplayObject.prototype.renderFilter = function (ctx, matrix, colorTransform, st
             var filter = filters[i];
             i = (i + 1)|0;
 
-            cache = filter.render(cache, matrix, colorTransform, stage);
+            cache = filter.render(cache, colorTransform, stage);
         }
 
         this._filterCacheKey = cacheKey;

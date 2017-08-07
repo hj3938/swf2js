@@ -123,12 +123,11 @@ Object.defineProperties(GlowFilter.prototype, {
 
 /**
  * @param cache
- * @param matrix
  * @param colorTransform
  * @param stage
  * @returns {*}
  */
-GlowFilter.prototype.render = function (cache, matrix, colorTransform, stage)
+GlowFilter.prototype.render = function (cache, colorTransform, stage)
 {
     var strength = this.strength;
     if (strength <= 0) {
@@ -137,7 +136,7 @@ GlowFilter.prototype.render = function (cache, matrix, colorTransform, stage)
 
     var blurFilter = new BlurFilter(this.blurX, this.blurY, this.quality);
 
-    var ctx    = blurFilter.render(cache, matrix, colorTransform, stage);
+    var ctx    = blurFilter.render(cache, colorTransform, stage);
     var width  = (ctx.canvas.width  + cache._offsetX)|0;
     var height = (ctx.canvas.height + cache._offsetY)|0;
 

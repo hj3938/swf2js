@@ -168,12 +168,11 @@ Object.defineProperties(GradientGlowFilter.prototype, {
 
 /**
  * @param cache
- * @param matrix
  * @param colorTransform
  * @param stage
  * @returns {*}
  */
-GradientGlowFilter.prototype.render = function (cache, matrix, colorTransform, stage)
+GradientGlowFilter.prototype.render = function (cache, colorTransform, stage)
 {
     var strength = this.strength;
     if (!strength) {
@@ -217,7 +216,7 @@ GradientGlowFilter.prototype.render = function (cache, matrix, colorTransform, s
     var type     = this.type;
 
     var blurFilter = new BlurFilter(blurX, blurY, quality);
-    var ctx = blurFilter.render(cache, matrix, colorTransform, stage);
+    var ctx = blurFilter.render(cache, colorTransform, stage);
     if (strength > 0) {
         i = 1;
         while (i < strength) {

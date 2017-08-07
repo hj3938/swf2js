@@ -2475,12 +2475,11 @@ Object.defineProperties(BevelFilter.prototype, {
 
 /**
  * @param cache
- * @param matrix
  * @param colorTransform
  * @param stage
  * @returns {*}
  */
-BevelFilter.prototype.render = function (cache, matrix, colorTransform, stage)
+BevelFilter.prototype.render = function (cache, colorTransform, stage)
 {
     var filterColor, color;
 
@@ -2500,7 +2499,7 @@ BevelFilter.prototype.render = function (cache, matrix, colorTransform, stage)
 
     // blur
     var blurFilter = new BlurFilter(blurX, blurY, quality);
-    var ctx        = blurFilter.render(cache, matrix, colorTransform, stage);
+    var ctx        = blurFilter.render(cache, colorTransform, stage);
     var canvas     = ctx.canvas;
     var _offsetX   = ctx._offsetX;
     var _offsetY   = ctx._offsetY;
@@ -2682,12 +2681,11 @@ Object.defineProperties(BlurFilter.prototype, {
 
 /**
  * @param cache
- * @param matrix
  * @param colorTransform
  * @param stage
  * @returns {*}
  */
-BlurFilter.prototype.render = function (cache, matrix, colorTransform, stage)
+BlurFilter.prototype.render = function (cache, colorTransform, stage)
 {
     var _blurX = this.blurX;
     var _blurY = this.blurY;
@@ -3017,15 +3015,14 @@ Object.defineProperties(ColorMatrixFilter.prototype, {
 
 /**
  * @param cache
- * @param matrix
  * @param colorTransform
  * @param stage
  * @returns {*}
  */
-ColorMatrixFilter.prototype.render = function (cache, matrix, colorTransform, stage)
+ColorMatrixFilter.prototype.render = function (cache, colorTransform, stage)
 {
-    var mtx = this.matrix;
-    if (!mtx) {
+    var matrix = this.matrix;
+    if (!matrix) {
         return cache;
     }
 
@@ -3044,32 +3041,32 @@ ColorMatrixFilter.prototype.render = function (cache, matrix, colorTransform, st
     var length    = pxData.length;
 
     // red
-    var m0 = mtx[0],
-        m1 = mtx[1],
-        m2 = mtx[2],
-        m3 = mtx[3],
-        m4 = mtx[4];
+    var m0 = matrix[0];
+    var m1 = matrix[1];
+    var m2 = matrix[2];
+    var m3 = matrix[3];
+    var m4 = matrix[4];
 
     // green
-    var m5 = mtx[5],
-        m6 = mtx[6],
-        m7 = mtx[7],
-        m8 = mtx[8],
-        m9 = mtx[9];
+    var m5 = matrix[5];
+    var m6 = matrix[6];
+    var m7 = matrix[7];
+    var m8 = matrix[8];
+    var m9 = matrix[9];
 
     // blue
-    var m10 = mtx[10],
-        m11 = mtx[11],
-        m12 = mtx[12],
-        m13 = mtx[13],
-        m14 = mtx[14];
+    var m10 = matrix[10];
+    var m11 = matrix[11];
+    var m12 = matrix[12];
+    var m13 = matrix[13];
+    var m14 = matrix[14];
 
     // alpha
-    var m15 = mtx[15],
-        m16 = mtx[16],
-        m17 = mtx[17],
-        m18 = mtx[18],
-        m19 = mtx[19];
+    var m15 = matrix[15];
+    var m16 = matrix[16];
+    var m17 = matrix[17];
+    var m18 = matrix[18];
+    var m19 = matrix[19];
 
     var R, G, B, A;
     var i = 0;
@@ -3136,7 +3133,7 @@ ConvolutionFilter.prototype.constructor = ConvolutionFilter;
 /**
  * properties
  */
-Object.defineProperties(BevelFilter.prototype, {
+Object.defineProperties(ConvolutionFilter.prototype, {
     matrixX: {
         get: function () {
             return this._matrixX;
@@ -3183,6 +3180,7 @@ Object.defineProperties(BevelFilter.prototype, {
         },
         set: function (bias) {
             if (!this.$isNaN(bias)) {
+                bias = (bias > 255) ? 255 : (-255 > bias) ? -255: bias;
                 this._bias = bias;
             }
         }
@@ -3232,16 +3230,117 @@ Object.defineProperties(BevelFilter.prototype, {
 
 /**
  * @param cache
- * @param matrix
  * @param colorTransform
  * @param stage
  * @returns {*}
  */
-ConvolutionFilter.prototype.render = function (cache, matrix, colorTransform, stage)
+ConvolutionFilter.prototype.render = function (cache, colorTransform, stage)
 {
+    var bias    = this.bias;
+    var matrix  = this.matrix;
+    var divisor = this.divisor;
+    var preserveAlpha = this.preserveAlpha;
+
+    var canvas = cache.canvas;
+    var width  = canvas.width|0;
+    var height = canvas.height|0;
+    var pxData = cache.getImageData(0, 0, width, height);
+    var data   = pxData.data;
+
+    var w    = this.matrixX;
+    var h    = this.matrixY;
+    var half = (h / 2)|0;
+
+    var tmp    = this.$cacheStore.getCanvas();
+    tmp.width  = width;
+    tmp.height = height;
+    var ctx    = tmp.getContext("2d");
+    var pxOut  = ctx.createImageData(width, height);
+    var out    = pxOut.data;
+
+    var y = 0;
+    while (y < height) {
+        var step = (y * width);
+
+        var x = 0;
+        while (x < width) {
+            var px = (step + x) << 2;
+
+            var r = 0;
+            var g = 0;
+            var b = 0;
+            var a = 0;
+
+            var cy = 0;
+            while (cy < h) {
+                var cx = 0;
+                while (cx < w) {
+                    var scy = this.$min(height - 1, this.$max(0, y + cy - half));
+                    var scx = this.$min(width  - 1, this.$max(0, x + cx - half));
+                    var cpx = (scy * width + scx) << 2;
+
+                    var idx = cy * h + cx;
+                    r = (r + data[cpx    ] * matrix[idx])|0;
+                    g = (g + data[cpx + 1] * matrix[idx])|0;
+                    b = (b + data[cpx + 2] * matrix[idx])|0;
+                    if (!preserveAlpha) {
+                        a = (a + data[cpx + 3] * matrix[idx])|0;
+                    }
+
+                    cx = (cx + 1)|0;
+                }
+                cy = (cy + 1)|0;
+            }
+
+            r = (r > 255) ? 255 : (r < 0) ? 0 : r;
+            g = (g > 255) ? 255 : (g < 0) ? 0 : g;
+            b = (b > 255) ? 255 : (b < 0) ? 0 : b;
 
 
-    return cache;
+            out[px    ] = r / divisor + bias;
+            out[px + 1] = g / divisor + bias;
+            out[px + 2] = b / divisor + bias;
+
+            // alpha
+            a = (preserveAlpha)
+                ? data[px + 3] + bias
+                : (a > 255) ? 255 : (a < 0) ? 0 : a;
+
+            out[px + 3] = a / divisor + bias;
+
+            x = (x + 1)|0;
+        }
+
+        y = (y + 1)|0;
+    }
+
+    var offset = 0;
+    if (!this.clamp) {
+        offset = 2;
+        width  = (width  + 4)|0;
+        height = (height + 4)|0;
+
+        // resize
+        tmp.width  = width;
+        tmp.height = height;
+        ctx = tmp.getContext("2d");
+
+        // execute
+        var cRGBA = this.$intToRGBA(this.color, this.alpha * 100);
+        ctx.strokeStyle = "rgba("+ cRGBA.R +", "+ cRGBA.G +", "+ cRGBA.B +", "+ cRGBA.A +")";
+        ctx.moveTo(0, 0);
+        ctx.lineTo(width, 0);
+        ctx.lineTo(width, height);
+        ctx.lineTo(0, height);
+        ctx.lineTo(0, 0);
+        ctx.stroke();
+    }
+
+    ctx.putImageData(pxOut, offset, offset);
+    ctx._offsetX = cache._offsetX + offset;
+    ctx._offsetY = cache._offsetY + offset;
+
+    return ctx;
 };
 /**
  * @constructor
@@ -3372,12 +3471,11 @@ Object.defineProperties(DisplacementMapFilter.prototype, {
 
 /**
  * @param cache
- * @param matrix
  * @param colorTransform
  * @param stage
  * @returns {*}
  */
-DisplacementMapFilter.prototype.render = function (cache, matrix, colorTransform, stage)
+DisplacementMapFilter.prototype.render = function (cache, colorTransform, stage)
 {
     return cache;
 };
@@ -3552,11 +3650,10 @@ Object.defineProperties(DropShadowFilter.prototype, {
 
 /**
  * @param cache
- * @param matrix
  * @param colorTransform
  * @param stage
  */
-DropShadowFilter.prototype.render = function (cache, matrix, colorTransform, stage)
+DropShadowFilter.prototype.render = function (cache, colorTransform, stage)
 {
     var strength = this.strength;
     if (strength <= 0) {
@@ -3572,7 +3669,7 @@ DropShadowFilter.prototype.render = function (cache, matrix, colorTransform, sta
 
     // blur
     var blurFilter = new BlurFilter(blurX, blurY, quality);
-    var ctx        = blurFilter.render(cache, matrix, colorTransform, stage);
+    var ctx        = blurFilter.render(cache, colorTransform, stage);
 
     // dropShadow
     var filterColor = this.$intToRGBA(this.color);
@@ -3789,12 +3886,11 @@ Object.defineProperties(GlowFilter.prototype, {
 
 /**
  * @param cache
- * @param matrix
  * @param colorTransform
  * @param stage
  * @returns {*}
  */
-GlowFilter.prototype.render = function (cache, matrix, colorTransform, stage)
+GlowFilter.prototype.render = function (cache, colorTransform, stage)
 {
     var strength = this.strength;
     if (strength <= 0) {
@@ -3803,7 +3899,7 @@ GlowFilter.prototype.render = function (cache, matrix, colorTransform, stage)
 
     var blurFilter = new BlurFilter(this.blurX, this.blurY, this.quality);
 
-    var ctx    = blurFilter.render(cache, matrix, colorTransform, stage);
+    var ctx    = blurFilter.render(cache, colorTransform, stage);
     var width  = (ctx.canvas.width  + cache._offsetX)|0;
     var height = (ctx.canvas.height + cache._offsetY)|0;
 
@@ -4002,12 +4098,11 @@ Object.defineProperties(GradientBevelFilter.prototype, {
 
 /**
  * @param cache
- * @param matrix
  * @param colorTransform
  * @param stage
  * @returns {*}
  */
-GradientBevelFilter.prototype.render = function (cache, matrix, colorTransform, stage)
+GradientBevelFilter.prototype.render = function (cache, colorTransform, stage)
 {
     var length, i, css, color, rgba, imageData, pxGrad, pxData, idx;
 
@@ -4023,7 +4118,7 @@ GradientBevelFilter.prototype.render = function (cache, matrix, colorTransform, 
 
     // blur
     var blurFilter = new BlurFilter(blurX, blurY, quality);
-    var ctx        = blurFilter.render(cache, matrix, colorTransform, stage);
+    var ctx        = blurFilter.render(cache, colorTransform, stage);
     if (strength > 0) {
         i = 1;
         while (i < strength) {
@@ -4366,12 +4461,11 @@ Object.defineProperties(GradientGlowFilter.prototype, {
 
 /**
  * @param cache
- * @param matrix
  * @param colorTransform
  * @param stage
  * @returns {*}
  */
-GradientGlowFilter.prototype.render = function (cache, matrix, colorTransform, stage)
+GradientGlowFilter.prototype.render = function (cache, colorTransform, stage)
 {
     var strength = this.strength;
     if (!strength) {
@@ -4415,7 +4509,7 @@ GradientGlowFilter.prototype.render = function (cache, matrix, colorTransform, s
     var type     = this.type;
 
     var blurFilter = new BlurFilter(blurX, blurY, quality);
-    var ctx = blurFilter.render(cache, matrix, colorTransform, stage);
+    var ctx = blurFilter.render(cache, colorTransform, stage);
     if (strength > 0) {
         i = 1;
         while (i < strength) {
@@ -4600,12 +4694,11 @@ Object.defineProperties(ShaderFilter.prototype, {
 
 /**
  * @param cache
- * @param matrix
  * @param colorTransform
  * @param stage
  * @returns {*}
  */
-ShaderFilter.prototype.render = function (cache, matrix, colorTransform, stage)
+ShaderFilter.prototype.render = function (cache, colorTransform, stage)
 {
     return cache;
 };
@@ -6611,12 +6704,13 @@ DisplayObject.prototype.preRender = function (ctx, matrix, colorTransform, stage
  */
 DisplayObject.prototype.postRender = function(ctx, matrix, colorTransform, stage, obj)
 {
+
     var cache    = obj.preCtx;
     var isFilter = obj.isFilter;
     var cacheKey = obj.cacheKey;
 
     if (isFilter && cacheKey) {
-        cache = this.renderFilter(cache, matrix, colorTransform, stage, cacheKey);
+        cache = this.renderFilter(cache, colorTransform, stage, cacheKey);
     }
 
     var xMin = obj.xMin;
@@ -6723,16 +6817,15 @@ DisplayObject.prototype.getFilterKey = function (filters)
 
 /**
  * @param ctx
- * @param matrix
  * @param colorTransform
  * @param stage
  * @param cacheKey
  * @returns {*}
  */
-DisplayObject.prototype.renderFilter = function (ctx, matrix, colorTransform, stage, cacheKey)
+DisplayObject.prototype.renderFilter = function (ctx, colorTransform, stage, cacheKey)
 {
     var filters = this.getFilters();
-    if (stage.clipMc || !filters || !filters.length) {
+    if (stage.clipMc || !filters || !filters.length || ctx.canvas.width === 0 || ctx.canvas.height === 0) {
         return ctx;
     }
 
@@ -6754,7 +6847,7 @@ DisplayObject.prototype.renderFilter = function (ctx, matrix, colorTransform, st
             var filter = filters[i];
             i = (i + 1)|0;
 
-            cache = filter.render(cache, matrix, colorTransform, stage);
+            cache = filter.render(cache, colorTransform, stage);
         }
 
         this._filterCacheKey = cacheKey;
@@ -9543,8 +9636,8 @@ MovieClip.prototype.loadMovie = function (url, target, SendVarsMethod)
 
                         var loadStage = new Stage();
                         self.$loadStages[loadStage.getId()] = loadStage;
-                        targetMc._url = url;
                         targetMc.reset();
+                        targetMc._url = url;
                         loadStage.setParent(targetMc);
                         targetMc.setLoadStage(loadStage);
                         loadStage.parse(data, targetUrl);
@@ -9770,7 +9863,6 @@ MovieClip.prototype.loadVariables = function (url, target, method)
  */
 MovieClip.prototype.hitTest = function ()
 {
-    var _this = this;
     var targetMc = arguments[0];
     var x = 0;
     var y = 0;
@@ -9784,7 +9876,7 @@ MovieClip.prototype.hitTest = function ()
         }
     }
 
-    var bounds = _this.getHitBounds();
+    var bounds = this.getHitBounds();
     var xMax = bounds.xMax;
     var xMin = bounds.xMin;
     var yMax = bounds.yMax;
@@ -9801,26 +9893,25 @@ MovieClip.prototype.hitTest = function ()
         if (x >= xMin && x <= xMax && y >= yMin && y <= yMax) {
             if (bool) {
                 var matrix = [1,0,0,1,0,0];
-                var mc = _this;
-                var _multiplicationMatrix = _this.multiplicationMatrix;
+                var mc = this;
                 while (true) {
                     var parent = mc.getParent();
                     if (!parent.getParent()) {
                         break;
                     }
-                    matrix = _multiplicationMatrix(parent.getMatrix(), matrix);
+                    matrix = this.$multiplicationMatrix(parent.getMatrix(), matrix);
                     mc = parent;
                 }
-                var _root = _this.getDisplayObject("_root");
+                var _root = this.getDisplayObject("_root");
                 var stage = _root.getStage();
                 var ctx = stage.hitContext;
                 var scale = stage.getScale();
                 x *= scale;
                 y *= scale;
-                y *= _devicePixelRatio;
-                x *= _devicePixelRatio;
+                y *= this.$devicePixelRatio;
+                x *= this.$devicePixelRatio;
 
-                return _this.renderHitTest(ctx, matrix, stage, x, y);
+                return this.renderHitTest(ctx, matrix, stage, x, y);
             } else {
                 return true;
             }
@@ -12808,7 +12899,7 @@ Stage.prototype.parse = function (data, url)
     }
 
     var mc  = this.getParent();
-    mc._url = location.href;
+    mc._url = (!mc._url) ? location.href : mc._url;
     if (this.setSwfHeader(bitio, swftag)) {
 
         // parse
@@ -12925,9 +13016,9 @@ Stage.prototype.parseImage = function ()
         var width  = this.width|0;
         var height = this.height|0;
 
-        var canvas       = this.$cacheStore.getCanvas();
-        canvas.width     = width;
-        canvas.height    = height;
+        var canvas    = self.$cacheStore.getCanvas();
+        canvas.width  = width;
+        canvas.height = height;
 
         var imageContext = canvas.getContext("2d");
         imageContext.drawImage(this, 0, 0, width, height);
@@ -13004,7 +13095,7 @@ Stage.prototype.parseImage = function ()
             yMin: 0,
             yMax: shapeHeight
         };
-        var data = this.$vtc.convert(shape);
+        var data = self.$vtc.convert(shape);
 
         self.setCharacter(2, {
             tagType: 22,

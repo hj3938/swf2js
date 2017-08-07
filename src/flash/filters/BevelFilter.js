@@ -180,12 +180,11 @@ Object.defineProperties(BevelFilter.prototype, {
 
 /**
  * @param cache
- * @param matrix
  * @param colorTransform
  * @param stage
  * @returns {*}
  */
-BevelFilter.prototype.render = function (cache, matrix, colorTransform, stage)
+BevelFilter.prototype.render = function (cache, colorTransform, stage)
 {
     var filterColor, color;
 
@@ -205,7 +204,7 @@ BevelFilter.prototype.render = function (cache, matrix, colorTransform, stage)
 
     // blur
     var blurFilter = new BlurFilter(blurX, blurY, quality);
-    var ctx        = blurFilter.render(cache, matrix, colorTransform, stage);
+    var ctx        = blurFilter.render(cache, colorTransform, stage);
     var canvas     = ctx.canvas;
     var _offsetX   = ctx._offsetX;
     var _offsetY   = ctx._offsetY;

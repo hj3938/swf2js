@@ -38,15 +38,14 @@ Object.defineProperties(ColorMatrixFilter.prototype, {
 
 /**
  * @param cache
- * @param matrix
  * @param colorTransform
  * @param stage
  * @returns {*}
  */
-ColorMatrixFilter.prototype.render = function (cache, matrix, colorTransform, stage)
+ColorMatrixFilter.prototype.render = function (cache, colorTransform, stage)
 {
-    var mtx = this.matrix;
-    if (!mtx) {
+    var matrix = this.matrix;
+    if (!matrix) {
         return cache;
     }
 
@@ -65,32 +64,32 @@ ColorMatrixFilter.prototype.render = function (cache, matrix, colorTransform, st
     var length    = pxData.length;
 
     // red
-    var m0 = mtx[0],
-        m1 = mtx[1],
-        m2 = mtx[2],
-        m3 = mtx[3],
-        m4 = mtx[4];
+    var m0 = matrix[0];
+    var m1 = matrix[1];
+    var m2 = matrix[2];
+    var m3 = matrix[3];
+    var m4 = matrix[4];
 
     // green
-    var m5 = mtx[5],
-        m6 = mtx[6],
-        m7 = mtx[7],
-        m8 = mtx[8],
-        m9 = mtx[9];
+    var m5 = matrix[5];
+    var m6 = matrix[6];
+    var m7 = matrix[7];
+    var m8 = matrix[8];
+    var m9 = matrix[9];
 
     // blue
-    var m10 = mtx[10],
-        m11 = mtx[11],
-        m12 = mtx[12],
-        m13 = mtx[13],
-        m14 = mtx[14];
+    var m10 = matrix[10];
+    var m11 = matrix[11];
+    var m12 = matrix[12];
+    var m13 = matrix[13];
+    var m14 = matrix[14];
 
     // alpha
-    var m15 = mtx[15],
-        m16 = mtx[16],
-        m17 = mtx[17],
-        m18 = mtx[18],
-        m19 = mtx[19];
+    var m15 = matrix[15];
+    var m16 = matrix[16];
+    var m17 = matrix[17];
+    var m18 = matrix[18];
+    var m19 = matrix[19];
 
     var R, G, B, A;
     var i = 0;

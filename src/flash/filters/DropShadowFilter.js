@@ -160,11 +160,10 @@ Object.defineProperties(DropShadowFilter.prototype, {
 
 /**
  * @param cache
- * @param matrix
  * @param colorTransform
  * @param stage
  */
-DropShadowFilter.prototype.render = function (cache, matrix, colorTransform, stage)
+DropShadowFilter.prototype.render = function (cache, colorTransform, stage)
 {
     var strength = this.strength;
     if (strength <= 0) {
@@ -180,7 +179,7 @@ DropShadowFilter.prototype.render = function (cache, matrix, colorTransform, sta
 
     // blur
     var blurFilter = new BlurFilter(blurX, blurY, quality);
-    var ctx        = blurFilter.render(cache, matrix, colorTransform, stage);
+    var ctx        = blurFilter.render(cache, colorTransform, stage);
 
     // dropShadow
     var filterColor = this.$intToRGBA(this.color);

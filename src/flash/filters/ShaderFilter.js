@@ -80,12 +80,11 @@ Object.defineProperties(ShaderFilter.prototype, {
 
 /**
  * @param cache
- * @param matrix
  * @param colorTransform
  * @param stage
  * @returns {*}
  */
-ShaderFilter.prototype.render = function (cache, matrix, colorTransform, stage)
+ShaderFilter.prototype.render = function (cache, colorTransform, stage)
 {
     return cache;
 };

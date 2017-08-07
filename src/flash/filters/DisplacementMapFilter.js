@@ -127,12 +127,11 @@ Object.defineProperties(DisplacementMapFilter.prototype, {
 
 /**
  * @param cache
- * @param matrix
  * @param colorTransform
  * @param stage
  * @returns {*}
  */
-DisplacementMapFilter.prototype.render = function (cache, matrix, colorTransform, stage)
+DisplacementMapFilter.prototype.render = function (cache, colorTransform, stage)
 {
     return cache;
 };

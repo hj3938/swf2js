@@ -168,12 +168,11 @@ Object.defineProperties(GradientBevelFilter.prototype, {
 
 /**
  * @param cache
- * @param matrix
  * @param colorTransform
  * @param stage
  * @returns {*}
  */
-GradientBevelFilter.prototype.render = function (cache, matrix, colorTransform, stage)
+GradientBevelFilter.prototype.render = function (cache, colorTransform, stage)
 {
     var length, i, css, color, rgba, imageData, pxGrad, pxData, idx;
 
@@ -189,7 +188,7 @@ GradientBevelFilter.prototype.render = function (cache, matrix, colorTransform, 
 
     // blur
     var blurFilter = new BlurFilter(blurX, blurY, quality);
-    var ctx        = blurFilter.render(cache, matrix, colorTransform, stage);
+    var ctx        = blurFilter.render(cache, colorTransform, stage);
     if (strength > 0) {
         i = 1;
         while (i < strength) {

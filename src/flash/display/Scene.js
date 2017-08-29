@@ -1,0 +1,4 @@
+/**
+ * @constructor
+ */
+var Scene = function () {};

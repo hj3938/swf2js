@@ -1,0 +1,4 @@
+/**
+ * @constructor
+ */
+var AVLoader = function () {};

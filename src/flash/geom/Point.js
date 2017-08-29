@@ -13,6 +13,12 @@ var Point = function (x, y)
 };
 
 /**
+ * util
+ */
+Point.prototype = Object.create(OriginalObject.prototype);
+Point.prototype.constructor = Point;
+
+/**
  * properties
  */
 Object.defineProperties(Point.prototype, {

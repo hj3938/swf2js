@@ -1,3 +1,6 @@
+/**
+ * @constructor
+ */
 var BitmapDataChannel = function () {};
 BitmapDataChannel.prototype.ALPHA = 8;
 BitmapDataChannel.prototype.BLUE  = 4;

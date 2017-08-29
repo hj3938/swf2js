@@ -5,6 +5,3 @@ var OriginalObject = function () {};
  */
 OriginalObject.prototype = Object.create(Util.prototype);
 OriginalObject.prototype.constructor = OriginalObject;
-
-
-

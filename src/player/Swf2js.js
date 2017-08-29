@@ -9,65 +9,27 @@ var Swf2js = function () {};
 Swf2js.prototype = Object.create(Util.prototype);
 Swf2js.prototype.constructor = Swf2js;
 
-/**
- * @type {DropShadowFilter}
- */
-Swf2js.prototype.DropShadowFilter = DropShadowFilter;
 
 /**
- * @type {BlurFilter}
+ * @param path
+ * @returns {Packages}
  */
-Swf2js.prototype.BlurFilter = BlurFilter;
+Swf2js.prototype.getPackage = function (path)
+{
+    var packages = new Packages();
 
-/**
- * @type {GlowFilter}
- */
-Swf2js.prototype.GlowFilter = GlowFilter;
+    var names  = path.split(".");
+    var length = names.length;
 
-/**
- * @type {BevelFilter}
- */
-Swf2js.prototype.BevelFilter = BevelFilter;
+    var idx = 0;
+    while (idx < length) {
+        var name = names[idx];
+        packages = packages[name];
+        idx = (idx + 1)|0;
+    }
 
-/**
- * @type {GradientGlowFilter}
- */
-Swf2js.prototype.GradientGlowFilter = GradientGlowFilter;
-
-/**
- * @type {ConvolutionFilter}
- */
-Swf2js.prototype.ConvolutionFilter = ConvolutionFilter;
-
-/**
- * @type {ColorMatrixFilter}
- */
-Swf2js.prototype.ColorMatrixFilter = ColorMatrixFilter;
-
-/**
- * @type {GradientBevelFilter}
- */
-Swf2js.prototype.GradientBevelFilter = GradientBevelFilter;
-
-/**
- * @type {ConvolutionFilter}
- */
-Swf2js.prototype.ConvolutionFilter = ConvolutionFilter;
-
-/**
- * @type {ShaderFilter}
- */
-Swf2js.prototype.ShaderFilter = ShaderFilter;
-
-/**
- * @type {DisplacementMapFilter}
- */
-Swf2js.prototype.DisplacementMapFilter = DisplacementMapFilter;
-
-/**
- * @type {BitmapFilter}
- */
-Swf2js.prototype.BitmapFilter = BitmapFilter;
+    return packages;
+};
 
 /**
  * @param url

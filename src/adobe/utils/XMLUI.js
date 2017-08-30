@@ -1,0 +1,4 @@
+/**
+ * @constructor
+ */
+var XMLUI = function () {};

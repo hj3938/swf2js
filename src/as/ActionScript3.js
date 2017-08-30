@@ -1659,9 +1659,8 @@ ActionScript3.prototype.ActionGetGlobalsLot = function (stack, index)
  */
 ActionScript3.prototype.ActionGetLex = function (stack, index)
 {
-    var _this = this;
-    var name = _this.names[index];
-    stack[stack.length] = _this.getProperty(name);
+    var name = this.names[index];
+    stack[stack.length] = this.getProperty(name);
 };
 
 /**

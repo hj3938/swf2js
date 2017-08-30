@@ -11,7 +11,35 @@ var Packages = function (stage)
  * @type {*}
  */
 Packages.prototype = {
+    "adobe": {
+        "utils": {
+            "CustomActions": CustomActions,
+            "XMLUI": XMLUI
+        }
+    },
+    "com": {
+        "adobe": {
+            "viewsource": {
+                "ViewSource": ViewSource
+            }
+        }
+    },
+    "fl": {
+        "accessibility": {
+            "AccImpl": AccImpl
+        }
+    },
     "flash": {
+        "accessibility": {
+            "Accessibility": Accessibility,
+            "AccessibilityImplementation": AccessibilityImplementation,
+            "AccessibilityProperties": AccessibilityProperties
+        },
+        "desktop": {
+            "Clipboard": Clipboard,
+            "ClipboardFormats": ClipboardFormats,
+            "ClipboardTransferMode": ClipboardTransferMode
+        },
         "display": {
             "ActionScriptVersion": ActionScriptVersion,
             "AVLoader": AVLoader,
@@ -72,6 +100,15 @@ Packages.prototype = {
             "SWFVersion": SWFVersion,
             "TriangleCulling": TriangleCulling
         },
+        "display3D": {
+            "Program3D": Program3D,
+            "textures": {
+                "CubeTexture": CubeTexture,
+                "RectangleTexture": RectangleTexture,
+                "Texture": Texture,
+                "VideoTexture": VideoTexture
+            }
+        },
         "geom": {
             "ColorTransform": ColorTransform,
             "Matrix": Matrix,
@@ -84,7 +121,22 @@ Packages.prototype = {
             "Utils3D": Utils3D,
             "Vector3D": Vector3D
         },
+        "errors": {
+            "EOFError": EOFError,
+            "IllegalOperationError": IllegalOperationError,
+            "InvalidSWFError": InvalidSWFError,
+            "IOError": IOError,
+            "MemoryError": MemoryError,
+            "ScriptTimeoutError": ScriptTimeoutError,
+            "StackOverflowError": StackOverflowError
+        },
         "events": {
+            "AccelerometerEvent": AccelerometerEvent,
+            "ActivityEvent": ActivityEvent,
+            "AsyncErrorEvent": AsyncErrorEvent,
+            "AVDictionaryDataEvent": AVDictionaryDataEvent,
+            "AVHTTPStatusEvent": AVHTTPStatusEvent,
+            "AVPauseAtPeriodEndEvent": AVPauseAtPeriodEndEvent,
             "Event": Event,
             "EventDispatcher": EventDispatcher,
             "MouseEvent": Util.prototype.$clipEvent
@@ -207,6 +259,11 @@ Packages.prototype = {
 
                 return true;
             }
+        },
+        "xml": {
+            "XMLDocument": XMLDocument,
+            "XMLNode": XMLNode,
+            "XMLNodeType": XMLNodeType
         }
     }
 };

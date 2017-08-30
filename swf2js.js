@@ -813,6 +813,22 @@ var instanceId = 0;
 
 })(window);
 /**
+ * @constructor
+ */
+var CustomActions = function () {};
+/**
+ * @constructor
+ */
+var XMLUI = function () {};
+/**
+ * @constructor
+ */
+var ViewSource = function () {};
+/**
+ * @constructor
+ */
+var AccImpl = function () {};
+/**
  * @param mc
  * @constructor
  */
@@ -1928,6 +1944,156 @@ Swf2jsEvent.prototype.RIGHT_MOUSE_DOWN  = "rightMouseDown";
 Swf2jsEvent.prototype.RIGHT_MOUSE_UP    = "rightMouseUp";
 Swf2jsEvent.prototype.ROLL_OUT          = "rollOut";
 Swf2jsEvent.prototype.ROLL_OVER         = "rollOver";
+/**
+ * @param message
+ * @constructor
+ */
+var EOFError = function (message)
+{
+    this._message = "";
+};
+/**
+ * @param message
+ * @constructor
+ */
+var IOError = function (message)
+{
+    this._message = "";
+};
+
+/**
+ * @param message
+ * @constructor
+ */
+var IllegalOperationError = function (message)
+{
+    this._message = "";
+};
+
+/**
+ * @param message
+ * @param id
+ * @constructor
+ */
+var InvalidSWFError = function (message, id)
+{
+    this._message = "";
+    this._id      = 0;
+};
+/**
+ * @param message
+ * @constructor
+ */
+var MemoryError = function (message)
+{
+    this._message = "";
+};
+/**
+ * @param message
+ * @constructor
+ */
+var ScriptTimeoutError = function (message)
+{
+    this._message = "";
+};
+/**
+ * @param message
+ * @constructor
+ */
+var StackOverflowError = function (message)
+{
+    this._message = "";
+};
+/**
+ * @param type
+ * @param bubbles
+ * @param cancelable
+ * @param init_dictionary
+ * @param init_dataTime
+ * @constructor
+ */
+var AVDictionaryDataEvent = function (
+    type, bubbles, cancelable,
+    init_dictionary, init_dataTime
+)
+{
+    this._type            = "";
+    this._bubbles         = false;
+    this._cancelable      = false;
+    this._init_dictionary = null;
+    this.init_dataTime    = null;
+};
+/**
+ * @param type
+ * @param bubbles
+ * @param cancelable
+ * @param status
+ * @param responseUrl
+ * @constructor
+ */
+var AVHTTPStatusEvent = function (type, bubbles, cancelable, status, responseUrl)
+{
+    this._type        = "";
+    this._bubbles     = false;
+    this._cancelable  = false;
+    this._status      = 0;
+    this._responseUrl = null;
+};
+
+var AVPauseAtPeriodEndEvent = function (type, ) {};
+/**
+ * @param type
+ * @param bubbles
+ * @param cancelable
+ * @param timestamp
+ * @param accelerationX
+ * @param accelerationY
+ * @param accelerationZ
+ * @constructor
+ */
+var AccelerometerEvent = function (
+    type, bubbles, cancelable, timestamp,
+    accelerationX, accelerationY, accelerationZ
+)
+{
+    this._type          = "";
+    this._bubbles       = false;
+    this._cancelable    = false;
+    this._timestamp     = 0;
+    this._accelerationX = 0;
+    this._accelerationY = 0;
+    this._accelerationZ = 0;
+};
+/**
+ * @param type
+ * @param bubbles
+ * @param cancelable
+ * @param activating
+ * @constructor
+ */
+var ActivityEvent = function (type, bubbles, cancelable, activating)
+{
+    this._type       = "";
+    this._bubbles    = false;
+    this._cancelable = false;
+    this._activating = false;
+};
+/**
+ * @param type
+ * @param bubbles
+ * @param cancelable
+ * @param text
+ * @param error
+ * @constructor
+ */
+var AsyncErrorEvent = function (type, bubbles, cancelable, text, error)
+{
+    this._type       = "";
+    this._bubbles    = false;
+    this._cancelable = false;
+    this._text       = "";
+    this._error      = null;
+};
 /**
  * @param type
  * @constructor
@@ -4923,6 +5089,14 @@ ShaderFilter.prototype.render = function (cache, colorTransform, stage)
 {
     return cache;
 };
+/**
+ * @constructor
+ */
+var Accessibility = function () {};
+/**
+ * @constructor
+ */
+var AccessibilityImplementation = function () {};
 /**
  * @constructor
  */
@@ -15339,6 +15513,45 @@ var TriangleCulling = function () {};
 TriangleCulling.prototype.NEGATIVE = "negative";
 TriangleCulling.prototype.NONE     = "none";
 TriangleCulling.prototype.POSITIVE = "positive";
+/**
+ * @constructor
+ */
+var Program3D = function () {};
+/**
+ * @constructor
+ */
+var CubeTexture = function () {};
+/**
+ * @constructor
+ */
+var RectangleTexture = function () {};
+/**
+ * @constructor
+ */
+var Texture = function () {};
+/**
+ * @constructor
+ */
+var VideoTexture = function () {};
+/**
+ * @constructor
+ */
+var Clipboard = function () {};
+/**
+ * @constructor
+ */
+var ClipboardFormats = function () {};
+ClipboardFormats.prototype.HTML_FORMAT      = "air:html";
+ClipboardFormats.prototype.RICH_TEXT_FORMAT = "air:rtf";
+ClipboardFormats.prototype.TEXT_FORMA       = "air:text";
+/**
+ * @constructor
+ */
+var ClipboardTransferMode = function () {};
+ClipboardTransferMode.prototype.CLONE_ONLY         = "cloneOnly";
+ClipboardTransferMode.prototype.CLONE_PREFERRED    = "clonePreferred";
+ClipboardTransferMode.prototype.ORIGINAL_ONLY      = "originalOnly";
+ClipboardTransferMode.prototype.ORIGINAL_PREFERRED = "originalPreferred";
 var AntiAliasType = function () {};
 
 var CSMSettings = function () {};
@@ -17864,6 +18077,33 @@ var URLRequestMethod = function () {};
 var URLStream = function () {};
 var URLVariables = function () {};
 var XMLSocket = function () {};
+/**
+ * @param source
+ * @constructor
+ */
+var XMLDocument = function (source)
+{
+    this._source = null;
+};
+
+
+
+/**
+ * @param type
+ * @param value
+ * @constructor
+ */
+var XMLNode = function (type, value)
+{
+    this._type  = null;
+    this._value = null;
+};
+/**
+ * @constructor
+ */
+var XMLNodeType = function () {};
+XMLNodeType.prototype.ELEMENT_NODE = 1;
+XMLNodeType.prototype.TEXT_NODE    = 3;
 /**
  * @param data
  * @param constantPool
@@ -22550,9 +22790,8 @@ ActionScript3.prototype.ActionGetGlobalsLot = function (stack, index)
  */
 ActionScript3.prototype.ActionGetLex = function (stack, index)
 {
-    var _this = this;
-    var name = _this.names[index];
-    stack[stack.length] = _this.getProperty(name);
+    var name = this.names[index];
+    stack[stack.length] = this.getProperty(name);
 };
 
 /**
@@ -23640,7 +23879,35 @@ var Packages = function (stage)
  * @type {*}
  */
 Packages.prototype = {
+    "adobe": {
+        "utils": {
+            "CustomActions": CustomActions,
+            "XMLUI": XMLUI
+        }
+    },
+    "com": {
+        "adobe": {
+            "viewsource": {
+                "ViewSource": ViewSource
+            }
+        }
+    },
+    "fl": {
+        "accessibility": {
+            "AccImpl": AccImpl
+        }
+    },
     "flash": {
+        "accessibility": {
+            "Accessibility": Accessibility,
+            "AccessibilityImplementation": AccessibilityImplementation,
+            "AccessibilityProperties": AccessibilityProperties
+        },
+        "desktop": {
+            "Clipboard": Clipboard,
+            "ClipboardFormats": ClipboardFormats,
+            "ClipboardTransferMode": ClipboardTransferMode
+        },
         "display": {
             "ActionScriptVersion": ActionScriptVersion,
             "AVLoader": AVLoader,
@@ -23701,6 +23968,15 @@ Packages.prototype = {
             "SWFVersion": SWFVersion,
             "TriangleCulling": TriangleCulling
         },
+        "display3D": {
+            "Program3D": Program3D,
+            "textures": {
+                "CubeTexture": CubeTexture,
+                "RectangleTexture": RectangleTexture,
+                "Texture": Texture,
+                "VideoTexture": VideoTexture
+            }
+        },
         "geom": {
             "ColorTransform": ColorTransform,
             "Matrix": Matrix,
@@ -23713,7 +23989,22 @@ Packages.prototype = {
             "Utils3D": Utils3D,
             "Vector3D": Vector3D
         },
+        "errors": {
+            "EOFError": EOFError,
+            "IllegalOperationError": IllegalOperationError,
+            "InvalidSWFError": InvalidSWFError,
+            "IOError": IOError,
+            "MemoryError": MemoryError,
+            "ScriptTimeoutError": ScriptTimeoutError,
+            "StackOverflowError": StackOverflowError
+        },
         "events": {
+            "AccelerometerEvent": AccelerometerEvent,
+            "ActivityEvent": ActivityEvent,
+            "AsyncErrorEvent": AsyncErrorEvent,
+            "AVDictionaryDataEvent": AVDictionaryDataEvent,
+            "AVHTTPStatusEvent": AVHTTPStatusEvent,
+            "AVPauseAtPeriodEndEvent": AVPauseAtPeriodEndEvent,
             "Event": Event,
             "EventDispatcher": EventDispatcher,
             "MouseEvent": Util.prototype.$clipEvent
@@ -23836,6 +24127,11 @@ Packages.prototype = {
 
                 return true;
             }
+        },
+        "xml": {
+            "XMLDocument": XMLDocument,
+            "XMLNode": XMLNode,
+            "XMLNodeType": XMLNodeType
         }
     }
 };

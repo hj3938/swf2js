@@ -1,0 +1,1 @@
+var AVPauseAtPeriodEndEvent = function (type, ) {};

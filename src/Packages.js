@@ -137,9 +137,14 @@ Packages.prototype = {
             "AVDictionaryDataEvent": AVDictionaryDataEvent,
             "AVHTTPStatusEvent": AVHTTPStatusEvent,
             "AVPauseAtPeriodEndEvent": AVPauseAtPeriodEndEvent,
+            "ContextMenuEvent": ContextMenuEvent,
+            "DataEvent": DataEvent,
             "Event": Event,
             "EventDispatcher": EventDispatcher,
             "MouseEvent": Util.prototype.$clipEvent
+        },
+        "external": {
+            "ExternalInterface": ExternalInterface
         },
         "text": {
             "AntiAliasType": AntiAliasType,

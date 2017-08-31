@@ -2,13 +2,13 @@
  * @param type
  * @param bubbles
  * @param cancelable
- * @param userData
+ * @param data
  * @constructor
  */
-var AVPauseAtPeriodEndEvent = function (type, bubbles, cancelable, userData)
+var DataEvent = function (type, bubbles, cancelable, data)
 {
     this._type       = "";
     this._bubbles    = false;
     this._cancelable = false;
-    this._userData   = 0;
+    this._data       = "";
 };

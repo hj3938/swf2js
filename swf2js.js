@@ -2004,6 +2004,7 @@ var StackOverflowError = function (message)
 {
     this._message = "";
 };
+var ExternalInterface = function () {};
 /**
  * @param type
  * @param bubbles
@@ -2040,7 +2041,20 @@ var AVHTTPStatusEvent = function (type, bubbles, cancelable, status, responseUrl
     this._responseUrl = null;
 };
 
-var AVPauseAtPeriodEndEvent = function (type, ) {};
+/**
+ * @param type
+ * @param bubbles
+ * @param cancelable
+ * @param userData
+ * @constructor
+ */
+var AVPauseAtPeriodEndEvent = function (type, bubbles, cancelable, userData)
+{
+    this._type       = "";
+    this._bubbles    = false;
+    this._cancelable = false;
+    this._userData   = 0;
+};
 /**
  * @param type
  * @param bubbles
@@ -2114,6 +2128,36 @@ ClipEvent.prototype.constructor = ClipEvent;
 
 // set
 Util.prototype.$clipEvent = new ClipEvent();
+/**
+ * @param type
+ * @param bubbles
+ * @param cancelable
+ * @param mouseTarget
+ * @param contextMenuOwner
+ * @constructor
+ */
+var ContextMenuEvent = function (type, bubbles, cancelable, mouseTarget, contextMenuOwner)
+{
+    this._type             = "";
+    this._bubbles          = false;
+    this._cancelable       = false;
+    this._mouseTarget      = null;
+    this._contextMenuOwner = null;
+};
+/**
+ * @param type
+ * @param bubbles
+ * @param cancelable
+ * @param data
+ * @constructor
+ */
+var DataEvent = function (type, bubbles, cancelable, data)
+{
+    this._type       = "";
+    this._bubbles    = false;
+    this._cancelable = false;
+    this._data       = "";
+};
 var Event = function () {};
 /**
  * @constructor
@@ -24005,9 +24049,14 @@ Packages.prototype = {
             "AVDictionaryDataEvent": AVDictionaryDataEvent,
             "AVHTTPStatusEvent": AVHTTPStatusEvent,
             "AVPauseAtPeriodEndEvent": AVPauseAtPeriodEndEvent,
+            "ContextMenuEvent": ContextMenuEvent,
+            "DataEvent": DataEvent,
             "Event": Event,
             "EventDispatcher": EventDispatcher,
             "MouseEvent": Util.prototype.$clipEvent
+        },
+        "external": {
+            "ExternalInterface": ExternalInterface
         },
         "text": {
             "AntiAliasType": AntiAliasType,

@@ -32,6 +32,7 @@ gulp.task("concat", function() {
         "src/flash/external/*.js",
         "src/flash/events/*.js",
         "src/flash/geom/*.js",
+        "src/flash/globalization/*.js",
         "src/flash/filters/BitmapFilter.js",
         "src/flash/filters/*.js",
         "src/flash/accessibility/*.js",

@@ -146,6 +146,22 @@ Packages.prototype = {
         "external": {
             "ExternalInterface": ExternalInterface
         },
+        "globalization": {
+            "Collator": Collator,
+            "CollatorMode": CollatorMode,
+            "CurrencyFormatter": CurrencyFormatter,
+            "CurrencyParseResult": CurrencyParseResult,
+            "DateTimeFormatter": DateTimeFormatter,
+            "DateTimeNameContext": DateTimeNameContext,
+            "DateTimeNameStyle": DateTimeNameStyle,
+            "DateTimeStyle": DateTimeStyle,
+            "LastOperationStatus": LastOperationStatus,
+            "LocaleID": LocaleID,
+            "NationalDigitsType": NationalDigitsType,
+            "NumberFormatter": NumberFormatter,
+            "NumberParseResult": NumberParseResult,
+            "StringTools": StringTools
+        },
         "text": {
             "AntiAliasType": AntiAliasType,
             "CSMSettings": CSMSettings,

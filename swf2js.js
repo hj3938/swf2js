@@ -2575,6 +2575,166 @@ var Vector3D = function (x, y, z, w)
     this._w = 0;
 };
 /**
+ * @param requestedLocaleIDName
+ * @param initialMode
+ * @constructor
+ */
+var Collator = function (requestedLocaleIDName, initialMode)
+{
+    this._requestedLocaleIDName = "";
+    this._initialMode           = "sorting";
+};
+/**
+ * @constructor
+ */
+var CollatorMode = function () {};
+CollatorMode.prototype.MATCHING = "matching";
+CollatorMode.prototype.SORTING  = "sorting";
+/**
+ * @param requestedLocaleIDName
+ * @constructor
+ */
+var CurrencyFormatter = function (requestedLocaleIDName)
+{
+    this._requestedLocaleIDName = "";
+};
+
+/**
+ * @param value
+ * @param symbol
+ * @constructor
+ */
+var CurrencyParseResult = function (value, symbol)
+{
+    this._value  = "";
+    this._symbol = "";
+};
+
+/**
+ * @param requestedLocaleIDName
+ * @param dateStyle
+ * @param timeStyle
+ * @constructor
+ */
+var DateTimeFormatter = function (requestedLocaleIDName, dateStyle, timeStyle)
+{
+    this._requestedLocaleIDName = "";
+    this._dateStyle             = "long";
+    this._timeStyle             = "long";
+};
+/**
+ * @constructor
+ */
+var DateTimeNameContext = function () {};
+DateTimeNameContext.prototype.FORMAT     = "format";
+DateTimeNameContext.prototype.STANDALONE = "standalone";
+/**
+ * @constructor
+ */
+var DateTimeNameStyle = function () {};
+DateTimeNameStyle.prototype.FULL               = "full";
+DateTimeNameStyle.prototype.LONG_ABBREVIATION  = "longAbbreviation";
+DateTimeNameStyle.prototype.SHORT_ABBREVIATION = "shortAbbreviation";
+/**
+ * @constructor
+ */
+var DateTimeStyle = function () {};
+DateTimeStyle.prototype.CUSTOM = "custom";
+DateTimeStyle.prototype.LONG   = "long";
+DateTimeStyle.prototype.MEDIUM = "medium";
+DateTimeStyle.prototype.NONE   = "none";
+DateTimeStyle.prototype.SHORT  = "short";
+/**
+ * @constructor
+ */
+var LastOperationStatus = function () {};
+LastOperationStatus.prototype.BUFFER_OVERFLOW_ERROR     = "";
+LastOperationStatus.prototype.ERROR_CODE_UNKNOWN        = "";
+LastOperationStatus.prototype.ILLEGAL_ARGUMENT_ERROR    = "";
+LastOperationStatus.prototype.INDEX_OUT_OF_BOUNDS_ERROR = "";
+LastOperationStatus.prototype.INVALID_ATTR_VALUE        = "";
+LastOperationStatus.prototype.INVALID_CHAR_FOUND        = "";
+LastOperationStatus.prototype.MEMORY_ALLOCATION_ERROR   = "";
+LastOperationStatus.prototype.NO_ERROR                  = "";
+LastOperationStatus.prototype.NUMBER_OVERFLOW_ERROR     = "";
+LastOperationStatus.prototype.PARSE_ERROR               = "";
+LastOperationStatus.prototype.PATTERN_SYNTAX_ERROR      = "";
+LastOperationStatus.prototype.PLATFORM_API_FAILED       = "";
+LastOperationStatus.prototype.TRUNCATED_CHAR_FOUND      = "";
+LastOperationStatus.prototype.UNEXPECTED_TOKEN          = "";
+LastOperationStatus.prototype.UNSUPPORTED_ERROR         = "";
+LastOperationStatus.prototype.USING_DEFAULT_WARNING     = "";
+LastOperationStatus.prototype.USING_FALLBACK_WARNING    = "";
+
+
+/**
+ * @param name
+ * @constructor
+ */
+var LocaleID = function (name)
+{
+    this._name = "";
+};
+
+/**
+ * @constructor
+ */
+var NationalDigitsType = function () {};
+NationalDigitsType.prototype.ARABIC_INDIC          = 0x0660;
+NationalDigitsType.prototype.BALINESE              = 0x1B50;
+NationalDigitsType.prototype.BENGALI               = 0x09E6;
+NationalDigitsType.prototype.CHAM                  = 0xAA50;
+NationalDigitsType.prototype.DEVANAGARI            = 0x0966;
+NationalDigitsType.prototype.EUROPEAN              = 0x0030;
+NationalDigitsType.prototype.EXTENDED_ARABIC_INDIC = 0x06F0;
+NationalDigitsType.prototype.FULL_WIDTH            = 0xFF10;
+NationalDigitsType.prototype.GUJARATI              = 0x0AE6;
+NationalDigitsType.prototype.GURMUKHI              = 0x0A66;
+NationalDigitsType.prototype.KANNADA               = 0x0CE6;
+NationalDigitsType.prototype.KAYAH_LI              = 0xA900;
+NationalDigitsType.prototype.KHMER                 = 0x17E0;
+NationalDigitsType.prototype.LAO                   = 0x0ED0;
+NationalDigitsType.prototype.LEPCHA                = 0x1C40;
+NationalDigitsType.prototype.LIMBU                 = 0x1946;
+NationalDigitsType.prototype.MALAYALAM             = 0x0D66;
+NationalDigitsType.prototype.MONGOLIAN             = 0x1810;
+NationalDigitsType.prototype.MYANMAR               = 0x1040;
+NationalDigitsType.prototype.MYANMAR_SHAN          = 0x1090;
+NationalDigitsType.prototype.NEW_TAI_LUE           = 0x19D0;
+NationalDigitsType.prototype.NKO                   = 0x07C0;
+NationalDigitsType.prototype.OL_CHIKI              = 0x1C50;
+NationalDigitsType.prototype.ORIYA                 = 0x0B66;
+NationalDigitsType.prototype.OSMANYA               = 0x104A0;
+NationalDigitsType.prototype.SAURASHTRA            = 0xA8D0;
+NationalDigitsType.prototype.SUNDANESE             = 0x1BB0;
+NationalDigitsType.prototype.TAMIL                 = 0x0BE6;
+NationalDigitsType.prototype.TELUGU                = 0x0C66;
+NationalDigitsType.prototype.THAI                  = 0x0E50;
+NationalDigitsType.prototype.TIBETAN               = 0x0F20;
+NationalDigitsType.prototype.VAI                   = 0xA620;
+/**
+ * @param requestedLocaleIDName
+ * @constructor
+ */
+var NumberFormatter = function (requestedLocaleIDName)
+{
+    this._requestedLocaleIDName = "";
+};
+
+/**
+ * @param value
+ * @param startIndex
+ * @param endIndex
+ * @constructor
+ */
+var NumberParseResult = function (value, startIndex, endIndex)
+{
+    this._value      = "";
+    this._startIndex = 0x7fffffff;
+    this._endIndex   = 0x7fffffff;
+};
+
+/**
  * @constructor
  */
 var BitmapFilter = function () {};
@@ -24057,6 +24217,22 @@ Packages.prototype = {
         },
         "external": {
             "ExternalInterface": ExternalInterface
+        },
+        "globalization": {
+            "Collator": Collator,
+            "CollatorMode": CollatorMode,
+            "CurrencyFormatter": CurrencyFormatter,
+            "CurrencyParseResult": CurrencyParseResult,
+            "DateTimeFormatter": DateTimeFormatter,
+            "DateTimeNameContext": DateTimeNameContext,
+            "DateTimeNameStyle": DateTimeNameStyle,
+            "DateTimeStyle": DateTimeStyle,
+            "LastOperationStatus": LastOperationStatus,
+            "LocaleID": LocaleID,
+            "NationalDigitsType": NationalDigitsType,
+            "NumberFormatter": NumberFormatter,
+            "NumberParseResult": NumberParseResult,
+            "StringTools": StringTools
         },
         "text": {
             "AntiAliasType": AntiAliasType,

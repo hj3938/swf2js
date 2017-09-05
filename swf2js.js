@@ -829,6 +829,11 @@ var ViewSource = function () {};
  */
 var AccImpl = function () {};
 /**
+ * @constructor
+ */
+var ButtonAccImpl = function () {};
+
+/**
  * @param mc
  * @constructor
  */
@@ -2732,6 +2737,15 @@ var NumberParseResult = function (value, startIndex, endIndex)
     this._value      = "";
     this._startIndex = 0x7fffffff;
     this._endIndex   = 0x7fffffff;
+};
+
+/**
+ * @param requestedLocaleIDName
+ * @constructor
+ */
+var StringTools = function (requestedLocaleIDName)
+{
+    this._requestedLocaleIDName = "";
 };
 
 /**
@@ -18282,6 +18296,27 @@ var URLStream = function () {};
 var URLVariables = function () {};
 var XMLSocket = function () {};
 /**
+ * @constructor
+ */
+var PrintJob = function () {};
+
+/**
+ * @param printAsBitmap
+ * @constructor
+ */
+var PrintJobOptions = function (printAsBitmap)
+{
+    this._printAsBitmap = false;
+};
+
+/**
+ * @constructor
+ */
+var PrintJobOrientation = function () {};
+PrintJobOrientation.prototype.LANDSCAPE = "landscape";
+PrintJobOrientation.prototype.PORTRAIT  = "portrait";
+
+/**
  * @param source
  * @constructor
  */
@@ -24087,6 +24122,14 @@ Packages.prototype = {
         "utils": {
             "CustomActions": CustomActions,
             "XMLUI": XMLUI
+        },
+        "MMEndCommand": function (endStatus, notifyString)
+        {
+            console.log("TODO: MMEndCommand");
+        },
+        "MMExecute": function (name)
+        {
+            console.log("TODO: MMExecute");
         }
     },
     "com": {
@@ -24098,7 +24141,8 @@ Packages.prototype = {
     },
     "fl": {
         "accessibility": {
-            "AccImpl": AccImpl
+            "AccImpl": AccImpl,
+            "ButtonAccImpl": ButtonAccImpl
         }
     },
     "flash": {
@@ -24322,6 +24366,11 @@ Packages.prototype = {
             "URLStream": URLStream,
             "URLVariables": URLVariables,
             "XMLSocket": XMLSocket
+        },
+        "printing": {
+            "PrintJob": PrintJob,
+            "PrintJobOptions": PrintJobOptions,
+            "PrintJobOrientation": PrintJobOrientation
         },
         "system": {
             "fscommand": function ()

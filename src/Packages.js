@@ -15,6 +15,14 @@ Packages.prototype = {
         "utils": {
             "CustomActions": CustomActions,
             "XMLUI": XMLUI
+        },
+        "MMEndCommand": function (endStatus, notifyString)
+        {
+            console.log("TODO: MMEndCommand");
+        },
+        "MMExecute": function (name)
+        {
+            console.log("TODO: MMExecute");
         }
     },
     "com": {
@@ -26,7 +34,8 @@ Packages.prototype = {
     },
     "fl": {
         "accessibility": {
-            "AccImpl": AccImpl
+            "AccImpl": AccImpl,
+            "ButtonAccImpl": ButtonAccImpl
         }
     },
     "flash": {
@@ -250,6 +259,11 @@ Packages.prototype = {
             "URLStream": URLStream,
             "URLVariables": URLVariables,
             "XMLSocket": XMLSocket
+        },
+        "printing": {
+            "PrintJob": PrintJob,
+            "PrintJobOptions": PrintJobOptions,
+            "PrintJobOrientation": PrintJobOrientation
         },
         "system": {
             "fscommand": function ()

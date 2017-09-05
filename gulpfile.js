@@ -47,6 +47,7 @@ gulp.task("concat", function() {
         "src/flash/text/*.js",
         "src/flash/media/*.js",
         "src/flash/net/*.js",
+        "src/flash/printing/*.js",
         "src/flash/xml/*.js",
         "src/as/*.js",
         "src/*.js",

@@ -2,14 +2,12 @@ language: node_js
 node_js:
   - "0.12.9"
 
+cache:
+  directories:
+    - "node_modules"
+
 before_install:
   - npm install -g gulp karma
 
 install:
   - npm install
-
-script: gulp karma
-
-cache:
-  directories:
-    - "node_modules"

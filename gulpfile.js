@@ -3,6 +3,7 @@ var browser = require("browser-sync").create();
 var concat  = require("gulp-concat");
 var uglify  = require("gulp-uglify");
 var karma   = require('gulp-karma');
+var Server  = require('karma').Server;
 
 gulp.task("server", function() {
     browser.init({
@@ -108,4 +109,14 @@ gulp.task("karma", function () {
         configFile: "karma.conf.js",
         action: "run"
     }));
+});
+
+/**
+ * Run test once and exit
+ */
+gulp.task('test', function (done) {
+    new Server({
+        configFile: __dirname + '/karma.conf.js',
+        singleRun: true
+    }, done).start();
 });

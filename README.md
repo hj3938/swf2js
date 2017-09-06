@@ -26,5 +26,5 @@ gulp
 ## Unit Test
 
 ```linux
-gulp karma
+npm test
 ```

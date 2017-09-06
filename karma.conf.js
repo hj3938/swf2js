@@ -16,8 +16,39 @@ module.exports = function(config)
 
     // list of files / patterns to load in the browser
     files: [
-      'src/**/*.js',
-      'test/**/*.js'
+      "src/util/Setting.js",
+      "src/util/CanvasToWebGL.js",
+      "src/util/Util.js",
+      "src/adobe/utils/*.js",
+      "src/com/adobe/viewsource/*.js","src/fl/accessibility/*.js",
+      "src/flash/*.js",
+      "src/flash/events/Swf2jsEvent.js",
+      "src/flash/errors/*.js",
+      "src/flash/external/*.js",
+      "src/flash/events/*.js",
+      "src/flash/geom/*.js",
+      "src/flash/globalization/*.js",
+      "src/flash/filters/BitmapFilter.js",
+      "src/flash/filters/*.js",
+      "src/flash/accessibility/*.js",
+      "src/flash/display/DisplayObject.js",
+      "src/flash/display/InteractiveObject.js",
+      "src/flash/display/DisplayObjectContainer.js",
+      "src/flash/display/Sprite.js",
+      "src/flash/display/*.js",
+      "src/flash/display3D/*.js",
+      "src/flash/display3D/textures/*.js",
+      "src/flash/desktop/*.js",
+      "src/flash/text/*.js",
+      "src/flash/media/*.js",
+      "src/flash/net/*.js",
+      "src/flash/printing/*.js",
+      "src/flash/xml/*.js",
+      "src/as/*.js",
+      "src/*.js",
+      "src/parser/*.js",
+      "src/player/*.js",
+      "test/**/*.js"
     ],
 
 

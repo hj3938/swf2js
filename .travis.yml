@@ -2,8 +2,8 @@ language: node_js
 node_js:
   - "0.12.9"
 
-before_script:
-  - npm install -g gulp karma jasmine sinon
+before_install:
+  - npm install -g gulp karma
 
 install:
   - npm install

@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/ienaga/swf2js.svg?branch=master)](https://travis-ci.org/ienaga/swf2js)
+
 # Development And Test Branch
 
 ##  My NodeJS Version
@@ -6,7 +8,7 @@
 v0.12.9
 ```
 
-## Gulp
+## Install gulp And karma
 
 ```linux
 npm install -g gulp karma
@@ -15,7 +17,7 @@ npm install -g gulp karma
 ## Install And Initialize
 
 ```linux
-git clone -b develop https://github.com/ienaga/swf2js.git
+git clone --branch=develop https://github.com/ienaga/swf2js.git
 cd swf2js
 npm install
 gulp

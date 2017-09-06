@@ -1,7 +1,9 @@
 {
   "name": "swf2js",
-  "version": "0.7.8",
   "description": "Flash™ runtime written in pure JavaScript.",
+  "version": "0.7.8",
+  "author": "Toshiyuki Ienaga",
+  "license": "MIT",
   "main": "index.js",
   "directories": {
     "test": "test"
@@ -13,12 +15,22 @@
     "swf",
     "flash"
   ],
-  "author": "Toshiyuki Ienaga",
-  "license": "MIT",
   "devDependencies": {
-    "browser-sync": "^2.18.5",
+    "browser-sync": "^2.18.13",
     "gulp": "^3.9.1",
     "gulp-concat": "^2.6.1",
-    "gulp-uglify": "^2.0.0"
+    "gulp-karma": "0.0.5",
+    "gulp-uglify": "^3.0.0",
+    "gulp-util": "^3.0.8",
+    "jasmine-core": "^2.8.0",
+    "karma": "^0.13.22",
+    "karma-coverage": "^1.1.1",
+    "karma-jasmine": "^1.1.0",
+    "karma-phantomjs-launcher": "^1.0.4",
+    "karma-sinon": "^1.0.5",
+    "karma-spec-reporter": "0.0.31",
+    "phantomjs": "^2.1.7",
+    "phantomjs-prebuilt": "^2.1.15",
+    "sinon": "^3.2.1"
   }
 }

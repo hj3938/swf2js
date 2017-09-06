@@ -9,20 +9,20 @@ v0.12.9
 ## Gulp
 
 ```linux
-npm install gulp -g
+npm install -g gulp karma
 ```
 
 ## Install And Initialize
 
 ```linux
-git clone https://github.com/ienaga/swf2js.git
+git clone -b develop https://github.com/ienaga/swf2js.git
 cd swf2js
-git checkout develop
 npm install
 gulp
 ```
 
+## Unit Test
 
-
-
-
+```linux
+gulp karma
+```

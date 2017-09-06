@@ -1,3 +1,4 @@
 node_modules
 swf
 .DS_Store
+coverage

@@ -1,0 +1,11 @@
+language: node_js
+node_js:
+  - "0.12.9"
+
+before_script:
+  - npm install -g gulp karma jasmine sinon
+
+install:
+  - npm install
+
+script: gulp karma

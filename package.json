@@ -9,7 +9,7 @@
     "test": "test"
   },
   "scripts": {
-    "test": "npm test"
+    "test": "gulp test"
   },
   "keywords": [
     "swf",

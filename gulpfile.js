@@ -70,9 +70,9 @@ gulp.task("default", ["server"], function() {
 /**
  * Run test once and exit
  */
-gulp.task('test', function (done) {
+gulp.task("test", function (done) {
     new Server({
-        configFile: __dirname + '/karma.conf.js',
+        configFile: __dirname + "/karma.conf.js",
         singleRun: true
     }, done).start();
 });

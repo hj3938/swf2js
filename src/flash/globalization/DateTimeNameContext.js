@@ -2,5 +2,12 @@
  * @constructor
  */
 var DateTimeNameContext = function () {};
-DateTimeNameContext.prototype.FORMAT     = "format";
-DateTimeNameContext.prototype.STANDALONE = "standalone";
+
+DateTimeNameContext.FORMAT     = "format";
+DateTimeNameContext.STANDALONE = "standalone";
+
+/**
+ * extends
+ */
+DateTimeNameContext.prototype = Object.create(OriginalObject.prototype);
+DateTimeNameContext.prototype.constructor = DateTimeNameContext;

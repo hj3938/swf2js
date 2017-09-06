@@ -2,5 +2,12 @@
  * @constructor
  */
 var InterpolationMethod = function () {};
-InterpolationMethod.prototype.LINEAR_RGB = "linearRGB";
-InterpolationMethod.prototype.RGB = "rgb";
+
+InterpolationMethod.LINEAR_RGB = "linearRGB";
+InterpolationMethod.RGB        = "rgb";
+
+/**
+ * extends
+ */
+InterpolationMethod.prototype = Object.create(OriginalObject.prototype);
+InterpolationMethod.prototype.constructor = InterpolationMethod;

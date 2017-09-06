@@ -2,7 +2,14 @@
  * @constructor
  */
 var LineScaleMode = function () {};
-LineScaleMode.prototype.HORIZONTAL = "horizontal";
-LineScaleMode.prototype.NONE       = "none";
-LineScaleMode.prototype.NORMAL     = "normal";
-LineScaleMode.prototype.VERTICAL   = "vertical";
+
+LineScaleMode.HORIZONTAL = "horizontal";
+LineScaleMode.NONE       = "none";
+LineScaleMode.NORMAL     = "normal";
+LineScaleMode.VERTICAL   = "vertical";
+
+/**
+ * extends
+ */
+LineScaleMode.prototype = Object.create(OriginalObject.prototype);
+LineScaleMode.prototype.constructor = LineScaleMode;

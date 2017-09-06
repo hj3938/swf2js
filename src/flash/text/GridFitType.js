@@ -1,1 +1,4 @@
+/**
+ * @constructor
+ */
 var GridFitType = function () {};

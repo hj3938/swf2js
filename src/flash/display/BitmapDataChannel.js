@@ -2,7 +2,14 @@
  * @constructor
  */
 var BitmapDataChannel = function () {};
-BitmapDataChannel.prototype.ALPHA = 8;
-BitmapDataChannel.prototype.BLUE  = 4;
-BitmapDataChannel.prototype.GREEN = 2;
-BitmapDataChannel.prototype.RED   = 1;
+
+BitmapDataChannel.ALPHA = 8;
+BitmapDataChannel.BLUE  = 4;
+BitmapDataChannel.GREEN = 2;
+BitmapDataChannel.RED   = 1;
+
+/**
+ * extends
+ */
+BitmapDataChannel.prototype = Object.create(OriginalObject.prototype);
+BitmapDataChannel.prototype.constructor = BitmapDataChannel;

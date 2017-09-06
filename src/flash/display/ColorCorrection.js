@@ -2,6 +2,13 @@
  * @constructor
  */
 var ColorCorrection = function () {};
-ColorCorrection.prototype.DEFAULT = "default";
-ColorCorrection.prototype.OFF     = "off";
-ColorCorrection.prototype.ON      = "on";
+
+ColorCorrection.DEFAULT = "default";
+ColorCorrection.OFF     = "off";
+ColorCorrection.ON      = "on";
+
+/**
+ * extends
+ */
+ColorCorrection.prototype = Object.create(OriginalObject.prototype);
+ColorCorrection.prototype.constructor = ColorCorrection;

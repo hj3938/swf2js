@@ -1,1 +1,4 @@
+/**
+ * @constructor
+ */
 var Camera = function () {};

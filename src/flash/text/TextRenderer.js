@@ -1,1 +1,4 @@
+/**
+ * @constructor
+ */
 var TextRenderer = function () {};

@@ -2,8 +2,15 @@
  * @constructor
  */
 var DateTimeStyle = function () {};
-DateTimeStyle.prototype.CUSTOM = "custom";
-DateTimeStyle.prototype.LONG   = "long";
-DateTimeStyle.prototype.MEDIUM = "medium";
-DateTimeStyle.prototype.NONE   = "none";
-DateTimeStyle.prototype.SHORT  = "short";
+
+DateTimeStyle.CUSTOM = "custom";
+DateTimeStyle.LONG   = "long";
+DateTimeStyle.MEDIUM = "medium";
+DateTimeStyle.NONE   = "none";
+DateTimeStyle.SHORT  = "short";
+
+/**
+ * extends
+ */
+DateTimeStyle.prototype = Object.create(OriginalObject.prototype);
+DateTimeStyle.prototype.constructor = DateTimeStyle;

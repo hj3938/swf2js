@@ -2,7 +2,14 @@
  * @constructor
  */
 var StageScaleMode = function () {};
-StageScaleMode.prototype.EXACT_FIT = "exactFit";
-StageScaleMode.prototype.NO_BORDER = "noBorder";
-StageScaleMode.prototype.NO_SCALE  = "noScale";
-StageScaleMode.prototype.SHOW_ALL  = "showAll";
+
+StageScaleMode.EXACT_FIT = "exactFit";
+StageScaleMode.NO_BORDER = "noBorder";
+StageScaleMode.NO_SCALE  = "noScale";
+StageScaleMode.SHOW_ALL  = "showAll";
+
+/**
+ * extends
+ */
+StageScaleMode.prototype = Object.create(OriginalObject.prototype);
+StageScaleMode.prototype.constructor = StageScaleMode;

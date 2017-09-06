@@ -2009,6 +2009,9 @@ var StackOverflowError = function (message)
 {
     this._message = "";
 };
+/**
+ * @constructor
+ */
 var ExternalInterface = function () {};
 /**
  * @param type
@@ -2163,6 +2166,9 @@ var DataEvent = function (type, bubbles, cancelable, data)
     this._cancelable = false;
     this._data       = "";
 };
+/**
+ * @constructor
+ */
 var Event = function () {};
 /**
  * @constructor
@@ -2473,9 +2479,16 @@ var Matrix3D = function (v)
  * @constructor
  */
 var Orientation3D = function () {};
-Orientation3D.prototype.AXIS_ANGLE   = "axisAngle";
-Orientation3D.prototype.EULER_ANGLES = "eulerAngles";
-Orientation3D.prototype.QUATERNION   = "quaternion";
+
+Orientation3D.AXIS_ANGLE   = "axisAngle";
+Orientation3D.EULER_ANGLES = "eulerAngles";
+Orientation3D.QUATERNION   = "quaternion";
+
+/**
+ * extends
+ */
+Orientation3D.prototype = Object.create(OriginalObject.prototype);
+Orientation3D.prototype.constructor = Orientation3D;
 /**
  * @constructor
  */
@@ -2593,8 +2606,15 @@ var Collator = function (requestedLocaleIDName, initialMode)
  * @constructor
  */
 var CollatorMode = function () {};
-CollatorMode.prototype.MATCHING = "matching";
-CollatorMode.prototype.SORTING  = "sorting";
+
+CollatorMode.MATCHING = "matching";
+CollatorMode.SORTING  = "sorting";
+
+/**
+ * extends
+ */
+CollatorMode.prototype = Object.create(OriginalObject.prototype);
+CollatorMode.prototype.constructor = CollatorMode;
 /**
  * @param requestedLocaleIDName
  * @constructor
@@ -2631,8 +2651,15 @@ var DateTimeFormatter = function (requestedLocaleIDName, dateStyle, timeStyle)
  * @constructor
  */
 var DateTimeNameContext = function () {};
-DateTimeNameContext.prototype.FORMAT     = "format";
-DateTimeNameContext.prototype.STANDALONE = "standalone";
+
+DateTimeNameContext.FORMAT     = "format";
+DateTimeNameContext.STANDALONE = "standalone";
+
+/**
+ * extends
+ */
+DateTimeNameContext.prototype = Object.create(OriginalObject.prototype);
+DateTimeNameContext.prototype.constructor = DateTimeNameContext;
 /**
  * @constructor
  */
@@ -2644,32 +2671,46 @@ DateTimeNameStyle.prototype.SHORT_ABBREVIATION = "shortAbbreviation";
  * @constructor
  */
 var DateTimeStyle = function () {};
-DateTimeStyle.prototype.CUSTOM = "custom";
-DateTimeStyle.prototype.LONG   = "long";
-DateTimeStyle.prototype.MEDIUM = "medium";
-DateTimeStyle.prototype.NONE   = "none";
-DateTimeStyle.prototype.SHORT  = "short";
+
+DateTimeStyle.CUSTOM = "custom";
+DateTimeStyle.LONG   = "long";
+DateTimeStyle.MEDIUM = "medium";
+DateTimeStyle.NONE   = "none";
+DateTimeStyle.SHORT  = "short";
+
+/**
+ * extends
+ */
+DateTimeStyle.prototype = Object.create(OriginalObject.prototype);
+DateTimeStyle.prototype.constructor = DateTimeStyle;
 /**
  * @constructor
  */
 var LastOperationStatus = function () {};
-LastOperationStatus.prototype.BUFFER_OVERFLOW_ERROR     = "";
-LastOperationStatus.prototype.ERROR_CODE_UNKNOWN        = "";
-LastOperationStatus.prototype.ILLEGAL_ARGUMENT_ERROR    = "";
-LastOperationStatus.prototype.INDEX_OUT_OF_BOUNDS_ERROR = "";
-LastOperationStatus.prototype.INVALID_ATTR_VALUE        = "";
-LastOperationStatus.prototype.INVALID_CHAR_FOUND        = "";
-LastOperationStatus.prototype.MEMORY_ALLOCATION_ERROR   = "";
-LastOperationStatus.prototype.NO_ERROR                  = "";
-LastOperationStatus.prototype.NUMBER_OVERFLOW_ERROR     = "";
-LastOperationStatus.prototype.PARSE_ERROR               = "";
-LastOperationStatus.prototype.PATTERN_SYNTAX_ERROR      = "";
-LastOperationStatus.prototype.PLATFORM_API_FAILED       = "";
-LastOperationStatus.prototype.TRUNCATED_CHAR_FOUND      = "";
-LastOperationStatus.prototype.UNEXPECTED_TOKEN          = "";
-LastOperationStatus.prototype.UNSUPPORTED_ERROR         = "";
-LastOperationStatus.prototype.USING_DEFAULT_WARNING     = "";
-LastOperationStatus.prototype.USING_FALLBACK_WARNING    = "";
+
+LastOperationStatus.BUFFER_OVERFLOW_ERROR     = "bufferOverflowError";
+LastOperationStatus.ERROR_CODE_UNKNOWN        = "errorCodeUnknown";
+LastOperationStatus.ILLEGAL_ARGUMENT_ERROR    = "illegalArgumentError";
+LastOperationStatus.INDEX_OUT_OF_BOUNDS_ERROR = "indexOutOfBoundsError";
+LastOperationStatus.INVALID_ATTR_VALUE        = "invalidAttrValue";
+LastOperationStatus.INVALID_CHAR_FOUND        = "invalidCharFound";
+LastOperationStatus.MEMORY_ALLOCATION_ERROR   = "memoryAllocationError";
+LastOperationStatus.NO_ERROR                  = "noError";
+LastOperationStatus.NUMBER_OVERFLOW_ERROR     = "numberOverflowError";
+LastOperationStatus.PARSE_ERROR               = "parseError";
+LastOperationStatus.PATTERN_SYNTAX_ERROR      = "patternSyntaxError";
+LastOperationStatus.PLATFORM_API_FAILED       = "platformAPIFailed";
+LastOperationStatus.TRUNCATED_CHAR_FOUND      = "truncatedCharFound";
+LastOperationStatus.UNEXPECTED_TOKEN          = "unexpectedToken";
+LastOperationStatus.UNSUPPORTED_ERROR         = "unsupportedError";
+LastOperationStatus.USING_DEFAULT_WARNING     = "usingDefaultWarning";
+LastOperationStatus.USING_FALLBACK_WARNING    = "usingFallbackWarning";
+
+/**
+ * extends
+ */
+LastOperationStatus.prototype = Object.create(OriginalObject.prototype);
+LastOperationStatus.prototype.constructor = LastOperationStatus;
 
 
 /**
@@ -2685,38 +2726,45 @@ var LocaleID = function (name)
  * @constructor
  */
 var NationalDigitsType = function () {};
-NationalDigitsType.prototype.ARABIC_INDIC          = 0x0660;
-NationalDigitsType.prototype.BALINESE              = 0x1B50;
-NationalDigitsType.prototype.BENGALI               = 0x09E6;
-NationalDigitsType.prototype.CHAM                  = 0xAA50;
-NationalDigitsType.prototype.DEVANAGARI            = 0x0966;
-NationalDigitsType.prototype.EUROPEAN              = 0x0030;
-NationalDigitsType.prototype.EXTENDED_ARABIC_INDIC = 0x06F0;
-NationalDigitsType.prototype.FULL_WIDTH            = 0xFF10;
-NationalDigitsType.prototype.GUJARATI              = 0x0AE6;
-NationalDigitsType.prototype.GURMUKHI              = 0x0A66;
-NationalDigitsType.prototype.KANNADA               = 0x0CE6;
-NationalDigitsType.prototype.KAYAH_LI              = 0xA900;
-NationalDigitsType.prototype.KHMER                 = 0x17E0;
-NationalDigitsType.prototype.LAO                   = 0x0ED0;
-NationalDigitsType.prototype.LEPCHA                = 0x1C40;
-NationalDigitsType.prototype.LIMBU                 = 0x1946;
-NationalDigitsType.prototype.MALAYALAM             = 0x0D66;
-NationalDigitsType.prototype.MONGOLIAN             = 0x1810;
-NationalDigitsType.prototype.MYANMAR               = 0x1040;
-NationalDigitsType.prototype.MYANMAR_SHAN          = 0x1090;
-NationalDigitsType.prototype.NEW_TAI_LUE           = 0x19D0;
-NationalDigitsType.prototype.NKO                   = 0x07C0;
-NationalDigitsType.prototype.OL_CHIKI              = 0x1C50;
-NationalDigitsType.prototype.ORIYA                 = 0x0B66;
-NationalDigitsType.prototype.OSMANYA               = 0x104A0;
-NationalDigitsType.prototype.SAURASHTRA            = 0xA8D0;
-NationalDigitsType.prototype.SUNDANESE             = 0x1BB0;
-NationalDigitsType.prototype.TAMIL                 = 0x0BE6;
-NationalDigitsType.prototype.TELUGU                = 0x0C66;
-NationalDigitsType.prototype.THAI                  = 0x0E50;
-NationalDigitsType.prototype.TIBETAN               = 0x0F20;
-NationalDigitsType.prototype.VAI                   = 0xA620;
+
+NationalDigitsType.ARABIC_INDIC          = 0x0660;
+NationalDigitsType.BALINESE              = 0x1B50;
+NationalDigitsType.BENGALI               = 0x09E6;
+NationalDigitsType.CHAM                  = 0xAA50;
+NationalDigitsType.DEVANAGARI            = 0x0966;
+NationalDigitsType.EUROPEAN              = 0x0030;
+NationalDigitsType.EXTENDED_ARABIC_INDIC = 0x06F0;
+NationalDigitsType.FULL_WIDTH            = 0xFF10;
+NationalDigitsType.GUJARATI              = 0x0AE6;
+NationalDigitsType.GURMUKHI              = 0x0A66;
+NationalDigitsType.KANNADA               = 0x0CE6;
+NationalDigitsType.KAYAH_LI              = 0xA900;
+NationalDigitsType.KHMER                 = 0x17E0;
+NationalDigitsType.LAO                   = 0x0ED0;
+NationalDigitsType.LEPCHA                = 0x1C40;
+NationalDigitsType.LIMBU                 = 0x1946;
+NationalDigitsType.MALAYALAM             = 0x0D66;
+NationalDigitsType.MONGOLIAN             = 0x1810;
+NationalDigitsType.MYANMAR               = 0x1040;
+NationalDigitsType.MYANMAR_SHAN          = 0x1090;
+NationalDigitsType.NEW_TAI_LUE           = 0x19D0;
+NationalDigitsType.NKO                   = 0x07C0;
+NationalDigitsType.OL_CHIKI              = 0x1C50;
+NationalDigitsType.ORIYA                 = 0x0B66;
+NationalDigitsType.OSMANYA               = 0x104A0;
+NationalDigitsType.SAURASHTRA            = 0xA8D0;
+NationalDigitsType.SUNDANESE             = 0x1BB0;
+NationalDigitsType.TAMIL                 = 0x0BE6;
+NationalDigitsType.TELUGU                = 0x0C66;
+NationalDigitsType.THAI                  = 0x0E50;
+NationalDigitsType.TIBETAN               = 0x0F20;
+NationalDigitsType.VAI                   = 0xA620;
+
+/**
+ * extends
+ */
+NationalDigitsType.prototype = Object.create(OriginalObject.prototype);
+NationalDigitsType.prototype.constructor = NationalDigitsType;
 /**
  * @param requestedLocaleIDName
  * @constructor
@@ -3201,17 +3249,30 @@ BevelFilter.prototype.render = function (cache, colorTransform, stage)
  * @constructor
  */
 var BitmapFilterQuality = function () {};
-BitmapFilterQuality.prototype.LOW    = 1;
-BitmapFilterQuality.prototype.MEDIUM = 2;
-BitmapFilterQuality.prototype.HIGH   = 3;
 
+BitmapFilterQuality.LOW    = 1;
+BitmapFilterQuality.MEDIUM = 2;
+BitmapFilterQuality.HIGH   = 3;
+
+/**
+ * extends
+ */
+BitmapFilterQuality.prototype = Object.create(OriginalObject.prototype);
+BitmapFilterQuality.prototype.constructor = BitmapFilterQuality;
 /**
  * @constructor
  */
 var BitmapFilterType = function () {};
-BitmapFilterType.prototype.FULL  = "full";
-BitmapFilterType.prototype.INNER = "inner";
-BitmapFilterType.prototype.OUTER = "outer";
+
+BitmapFilterType.FULL  = "full";
+BitmapFilterType.INNER = "inner";
+BitmapFilterType.OUTER = "outer";
+
+/**
+ * extends
+ */
+BitmapFilterType.prototype = Object.create(OriginalObject.prototype);
+BitmapFilterType.prototype.constructor = BitmapFilterType;
 /**
  * @constructor
  */
@@ -4081,6 +4142,9 @@ Object.defineProperties(DisplacementMapFilter.prototype, {
  */
 DisplacementMapFilter.prototype.render = function (cache, colorTransform, stage)
 {
+
+
+
     return cache;
 };
 
@@ -4088,11 +4152,17 @@ DisplacementMapFilter.prototype.render = function (cache, colorTransform, stage)
  * @constructor
  */
 var DisplacementMapFilterMode = function () {};
-DisplacementMapFilterMode.prototype.CLAMP  = "clamp";
-DisplacementMapFilterMode.prototype.COLOR  = "color";
-DisplacementMapFilterMode.prototype.IGNORE = "ignore";
-DisplacementMapFilterMode.prototype.WRAP   = "wrap";
 
+DisplacementMapFilterMode.CLAMP  = "clamp";
+DisplacementMapFilterMode.COLOR  = "color";
+DisplacementMapFilterMode.IGNORE = "ignore";
+DisplacementMapFilterMode.WRAP   = "wrap";
+
+/**
+ * extends
+ */
+DisplacementMapFilterMode.prototype = Object.create(OriginalObject.prototype);
+DisplacementMapFilterMode.prototype.constructor = DisplacementMapFilterMode;
 /**
  * @constructor
  */
@@ -9120,8 +9190,14 @@ var AVM1Movie = function () {};
  * @constructor
  */
 var ActionScriptVersion = function () {};
-ActionScriptVersion.prototype.ACTIONSCRIPT2 = 2;
-ActionScriptVersion.prototype.ACTIONSCRIPT3 = 3;
+ActionScriptVersion.ACTIONSCRIPT2 = 2;
+ActionScriptVersion.ACTIONSCRIPT3 = 3;
+
+/**
+ * extends
+ */
+ActionScriptVersion.prototype = Object.create(OriginalObject.prototype);
+ActionScriptVersion.prototype.constructor = ActionScriptVersion;
 /**
  * @constructor
  */
@@ -9135,58 +9211,100 @@ var BitmapData = function () {};
  * @constructor
  */
 var BitmapDataChannel = function () {};
-BitmapDataChannel.prototype.ALPHA = 8;
-BitmapDataChannel.prototype.BLUE  = 4;
-BitmapDataChannel.prototype.GREEN = 2;
-BitmapDataChannel.prototype.RED   = 1;
+
+BitmapDataChannel.ALPHA = 8;
+BitmapDataChannel.BLUE  = 4;
+BitmapDataChannel.GREEN = 2;
+BitmapDataChannel.RED   = 1;
+
+/**
+ * extends
+ */
+BitmapDataChannel.prototype = Object.create(OriginalObject.prototype);
+BitmapDataChannel.prototype.constructor = BitmapDataChannel;
 /**
  * @constructor
  */
 var BitmapEncodingColorSpace = function () {};
-BitmapEncodingColorSpace.prototype.COLORSPACE_4_2_0 = "4:2:0";
-BitmapEncodingColorSpace.prototype.COLORSPACE_4_2_2 = "4:2:2";
-BitmapEncodingColorSpace.prototype.COLORSPACE_4_4_4 = "4:4:4";
-BitmapEncodingColorSpace.prototype.COLORSPACE_AUTO  = "auto";
+
+BitmapEncodingColorSpace.COLORSPACE_4_2_0 = "4:2:0";
+BitmapEncodingColorSpace.COLORSPACE_4_2_2 = "4:2:2";
+BitmapEncodingColorSpace.COLORSPACE_4_4_4 = "4:4:4";
+BitmapEncodingColorSpace.COLORSPACE_AUTO  = "auto";
+
+/**
+ * extends
+ */
+BitmapEncodingColorSpace.prototype = Object.create(OriginalObject.prototype);
+BitmapEncodingColorSpace.prototype.constructor = BitmapEncodingColorSpace;
 /**
  * @constructor
  */
 var BlendMode = function () {};
-BlendMode.prototype.ADD        = "add";
-BlendMode.prototype.ALPHA      = "alpha";
-BlendMode.prototype.DARKEN     = "darken";
-BlendMode.prototype.DIFFERENCE = "difference";
-BlendMode.prototype.ERASE      = "erase";
-BlendMode.prototype.HARDLIGHT  = "hardlight";
-BlendMode.prototype.INVERT     = "invert";
-BlendMode.prototype.LAYER      = "layer";
-BlendMode.prototype.LIGHTEN    = "lighten";
-BlendMode.prototype.MULTIPLY   = "multiply";
-BlendMode.prototype.NORMAL     = "normal";
-BlendMode.prototype.OVERLAY    = "overlay";
-BlendMode.prototype.SCREEN     = "screen";
-BlendMode.prototype.SHADER     = "shader";
-BlendMode.prototype.SUBTRACT   = "subtract";
+
+BlendMode.ADD        = "add";
+BlendMode.ALPHA      = "alpha";
+BlendMode.DARKEN     = "darken";
+BlendMode.DIFFERENCE = "difference";
+BlendMode.ERASE      = "erase";
+BlendMode.HARDLIGHT  = "hardlight";
+BlendMode.INVERT     = "invert";
+BlendMode.LAYER      = "layer";
+BlendMode.LIGHTEN    = "lighten";
+BlendMode.MULTIPLY   = "multiply";
+BlendMode.NORMAL     = "normal";
+BlendMode.OVERLAY    = "overlay";
+BlendMode.SCREEN     = "screen";
+BlendMode.SHADER     = "shader";
+BlendMode.SUBTRACT   = "subtract";
+
+/**
+ * extends
+ */
+BlendMode.prototype = Object.create(OriginalObject.prototype);
+BlendMode.prototype.constructor = BlendMode;
 /**
  * @constructor
  */
 var CapsStyle = function () {};
-CapsStyle.prototype.NONE   = "none";
-CapsStyle.prototype.ROUND  = "round";
-CapsStyle.prototype.SQUARE = "square";
+
+CapsStyle.NONE   = "none";
+CapsStyle.ROUND  = "round";
+CapsStyle.SQUARE = "square";
+
+/**
+ * extends
+ */
+CapsStyle.prototype = Object.create(OriginalObject.prototype);
+CapsStyle.prototype.constructor = CapsStyle;
 /**
  * @constructor
  */
 var ColorCorrection = function () {};
-ColorCorrection.prototype.DEFAULT = "default";
-ColorCorrection.prototype.OFF     = "off";
-ColorCorrection.prototype.ON      = "on";
+
+ColorCorrection.DEFAULT = "default";
+ColorCorrection.OFF     = "off";
+ColorCorrection.ON      = "on";
+
+/**
+ * extends
+ */
+ColorCorrection.prototype = Object.create(OriginalObject.prototype);
+ColorCorrection.prototype.constructor = ColorCorrection;
 /**
  * @constructor
  */
 var ColorCorrectionSupport = function () {};
-ColorCorrectionSupport.prototype.DEFAULT_OFF  = "defaultOff";
-ColorCorrectionSupport.prototype.DEFAULT_ON   = "defaultOn";
-ColorCorrectionSupport.prototype.UNSUPPORTED  = "unsupported";
+
+ColorCorrectionSupport.DEFAULT_OFF  = "defaultOff";
+ColorCorrectionSupport.DEFAULT_ON   = "defaultOn";
+ColorCorrectionSupport.UNSUPPORTED  = "unsupported";
+
+/**
+ * extends
+ */
+ColorCorrectionSupport.prototype = Object.create(OriginalObject.prototype);
+ColorCorrectionSupport.prototype.constructor = ColorCorrectionSupport;
 /**
  * @param name
  * @param frame
@@ -9200,8 +9318,15 @@ var FrameLabel = function (name, frame)
  * @constructor
  */
 var GradientType = function () {};
-GradientType.prototype.LINEAR = "linear";
-GradientType.prototype.RADIAL = "radial";
+
+GradientType.LINEAR = "linear";
+GradientType.RADIAL = "radial";
+
+/**
+ * extends
+ */
+GradientType.prototype = Object.create(OriginalObject.prototype);
+GradientType.prototype.constructor = GradientType;
 /*jshint bitwise: false*/
 /**
  * @constructor
@@ -10081,19 +10206,33 @@ var GraphicsPath = function (commands, data, winding)
  * @constructor
  */
 var GraphicsPathCommand = function () {};
-GraphicsPathCommand.prototype.CUBIC_CURVE_TO = 6;
-GraphicsPathCommand.prototype.CURVE_TO       = 3;
-GraphicsPathCommand.prototype.LINE_TO        = 2;
-GraphicsPathCommand.prototype.MOVE_TO        = 1;
-GraphicsPathCommand.prototype.NO_OP          = 0;
-GraphicsPathCommand.prototype.WIDE_LINE_TO   = 5;
-GraphicsPathCommand.prototype.WIDE_MOVE_TO   = 4;
+
+GraphicsPathCommand.CUBIC_CURVE_TO = 6;
+GraphicsPathCommand.CURVE_TO       = 3;
+GraphicsPathCommand.LINE_TO        = 2;
+GraphicsPathCommand.MOVE_TO        = 1;
+GraphicsPathCommand.NO_OP          = 0;
+GraphicsPathCommand.WIDE_LINE_TO   = 5;
+GraphicsPathCommand.WIDE_MOVE_TO   = 4;
+
+/**
+ * extends
+ */
+GraphicsPathCommand.prototype = Object.create(OriginalObject.prototype);
+GraphicsPathCommand.prototype.constructor = GraphicsPathCommand;
 /**
  * @constructor
  */
 var GraphicsPathWinding = function () {};
-GraphicsPathWinding.prototype.EVEN_ODD = "evenOdd";
-GraphicsPathWinding.prototype.NON_ZERO = "nonZero";
+
+GraphicsPathWinding.EVEN_ODD = "evenOdd";
+GraphicsPathWinding.NON_ZERO = "nonZero";
+
+/**
+ * extends
+ */
+GraphicsPathWinding.prototype = Object.create(OriginalObject.prototype);
+GraphicsPathWinding.prototype.constructor = GraphicsPathWinding;
 /**
  * @param shader
  * @param matrix
@@ -10155,8 +10294,19 @@ var GraphicsTrianglePath = function (vertices, indices, uvtData, culling)
  * @constructor
  */
 var InterpolationMethod = function () {};
-InterpolationMethod.prototype.LINEAR_RGB = "linearRGB";
-InterpolationMethod.prototype.RGB = "rgb";
+
+InterpolationMethod.LINEAR_RGB = "linearRGB";
+InterpolationMethod.RGB        = "rgb";
+
+/**
+ * extends
+ */
+InterpolationMethod.prototype = Object.create(OriginalObject.prototype);
+InterpolationMethod.prototype.constructor = InterpolationMethod;
+/**
+ * @param quality
+ * @constructor
+ */
 var JPEGEncoderOptions = function (quality)
 {
     this._quality = 80;
@@ -10177,17 +10327,31 @@ var JPEGXREncoderOptions = function (quantization, colorSpace, trimFlexBits)
  * @constructor
  */
 var JointStyle = function () {};
-JointStyle.prototype.BEVEL = "bevel";
-JointStyle.prototype.MITER = "miter";
-JointStyle.prototype.ROUND = "round";
+
+JointStyle.BEVEL = "bevel";
+JointStyle.MITER = "miter";
+JointStyle.ROUND = "round";
+
+/**
+ * extends
+ */
+JointStyle.prototype = Object.create(OriginalObject.prototype);
+JointStyle.prototype.constructor = JointStyle;
 /**
  * @constructor
  */
 var LineScaleMode = function () {};
-LineScaleMode.prototype.HORIZONTAL = "horizontal";
-LineScaleMode.prototype.NONE       = "none";
-LineScaleMode.prototype.NORMAL     = "normal";
-LineScaleMode.prototype.VERTICAL   = "vertical";
+
+LineScaleMode.HORIZONTAL = "horizontal";
+LineScaleMode.NONE       = "none";
+LineScaleMode.NORMAL     = "normal";
+LineScaleMode.VERTICAL   = "vertical";
+
+/**
+ * extends
+ */
+LineScaleMode.prototype = Object.create(OriginalObject.prototype);
+LineScaleMode.prototype.constructor = LineScaleMode;
 /**
  * @constructor
  */
@@ -12152,25 +12316,39 @@ var PNGEncoderOptions = function (fastCompression)
  * @constructor
  */
 var PixelSnapping = function () {};
-PixelSnapping.prototype.ALWAYS = "always";
-PixelSnapping.prototype.AUTO   = "auto";
-PixelSnapping.prototype.NEVER  = "never";
+
+PixelSnapping.ALWAYS = "always";
+PixelSnapping.AUTO   = "auto";
+PixelSnapping.NEVER  = "never";
+
+/**
+ * extends
+ */
+PixelSnapping.prototype = Object.create(OriginalObject.prototype);
+PixelSnapping.prototype.constructor = PixelSnapping;
 /**
  * @constructor
  */
 var SWFVersion = function () {};
-SWFVersion.prototype.FLASH1  = 1;
-SWFVersion.prototype.FLASH10 = 10;
-SWFVersion.prototype.FLASH11 = 11;
-SWFVersion.prototype.FLASH12 = 12;
-SWFVersion.prototype.FLASH2  = 2;
-SWFVersion.prototype.FLASH3  = 3;
-SWFVersion.prototype.FLASH4  = 4;
-SWFVersion.prototype.FLASH5  = 5;
-SWFVersion.prototype.FLASH6  = 6;
-SWFVersion.prototype.FLASH7  = 7;
-SWFVersion.prototype.FLASH8  = 8;
-SWFVersion.prototype.FLASH9  = 9;
+
+SWFVersion.FLASH1  = 1;
+SWFVersion.FLASH10 = 10;
+SWFVersion.FLASH11 = 11;
+SWFVersion.FLASH12 = 12;
+SWFVersion.FLASH2  = 2;
+SWFVersion.FLASH3  = 3;
+SWFVersion.FLASH4  = 4;
+SWFVersion.FLASH5  = 5;
+SWFVersion.FLASH6  = 6;
+SWFVersion.FLASH7  = 7;
+SWFVersion.FLASH8  = 8;
+SWFVersion.FLASH9  = 9;
+
+/**
+ * extends
+ */
+SWFVersion.prototype = Object.create(OriginalObject.prototype);
+SWFVersion.prototype.constructor = SWFVersion;
 /**
  * @constructor
  */
@@ -12218,28 +12396,41 @@ var ShaderParameter = function () {};
  * @constructor
  */
 var ShaderParameterType = function () {};
-ShaderParameterType.prototype.BOOL      = "bool";
-ShaderParameterType.prototype.BOOL2     = "bool2";
-ShaderParameterType.prototype.BOOL3     = "bool3";
-ShaderParameterType.prototype.BOOL4     = "bool4";
-ShaderParameterType.prototype.FLOAT     = "float";
-ShaderParameterType.prototype.FLOAT2    = "float2";
-ShaderParameterType.prototype.FLOAT3    = "float3";
-ShaderParameterType.prototype.FLOAT4    = "float4";
-ShaderParameterType.prototype.INT       = "int";
-ShaderParameterType.prototype.INT2      = "int2";
-ShaderParameterType.prototype.INT3      = "int3";
-ShaderParameterType.prototype.INT4      = "int4";
-ShaderParameterType.prototype.MATRIX2X2 = "matrix2x2";
-ShaderParameterType.prototype.MATRIX3X3 = "matrix3x3";
-ShaderParameterType.prototype.MATRIX4X4 = "matrix4x4";
 
+ShaderParameterType.BOOL      = "bool";
+ShaderParameterType.BOOL2     = "bool2";
+ShaderParameterType.BOOL3     = "bool3";
+ShaderParameterType.BOOL4     = "bool4";
+ShaderParameterType.FLOAT     = "float";
+ShaderParameterType.FLOAT2    = "float2";
+ShaderParameterType.FLOAT3    = "float3";
+ShaderParameterType.FLOAT4    = "float4";
+ShaderParameterType.INT       = "int";
+ShaderParameterType.INT2      = "int2";
+ShaderParameterType.INT3      = "int3";
+ShaderParameterType.INT4      = "int4";
+ShaderParameterType.MATRIX2X2 = "matrix2x2";
+ShaderParameterType.MATRIX3X3 = "matrix3x3";
+ShaderParameterType.MATRIX4X4 = "matrix4x4";
+
+/**
+ * extends
+ */
+ShaderParameterType.prototype = Object.create(OriginalObject.prototype);
+ShaderParameterType.prototype.constructor = ShaderParameterType;
 /**
  * @constructor
  */
 var ShaderPrecision = function () {};
-ShaderPrecision.prototype.FAST = "fast";
-ShaderPrecision.prototype.FULL = "full";
+
+ShaderPrecision.FAST = "fast";
+ShaderPrecision.FULL = "full";
+
+/**
+ * extends
+ */
+ShaderPrecision.prototype = Object.create(OriginalObject.prototype);
+ShaderPrecision.prototype.constructor = ShaderPrecision;
 /**
  * @constructor
  */
@@ -13308,10 +13499,20 @@ SimpleButton.prototype.addActions = function (stage)
  */
 SimpleButton.prototype.getTags   = function () { return undefined; };
 SimpleButton.prototype.initFrame = function () {};
+/**
+ * @constructor
+ */
 var SpreadMethod = function () {};
-SpreadMethod.prototype.PAD     = "pad";
-SpreadMethod.prototype.REFLECT = "reflect";
-SpreadMethod.prototype.REPEAT  = "repeat";
+
+SpreadMethod.PAD     = "pad";
+SpreadMethod.REFLECT = "reflect";
+SpreadMethod.REPEAT  = "repeat";
+
+/**
+ * extends
+ */
+SpreadMethod.prototype = Object.create(OriginalObject.prototype);
+SpreadMethod.prototype.constructor = SpreadMethod;
 /**
  * @constructor
  */
@@ -15689,48 +15890,83 @@ var Stage3D = function () {};
  * @constructor
  */
 var StageAlign = function () {};
-StageAlign.prototype.BOTTOM       = "B";
-StageAlign.prototype.BOTTOM_LEFT  = "BL";
-StageAlign.prototype.BOTTOM_RIGHT = "BR";
-StageAlign.prototype.LEFT         = "L";
-StageAlign.prototype.RIGHT        = "R";
-StageAlign.prototype.TOP          = "T";
-StageAlign.prototype.TOP_LEFT     = "TL";
-StageAlign.prototype.TOP_RIGHT    = "TR";
+
+StageAlign.BOTTOM       = "B";
+StageAlign.BOTTOM_LEFT  = "BL";
+StageAlign.BOTTOM_RIGHT = "BR";
+StageAlign.LEFT         = "L";
+StageAlign.RIGHT        = "R";
+StageAlign.TOP          = "T";
+StageAlign.TOP_LEFT     = "TL";
+StageAlign.TOP_RIGHT    = "TR";
+
+/**
+ * extends
+ */
+StageAlign.prototype = Object.create(OriginalObject.prototype);
+StageAlign.prototype.constructor = StageAlign;
 /**
  * @constructor
  */
 var StageDisplayState = function () {};
-StageDisplayState.prototype.FULL_SCREEN             = "fullScreen";
-StageDisplayState.prototype.FULL_SCREEN_INTERACTIVE = "fullScreenInteractive";
-StageDisplayState.prototype.NORMAL                  = "normal";
+
+StageDisplayState.FULL_SCREEN             = "fullScreen";
+StageDisplayState.FULL_SCREEN_INTERACTIVE = "fullScreenInteractive";
+StageDisplayState.NORMAL                  = "normal";
+
+/**
+ * extends
+ */
+StageDisplayState.prototype = Object.create(OriginalObject.prototype);
+StageDisplayState.prototype.constructor = StageDisplayState;
 /**
  * @constructor
  */
 var StageQuality = function () {};
-StageQuality.prototype.BEST              = "best";
-StageQuality.prototype.HIGH              = "high";
-StageQuality.prototype.HIGH_16X16        = "16x16";
-StageQuality.prototype.HIGH_16X16_LINEAR = "16x16linear";
-StageQuality.prototype.HIGH_8X8          = "8x8";
-StageQuality.prototype.HIGH_8X8_LINEAR   = "8x8linear";
-StageQuality.prototype.LOW               = "low";
-StageQuality.prototype.MEDIUM            = "medium";
+
+StageQuality.BEST              = "best";
+StageQuality.HIGH              = "high";
+StageQuality.HIGH_16X16        = "16x16";
+StageQuality.HIGH_16X16_LINEAR = "16x16linear";
+StageQuality.HIGH_8X8          = "8x8";
+StageQuality.HIGH_8X8_LINEAR   = "8x8linear";
+StageQuality.LOW               = "low";
+StageQuality.MEDIUM            = "medium";
+
+/**
+ * extends
+ */
+StageQuality.prototype = Object.create(OriginalObject.prototype);
+StageQuality.prototype.constructor = StageQuality;
 /**
  * @constructor
  */
 var StageScaleMode = function () {};
-StageScaleMode.prototype.EXACT_FIT = "exactFit";
-StageScaleMode.prototype.NO_BORDER = "noBorder";
-StageScaleMode.prototype.NO_SCALE  = "noScale";
-StageScaleMode.prototype.SHOW_ALL  = "showAll";
+
+StageScaleMode.EXACT_FIT = "exactFit";
+StageScaleMode.NO_BORDER = "noBorder";
+StageScaleMode.NO_SCALE  = "noScale";
+StageScaleMode.SHOW_ALL  = "showAll";
+
+/**
+ * extends
+ */
+StageScaleMode.prototype = Object.create(OriginalObject.prototype);
+StageScaleMode.prototype.constructor = StageScaleMode;
 /**
  * @constructor
  */
 var TriangleCulling = function () {};
-TriangleCulling.prototype.NEGATIVE = "negative";
-TriangleCulling.prototype.NONE     = "none";
-TriangleCulling.prototype.POSITIVE = "positive";
+
+TriangleCulling.NEGATIVE = "negative";
+TriangleCulling.NONE     = "none";
+TriangleCulling.POSITIVE = "positive";
+
+/**
+ * extends
+ */
+TriangleCulling.prototype = Object.create(OriginalObject.prototype);
+TriangleCulling.prototype.constructor = TriangleCulling;
 /**
  * @constructor
  */
@@ -15759,23 +15995,56 @@ var Clipboard = function () {};
  * @constructor
  */
 var ClipboardFormats = function () {};
-ClipboardFormats.prototype.HTML_FORMAT      = "air:html";
-ClipboardFormats.prototype.RICH_TEXT_FORMAT = "air:rtf";
-ClipboardFormats.prototype.TEXT_FORMA       = "air:text";
+
+ClipboardFormats.HTML_FORMAT      = "air:html";
+ClipboardFormats.RICH_TEXT_FORMAT = "air:rtf";
+ClipboardFormats.TEXT_FORMA       = "air:text";
+
+/**
+ * extends
+ */
+ClipboardFormats.prototype = Object.create(OriginalObject.prototype);
+ClipboardFormats.prototype.constructor = ClipboardFormats;
 /**
  * @constructor
  */
 var ClipboardTransferMode = function () {};
-ClipboardTransferMode.prototype.CLONE_ONLY         = "cloneOnly";
-ClipboardTransferMode.prototype.CLONE_PREFERRED    = "clonePreferred";
-ClipboardTransferMode.prototype.ORIGINAL_ONLY      = "originalOnly";
-ClipboardTransferMode.prototype.ORIGINAL_PREFERRED = "originalPreferred";
+
+ClipboardTransferMode.CLONE_ONLY         = "cloneOnly";
+ClipboardTransferMode.CLONE_PREFERRED    = "clonePreferred";
+ClipboardTransferMode.ORIGINAL_ONLY      = "originalOnly";
+ClipboardTransferMode.ORIGINAL_PREFERRED = "originalPreferred";
+
+/**
+ * extends
+ */
+ClipboardTransferMode.prototype = Object.create(OriginalObject.prototype);
+ClipboardTransferMode.prototype.constructor = ClipboardTransferMode;
+/**
+ * @constructor
+ */
 var AntiAliasType = function () {};
 
+/**
+ * @constructor
+ * @constructor
+ */
 var CSMSettings = function () {};
+/**
+ * @constructor
+ */
 var Font = function () {};
+/**
+ * @constructor
+ */
 var FontStyle = function() {};
+/**
+ * @constructor
+ */
 var FontType = function () {};
+/**
+ * @constructor
+ */
 var GridFitType = function () {};
 
 /**
@@ -16056,8 +16325,17 @@ StaticText.prototype.renderHitTest = function (ctx, matrix, stage, x, y)
 
     return hit;
 };
+/**
+ * @constructor
+ */
 var StyleSheet = function () {};
+/**
+ * @constructor
+ */
 var TextColorType = function () {};
+/**
+ * @constructor
+ */
 var TextDisplayMode = function () {};
 /**
  * @param name
@@ -17535,7 +17813,13 @@ TextField.prototype.renderHitTest = function (ctx, matrix, stage, x, y)
 TextField.prototype.initFrame  = function () {};
 TextField.prototype.addActions = function () {};
 TextField.prototype.getTags    = function () { return undefined; };
+/**
+ * @constructor
+ */
 var TextFieldAutoSize = function () {};
+/**
+ * @constructor
+ */
 var TextFieldType = function () {};
 /**
  * @constructor
@@ -17561,7 +17845,13 @@ var TextFormat = function ()
     this.url           = null;
     this.target        = null;
 };
+/**
+ * @constructor
+ */
 var TextFormatAlign = function () {};
+/**
+ * @constructor
+ */
 var TextLineMetrics = function () {};
 /**
  * @constructor
@@ -17619,6 +17909,9 @@ TextRecord.prototype.setData = function (data)
 {
     this.data = data;
 };
+/**
+ * @constructor
+ */
 var TextRenderer = function () {};
 /**
  * @constructor
@@ -17696,11 +17989,29 @@ TextSnapshot.prototype.setSelected = function (beginIndex, endIndex, select)
 {
 
 };
+/**
+ * @constructor
+ */
 var AVNetworkingParams = function () {};
+/**
+ * @constructor
+ */
 var AVURLLoader = function () {};
+/**
+ * @constructor
+ */
 var AVURLStream = function () {};
+/**
+ * @constructor
+ */
 var Camera = function () {};
+/**
+ * @constructor
+ */
 var ID3Info = function () {};
+/**
+ * @constructor
+ */
 var Microphone = function () {};
 /**
  * @constructor
@@ -17992,9 +18303,21 @@ Sound.prototype.getBytesTotal = function ()
 {
     return 1;
 };
+/**
+ * @constructor
+ */
 var SoundChannel = function () {};
+/**
+ * @constructor
+ */
 var SoundCodec = function () {};
+/**
+ * @constructor
+ */
 var SoundLoaderContext = function () {};
+/**
+ * @constructor
+ */
 var SoundMixer = function () {};
 /**
  * @constructor
@@ -18169,36 +18492,126 @@ SoundTransform.prototype.SoundTransform = function (vol, panning)
     this.volume = vol | 0;
     this.pan    = panning | 0;
 };
+/**
+ * @constructor
+ */
 var StageVideo = function () {};
+/**
+ * @constructor
+ */
 var StageVideoAvailability = function () {};
+/**
+ * @constructor
+ */
 var StageVideoAvailabilityReason = function () {};
+/**
+ * @constructor
+ */
 var Video = function () {};
+/**
+ * @constructor
+ */
 var VideoStatus = function () {};
+/**
+ * @constructor
+ */
 var FileFilter = function () {};
+/**
+ * @constructor
+ */
 var FileReference = function () {};
+/**
+ * @constructor
+ */
 var FileReferenceList = function () {};
+/**
+ * @constructor
+ */
 var GroupSpecifier = function () {};
+/**
+ * @constructor
+ */
 var LocalConnection = function () {};
+/**
+ * @constructor
+ */
 var NetConnection = function () {};
+/**
+ * @constructor
+ */
 var NetGroup = function () {};
+/**
+ * @constructor
+ */
 var NetGroupInfo = function () {};
+/**
+ * @constructor
+ */
 var NetGroupReceiveMode = function () {};
 
+/**
+ * @constructor
+ */
 var NetGroupReplicationStrategy = function () {};
+/**
+ * @constructor
+ */
 var NetGroupSendMode = function () {};
+/**
+ * @constructor
+ */
 var NetGroupSendResult = function () {};
+/**
+ * @constructor
+ */
 var NetStream = function () {};
+/**
+ * @constructor
+ */
 var NetStreamAppendBytesAction = function () {};
+/**
+ * @constructor
+ */
 var NetStreamInfo = function () {};
+/**
+ * @constructor
+ */
 var NetStreamMulticastInfo = function () {};
+/**
+ * @constructor
+ */
 var NetStreamPlayOptions = function () {};
+/**
+ * @constructor
+ */
 var NetStreamPlayTransitions = function () {};
+/**
+ * @constructor
+ */
 var ObjectEncoding = function () {};
+/**
+ * @constructor
+ */
 var Responder = function () {};
+/**
+ * @constructor
+ */
 var SecureSocket = function () {};
+/**
+ * @constructor
+ */
 var SharedObjectFlushStatus = function () {};
+/**
+ * @constructor
+ */
 var Socket = function () {};
+/**
+ * @constructor
+ */
 var URLLoader = function () {};
+/**
+ * @constructor
+ */
 var URLLoaderDataFormat = function () {};
 /**
  * @constructor
@@ -18290,10 +18703,25 @@ URLRequest.prototype.setAuthenticate = function (authenticate)
     this._authenticate = authenticate;
 };
 
+/**
+ * @constructor
+ */
 var URLRequestHeader = function () {};
+/**
+ * @constructor
+ */
 var URLRequestMethod = function () {};
+/**
+ * @constructor
+ */
 var URLStream = function () {};
+/**
+ * @constructor
+ */
 var URLVariables = function () {};
+/**
+ * @constructor
+ */
 var XMLSocket = function () {};
 /**
  * @constructor
@@ -18313,9 +18741,15 @@ var PrintJobOptions = function (printAsBitmap)
  * @constructor
  */
 var PrintJobOrientation = function () {};
-PrintJobOrientation.prototype.LANDSCAPE = "landscape";
-PrintJobOrientation.prototype.PORTRAIT  = "portrait";
 
+PrintJobOrientation.LANDSCAPE = "landscape";
+PrintJobOrientation.PORTRAIT  = "portrait";
+
+/**
+ * extends
+ */
+PrintJobOrientation.prototype = Object.create(OriginalObject.prototype);
+PrintJobOrientation.prototype.constructor = PrintJobOrientation;
 /**
  * @param source
  * @constructor
@@ -18341,8 +18775,15 @@ var XMLNode = function (type, value)
  * @constructor
  */
 var XMLNodeType = function () {};
-XMLNodeType.prototype.ELEMENT_NODE = 1;
-XMLNodeType.prototype.TEXT_NODE    = 3;
+
+XMLNodeType.ELEMENT_NODE = 1;
+XMLNodeType.TEXT_NODE    = 3;
+
+/**
+ * extends
+ */
+XMLNodeType.prototype = Object.create(OriginalObject.prototype);
+XMLNodeType.prototype.constructor = XMLNodeType;
 /**
  * @param data
  * @param constantPool

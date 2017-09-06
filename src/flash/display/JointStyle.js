@@ -2,6 +2,13 @@
  * @constructor
  */
 var JointStyle = function () {};
-JointStyle.prototype.BEVEL = "bevel";
-JointStyle.prototype.MITER = "miter";
-JointStyle.prototype.ROUND = "round";
+
+JointStyle.BEVEL = "bevel";
+JointStyle.MITER = "miter";
+JointStyle.ROUND = "round";
+
+/**
+ * extends
+ */
+JointStyle.prototype = Object.create(OriginalObject.prototype);
+JointStyle.prototype.constructor = JointStyle;

@@ -2,18 +2,25 @@
  * @constructor
  */
 var BlendMode = function () {};
-BlendMode.prototype.ADD        = "add";
-BlendMode.prototype.ALPHA      = "alpha";
-BlendMode.prototype.DARKEN     = "darken";
-BlendMode.prototype.DIFFERENCE = "difference";
-BlendMode.prototype.ERASE      = "erase";
-BlendMode.prototype.HARDLIGHT  = "hardlight";
-BlendMode.prototype.INVERT     = "invert";
-BlendMode.prototype.LAYER      = "layer";
-BlendMode.prototype.LIGHTEN    = "lighten";
-BlendMode.prototype.MULTIPLY   = "multiply";
-BlendMode.prototype.NORMAL     = "normal";
-BlendMode.prototype.OVERLAY    = "overlay";
-BlendMode.prototype.SCREEN     = "screen";
-BlendMode.prototype.SHADER     = "shader";
-BlendMode.prototype.SUBTRACT   = "subtract";
+
+BlendMode.ADD        = "add";
+BlendMode.ALPHA      = "alpha";
+BlendMode.DARKEN     = "darken";
+BlendMode.DIFFERENCE = "difference";
+BlendMode.ERASE      = "erase";
+BlendMode.HARDLIGHT  = "hardlight";
+BlendMode.INVERT     = "invert";
+BlendMode.LAYER      = "layer";
+BlendMode.LIGHTEN    = "lighten";
+BlendMode.MULTIPLY   = "multiply";
+BlendMode.NORMAL     = "normal";
+BlendMode.OVERLAY    = "overlay";
+BlendMode.SCREEN     = "screen";
+BlendMode.SHADER     = "shader";
+BlendMode.SUBTRACT   = "subtract";
+
+/**
+ * extends
+ */
+BlendMode.prototype = Object.create(OriginalObject.prototype);
+BlendMode.prototype.constructor = BlendMode;

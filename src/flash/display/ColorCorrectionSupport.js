@@ -2,6 +2,13 @@
  * @constructor
  */
 var ColorCorrectionSupport = function () {};
-ColorCorrectionSupport.prototype.DEFAULT_OFF  = "defaultOff";
-ColorCorrectionSupport.prototype.DEFAULT_ON   = "defaultOn";
-ColorCorrectionSupport.prototype.UNSUPPORTED  = "unsupported";
+
+ColorCorrectionSupport.DEFAULT_OFF  = "defaultOff";
+ColorCorrectionSupport.DEFAULT_ON   = "defaultOn";
+ColorCorrectionSupport.UNSUPPORTED  = "unsupported";
+
+/**
+ * extends
+ */
+ColorCorrectionSupport.prototype = Object.create(OriginalObject.prototype);
+ColorCorrectionSupport.prototype.constructor = ColorCorrectionSupport;

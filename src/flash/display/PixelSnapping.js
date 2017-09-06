@@ -2,6 +2,13 @@
  * @constructor
  */
 var PixelSnapping = function () {};
-PixelSnapping.prototype.ALWAYS = "always";
-PixelSnapping.prototype.AUTO   = "auto";
-PixelSnapping.prototype.NEVER  = "never";
+
+PixelSnapping.ALWAYS = "always";
+PixelSnapping.AUTO   = "auto";
+PixelSnapping.NEVER  = "never";
+
+/**
+ * extends
+ */
+PixelSnapping.prototype = Object.create(OriginalObject.prototype);
+PixelSnapping.prototype.constructor = PixelSnapping;

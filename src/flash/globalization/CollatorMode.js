@@ -2,5 +2,12 @@
  * @constructor
  */
 var CollatorMode = function () {};
-CollatorMode.prototype.MATCHING = "matching";
-CollatorMode.prototype.SORTING  = "sorting";
+
+CollatorMode.MATCHING = "matching";
+CollatorMode.SORTING  = "sorting";
+
+/**
+ * extends
+ */
+CollatorMode.prototype = Object.create(OriginalObject.prototype);
+CollatorMode.prototype.constructor = CollatorMode;

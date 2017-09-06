@@ -2,6 +2,13 @@
  * @constructor
  */
 var CapsStyle = function () {};
-CapsStyle.prototype.NONE   = "none";
-CapsStyle.prototype.ROUND  = "round";
-CapsStyle.prototype.SQUARE = "square";
+
+CapsStyle.NONE   = "none";
+CapsStyle.ROUND  = "round";
+CapsStyle.SQUARE = "square";
+
+/**
+ * extends
+ */
+CapsStyle.prototype = Object.create(OriginalObject.prototype);
+CapsStyle.prototype.constructor = CapsStyle;

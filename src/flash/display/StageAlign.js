@@ -2,11 +2,18 @@
  * @constructor
  */
 var StageAlign = function () {};
-StageAlign.prototype.BOTTOM       = "B";
-StageAlign.prototype.BOTTOM_LEFT  = "BL";
-StageAlign.prototype.BOTTOM_RIGHT = "BR";
-StageAlign.prototype.LEFT         = "L";
-StageAlign.prototype.RIGHT        = "R";
-StageAlign.prototype.TOP          = "T";
-StageAlign.prototype.TOP_LEFT     = "TL";
-StageAlign.prototype.TOP_RIGHT    = "TR";
+
+StageAlign.BOTTOM       = "B";
+StageAlign.BOTTOM_LEFT  = "BL";
+StageAlign.BOTTOM_RIGHT = "BR";
+StageAlign.LEFT         = "L";
+StageAlign.RIGHT        = "R";
+StageAlign.TOP          = "T";
+StageAlign.TOP_LEFT     = "TL";
+StageAlign.TOP_RIGHT    = "TR";
+
+/**
+ * extends
+ */
+StageAlign.prototype = Object.create(OriginalObject.prototype);
+StageAlign.prototype.constructor = StageAlign;

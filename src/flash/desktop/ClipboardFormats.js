@@ -2,6 +2,13 @@
  * @constructor
  */
 var ClipboardFormats = function () {};
-ClipboardFormats.prototype.HTML_FORMAT      = "air:html";
-ClipboardFormats.prototype.RICH_TEXT_FORMAT = "air:rtf";
-ClipboardFormats.prototype.TEXT_FORMA       = "air:text";
+
+ClipboardFormats.HTML_FORMAT      = "air:html";
+ClipboardFormats.RICH_TEXT_FORMAT = "air:rtf";
+ClipboardFormats.TEXT_FORMA       = "air:text";
+
+/**
+ * extends
+ */
+ClipboardFormats.prototype = Object.create(OriginalObject.prototype);
+ClipboardFormats.prototype.constructor = ClipboardFormats;

@@ -2,7 +2,14 @@
  * @constructor
  */
 var DisplacementMapFilterMode = function () {};
-DisplacementMapFilterMode.prototype.CLAMP  = "clamp";
-DisplacementMapFilterMode.prototype.COLOR  = "color";
-DisplacementMapFilterMode.prototype.IGNORE = "ignore";
-DisplacementMapFilterMode.prototype.WRAP   = "wrap";
+
+DisplacementMapFilterMode.CLAMP  = "clamp";
+DisplacementMapFilterMode.COLOR  = "color";
+DisplacementMapFilterMode.IGNORE = "ignore";
+DisplacementMapFilterMode.WRAP   = "wrap";
+
+/**
+ * extends
+ */
+DisplacementMapFilterMode.prototype = Object.create(OriginalObject.prototype);
+DisplacementMapFilterMode.prototype.constructor = DisplacementMapFilterMode;

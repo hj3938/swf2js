@@ -1,1 +1,4 @@
+/**
+ * @constructor
+ */
 var NetGroup = function () {};

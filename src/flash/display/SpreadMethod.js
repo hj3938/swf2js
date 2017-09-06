@@ -1,4 +1,14 @@
+/**
+ * @constructor
+ */
 var SpreadMethod = function () {};
-SpreadMethod.prototype.PAD     = "pad";
-SpreadMethod.prototype.REFLECT = "reflect";
-SpreadMethod.prototype.REPEAT  = "repeat";
+
+SpreadMethod.PAD     = "pad";
+SpreadMethod.REFLECT = "reflect";
+SpreadMethod.REPEAT  = "repeat";
+
+/**
+ * extends
+ */
+SpreadMethod.prototype = Object.create(OriginalObject.prototype);
+SpreadMethod.prototype.constructor = SpreadMethod;

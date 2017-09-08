@@ -14,7 +14,7 @@ v0.12.9
 npm install -g gulp karma
 ```
 
-## Install And Initialize
+## Start to Develop
 
 ```linux
 git clone --branch=develop https://github.com/ienaga/swf2js.git

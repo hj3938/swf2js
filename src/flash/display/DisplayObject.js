@@ -1184,10 +1184,7 @@ DisplayObject.prototype.getXScale = function ()
 {
     var matrix = this.getMatrix();
     var xScale = this.$sqrt(matrix[0] * matrix[0] + matrix[1] * matrix[1]) * 100;
-    if (0 > matrix[0]) {
-        xScale = -xScale;
-    }
-    return xScale;
+    return (0 < matrix[0]) ? xScale : -xScale;
 };
 
 /**
@@ -1199,16 +1196,10 @@ DisplayObject.prototype.setXScale = function (xscale)
     if (!this.$isNaN(xscale)) {
         var _matrix = this.getMatrix();
         var matrix  = this.cloneArray(_matrix);
-        var adjustment = 1;
-        if (0 > matrix[0]) {
-            adjustment = -1;
-        }
-
         var radianX = this.$atan2(matrix[1], matrix[0]);
-        xscale     /= 100;
-        matrix[0]   = xscale * this.$cos(radianX) * adjustment;
-        matrix[1]   = xscale * this.$sin(radianX) * adjustment;
-
+        xscale      = xscale / 100;
+        matrix[0]   = xscale * this.$cos(radianX);
+        matrix[1]   = xscale * this.$sin(radianX);
         this.setMatrix(matrix);
     }
 };
@@ -1235,17 +1226,10 @@ DisplayObject.prototype.setYScale = function (yscale)
     if (!this.$isNaN(yscale)) {
         var _matrix = this.getMatrix();
         var matrix  = this.cloneArray(_matrix);
-        var adjustment = 1;
-        if (0 > matrix[3]) {
-            // TODO test
-            // adjustment = -1;
-        }
-
         var radianY = this.$atan2(-matrix[2], matrix[3]);
-        yscale     /= 100;
-        matrix[2]   = -yscale * this.$sin(radianY) * adjustment;
-        matrix[3]   = yscale  * this.$cos(radianY) * adjustment;
-
+        yscale      = yscale / 100;
+        matrix[2]   = -yscale * this.$sin(radianY);
+        matrix[3]   = yscale  * this.$cos(radianY);
         this.setMatrix(matrix);
     }
 };

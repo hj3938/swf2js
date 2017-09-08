@@ -10,7 +10,7 @@
 var Matrix = function (a, b, c, d, tx, ty)
 {
     // default
-    this._matrix  = [1, 0, 0, 1, 0, 0];
+    this.identity();
 
     // init
     this.a  = a;
@@ -90,7 +90,8 @@ Matrix.prototype.getA = function ()
 };
 
 /**
- * @param a
+ * @param {number} a
+ * @returns void
  */
 Matrix.prototype.setA = function (a)
 {
@@ -108,7 +109,8 @@ Matrix.prototype.getB = function ()
 };
 
 /**
- * @param b
+ * @param {number} b
+ * @returns void
  */
 Matrix.prototype.setB = function (b)
 {
@@ -126,7 +128,8 @@ Matrix.prototype.getC = function ()
 };
 
 /**
- * @param c
+ * @param {number} c
+ * @returns void
  */
 Matrix.prototype.setC = function (c)
 {
@@ -144,7 +147,8 @@ Matrix.prototype.getD = function ()
 };
 
 /**
- * @param d
+ * @param {number} d
+ * @returns void
  */
 Matrix.prototype.setD = function (d)
 {
@@ -158,16 +162,17 @@ Matrix.prototype.setD = function (d)
  */
 Matrix.prototype.getTx = function ()
 {
-    return this._matrix[4];
+    return this._matrix[4] / 20;
 };
 
 /**
- * @param tx
+ * @param {number} tx
+ * @returns void
  */
 Matrix.prototype.setTx = function (tx)
 {
     if (!this.$isNaN(tx)) {
-        this._matrix[4] = tx;
+        this._matrix[4] = tx * 20;
     }
 };
 
@@ -176,16 +181,17 @@ Matrix.prototype.setTx = function (tx)
  */
 Matrix.prototype.getTy = function ()
 {
-    return this._matrix[5];
+    return this._matrix[5] / 20;
 };
 
 /**
- * @param ty
+ * @param {number} ty
+ * @returns void
  */
 Matrix.prototype.setTy = function (ty)
 {
     if (!this.$isNaN(ty)) {
-        this._matrix[5] = ty;
+        this._matrix[5] = ty * 20;
     }
 };
 
@@ -199,10 +205,177 @@ Matrix.prototype.clone = function ()
 
 /**
  * @param {Matrix} m
+ * @returns void
  */
 Matrix.prototype.concat = function (m)
 {
-    this._matrix = this.$multiplicationMatrix([this._matrix], [m._matrix]);
+    this._matrix = this.$multiplicationMatrix(m._matrix, this._matrix);
+};
+
+/**
+ * @param {number} column
+ * @param {Vector3D} vector3D
+ * @returns void
+ */
+Matrix.prototype.copyColumnFrom = function (column, vector3D)
+{
+    // todo
+};
+
+/**
+ * @param {number} column
+ * @param {Vector3D} vector3D
+ * @returns void
+ */
+Matrix.prototype.copyColumnTo = function (column, vector3D)
+{
+    // todo
+};
+
+/**
+ * @param {Matrix} sourceMatrix
+ * @returns void
+ */
+Matrix.prototype.copyFrom = function (sourceMatrix)
+{
+    // todo
+};
+
+/**
+ * @param {number} row
+ * @param {Vector3D} vector3D
+ * @returns void
+ */
+Matrix.prototype.copyRowFrom = function (row, vector3D)
+{
+    // todo
+};
+
+/**
+ * @param {number} row
+ * @param {Vector3D} vector3D
+ * @returns void
+ */
+Matrix.prototype.copyRowTo = function (row, vector3D)
+{
+    // todo
+};
+
+/**
+ * @param {number} scaleX
+ * @param {number} scaleY
+ * @param {number} rotation
+ * @param {number} tx
+ * @param {number} ty
+ * @returns void
+ */
+Matrix.prototype.createBox = function (scaleX, scaleY, rotation, tx, ty)
+{
+    this.identity();
+    this.scale(scaleX, scaleY);
+    this.rotate(rotation);
+    this.translate(tx, ty);
+};
+
+/**
+ * @param {number} width
+ * @param {number} height
+ * @param {number} rotation
+ * @param {number} tx
+ * @param {number} ty
+ * @returns void
+ */
+Matrix.prototype.createGradientBox = function (width, height, rotation, tx, ty)
+{
+    this.identity();
+    this.scale(width / 1638.4, height / 1638.4);
+    this.rotate(rotation);
+    this.translate(width / 2 + tx, height / 2 + ty);
+};
+
+
+/**
+ * @param {Point} point
+ * @returns {Point}
+ */
+Matrix.prototype.deltaTransformPoint = function (point)
+{
+    return point;
+};
+
+/**
+ * @returns void
+ */
+Matrix.prototype.identity = function ()
+{
+    this._matrix = [1, 0, 0, 1, 0, 0];
+};
+
+/**
+ * @returns void
+ */
+Matrix.prototype.invert = function ()
+{
+    // todo
+};
+
+/**
+ * @param {number} rotation
+ * @returns void
+ */
+Matrix.prototype.rotate = function (rotation)
+{
+    var matrix  = this._matrix;
+    var radianX = this.$atan2(matrix[1],  matrix[0]);
+    var radianY = this.$atan2(-matrix[2], matrix[3]);
+    var scaleX  = this.$sqrt(matrix[0] * matrix[0] + matrix[1] * matrix[1]);
+    var scaleY  = this.$sqrt(matrix[2] * matrix[2] + matrix[3] * matrix[3]);
+
+    radianY = radianY + rotation - radianX;
+    radianX = rotation;
+
+    matrix[0] = scaleX  * this.$cos(radianX);
+    matrix[2] = -scaleX * this.$sin(radianX);
+    matrix[1] = scaleY  * this.$sin(radianY);
+    matrix[3] = scaleY  * this.$cos(radianY);
+
+    this._matrix = matrix;
+};
+
+/**
+ * @param {number} sx
+ * @param {number} sy
+ * @returns void
+ */
+Matrix.prototype.scale = function (sx, sy)
+{
+    var matrix  = this._matrix;
+    var radianX = this.$atan2(matrix[1],  matrix[0]);
+    var radianY = this.$atan2(-matrix[2], matrix[3]);
+
+    matrix[0] = sx  * this.$cos(radianX);
+    matrix[2] = -sx * this.$sin(radianX);
+    matrix[1] = sy  * this.$sin(radianY);
+    matrix[3] = sy  * this.$cos(radianY);
+};
+
+/**
+ * @param {number} aa
+ * @param {number} ba
+ * @param {number} ca
+ * @param {number} da
+ * @param {number} txa
+ * @param {number} tya
+ * @returns void
+ */
+Matrix.prototype.setTo = function (aa, ba, ca, da, txa, tya)
+{
+    this.a  = aa;
+    this.b  = ba;
+    this.c  = ca;
+    this.d  = da;
+    this.tx = txa;
+    this.ty = tya;
 };
 
 /**
@@ -213,5 +386,24 @@ Matrix.prototype.toString = function ()
     return "(a="+ this.a +", b="+ this.b +", c="+ this.c +", d="+ this.d +", tx="+ this.tx +", ty="+ this.ty +")";
 };
 
+/**
+ * @param {Point} point
+ * @returns {Point}
+ */
+Matrix.prototype.transformPoint = function (point)
+{
+    // todo
+    return point;
+};
 
+/**
+ * @param {number} dx
+ * @param {number} dy
+ * @returns void
+ */
+Matrix.prototype.translate = function (dx, dy)
+{
+    this.tx = dx;
+    this.ty = dy;
+};
 

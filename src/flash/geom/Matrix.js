@@ -316,7 +316,45 @@ Matrix.prototype.identity = function ()
  */
 Matrix.prototype.invert = function ()
 {
-    // todo
+    var a = [[this.a, this.c], [this.b, this.d]];
+    var c = 2;
+
+    var det=1;
+    var i = 0;
+    while (i < c) {
+
+        var j = 0;
+        while (j < c) {
+
+            if (i < j) {
+                var buf = a[j][i] / a[i][i];
+
+                var k = 0;
+                while (k < c) {
+                    a[j][k] -= a[i][k] * buf;
+
+                    k = (k + 1)|0;
+                }
+            }
+
+            j = (j + 1)|0;
+        }
+
+        i = (i + 1)|0;
+    }
+
+    i = 0;
+    while (i < c) {
+        det = det * a[i][i];
+        i = (i + 1)|0;
+    }
+
+    this.a  =  this.a  / det;
+    this.b  = -this.b  / det;
+    this.c  = -this.c  / det;
+    this.d  =  this.d  / det;
+    this.tx = -this.tx / det;
+    this.ty = -this.ty / det;
 };
 
 /**
@@ -325,21 +363,18 @@ Matrix.prototype.invert = function ()
  */
 Matrix.prototype.rotate = function (rotation)
 {
-    var matrix  = this._matrix;
-    var radianX = this.$atan2(matrix[1],  matrix[0]);
-    var radianY = this.$atan2(-matrix[2], matrix[3]);
-    var scaleX  = this.$sqrt(matrix[0] * matrix[0] + matrix[1] * matrix[1]);
-    var scaleY  = this.$sqrt(matrix[2] * matrix[2] + matrix[3] * matrix[3]);
+    var radianX = this.$atan2(this.b,  this.a);
+    var radianY = this.$atan2(-this.c, this.d);
+    var scaleX  = this.$sqrt(this.a * this.a + this.b * this.b);
+    var scaleY  = this.$sqrt(this.c * this.c + this.d * this.d);
 
     radianY = radianY + rotation - radianX;
     radianX = rotation;
 
-    matrix[0] = scaleX  * this.$cos(radianX);
-    matrix[2] = -scaleX * this.$sin(radianX);
-    matrix[1] = scaleY  * this.$sin(radianY);
-    matrix[3] = scaleY  * this.$cos(radianY);
-
-    this._matrix = matrix;
+    this.a = scaleX  * this.$cos(radianX);
+    this.c = -scaleX * this.$sin(radianX);
+    this.b = scaleY  * this.$sin(radianY);
+    this.d = scaleY  * this.$cos(radianY);
 };
 
 /**
@@ -349,14 +384,13 @@ Matrix.prototype.rotate = function (rotation)
  */
 Matrix.prototype.scale = function (sx, sy)
 {
-    var matrix  = this._matrix;
-    var radianX = this.$atan2(matrix[1],  matrix[0]);
-    var radianY = this.$atan2(-matrix[2], matrix[3]);
+    var radianX = this.$atan2(this.b,  this.a);
+    var radianY = this.$atan2(-this.c, this.d);
 
-    matrix[0] = sx  * this.$cos(radianX);
-    matrix[2] = -sx * this.$sin(radianX);
-    matrix[1] = sy  * this.$sin(radianY);
-    matrix[3] = sy  * this.$cos(radianY);
+    this.a = sx  * this.$cos(radianX);
+    this.c = -sx * this.$sin(radianX);
+    this.b = sy  * this.$sin(radianY);
+    this.d = sy  * this.$cos(radianY);
 };
 
 /**

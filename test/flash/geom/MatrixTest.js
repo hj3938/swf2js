@@ -77,7 +77,6 @@ describe("Matrix.js createBox test", function()
         var tx = 10;
         var ty = 20;
         m.createBox(sx, sy, r, tx, ty);
-        console.log(m.toString());
         expect(m.toString()).toBe(
             "(a=1.4142135623730951, b=2.1213203435596424, c=-1.414213562373095, d=2.121320343559643, tx=10, ty=20)"
         );
@@ -85,3 +84,14 @@ describe("Matrix.js createBox test", function()
 });
 
 
+describe("Matrix.js invert test", function()
+{
+    it("invert test", function()
+    {
+        var m = new Matrix(2,1,1,2,-200,-200);
+        m.invert();
+        expect(m.toString()).toBe(
+            "(a=0.6666666666666666, b=-0.3333333333333333, c=-0.3333333333333333, d=0.6666666666666666, tx=66.66666666666667, ty=66.66666666666667)"
+        );
+    });
+});

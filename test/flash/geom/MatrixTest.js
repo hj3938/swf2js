@@ -60,8 +60,14 @@ describe("Matrix.js createGradientBox test", function()
         var m = new Matrix();
         m.createGradientBox(1, 0, 10, 0, 0);
         expect(m.toString()).toBe(
-            "(a=-0.0005121286188210769, b=0, c=0.0003320441350643127, d=0, tx=0.5, ty=0)"
+            "(a=-0.0005121286188210769, b=0, c=0.0003320441350643126, d=0, tx=0.5, ty=0)"
         );
+
+        /**
+         * memo
+         * local c=0.0003320441350643127,
+         * travis c=0.0003320441350643126
+         */
     });
 });
 

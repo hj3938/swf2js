@@ -316,36 +316,32 @@ Matrix.prototype.identity = function ()
  */
 Matrix.prototype.invert = function ()
 {
-    var a = [[this.a, this.c], [this.b, this.d]];
-    var c = 2;
+    var det = 1;
+    var m   = [[this.a, this.c], [this.b, this.d]];
 
-    var det=1;
     var i = 0;
-    while (i < c) {
+    while (i < 2) {
 
         var j = 0;
-        while (j < c) {
+        while (j < 2) {
 
             if (i < j) {
-                var buf = a[j][i] / a[i][i];
+                var buf = m[j][i] / m[i][i];
 
                 var k = 0;
-                while (k < c) {
-                    a[j][k] -= a[i][k] * buf;
-
+                while (k < 2) {
+                    m[j][k] = m[j][k] - m[i][k] * buf;
                     k = (k + 1)|0;
                 }
             }
-
             j = (j + 1)|0;
         }
-
         i = (i + 1)|0;
     }
 
     i = 0;
-    while (i < c) {
-        det = det * a[i][i];
+    while (i < 2) {
+        det = det * m[i][i];
         i = (i + 1)|0;
     }
 

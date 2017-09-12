@@ -102,7 +102,7 @@ describe("Matrix.js invert test", function()
 {
     it("invert test", function()
     {
-        var m = new Matrix(2,1,1,2,-200,-200);
+        var m = new Matrix(2, 1, 1, 2, -200, -200);
         m.invert();
         expect(m.toString()).toBe(
             "(a=0.6666666666666666, b=-0.3333333333333333, c=-0.3333333333333333, d=0.6666666666666666, tx=66.66666666666667, ty=66.66666666666667)"
@@ -118,13 +118,11 @@ describe("Matrix.js transformPoint test", function()
         var m = new Matrix(1, 0, 0, 1, 100, 110);
         m.rotate(45 / 180 * Math.PI);
 
-        console.log(m.toString());
-
-        var p1 = new Point(10, 20);
+        var p1 = new Point(2, 20);
         var p2 = m.transformPoint(p1);
 
         expect(p2.toString()).toBe(
-            "(x=-14.142135623730935, y=169.7056274847714)"
+            "(x=-19.798989873223313, y=164.04877323527904)"
         );
     });
 });

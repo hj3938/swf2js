@@ -24,21 +24,21 @@ Point.prototype.constructor = Point;
 Object.defineProperties(Point.prototype, {
     x: {
         get: function () {
-            return this._x;
+            return this._x / 20;
         },
         set: function (x) {
             if (!this.$isNaN(x)) {
-                this._x = x;
+                this._x = x * 20;
             }
         }
     },
     y: {
         get: function () {
-            return this._y;
+            return this._y / 20;
         },
         set: function (y) {
             if (!this.$isNaN(y)) {
-                this._y = y;
+                this._y = y * 20;
             }
         }
     },

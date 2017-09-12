@@ -80,51 +80,51 @@ describe("Matrix.js createGradientBox test", function()
 });
 
 
-// describe("Matrix.js createBox test", function()
-// {
-//     it("createBox test", function()
-//     {
-//         var m = new Matrix(1, 0.5, -0.2);
-//         var sx = 2.0;
-//         var sy = 3.0;
-//         var r  = 2 * Math.PI * (45 / 360);
-//         var tx = 10;
-//         var ty = 20;
-//         m.createBox(sx, sy, r, tx, ty);
-//         expect(m.toString()).toBe(
-//             "(a=1.4142135623730951, b=2.1213203435596424, c=-1.414213562373095, d=2.121320343559643, tx=10, ty=20)"
-//         );
-//     });
-// });
+describe("Matrix.js createBox test", function()
+{
+    it("createBox test", function()
+    {
+        var m = new Matrix(1, 0.5, -0.2);
+        var sx = 2.0;
+        var sy = 3.0;
+        var r  = 2 * Math.PI * (45 / 360);
+        var tx = 10;
+        var ty = 20;
+        m.createBox(sx, sy, r, tx, ty);
+        expect(m.toString()).toBe(
+            "(a=1.4142135623730951, b=2.1213203435596424, c=-1.414213562373095, d=2.121320343559643, tx=10, ty=20)"
+        );
+    });
+});
 
 
-// describe("Matrix.js invert test", function()
-// {
-//     it("invert test", function()
-//     {
-//         var m = new Matrix(2,1,1,2,-200,-200);
-//         m.invert();
-//         expect(m.toString()).toBe(
-//             "(a=0.6666666666666666, b=-0.3333333333333333, c=-0.3333333333333333, d=0.6666666666666666, tx=66.66666666666667, ty=66.66666666666667)"
-//         );
-//     });
-// });
+describe("Matrix.js invert test", function()
+{
+    it("invert test", function()
+    {
+        var m = new Matrix(2,1,1,2,-200,-200);
+        m.invert();
+        expect(m.toString()).toBe(
+            "(a=0.6666666666666666, b=-0.3333333333333333, c=-0.3333333333333333, d=0.6666666666666666, tx=66.66666666666667, ty=66.66666666666667)"
+        );
+    });
+});
 
 
-// describe("Matrix.js transformPoint test", function()
-// {
-//     it("transformPoint test", function()
-//     {
-//         var m = new Matrix(1, 0, 0, 1, 100, 110);
-//         m.rotate(45 / 180 * Math.PI);
-//
-//         console.log(m.toString());
-//
-//         var p1 = new Point(10, 20);
-//         var p2 = m.transformPoint(p1);
-//
-//         expect(p2.toString()).toBe(
-//             "(x=-14.142135623730935, y=169.7056274847714)"
-//         );
-//     });
-// });
+describe("Matrix.js transformPoint test", function()
+{
+    it("transformPoint test", function()
+    {
+        var m = new Matrix(1, 0, 0, 1, 100, 110);
+        m.rotate(45 / 180 * Math.PI);
+
+        console.log(m.toString());
+
+        var p1 = new Point(10, 20);
+        var p2 = m.transformPoint(p1);
+
+        expect(p2.toString()).toBe(
+            "(x=-14.142135623730935, y=169.7056274847714)"
+        );
+    });
+});

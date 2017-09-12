@@ -2878,12 +2878,10 @@ Matrix.prototype.toString = function ()
  */
 Matrix.prototype.transformPoint = function (point)
 {
-    var m = this.$multiplicationMatrix(
-        [this.a, this.b, this.c, this.b, 0, 0],
-        [1, 0, 0, 1, point.x, point.y]
-    );
+    var m = new Matrix(1, 0, 0, 1, point.x, point.y);
+    m.concat(this);
 
-    return new Point(m[4], m[5]);
+    return new Point(m.tx, m.ty);
 };
 
 /**

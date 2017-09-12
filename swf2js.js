@@ -2985,13 +2985,12 @@ Object.defineProperties(Point.prototype, {
 });
 
 /**
- * @param {number} v
+ * @param {Point} v
  * @returns {Point}
  */
 Point.prototype.add = function (v)
 {
-    // todo
-    return this;
+    return new Point(this.x + v.x, this.y + v.y);
 };
 
 /**
@@ -3008,7 +3007,8 @@ Point.prototype.clone = function ()
  */
 Point.prototype.copyFrom = function (sourcePoint)
 {
-    // todo
+    this.x = sourcePoint.x;
+    this.y = sourcePoint.y;
 };
 
 /**
@@ -3016,10 +3016,9 @@ Point.prototype.copyFrom = function (sourcePoint)
  * @param {Point} pt2
  * @returns {number}
  */
-Point.prototype.distance = function (pt1, pt2)
+Point.distance = function (pt1, pt2)
 {
-    // todo
-    return 0;
+    return Math.sqrt(Math.pow(pt1.x - pt2.x, 2) + Math.pow(pt1.y - pt2.y, 2));
 };
 
 /**
@@ -3029,8 +3028,7 @@ Point.prototype.distance = function (pt1, pt2)
  */
 Point.prototype.equals = function (toCompare)
 {
-    // todo
-    return true;
+    return (this.x === toCompare.x && this.y === toCompare.y);
 };
 
 /**

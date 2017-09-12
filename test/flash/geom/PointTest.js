@@ -77,6 +77,7 @@ describe("Matrix.js distance test", function()
     });
 });
 
+
 describe("Matrix.js equals test", function()
 {
 
@@ -92,5 +93,81 @@ describe("Matrix.js equals test", function()
         expect(p1.equals(p3)).toBe(false);
         expect(p1.equals(p4)).toBe(false);
         expect(p1.equals(p5)).toBe(false);
+    });
+});
+
+
+describe("Matrix.js subtract test", function()
+{
+
+    it("subtract test", function()
+    {
+        var p1 = new Point(6, 8);
+        var p2 = new Point(1.5, 2);
+        var p3 = p1.subtract(p2);
+        expect(p3.toString()).toBe("(x=4.5, y=6)");
+    });
+});
+
+
+describe("Matrix.js setTo test", function()
+{
+
+    it("setTo test", function()
+    {
+        var p = new Point(10, 20);
+        p.setTo(30, 40);
+        expect(p.toString()).toBe("(x=30, y=40)");
+    });
+});
+
+
+describe("Matrix.js offset test", function()
+{
+
+    it("offset test", function()
+    {
+        var p = new Point(10, 20);
+        p.offset(30, 40);
+        expect(p.toString()).toBe("(x=40, y=60)");
+    });
+});
+
+
+describe("Matrix.js normalize test", function()
+{
+
+    it("normalize test", function()
+    {
+        var p = new Point(6, 8);
+        p.normalize(2.5);
+        expect(p.toString()).toBe("(x=1.5, y=2)");
+    });
+});
+
+
+describe("Matrix.js polar test", function()
+{
+
+    it("polar test", function()
+    {
+        var angle = Math.PI * 2 * (30 / 360); // 30 degrees
+        var p     = Point.polar(4, angle);
+        expect(p.toString()).toBe(
+            "(x=3.464101615137755, y=1.9999999999999996)"
+        );
+    });
+});
+
+
+describe("Matrix.js interpolate test", function()
+{
+
+    it("interpolate test", function()
+    {
+        var p1 = new Point();
+        var p2 = new Point(6, 8);
+        var p3 = Point.interpolate(p1, p2, 0.5);
+        expect(p3.toString()).toBe("(x=3, y=4)");
     });
 });

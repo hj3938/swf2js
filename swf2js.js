@@ -3037,10 +3037,11 @@ Point.prototype.equals = function (toCompare)
  * @param {number} f
  * @returns {Point}
  */
-Point.prototype.interpolate = function (pt1, pt2, f)
+Point.interpolate = function (pt1, pt2, f)
 {
-    // todo
-    return new Point();
+    var x = pt1.x + ((pt2.x - pt1.x) * f);
+    var y = pt1.y + (x - pt1.x) * ((pt2.y - pt1.y) / (pt2.x - pt1.x));
+    return new Point(x, y);
 };
 
 /**
@@ -3049,7 +3050,11 @@ Point.prototype.interpolate = function (pt1, pt2, f)
  */
 Point.prototype.normalize = function (thickness)
 {
-    // todo
+    var length = this.length;
+    var n      = (length - thickness) / length;
+
+    this.x = this.x - (this.x * n);
+    this.y = this.y - (this.y * n);
 };
 
 /**
@@ -3059,7 +3064,8 @@ Point.prototype.normalize = function (thickness)
  */
 Point.prototype.offset = function (dx, dy)
 {
-    // todo
+    this.x = this.x + dx;
+    this.y = this.y + dy;
 };
 
 /**
@@ -3067,10 +3073,11 @@ Point.prototype.offset = function (dx, dy)
  * @param {number} angle
  * @returns {Point}
  */
-Point.prototype.polar = function (len, angle)
+Point.polar = function (len, angle)
 {
-    // todo
-    return new Point();
+    var x = len * Math.cos(angle);
+    var y = len * Math.sin(angle);
+    return new Point(x, y);
 };
 
 /**
@@ -3080,7 +3087,8 @@ Point.prototype.polar = function (len, angle)
  */
 Point.prototype.setTo = function (xa, ya)
 {
-    // todo
+    this.x = xa;
+    this.y = ya;
 };
 
 /**
@@ -3089,8 +3097,7 @@ Point.prototype.setTo = function (xa, ya)
  */
 Point.prototype.subtract = function (v)
 {
-    // todo
-    return new Point();
+    return new Point(this.x - v.x, this.y - v.y);
 };
 
 /**

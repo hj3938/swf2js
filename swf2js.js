@@ -3278,23 +3278,19 @@ Object.defineProperties(Transform.prototype, {
         get: function () {
             return this._pixelBounds;
         },
-        set: function (pixelBounds) {
-            if (pixelBounds instanceof Rectangle) {
-                this._pixelBounds = pixelBounds;
-            }
-        }
+        set: function () {} // readonly
     },
     concatenatedColorTransform: {
         get: function () {
 
         },
-        set: function () {}
+        set: function () {} // readonly
     },
     concatenatedMatrix: {
         get: function () {
 
         },
-        set: function () {}
+        set: function () {} // readonly
     }
 });
 

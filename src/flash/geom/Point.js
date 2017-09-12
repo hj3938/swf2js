@@ -5,9 +5,11 @@
  */
 var Point = function (x, y)
 {
+    // default
     this._x = 0;
     this._y = 0;
 
+    // init
     this.x = x;
     this.y = y;
 };
@@ -46,7 +48,7 @@ Object.defineProperties(Point.prototype, {
         get: function () {
             return this.$sqrt(this.$pow(this.x, 2) + this.$pow(this.y, 2));
         },
-        set: function (length) {}
+        set: function () {}
     }
 });
 

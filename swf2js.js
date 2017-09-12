@@ -2439,14 +2439,154 @@ var ColorTransform = function (
     redOffset, greenOffset, blueOffset, alphaOffset
 )
 {
-    this._redMultiplier   = 1.0;
-    this._greenMultiplier = 1.0;
-    this._blueMultiplier  = 1.0;
-    this._alphaMultiplier = 1.0;
-    this._redOffset       = 0;
-    this._greenOffset     = 0;
-    this._blueOffset      = 0;
-    this._ralphaOffset    = 0;
+    // default
+    this._colorTransform  = [1.0, 1.0, 1.0, 1.0, 0, 0, 0, 0];
+
+    // init
+    this.redMultiplier   = redMultiplier;
+    this.greenMultiplier = greenMultiplier;
+    this.blueMultiplier  = blueMultiplier;
+    this.alphaMultiplier = alphaMultiplier;
+    this.redOffset       = redOffset;
+    this.greenOffset     = greenOffset;
+    this.blueOffset      = blueOffset;
+    this.alphaOffset     = alphaOffset;
+};
+
+
+/**
+ * extends
+ */
+ColorTransform.prototype = Object.create(OriginalObject.prototype);
+ColorTransform.prototype.constructor = ColorTransform;
+
+/**
+ * properties
+ */
+Object.defineProperties(ColorTransform.prototype, {
+    redMultiplier: {
+        get: function () {
+            return this._colorTransform[0];
+        },
+        set: function (redMultiplier) {
+            if (!this.$isNaN(redMultiplier) && 0 <= redMultiplier && 1 >= redMultiplier) {
+                this._colorTransform[0] = redMultiplier;
+            }
+        }
+    },
+    greenMultiplier: {
+        get: function () {
+            return this._colorTransform[1];
+        },
+        set: function (greenMultiplier) {
+            if (!this.$isNaN(greenMultiplier)
+                && 0 <= greenMultiplier && 1 >= greenMultiplier
+            ) {
+                this._colorTransform[1] = greenMultiplier;
+            }
+        }
+    },
+    blueMultiplier: {
+        get: function () {
+            return this._colorTransform[2];
+        },
+        set: function (blueMultiplier) {
+            if (!this.$isNaN(blueMultiplier)
+                && 0 <= blueMultiplier && 1 >= blueMultiplier
+            ) {
+                this._colorTransform[2] = blueMultiplier;
+            }
+        }
+    },
+    alphaMultiplier: {
+        get: function () {
+            return this._colorTransform[3];
+        },
+        set: function (alphaMultiplier) {
+            if (!this.$isNaN(alphaMultiplier)
+                && 0 <= alphaMultiplier && 1 >= alphaMultiplier
+            ) {
+                this._colorTransform[3] = alphaMultiplier;
+            }
+        }
+    },
+    redOffset: {
+        get: function () {
+            return this._colorTransform[4];
+        },
+        set: function (redOffset) {
+            if (!this.$isNaN(redOffset)
+                && -255 <= redOffset && 255 >= redOffset
+            ) {
+                this._colorTransform[4] = redOffset;
+            }
+        }
+    },
+    greenOffset: {
+        get: function () {
+            return this._colorTransform[5];
+        },
+        set: function (greenOffset) {
+            if (!this.$isNaN(greenOffset)
+                && -255 <= greenOffset && 255 >= greenOffset
+            ) {
+                this._colorTransform[5] = greenOffset;
+            }
+        }
+    },
+    blueOffset: {
+        get: function () {
+            return this._colorTransform[6];
+        },
+        set: function (blueOffset) {
+            if (!this.$isNaN(blueOffset)
+                && -255 <= blueOffset && 255 >= blueOffset
+            ) {
+                this._colorTransform[6] = blueOffset;
+            }
+        }
+    },
+    alphaOffset: {
+        get: function () {
+            return this._colorTransform[7];
+        },
+        set: function (alphaOffset) {
+            if (!this.$isNaN(alphaOffset)
+                && -255 <= alphaOffset && 255 >= alphaOffset
+            ) {
+                this._colorTransform[7] = alphaOffset;
+            }
+        }
+    }
+});
+
+/**
+ * @param {ColorTransform} second
+ * @returns void
+ */
+ColorTransform.prototype.concat = function (second)
+{
+    this._colorTransform = this.$multiplicationColor(
+        this._colorTransform,
+        second._colorTransform
+    );
+};
+
+/**
+ * @returns {string}
+ */
+ColorTransform.prototype.toString = function ()
+{
+    return "("
+        + "redMultiplier="   + this.redMultiplier   + ", "
+        + "greenMultiplier=" + this.greenMultiplier + ", "
+        + "blueMultiplier="  + this.blueMultiplier  + ", "
+        + "alphaMultiplier=" + this.alphaMultiplier + ", "
+        + "redOffset="       + this.redOffset       + ", "
+        + "greenOffset="     + this.greenOffset     + ", "
+        + "blueOffset="      + this.blueOffset      + ", "
+        + "alphaOffset="     + this.alphaOffset
+        + ")";
 };
 /**
  * @param a
@@ -2483,167 +2623,65 @@ Matrix.prototype.constructor = Matrix;
 Object.defineProperties(Matrix.prototype, {
     a: {
         get: function () {
-            return this.getA();
+            return this._matrix[0];
         },
         set: function (a) {
-            this.setA(a);
+            if (!this.$isNaN(a)) {
+                this._matrix[0] = a;
+            }
         }
     },
     b: {
         get: function () {
-            return this.getB();
+            return this._matrix[1];
         },
         set: function (b) {
-            this.setB(b);
+            if (!this.$isNaN(b)) {
+                this._matrix[1] = b;
+            }
         }
     },
     c: {
         get: function () {
-            return this.getC();
+            return this._matrix[2];
         },
         set: function (c) {
-            this.setC(c);
+            if (!this.$isNaN(c)) {
+                this._matrix[2] = c;
+            }
         }
     },
     d: {
         get: function () {
-            return this.getD();
+            return this._matrix[3];
         },
         set: function (d) {
-            this.setD(d);
+            if (!this.$isNaN(d)) {
+                this._matrix[3] = d;
+            }
         }
     },
     tx: {
         get: function () {
-            return this.getTx();
+            return this._matrix[4] / 20;
         },
         set: function (tx) {
-            this.setTx(tx);
+            if (!this.$isNaN(tx)) {
+                this._matrix[4] = tx * 20;
+            }
         }
     },
     ty: {
         get: function () {
-            return this.getTy();
+            return this._matrix[5] / 20;
         },
         set: function (ty) {
-            this.setTy(ty);
+            if (!this.$isNaN(ty)) {
+                this._matrix[5] = ty * 20;
+            }
         }
     }
 });
-
-/**
- * @returns {number}
- */
-Matrix.prototype.getA = function ()
-{
-    return this._matrix[0];
-};
-
-/**
- * @param {number} a
- * @returns void
- */
-Matrix.prototype.setA = function (a)
-{
-    if (!this.$isNaN(a)) {
-        this._matrix[0] = a;
-    }
-};
-
-/**
- * @returns {number}
- */
-Matrix.prototype.getB = function ()
-{
-    return this._matrix[1];
-};
-
-/**
- * @param {number} b
- * @returns void
- */
-Matrix.prototype.setB = function (b)
-{
-    if (!this.$isNaN(b)) {
-        this._matrix[1] = b;
-    }
-};
-
-/**
- * @returns {number}
- */
-Matrix.prototype.getC = function ()
-{
-    return this._matrix[2];
-};
-
-/**
- * @param {number} c
- * @returns void
- */
-Matrix.prototype.setC = function (c)
-{
-    if (!this.$isNaN(c)) {
-        this._matrix[2] = c;
-    }
-};
-
-/**
- * @returns {number}
- */
-Matrix.prototype.getD = function ()
-{
-    return this._matrix[3];
-};
-
-/**
- * @param {number} d
- * @returns void
- */
-Matrix.prototype.setD = function (d)
-{
-    if (!this.$isNaN(d)) {
-        this._matrix[3] = d;
-    }
-};
-
-/**
- * @returns {number}
- */
-Matrix.prototype.getTx = function ()
-{
-    return this._matrix[4] / 20;
-};
-
-/**
- * @param {number} tx
- * @returns void
- */
-Matrix.prototype.setTx = function (tx)
-{
-    if (!this.$isNaN(tx)) {
-        this._matrix[4] = tx * 20;
-    }
-};
-
-/**
- * @returns {number}
- */
-Matrix.prototype.getTy = function ()
-{
-    return this._matrix[5] / 20;
-};
-
-/**
- * @param {number} ty
- * @returns void
- */
-Matrix.prototype.setTy = function (ty)
-{
-    if (!this.$isNaN(ty)) {
-        this._matrix[5] = ty * 20;
-    }
-};
 
 /**
  * @returns {Matrix}
@@ -2939,9 +2977,11 @@ var PerspectiveProjection = function () {};
  */
 var Point = function (x, y)
 {
+    // default
     this._x = 0;
     this._y = 0;
 
+    // init
     this.x = x;
     this.y = y;
 };
@@ -2980,7 +3020,7 @@ Object.defineProperties(Point.prototype, {
         get: function () {
             return this.$sqrt(this.$pow(this.x, 2) + this.$pow(this.y, 2));
         },
-        set: function (length) {}
+        set: function () {}
     }
 });
 
@@ -3122,13 +3162,94 @@ var Rectangle = function (x, y, width, height)
     this._height = 0;
 };
 /**
- * @param relativeTo
  * @constructor
  */
-var Transform = function (relativeTo)
+var Transform = function ()
 {
-    this._relativeTo = null;
+    this._colorTransform        = new ColorTransform();
+    this._matrix                = new Matrix();
+    this._matrix3D              = new Matrix3D();
+    this._perspectiveProjection = new PerspectiveProjection();
+    this._pixelBounds           = new Rectangle();
 };
+
+/**
+ * util
+ */
+Transform.prototype = Object.create(OriginalObject.prototype);
+Transform.prototype.constructor = Transform;
+
+
+/**
+ * properties
+ */
+Object.defineProperties(Transform.prototype, {
+    colorTransform: {
+        get: function () {
+            return this._colorTransform;
+        },
+        set: function (colorTransform) {
+            if (colorTransform instanceof ColorTransform) {
+                this._colorTransform = colorTransform;
+            }
+        }
+    },
+    matrix: {
+        get: function () {
+            return this._matrix;
+        },
+        set: function (matrix) {
+            if (matrix instanceof Matrix) {
+                this._matrix = matrix;
+            }
+        }
+    },
+    matrix3D: {
+        get: function () {
+            return this._matrix3D;
+        },
+        set: function (matrix3D) {
+            if (matrix3D instanceof Matrix3D) {
+                this._matrix3D = matrix3D;
+            }
+        }
+    },
+    perspectiveProjection: {
+        get: function () {
+            return this._perspectiveProjection;
+        },
+        set: function (perspectiveProjection) {
+            if (perspectiveProjection instanceof PerspectiveProjection) {
+                this._perspectiveProjection = perspectiveProjection;
+            }
+        }
+    },
+    pixelBounds: {
+        get: function () {
+            return this._pixelBounds;
+        },
+        set: function (pixelBounds) {
+            if (pixelBounds instanceof Rectangle) {
+                this._pixelBounds = pixelBounds;
+            }
+        }
+    },
+    concatenatedColorTransform: {
+        get: function () {
+
+        },
+        set: function () {}
+    },
+    concatenatedMatrix: {
+        get: function () {
+
+        },
+        set: function () {}
+    }
+});
+
+
+
 /**
  * @param percent
  * @param mat

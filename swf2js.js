@@ -3003,6 +3003,99 @@ Point.prototype.clone = function ()
 };
 
 /**
+ * @param sourcePoint
+ * @returns void
+ */
+Point.prototype.copyFrom = function (sourcePoint)
+{
+    // todo
+};
+
+/**
+ * @param {Point} pt1
+ * @param {Point} pt2
+ * @returns {number}
+ */
+Point.prototype.distance = function (pt1, pt2)
+{
+    // todo
+    return 0;
+};
+
+/**
+ *
+ * @param {Point} toCompare
+ * @returns {boolean}
+ */
+Point.prototype.equals = function (toCompare)
+{
+    // todo
+    return true;
+};
+
+/**
+ * @param {Point} pt1
+ * @param {Point} pt2
+ * @param {number} f
+ * @returns {Point}
+ */
+Point.prototype.interpolate = function (pt1, pt2, f)
+{
+    // todo
+    return new Point();
+};
+
+/**
+ * @param {number} thickness
+ * @returns void
+ */
+Point.prototype.normalize = function (thickness)
+{
+    // todo
+};
+
+/**
+ * @param {number} dx
+ * @param {number} dy
+ * @returns {Point}
+ */
+Point.prototype.offset = function (dx, dy)
+{
+    // todo
+};
+
+/**
+ * @param {number} len
+ * @param {number} angle
+ * @returns {Point}
+ */
+Point.prototype.polar = function (len, angle)
+{
+    // todo
+    return new Point();
+};
+
+/**
+ * @param {number} xa
+ * @param {number} ya
+ * @returns void
+ */
+Point.prototype.setTo = function (xa, ya)
+{
+    // todo
+};
+
+/**
+ * @param {Point} v
+ * @returns {Point}
+ */
+Point.prototype.subtract = function (v)
+{
+    // todo
+    return new Point();
+};
+
+/**
  * @returns {string}
  */
 Point.prototype.toString = function ()

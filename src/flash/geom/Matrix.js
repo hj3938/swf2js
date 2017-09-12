@@ -371,6 +371,12 @@ Matrix.prototype.rotate = function (rotation)
     this.c = -scaleX * this.$sin(radianX);
     this.b = scaleY  * this.$sin(radianY);
     this.d = scaleY  * this.$cos(radianY);
+
+    var tx = +(this.a * this.tx + this.c * this.ty);
+    var ty = +(this.b * this.tx + this.d * this.ty);
+
+    this.tx = tx;
+    this.ty = ty;
 };
 
 /**
@@ -422,8 +428,12 @@ Matrix.prototype.toString = function ()
  */
 Matrix.prototype.transformPoint = function (point)
 {
-    // todo
-    return point;
+    var m = this.$multiplicationMatrix(
+        [this.a, this.b, this.c, this.b, 0, 0],
+        [1, 0, 0, 1, point.x, point.y]
+    );
+
+    return new Point(m[4], m[5]);
 };
 
 /**

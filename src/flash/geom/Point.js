@@ -41,5 +41,37 @@ Object.defineProperties(Point.prototype, {
                 this._y = y;
             }
         }
+    },
+    length: {
+        get: function () {
+            return this.$sqrt(this.$pow(this.x, 2) + this.$pow(this.y, 2));
+        },
+        set: function (length) {}
     }
 });
+
+/**
+ * @param {number} v
+ * @returns {Point}
+ */
+Point.prototype.add = function (v)
+{
+    // todo
+    return this;
+};
+
+/**
+ * @returns {Point}
+ */
+Point.prototype.clone = function ()
+{
+    return new Point(this.x, this.y);
+};
+
+/**
+ * @returns {string}
+ */
+Point.prototype.toString = function ()
+{
+    return "(x="+ this.x +", y="+ this.y +")";
+};

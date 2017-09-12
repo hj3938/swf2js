@@ -2555,7 +2555,7 @@ Matrix.prototype.setA = function (a)
  */
 Matrix.prototype.getB = function ()
 {
-    return this._matrix[2];
+    return this._matrix[1];
 };
 
 /**
@@ -2565,7 +2565,7 @@ Matrix.prototype.getB = function ()
 Matrix.prototype.setB = function (b)
 {
     if (!this.$isNaN(b)) {
-        this._matrix[2] = b;
+        this._matrix[1] = b;
     }
 };
 
@@ -2574,7 +2574,7 @@ Matrix.prototype.setB = function (b)
  */
 Matrix.prototype.getC = function ()
 {
-    return this._matrix[1];
+    return this._matrix[2];
 };
 
 /**
@@ -2584,7 +2584,7 @@ Matrix.prototype.getC = function ()
 Matrix.prototype.setC = function (c)
 {
     if (!this.$isNaN(c)) {
-        this._matrix[1] = c;
+        this._matrix[2] = c;
     }
 };
 
@@ -2766,7 +2766,41 @@ Matrix.prototype.identity = function ()
  */
 Matrix.prototype.invert = function ()
 {
-    // todo
+    var det = 1;
+    var m   = [[this.a, this.c], [this.b, this.d]];
+
+    var i = 0;
+    while (i < 2) {
+
+        var j = 0;
+        while (j < 2) {
+
+            if (i < j) {
+                var buf = m[j][i] / m[i][i];
+
+                var k = 0;
+                while (k < 2) {
+                    m[j][k] = m[j][k] - m[i][k] * buf;
+                    k = (k + 1)|0;
+                }
+            }
+            j = (j + 1)|0;
+        }
+        i = (i + 1)|0;
+    }
+
+    i = 0;
+    while (i < 2) {
+        det = det * m[i][i];
+        i = (i + 1)|0;
+    }
+
+    this.a  =  this.a  / det;
+    this.b  = -this.b  / det;
+    this.c  = -this.c  / det;
+    this.d  =  this.d  / det;
+    this.tx = -this.tx / det;
+    this.ty = -this.ty / det;
 };
 
 /**
@@ -2775,18 +2809,24 @@ Matrix.prototype.invert = function ()
  */
 Matrix.prototype.rotate = function (rotation)
 {
-    var radianX = this.$atan2(this.c,  this.a);
-    var radianY = this.$atan2(-this.b, this.d);
-    var scaleX  = this.$sqrt(this.a * this.a + this.c * this.c);
-    var scaleY  = this.$sqrt(this.b * this.b + this.d * this.d);
+    var radianX = this.$atan2(this.b,  this.a);
+    var radianY = this.$atan2(-this.c, this.d);
+    var scaleX  = this.$sqrt(this.a * this.a + this.b * this.b);
+    var scaleY  = this.$sqrt(this.c * this.c + this.d * this.d);
 
     radianY = radianY + rotation - radianX;
     radianX = rotation;
 
     this.a = scaleX  * this.$cos(radianX);
-    this.c = scaleX  * this.$sin(radianX);
-    this.b = -scaleY * this.$sin(radianY);
+    this.c = -scaleX * this.$sin(radianX);
+    this.b = scaleY  * this.$sin(radianY);
     this.d = scaleY  * this.$cos(radianY);
+
+    var tx = +(this.a * this.tx + this.c * this.ty);
+    var ty = +(this.b * this.tx + this.d * this.ty);
+
+    this.tx = tx;
+    this.ty = ty;
 };
 
 /**
@@ -2796,12 +2836,12 @@ Matrix.prototype.rotate = function (rotation)
  */
 Matrix.prototype.scale = function (sx, sy)
 {
-    var radianX = this.$atan2(this.c, this.a);
-    var radianY = this.$atan2(-this.b, this.d);
+    var radianX = this.$atan2(this.b,  this.a);
+    var radianY = this.$atan2(-this.c, this.d);
 
-    this.a = sx * this.$cos(radianX);
+    this.a = sx  * this.$cos(radianX);
     this.c = -sx * this.$sin(radianX);
-    this.b = sy * this.$sin(radianY);
+    this.b = sy  * this.$sin(radianY);
     this.d = sy  * this.$cos(radianY);
 };
 
@@ -2838,8 +2878,12 @@ Matrix.prototype.toString = function ()
  */
 Matrix.prototype.transformPoint = function (point)
 {
-    // todo
-    return point;
+    var m = this.$multiplicationMatrix(
+        [this.a, this.b, this.c, this.b, 0, 0],
+        [1, 0, 0, 1, point.x, point.y]
+    );
+
+    return new Point(m[4], m[5]);
 };
 
 /**
@@ -2924,8 +2968,40 @@ Object.defineProperties(Point.prototype, {
                 this._y = y;
             }
         }
+    },
+    length: {
+        get: function () {
+            return this.$sqrt(this.$pow(this.x, 2) + this.$pow(this.y, 2));
+        },
+        set: function (length) {}
     }
 });
+
+/**
+ * @param {number} v
+ * @returns {Point}
+ */
+Point.prototype.add = function (v)
+{
+    // todo
+    return this;
+};
+
+/**
+ * @returns {Point}
+ */
+Point.prototype.clone = function ()
+{
+    return new Point(this.x, this.y);
+};
+
+/**
+ * @returns {string}
+ */
+Point.prototype.toString = function ()
+{
+    return "(x="+ this.x +", y="+ this.y +")";
+};
 /**
  * @param x
  * @param y

@@ -12,20 +12,19 @@
 var ColorTransform = function (
     redMultiplier, greenMultiplier, blueMultiplier, alphaMultiplier,
     redOffset, greenOffset, blueOffset, alphaOffset
-)
-{
+) {
     // default
     this._colorTransform  = [1.0, 1.0, 1.0, 1.0, 0, 0, 0, 0];
 
     // init
-    this.redMultiplier   = redMultiplier;
-    this.greenMultiplier = greenMultiplier;
-    this.blueMultiplier  = blueMultiplier;
-    this.alphaMultiplier = alphaMultiplier;
-    this.redOffset       = redOffset;
-    this.greenOffset     = greenOffset;
-    this.blueOffset      = blueOffset;
-    this.alphaOffset     = alphaOffset;
+    this.redMultiplier    = redMultiplier;
+    this.greenMultiplier  = greenMultiplier;
+    this.blueMultiplier   = blueMultiplier;
+    this.alphaMultiplier  = alphaMultiplier;
+    this.redOffset        = redOffset;
+    this.greenOffset      = greenOffset;
+    this.blueOffset       = blueOffset;
+    this.alphaOffset      = alphaOffset;
 };
 
 
@@ -130,6 +129,26 @@ Object.defineProperties(ColorTransform.prototype, {
                 && -255 <= alphaOffset && 255 >= alphaOffset
             ) {
                 this._colorTransform[7] = alphaOffset;
+            }
+        }
+    },
+    color: {
+        get: function () {
+            return this.$rgbToInt(this.redOffset, this.greenOffset, this.blueOffset);
+        },
+        set: function (value) {
+            var obj = null;
+            if (typeof value === "number") {
+                obj = this.$intToRGBA(value);
+            } else {
+                obj = this.$intToRGBA(this.$colorStringToInt(value));
+            }
+
+            if (obj !== null) {
+                this.redOffset   = obj.R;
+                this.greenOffset = obj.G;
+                this.blueOffset  = obj.B;
+                this.alphaOffset = obj.A * 255;
             }
         }
     }

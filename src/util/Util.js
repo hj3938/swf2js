@@ -263,6 +263,17 @@ var instanceId = 0;
     };
 
     /**
+     * @param {Number} r
+     * @param {Number} g
+     * @param {Number} b
+     * @returns {Number}
+     */
+    Utility.prototype.$rgbToInt = function (r, g, b)
+    {
+        return (r << 16) + (g << 8) + b;
+    };
+
+    /**
      * @param str
      * @returns {string}
      */

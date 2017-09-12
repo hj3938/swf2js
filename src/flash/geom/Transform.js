@@ -37,7 +37,7 @@ Object.defineProperties(Transform.prototype, {
         },
         set: function (matrix) {
             if (matrix instanceof Matrix) {
-                this._matrix = matrix;
+                this._matrix = matrix.clone();
             }
         }
     },

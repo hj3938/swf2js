@@ -89,3 +89,19 @@ describe("ColorTransform.js concat test", function()
         );
     });
 });
+
+
+describe("ColorTransform.js color test", function()
+{
+    it("color test", function()
+    {
+        // get
+        var ct1 = new ColorTransform(0.2, 0.2, 0.2, 1, 100, 100, 100, 100);
+        expect(ct1.color).toBe(6579300);
+
+        // set
+        var ct2 = new ColorTransform();
+        ct2.color = 0x00FF00;
+        expect(ct2.color).toBe(65280);
+    });
+});

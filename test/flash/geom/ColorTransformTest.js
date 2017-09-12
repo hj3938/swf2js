@@ -91,7 +91,19 @@ describe("ColorTransform.js concat test", function()
 });
 
 
-describe("ColorTransform.js color test", function()
+describe("ColorTransform.js rgb test for AS2", function()
+{
+    it("rgb test", function()
+    {
+        // set
+        var ct = new ColorTransform();
+        ct.rgb = 0xFF0000;
+        expect(ct.rgb).toBe(16711680);
+    });
+});
+
+
+describe("ColorTransform.js color test for AS3", function()
 {
     it("color test", function()
     {

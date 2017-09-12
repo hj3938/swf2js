@@ -2570,25 +2570,45 @@ Object.defineProperties(ColorTransform.prototype, {
     },
     color: {
         get: function () {
-            return this.$rgbToInt(this.redOffset, this.greenOffset, this.blueOffset);
+            return this.getColor();
         },
         set: function (value) {
-            var obj = null;
-            if (typeof value === "number") {
-                obj = this.$intToRGBA(value);
-            } else {
-                obj = this.$intToRGBA(this.$colorStringToInt(value));
-            }
-
-            if (obj !== null) {
-                this.redOffset   = obj.R;
-                this.greenOffset = obj.G;
-                this.blueOffset  = obj.B;
-                this.alphaOffset = obj.A * 255;
-            }
+            this.setColor(value);
+        }
+    },
+    rgb: {
+        get: function () {
+            return this.getColor();
+        },
+        set: function (value) {
+            this.setColor(value);
         }
     }
 });
+
+/**
+ * @returns {Number}
+ */
+ColorTransform.prototype.getColor = function ()
+{
+    return this.$rgbToInt(this.redOffset, this.greenOffset, this.blueOffset);
+};
+
+/**
+ *
+ * @param value
+ * @returns void
+ */
+ColorTransform.prototype.setColor = function (value)
+{
+    var obj = (typeof value === "number")
+        ? this.$intToRGBA(value)
+        : this.$intToRGBA(this.$colorStringToInt(value));
+
+    this.redOffset   = obj.R;
+    this.greenOffset = obj.G;
+    this.blueOffset  = obj.B;
+};
 
 /**
  * @param {ColorTransform} second

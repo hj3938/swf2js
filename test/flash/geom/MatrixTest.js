@@ -126,3 +126,21 @@ describe("Matrix.js transformPoint test", function()
         );
     });
 });
+
+
+describe("Matrix.js deltaTransformPoint test", function()
+{
+    it("deltaTransformPoint test", function()
+    {
+        var m = new Matrix(1, 0, 0, 1, 100, 110);
+        m.translate(10, 0);
+        m.rotate(45 / 180 * Math.PI);
+
+        var p1 = new Point(2, 20);
+        var p2 = m.deltaTransformPoint(p1);
+
+        expect(p2.toString()).toBe(
+            "(x=-12.727922061357853, y=15.556349186104047)"
+        );
+    });
+});

@@ -2750,7 +2750,16 @@ Matrix.prototype.createGradientBox = function (width, height, rotation, tx, ty)
  */
 Matrix.prototype.deltaTransformPoint = function (point)
 {
-    return point;
+    var m = new Matrix();
+    m.translate(point.x, point.y);
+
+    var clone = this.clone();
+    clone.tx = 0;
+    clone.ty = 0;
+
+    m.concat(clone);
+
+    return new Point(m.tx, m.ty);
 };
 
 /**
@@ -2891,8 +2900,8 @@ Matrix.prototype.transformPoint = function (point)
  */
 Matrix.prototype.translate = function (dx, dy)
 {
-    this.tx = dx;
-    this.ty = dy;
+    this.tx = this.tx + dx;
+    this.ty = this.ty + dy;
 };
 
 

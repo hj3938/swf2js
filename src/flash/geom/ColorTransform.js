@@ -25,6 +25,9 @@ var ColorTransform = function (
     this.greenOffset      = greenOffset;
     this.blueOffset       = blueOffset;
     this.alphaOffset      = alphaOffset;
+
+    // origin
+    this._readOnly = false;
 };
 
 
@@ -43,7 +46,9 @@ Object.defineProperties(ColorTransform.prototype, {
             return this._colorTransform[0];
         },
         set: function (redMultiplier) {
-            if (!this.$isNaN(redMultiplier) && 0 <= redMultiplier && 1 >= redMultiplier) {
+            if (!this._readOnly && !this.$isNaN(redMultiplier)
+                && 0 <= redMultiplier && 1 >= redMultiplier
+            ) {
                 this._colorTransform[0] = redMultiplier;
             }
         }
@@ -53,7 +58,7 @@ Object.defineProperties(ColorTransform.prototype, {
             return this._colorTransform[1];
         },
         set: function (greenMultiplier) {
-            if (!this.$isNaN(greenMultiplier)
+            if (!this._readOnly && !this.$isNaN(greenMultiplier)
                 && 0 <= greenMultiplier && 1 >= greenMultiplier
             ) {
                 this._colorTransform[1] = greenMultiplier;
@@ -65,7 +70,7 @@ Object.defineProperties(ColorTransform.prototype, {
             return this._colorTransform[2];
         },
         set: function (blueMultiplier) {
-            if (!this.$isNaN(blueMultiplier)
+            if (!this._readOnly && !this.$isNaN(blueMultiplier)
                 && 0 <= blueMultiplier && 1 >= blueMultiplier
             ) {
                 this._colorTransform[2] = blueMultiplier;
@@ -77,7 +82,7 @@ Object.defineProperties(ColorTransform.prototype, {
             return this._colorTransform[3];
         },
         set: function (alphaMultiplier) {
-            if (!this.$isNaN(alphaMultiplier)
+            if (!this._readOnly && !this.$isNaN(alphaMultiplier)
                 && 0 <= alphaMultiplier && 1 >= alphaMultiplier
             ) {
                 this._colorTransform[3] = alphaMultiplier;
@@ -89,7 +94,7 @@ Object.defineProperties(ColorTransform.prototype, {
             return this._colorTransform[4];
         },
         set: function (redOffset) {
-            if (!this.$isNaN(redOffset)
+            if (!this._readOnly && !this.$isNaN(redOffset)
                 && -255 <= redOffset && 255 >= redOffset
             ) {
                 this._colorTransform[4] = redOffset;
@@ -101,7 +106,7 @@ Object.defineProperties(ColorTransform.prototype, {
             return this._colorTransform[5];
         },
         set: function (greenOffset) {
-            if (!this.$isNaN(greenOffset)
+            if (!this._readOnly && !this.$isNaN(greenOffset)
                 && -255 <= greenOffset && 255 >= greenOffset
             ) {
                 this._colorTransform[5] = greenOffset;
@@ -113,7 +118,7 @@ Object.defineProperties(ColorTransform.prototype, {
             return this._colorTransform[6];
         },
         set: function (blueOffset) {
-            if (!this.$isNaN(blueOffset)
+            if (!this._readOnly && !this.$isNaN(blueOffset)
                 && -255 <= blueOffset && 255 >= blueOffset
             ) {
                 this._colorTransform[6] = blueOffset;
@@ -125,7 +130,7 @@ Object.defineProperties(ColorTransform.prototype, {
             return this._colorTransform[7];
         },
         set: function (alphaOffset) {
-            if (!this.$isNaN(alphaOffset)
+            if (!this._readOnly && !this.$isNaN(alphaOffset)
                 && -255 <= alphaOffset && 255 >= alphaOffset
             ) {
                 this._colorTransform[7] = alphaOffset;

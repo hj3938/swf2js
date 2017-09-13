@@ -2461,6 +2461,9 @@ var ColorTransform = function (
     this.greenOffset      = greenOffset;
     this.blueOffset       = blueOffset;
     this.alphaOffset      = alphaOffset;
+
+    // origin
+    this._readOnly = false;
 };
 
 
@@ -2479,7 +2482,9 @@ Object.defineProperties(ColorTransform.prototype, {
             return this._colorTransform[0];
         },
         set: function (redMultiplier) {
-            if (!this.$isNaN(redMultiplier) && 0 <= redMultiplier && 1 >= redMultiplier) {
+            if (!this._readOnly && !this.$isNaN(redMultiplier)
+                && 0 <= redMultiplier && 1 >= redMultiplier
+            ) {
                 this._colorTransform[0] = redMultiplier;
             }
         }
@@ -2489,7 +2494,7 @@ Object.defineProperties(ColorTransform.prototype, {
             return this._colorTransform[1];
         },
         set: function (greenMultiplier) {
-            if (!this.$isNaN(greenMultiplier)
+            if (!this._readOnly && !this.$isNaN(greenMultiplier)
                 && 0 <= greenMultiplier && 1 >= greenMultiplier
             ) {
                 this._colorTransform[1] = greenMultiplier;
@@ -2501,7 +2506,7 @@ Object.defineProperties(ColorTransform.prototype, {
             return this._colorTransform[2];
         },
         set: function (blueMultiplier) {
-            if (!this.$isNaN(blueMultiplier)
+            if (!this._readOnly && !this.$isNaN(blueMultiplier)
                 && 0 <= blueMultiplier && 1 >= blueMultiplier
             ) {
                 this._colorTransform[2] = blueMultiplier;
@@ -2513,7 +2518,7 @@ Object.defineProperties(ColorTransform.prototype, {
             return this._colorTransform[3];
         },
         set: function (alphaMultiplier) {
-            if (!this.$isNaN(alphaMultiplier)
+            if (!this._readOnly && !this.$isNaN(alphaMultiplier)
                 && 0 <= alphaMultiplier && 1 >= alphaMultiplier
             ) {
                 this._colorTransform[3] = alphaMultiplier;
@@ -2525,7 +2530,7 @@ Object.defineProperties(ColorTransform.prototype, {
             return this._colorTransform[4];
         },
         set: function (redOffset) {
-            if (!this.$isNaN(redOffset)
+            if (!this._readOnly && !this.$isNaN(redOffset)
                 && -255 <= redOffset && 255 >= redOffset
             ) {
                 this._colorTransform[4] = redOffset;
@@ -2537,7 +2542,7 @@ Object.defineProperties(ColorTransform.prototype, {
             return this._colorTransform[5];
         },
         set: function (greenOffset) {
-            if (!this.$isNaN(greenOffset)
+            if (!this._readOnly && !this.$isNaN(greenOffset)
                 && -255 <= greenOffset && 255 >= greenOffset
             ) {
                 this._colorTransform[5] = greenOffset;
@@ -2549,7 +2554,7 @@ Object.defineProperties(ColorTransform.prototype, {
             return this._colorTransform[6];
         },
         set: function (blueOffset) {
-            if (!this.$isNaN(blueOffset)
+            if (!this._readOnly && !this.$isNaN(blueOffset)
                 && -255 <= blueOffset && 255 >= blueOffset
             ) {
                 this._colorTransform[6] = blueOffset;
@@ -2561,7 +2566,7 @@ Object.defineProperties(ColorTransform.prototype, {
             return this._colorTransform[7];
         },
         set: function (alphaOffset) {
-            if (!this.$isNaN(alphaOffset)
+            if (!this._readOnly && !this.$isNaN(alphaOffset)
                 && -255 <= alphaOffset && 255 >= alphaOffset
             ) {
                 this._colorTransform[7] = alphaOffset;
@@ -3206,11 +3211,274 @@ Point.prototype.toString = function ()
  */
 var Rectangle = function (x, y, width, height)
 {
+    // default
     this._x      = 0;
     this._y      = 0;
     this._width  = 0;
     this._height = 0;
+
+    // init
+    this.x      = x;
+    this.y      = y;
+    this.width  = width;
+    this.height = height;
 };
+
+/**
+ * extends
+ */
+Rectangle.prototype = Object.create(OriginalObject.prototype);
+Rectangle.prototype.constructor = Rectangle;
+
+/**
+ * properties
+ */
+Object.defineProperties(Rectangle.prototype, {
+    bottom: {
+        get: function () {
+            return this._bottom;
+        },
+        set: function (bottom) {
+        }
+    },
+    bottomRight: {
+        get: function () {
+            return this._bottom;
+        },
+        set: function (bottom) {
+        }
+    },
+    height: {
+        get: function () {
+            return this._height;
+        },
+        set: function (height) {
+        }
+    },
+    left: {
+        get: function () {
+            return this._bottom;
+        },
+        set: function (bottom) {
+        }
+    },
+    right: {
+        get: function () {
+            return this._bottom;
+        },
+        set: function (bottom) {
+        }
+    },
+    size: {
+        get: function () {
+            return this._bottom;
+        },
+        set: function (bottom) {
+        }
+    },
+    top: {
+        get: function () {
+            return this._bottom;
+        },
+        set: function (bottom) {
+        }
+    },
+    topLeft: {
+        get: function () {
+            return this._bottom;
+        },
+        set: function (bottom) {
+        }
+    },
+    width: {
+        get: function () {
+            return this._width;
+        },
+        set: function (width) {
+        }
+    },
+    x: {
+        get: function () {
+            return this._x;
+        },
+        set: function (x) {
+        }
+    },
+    y: {
+        get: function () {
+            return this._y;
+        },
+        set: function (y) {
+        }
+    }
+});
+
+/**
+ * @returns {Rectangle}
+ */
+Rectangle.prototype.clone = function ()
+{
+    return new Rectangle(this.x, this.y, this.width, this.height);
+};
+
+/**
+ * @param {number} x
+ * @param {number} y
+ * @returns {boolean}
+ */
+Rectangle.prototype.contains = function (x, y)
+{
+    // todo
+    return true;
+};
+
+/**
+ * @param {Point} point
+ * @returns {boolean}
+ */
+Rectangle.prototype.containsPoint = function (point)
+{
+    // todo
+    return true;
+};
+
+/**
+ *
+ * @param {Rectangle} rect
+ * @returns {boolean}
+ */
+Rectangle.prototype.containsRect = function (rect)
+{
+    // todo
+    return true;
+};
+
+/**
+ * @param {Rectangle} sourceRect
+ */
+Rectangle.prototype.copyFrom = function (sourceRect)
+{
+    // todo
+};
+
+/**
+ * @param {Rectangle} toCompare
+ * @returns {boolean}
+ */
+Rectangle.prototype.equals = function (toCompare)
+{
+    // todo
+    return true;
+};
+
+/**
+ * @param {number} dx
+ * @param {number} dy
+ * @returns void
+ */
+Rectangle.prototype.inflate = function (dx, dy)
+{
+    // todo
+};
+
+/**
+ * @param {Point} point
+ * @returns void
+ */
+Rectangle.prototype.inflatePoint = function (point)
+{
+    // todo
+};
+
+/**
+ * @param {Rectangle} toIntersect
+ * @returns {Rectangle}
+ */
+Rectangle.prototype.intersection = function (toIntersect)
+{
+    // todo
+    return new Rectangle();
+};
+
+/**
+ * @param {Rectangle} toIntersect
+ * @returns {boolean}
+ */
+Rectangle.prototype.intersects = function (toIntersect)
+{
+    // todo
+    return true;
+};
+
+/**
+ * @returns {boolean}
+ */
+Rectangle.prototype.isEmpty = function ()
+{
+    // todo
+    return true;
+};
+
+/**
+ *
+ * @param {number} dx
+ * @param {number} dy
+ * @returns void
+ */
+Rectangle.prototype.offset = function (dx ,dy)
+{
+    // todo
+};
+
+/**
+ * @param {Point} point
+ * @returns void
+ */
+Rectangle.prototype.offsetPoint = function (point)
+{
+    // todo
+};
+
+/**
+ * @returns void
+ */
+Rectangle.prototype.setEmpty = function ()
+{
+    // todo
+};
+
+/**
+ *
+ * @param {number} xa
+ * @param {number} ya
+ * @param {number} widtha
+ * @param {number} heighta
+ * @returns void
+ */
+Rectangle.prototype.setTo = function (xa, ya, widtha, heighta)
+{
+    // todo
+};
+
+/**
+ * @returns {string}
+ */
+Rectangle.prototype.toString = function ()
+{
+    // todo
+    return "";
+};
+
+/**
+ * @param {Rectangle} toUnion
+ * @returns {Rectangle}
+ */
+Rectangle.prototype.union = function (toUnion)
+{
+    // todo
+    return new Rectangle();
+};
+
 /**
  * @constructor
  */
@@ -3241,6 +3509,7 @@ Object.defineProperties(Transform.prototype, {
         set: function (colorTransform) {
             if (colorTransform instanceof ColorTransform) {
                 this._colorTransform = colorTransform;
+                this._colorTransform._readOnly = true;
             }
         }
     },
@@ -3293,6 +3562,16 @@ Object.defineProperties(Transform.prototype, {
         set: function () {} // readonly
     }
 });
+
+/**
+ * @param {DisplayObject} relativeTo
+ * @returns {Matrix3D}
+ */
+Transform.prototype.getRelativeMatrix3D = function (relativeTo)
+{
+    // todo
+    return new Matrix3D();
+};
 
 
 
@@ -14855,9 +15134,17 @@ Stage.prototype.setSwfHeader = function (bitio, swftag)
     var frameRate = bitio.getUI16() / 0x100;
     bitio.getUI16(); // frameCount
 
-    this.setBaseWidth(this.$ceil((bounds.xMax - bounds.xMin) / 20));
-    this.setBaseHeight(this.$ceil((bounds.yMax - bounds.yMin) / 20));
+    var width  = (this.$ceil((bounds.xMax - bounds.xMin) / 20))|0;
+    var height = (this.$ceil((bounds.yMax - bounds.yMin) / 20))|0;
+
+    this.setBaseWidth(width);
+    this.setBaseHeight(height);
     this.setFrameRate(frameRate);
+
+    if (this.tagId && !this.optionWidth && !this.optionHeight) {
+        this.optionWidth  = width;
+        this.optionHeight = height;
+    }
 
     this.loadStatus += 1;
 
@@ -14998,7 +15285,7 @@ Stage.prototype.resize = function ()
     var oHeight = this.optionHeight;
 
     var element     = this.$document.documentElement;
-    var innerWidth  = this.$max(element.clientWidth, window.innerWidth || 0);
+    var innerWidth  = this.$max(element.clientWidth,  window.innerWidth  || 0);
     var innerHeight = this.$max(element.clientHeight, window.innerHeight || 0);
 
     var parent = div.parentNode;
@@ -15015,6 +15302,7 @@ Stage.prototype.resize = function ()
     var scale  = +this.$min((screenWidth / baseWidth), (screenHeight / baseHeight));
     var width  = baseWidth  * scale;
     var height = baseHeight * scale;
+
     if (width !== this.getWidth() || height !== this.getHeight()) {
         // div
         var style    = div.style;
@@ -15076,6 +15364,8 @@ Stage.prototype.loaded = function ()
     // DOM
     this.deleteNode();
 
+    var self = this;
+
     // add canvas
     var div = this.$document.getElementById(this.getName());
     if (div) {
@@ -15109,7 +15399,7 @@ Stage.prototype.loaded = function ()
             if (length) {
                 var loadSound = function ()
                 {
-                    canvas.removeEventListener(this.$startEvent, loadSound);
+                    canvas.removeEventListener(self.$startEvent, loadSound);
                     for (var idx in loadSounds) {
                         if (!loadSounds.hasOwnProperty(idx)) {
                             continue;
@@ -15124,7 +15414,6 @@ Stage.prototype.loaded = function ()
             }
         }
 
-        var self = this;
         canvas.addEventListener(this.$startEvent, function (event)
         {
             Util.prototype.$event = event;
@@ -15412,10 +15701,11 @@ Stage.prototype.init = function ()
         var tagId = this.tagId;
         if (tagId) {
             if (doc.readyState === "loading") {
+                var self = this;
                 var reTry = function ()
                 {
                     window.removeEventListener("DOMContentLoaded", reTry);
-                    this.init();
+                    self.init();
                 };
                 window.addEventListener("DOMContentLoaded", reTry);
                 return 0;
@@ -15435,6 +15725,7 @@ Stage.prototype.init = function ()
                 div.id = this.getName();
                 container.appendChild(div);
             }
+
         } else {
             doc.body.insertAdjacentHTML("beforeend", "<div id='" + this.getName() + "'></div>");
         }
@@ -15481,7 +15772,7 @@ Stage.prototype.initStyle = function (div)
         height = (oHeight > 0) ? oHeight : parent.offsetHeight;
     }
 
-    style.width  = width + "px";
+    style.width  = width  + "px";
     style.height = height + "px";
     style['-webkit-user-select'] = "none";
 };
@@ -15647,7 +15938,7 @@ Stage.prototype.output = function (url, frame, width, height)
     mc.reset();
     mc.gotoAndStop(frame);
     if (width !== this.getWidth() || height !== this.getHeight()) {
-        this.optionWidth = width;
+        this.optionWidth  = width;
         this.optionHeight = height;
         this.resize();
     }

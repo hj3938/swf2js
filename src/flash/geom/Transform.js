@@ -28,6 +28,7 @@ Object.defineProperties(Transform.prototype, {
         set: function (colorTransform) {
             if (colorTransform instanceof ColorTransform) {
                 this._colorTransform = colorTransform;
+                this._colorTransform._readOnly = true;
             }
         }
     },
@@ -80,5 +81,15 @@ Object.defineProperties(Transform.prototype, {
         set: function () {} // readonly
     }
 });
+
+/**
+ * @param {DisplayObject} relativeTo
+ * @returns {Matrix3D}
+ */
+Transform.prototype.getRelativeMatrix3D = function (relativeTo)
+{
+    // todo
+    return new Matrix3D();
+};
 
 

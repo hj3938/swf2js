@@ -127,3 +127,22 @@ describe("Rectangle.js contains test", function()
     });
 });
 
+
+describe("Rectangle.js containsPoint test", function()
+{
+    it("containsPoint test", function () {
+        var r = new Rectangle(30, 50, 80, 100);
+
+        var p1 = new Point(30, 50);
+        expect(r.containsPoint(p1)).toBe(true);
+
+        var p2 = new Point(110, 150);
+        expect(r.containsPoint(p2)).toBe(false);
+
+        var p3 = new Point(109, 149);
+        expect(r.containsPoint(p3)).toBe(true);
+
+        var p4 = new Point(20, 40);
+        expect(r.containsPoint(p4)).toBe(false);
+    });
+});

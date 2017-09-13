@@ -165,7 +165,6 @@ Rectangle.prototype.clone = function ()
  */
 Rectangle.prototype.contains = function (x, y)
 {
-    // todo
     return (this.x <= x && this.y <= y && this.right > x && this.bottom > y);
 };
 
@@ -175,8 +174,8 @@ Rectangle.prototype.contains = function (x, y)
  */
 Rectangle.prototype.containsPoint = function (point)
 {
-    // todo
-    return true;
+    return (this.x <= point.x && this.y <= point.y
+        && this.right > point.x && this.bottom > point.y);
 };
 
 /**

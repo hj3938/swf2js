@@ -146,3 +146,27 @@ describe("Rectangle.js containsPoint test", function()
         expect(r.containsPoint(p4)).toBe(false);
     });
 });
+
+
+describe("Rectangle.js containsRect test", function()
+{
+    it("containsRect test", function () {
+        var r1 = new Rectangle(10, 10, 20, 20);
+        var r2 = new Rectangle(15, 15, 5, 5);
+        expect(r1.containsRect(r2)).toBe(true);
+
+        var r3 = new Rectangle(10, 10, 20, 20);
+        var r4 = new Rectangle(10, 10, 20, 20);
+        expect(r3.containsRect(r4)).toBe(true);
+
+        var r5 = new Rectangle(10, 10, 20, 20);
+        var r6 = new Rectangle(9, 9, 20, 20);
+        expect(r5.containsRect(r6)).toBe(false);
+
+        var r7 = new Rectangle(10, 10, 20, 20);
+        var r8 = new Rectangle(15, 15, 20, 20);
+        expect(r7.containsRect(r8)).toBe(false);
+    });
+});
+
+

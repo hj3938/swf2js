@@ -185,8 +185,8 @@ Rectangle.prototype.containsPoint = function (point)
  */
 Rectangle.prototype.containsRect = function (rect)
 {
-    // todo
-    return true;
+    return (this.x <= rect.x && this.y <= rect.y
+        && this.right >= rect.right && this.bottom >= rect.bottom);
 };
 
 /**

@@ -3318,7 +3318,7 @@ Object.defineProperties(Rectangle.prototype, {
         set: function (value) {
             if (!this._readOnly) {
                 this.left = value.x;
-                this.top = value.y;
+                this.top  = value.y;
             }
         }
     },
@@ -3370,7 +3370,7 @@ Rectangle.prototype.clone = function ()
 Rectangle.prototype.contains = function (x, y)
 {
     // todo
-    return true;
+    return (this.x <= x && this.y <= y && this.right > x && this.bottom > y);
 };
 
 /**

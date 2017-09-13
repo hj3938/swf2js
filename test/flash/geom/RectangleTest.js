@@ -102,6 +102,7 @@ describe("Rectangle.js property test", function()
     });
 });
 
+
 describe("Rectangle.js clone test", function()
 {
     it("clone test", function () {
@@ -113,3 +114,16 @@ describe("Rectangle.js clone test", function()
         expect(r2.toString()).toBe("(x=100, y=50, w=80, h=100)");
     });
 });
+
+
+describe("Rectangle.js contains test", function()
+{
+    it("contains test", function () {
+        var r = new Rectangle(30, 50, 80, 100);
+        expect(r.contains(30, 50)).toBe(true);
+        expect(r.contains(110, 150)).toBe(false);
+        expect(r.contains(109, 149)).toBe(true);
+        expect(r.contains(20, 40)).toBe(false);
+    });
+});
+

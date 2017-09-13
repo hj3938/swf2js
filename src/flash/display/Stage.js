@@ -621,9 +621,17 @@ Stage.prototype.setSwfHeader = function (bitio, swftag)
     var frameRate = bitio.getUI16() / 0x100;
     bitio.getUI16(); // frameCount
 
-    this.setBaseWidth(this.$ceil((bounds.xMax - bounds.xMin) / 20));
-    this.setBaseHeight(this.$ceil((bounds.yMax - bounds.yMin) / 20));
+    var width  = (this.$ceil((bounds.xMax - bounds.xMin) / 20))|0;
+    var height = (this.$ceil((bounds.yMax - bounds.yMin) / 20))|0;
+
+    this.setBaseWidth(width);
+    this.setBaseHeight(height);
     this.setFrameRate(frameRate);
+
+    if (this.tagId && !this.optionWidth && !this.optionHeight) {
+        this.optionWidth  = width;
+        this.optionHeight = height;
+    }
 
     this.loadStatus += 1;
 
@@ -764,7 +772,7 @@ Stage.prototype.resize = function ()
     var oHeight = this.optionHeight;
 
     var element     = this.$document.documentElement;
-    var innerWidth  = this.$max(element.clientWidth, window.innerWidth || 0);
+    var innerWidth  = this.$max(element.clientWidth,  window.innerWidth  || 0);
     var innerHeight = this.$max(element.clientHeight, window.innerHeight || 0);
 
     var parent = div.parentNode;
@@ -781,6 +789,7 @@ Stage.prototype.resize = function ()
     var scale  = +this.$min((screenWidth / baseWidth), (screenHeight / baseHeight));
     var width  = baseWidth  * scale;
     var height = baseHeight * scale;
+
     if (width !== this.getWidth() || height !== this.getHeight()) {
         // div
         var style    = div.style;
@@ -842,6 +851,8 @@ Stage.prototype.loaded = function ()
     // DOM
     this.deleteNode();
 
+    var self = this;
+
     // add canvas
     var div = this.$document.getElementById(this.getName());
     if (div) {
@@ -875,7 +886,7 @@ Stage.prototype.loaded = function ()
             if (length) {
                 var loadSound = function ()
                 {
-                    canvas.removeEventListener(this.$startEvent, loadSound);
+                    canvas.removeEventListener(self.$startEvent, loadSound);
                     for (var idx in loadSounds) {
                         if (!loadSounds.hasOwnProperty(idx)) {
                             continue;
@@ -890,7 +901,6 @@ Stage.prototype.loaded = function ()
             }
         }
 
-        var self = this;
         canvas.addEventListener(this.$startEvent, function (event)
         {
             Util.prototype.$event = event;
@@ -1178,10 +1188,11 @@ Stage.prototype.init = function ()
         var tagId = this.tagId;
         if (tagId) {
             if (doc.readyState === "loading") {
+                var self = this;
                 var reTry = function ()
                 {
                     window.removeEventListener("DOMContentLoaded", reTry);
-                    this.init();
+                    self.init();
                 };
                 window.addEventListener("DOMContentLoaded", reTry);
                 return 0;
@@ -1201,6 +1212,7 @@ Stage.prototype.init = function ()
                 div.id = this.getName();
                 container.appendChild(div);
             }
+
         } else {
             doc.body.insertAdjacentHTML("beforeend", "<div id='" + this.getName() + "'></div>");
         }
@@ -1247,7 +1259,7 @@ Stage.prototype.initStyle = function (div)
         height = (oHeight > 0) ? oHeight : parent.offsetHeight;
     }
 
-    style.width  = width + "px";
+    style.width  = width  + "px";
     style.height = height + "px";
     style['-webkit-user-select'] = "none";
 };
@@ -1413,7 +1425,7 @@ Stage.prototype.output = function (url, frame, width, height)
     mc.reset();
     mc.gotoAndStop(frame);
     if (width !== this.getWidth() || height !== this.getHeight()) {
-        this.optionWidth = width;
+        this.optionWidth  = width;
         this.optionHeight = height;
         this.resize();
     }

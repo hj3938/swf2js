@@ -14,10 +14,10 @@ var Rectangle = function (x, y, width, height)
     this._height = 0;
 
     // init
-    this.x      = x;
-    this.y      = y;
-    this.width  = width;
-    this.height = height;
+    this.x      = x||0;
+    this.y      = y||0;
+    this.width  = width||0;
+    this.height = height||0;
 
     // origin
     this._readOnly = false;
@@ -35,7 +35,7 @@ Rectangle.prototype.constructor = Rectangle;
 Object.defineProperties(Rectangle.prototype, {
     bottom: {
         get: function () {
-            return this.y + this.height;
+            return this.$abs(this.y) + this.height;
         },
         set: function (bottom) {
             if (!this._readOnly) {
@@ -77,7 +77,7 @@ Object.defineProperties(Rectangle.prototype, {
     },
     right: {
         get: function () {
-            return +(this.x + this.width);
+            return +(this.$abs(this.x) + this.width);
         },
         set: function (right) {
             if (!this._readOnly) {
@@ -191,10 +191,14 @@ Rectangle.prototype.containsRect = function (rect)
 
 /**
  * @param {Rectangle} sourceRect
+ * @returns void
  */
 Rectangle.prototype.copyFrom = function (sourceRect)
 {
-    // todo
+    this.x      = sourceRect.x;
+    this.y      = sourceRect.y;
+    this.width  = sourceRect.width;
+    this.height = sourceRect.height;
 };
 
 /**
@@ -203,8 +207,8 @@ Rectangle.prototype.copyFrom = function (sourceRect)
  */
 Rectangle.prototype.equals = function (toCompare)
 {
-    // todo
-    return true;
+    return (this.x === toCompare.x && this.y === toCompare.y
+        && this.width === toCompare.width && this.height === toCompare.height);
 };
 
 /**
@@ -214,7 +218,11 @@ Rectangle.prototype.equals = function (toCompare)
  */
 Rectangle.prototype.inflate = function (dx, dy)
 {
-    // todo
+    this.x      = +(this.x - dx);
+    this.width  = +(this.width + 2 * dx);
+
+    this.y      = +(this.y - dy);
+    this.height = +(this.height + 2 * dy);
 };
 
 /**
@@ -223,7 +231,11 @@ Rectangle.prototype.inflate = function (dx, dy)
  */
 Rectangle.prototype.inflatePoint = function (point)
 {
-    // todo
+    this.x      = +(this.x - point.x);
+    this.width  = +(this.width + 2 * point.x);
+
+    this.y      = +(this.y - point.y);
+    this.height = +(this.height + 2 * point.y);
 };
 
 /**
@@ -232,8 +244,16 @@ Rectangle.prototype.inflatePoint = function (point)
  */
 Rectangle.prototype.intersection = function (toIntersect)
 {
-    // todo
-    return new Rectangle();
+    var sx = +this.$max(this.x, toIntersect.x);
+    var sy = +this.$max(this.y, toIntersect.y);
+    var ex = +this.$min(this.right,  toIntersect.right);
+    var ey = +this.$min(this.bottom, toIntersect.bottom);
+
+    var w = +(ex - sx);
+    var h = +(ey - sy);
+    return (w > 0 && h > 0)
+        ? new Rectangle(sx, sy, w, h)
+        : new Rectangle();
 };
 
 /**
@@ -242,8 +262,14 @@ Rectangle.prototype.intersection = function (toIntersect)
  */
 Rectangle.prototype.intersects = function (toIntersect)
 {
-    // todo
-    return true;
+    var sx = +this.$max(this.x, toIntersect.x);
+    var sy = +this.$max(this.y, toIntersect.y);
+    var ex = +this.$min(this.right,  toIntersect.right);
+    var ey = +this.$min(this.bottom, toIntersect.bottom);
+
+    var w = +(ex - sx);
+    var h = +(ey - sy);
+    return (w > 0 && h > 0);
 };
 
 /**
@@ -251,8 +277,7 @@ Rectangle.prototype.intersects = function (toIntersect)
  */
 Rectangle.prototype.isEmpty = function ()
 {
-    // todo
-    return true;
+    return (this.width <= 0 || this.height <= 0);
 };
 
 /**
@@ -263,7 +288,8 @@ Rectangle.prototype.isEmpty = function ()
  */
 Rectangle.prototype.offset = function (dx ,dy)
 {
-    // todo
+    this.x = +(this.x + dx);
+    this.y = +(this.y + dy);
 };
 
 /**
@@ -272,7 +298,8 @@ Rectangle.prototype.offset = function (dx ,dy)
  */
 Rectangle.prototype.offsetPoint = function (point)
 {
-    // todo
+    this.x = +(this.x + point.x);
+    this.y = +(this.y + point.y);
 };
 
 /**
@@ -280,7 +307,10 @@ Rectangle.prototype.offsetPoint = function (point)
  */
 Rectangle.prototype.setEmpty = function ()
 {
-    // todo
+    this.x      = 0;
+    this.y      = 0;
+    this.width  = 0;
+    this.height = 0;
 };
 
 /**
@@ -293,7 +323,10 @@ Rectangle.prototype.setEmpty = function ()
  */
 Rectangle.prototype.setTo = function (xa, ya, widtha, heighta)
 {
-    // todo
+    this.x      = xa;
+    this.y      = ya;
+    this.width  = widtha;
+    this.height = heighta;
 };
 
 /**
@@ -310,6 +343,20 @@ Rectangle.prototype.toString = function ()
  */
 Rectangle.prototype.union = function (toUnion)
 {
-    // todo
-    return new Rectangle();
+    switch (true) {
+        case this.isEmpty():
+            return toUnion.clone();
+            break;
+        case toUnion.isEmpty():
+            return this.clone();
+            break;
+        default:
+            return new Rectangle(
+                this.$min(this.x, toUnion.x),
+                this.$min(this.y, toUnion.y),
+                this.$max(this.right,  toUnion.right),
+                this.$max(this.bottom, toUnion.bottom)
+            );
+            break;
+    }
 };

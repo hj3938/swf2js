@@ -170,3 +170,192 @@ describe("Rectangle.js containsRect test", function()
 });
 
 
+describe("Rectangle.js copyFrom test", function()
+{
+    it("copyFrom test", function () {
+        var r1 = new Rectangle(10, 10, 20, 20);
+        var r2 = new Rectangle(15, 15, 5, 5);
+
+        r1.copyFrom(r2);
+        expect(r1.toString()).toBe("(x=15, y=15, w=5, h=5)");
+        expect(r2.toString()).toBe("(x=15, y=15, w=5, h=5)");
+
+        r1.x      = 10;
+        r1.y      = 10;
+        r1.width  = 20;
+        r1.height = 20;
+        expect(r1.toString()).toBe("(x=10, y=10, w=20, h=20)");
+        expect(r2.toString()).toBe("(x=15, y=15, w=5, h=5)");
+    });
+});
+
+
+describe("Rectangle.js equals test", function()
+{
+    it("equals test", function () {
+        var r1 = new Rectangle(10, 10, 20, 20);
+        var r2 = new Rectangle(10, 10, 20, 20);
+        expect(r1.equals(r2)).toBe(true);
+
+        var r3 = new Rectangle(10, 10, 20, 20);
+        var r4 = new Rectangle(15, 15, 5, 5);
+        expect(r3.equals(r4)).toBe(false);
+    });
+});
+
+
+describe("Rectangle.js inflate test", function()
+{
+    it("inflate test", function () {
+        var r1 = new Rectangle(10, 10, 20, 20);
+        r1.inflate(10, 10);
+        expect(r1.toString()).toBe("(x=0, y=0, w=40, h=40)");
+
+        var r2 = new Rectangle(10, 10, 20, 20);
+        r2.inflate(20, 20);
+        expect(r2.toString()).toBe("(x=-10, y=-10, w=60, h=60)");
+    });
+});
+
+
+describe("Rectangle.js inflatePoint test", function()
+{
+    it("inflatePoint test", function () {
+        var r1 = new Rectangle(10, 10, 20, 20);
+        var p1 = new Point(10, 10);
+        r1.inflatePoint(p1);
+        expect(r1.toString()).toBe("(x=0, y=0, w=40, h=40)");
+
+        var r2 = new Rectangle(10, 10, 20, 20);
+        var p2 = new Point(20, 20);
+        r2.inflatePoint(p2);
+        expect(r2.toString()).toBe("(x=-10, y=-10, w=60, h=60)");
+    });
+});
+
+
+describe("Rectangle.js intersection test", function()
+{
+    it("intersection test", function () {
+        var r1 = new Rectangle(10, 10, 20, 20);
+        var r2 = new Rectangle(5, 5, 5, 5);
+        var r3 = r1.intersection(r2);
+        expect(r3.toString()).toBe("(x=0, y=0, w=0, h=0)");
+
+        var r4 = new Rectangle(10, 10, 20, 20);
+        var r5 = new Rectangle(15, 15, 5, 5);
+        var r6 = r4.intersection(r5);
+        expect(r6.toString()).toBe("(x=15, y=15, w=5, h=5)");
+
+        var r7 = new Rectangle(10, 10, 20, 20);
+        var r8 = new Rectangle(5, 5, 25, 25);
+        var r9 = r7.intersection(r8);
+        expect(r9.toString()).toBe("(x=10, y=10, w=20, h=20)");
+    });
+});
+
+
+describe("Rectangle.js intersects test", function()
+{
+    it("intersects test", function () {
+        var r1 = new Rectangle(10, 10, 20, 20);
+        var r2 = new Rectangle(5, 5, 5, 5);
+        expect(r1.intersects(r2)).toBe(false);
+
+        var r3 = new Rectangle(10, 10, 20, 20);
+        var r4 = new Rectangle(5, 5, 25, 25);
+        expect(r3.intersects(r4)).toBe(true);
+    });
+});
+
+
+describe("Rectangle.js isEmpty test", function()
+{
+    it("isEmpty test", function () {
+        var r1 = new Rectangle(10, 10, 20, 20);
+        var r2 = new Rectangle(-55, -55, 0, 0);
+        expect(r1.isEmpty()).toBe(false);
+        expect(r2.isEmpty()).toBe(true);
+    });
+});
+
+
+describe("Rectangle.js offset test", function()
+{
+    it("offset test", function () {
+        var r1 = new Rectangle(10, 10, 20, 20);
+        var r2 = new Rectangle(-55, -55, 0, 0);
+
+        r1.offset(5, 8);
+        r2.offset(60, 30);
+
+        expect(r1.toString()).toBe("(x=15, y=18, w=20, h=20)");
+        expect(r2.toString()).toBe("(x=5, y=-25, w=0, h=0)");
+    });
+});
+
+
+describe("Rectangle.js offsetPoint test", function()
+{
+    it("offsetPoint test", function () {
+        var r1 = new Rectangle(10, 10, 20, 20);
+        var r2 = new Rectangle(-55, -55, 0, 0);
+
+        r1.offsetPoint(new Point(5, 8));
+        r2.offsetPoint(new Point(60, 30));
+
+        expect(r1.toString()).toBe("(x=15, y=18, w=20, h=20)");
+        expect(r2.toString()).toBe("(x=5, y=-25, w=0, h=0)");
+    });
+});
+
+describe("Rectangle.js setEmpty test", function()
+{
+    it("setEmpty test", function () {
+        var r1 = new Rectangle(10, 10, 20, 20);
+        var r2 = new Rectangle(-55, -55, 0, 0);
+
+        r1.setEmpty();
+        r2.setEmpty();
+
+        expect(r1.toString()).toBe("(x=0, y=0, w=0, h=0)");
+        expect(r2.toString()).toBe("(x=0, y=0, w=0, h=0)");
+    });
+});
+
+
+describe("Rectangle.js setTo test", function()
+{
+    it("setTo test", function () {
+        var r1 = new Rectangle(10, 10, 20, 20);
+        var r2 = new Rectangle(-55, -55, 0, 0);
+
+        r1.setTo(5, 5, 5, 5);
+        r2.setTo(10, 10, 10, 10);
+
+        expect(r1.toString()).toBe("(x=5, y=5, w=5, h=5)");
+        expect(r2.toString()).toBe("(x=10, y=10, w=10, h=10)");
+    });
+});
+
+
+describe("Rectangle.js union test", function()
+{
+    it("union test", function () {
+        var r1 = new Rectangle(10, 10, 0, 10);
+        var r2 = new Rectangle(-55, -25, 0, 20);
+        var r3 = r1.union(r2);
+        expect(r3.toString()).toBe("(x=-55, y=-25, w=0, h=20)");
+
+        var r4 = new Rectangle(10, 10, 10, 10);
+        var r5 = new Rectangle(-55, -25, 0, 20);
+        var r6 = r4.union(r5);
+        expect(r6.toString()).toBe("(x=10, y=10, w=10, h=10)");
+
+        var r7 = new Rectangle(10, 10, 10, 10);
+        var r8 = new Rectangle(-55, -25, 20, 20);
+        var r9 = r7.union(r8);
+        expect(r9.toString()).toBe("(x=-55, y=-25, w=75, h=45)");
+    });
+});
+

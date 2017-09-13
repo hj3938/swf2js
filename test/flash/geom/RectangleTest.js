@@ -90,7 +90,7 @@ describe("Rectangle.js property test", function()
         expect(r.toString()).toBe("(x=10, y=10, w=100, h=140)");
     });
 
-    
+
     it("size test", function () {
 
         var r = new Rectangle(30, 50, 80, 100);
@@ -99,5 +99,17 @@ describe("Rectangle.js property test", function()
 
         r.size = new Point(10 ,10);
         expect(r.toString()).toBe("(x=30, y=50, w=10, h=10)");
+    });
+});
+
+describe("Rectangle.js clone test", function()
+{
+    it("clone test", function () {
+        var r1 = new Rectangle(30, 50, 80, 100);
+        var r2 = r1.clone();
+        r2.x   = 100;
+
+        expect(r1.toString()).toBe("(x=30, y=50, w=80, h=100)");
+        expect(r2.toString()).toBe("(x=100, y=50, w=80, h=100)");
     });
 });

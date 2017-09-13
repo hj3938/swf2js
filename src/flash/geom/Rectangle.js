@@ -71,7 +71,7 @@ Object.defineProperties(Rectangle.prototype, {
         set: function (left) {
             if (!this._readOnly) {
                 this.width = +(this.right - left);
-                this.x = left;
+                this.x     = left;
             }
         }
     },

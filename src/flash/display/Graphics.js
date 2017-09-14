@@ -817,3 +817,11 @@ Graphics.prototype.buildCommand = function ()
 
     return this.$vtc.buildCommand(fillRecodes);
 };
+
+/**
+ * @returns {string}
+ */
+Graphics.prototype.toString = function ()
+{
+    return "[object Graphics]"
+};

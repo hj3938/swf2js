@@ -30,7 +30,6 @@ Object.defineProperties(Transform.prototype, {
         set: function (colorTransform) {
             if (colorTransform instanceof ColorTransform) {
                 this._colorTransform = colorTransform.clone();
-                this._colorTransform._readOnly = true;
             }
         }
     },
@@ -43,7 +42,6 @@ Object.defineProperties(Transform.prototype, {
         set: function (matrix) {
             if (matrix instanceof Matrix) {
                 this._matrix = matrix.clone();
-                this._matrix._readOnly = true;
             }
         }
     },

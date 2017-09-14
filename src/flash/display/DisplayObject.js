@@ -305,24 +305,10 @@ DisplayObject.prototype.initialize = function ()
     this._matrix         = null;
     this._colorTransform = null;
     this._extend         = false;
+    this.transform       = new Transform();
 
     // avm2
     this.avm2 = null;
-};
-
-// filters
-DisplayObject.prototype.flash = {
-    filters: {
-        DropShadowFilter:    DropShadowFilter,
-        BlurFilter:          BlurFilter,
-        GlowFilter:          GlowFilter,
-        BevelFilter:         BevelFilter,
-        GradientGlowFilter:  GradientGlowFilter,
-        ConvolutionFilter:   ConvolutionFilter,
-        ColorMatrixFilter:   ColorMatrixFilter,
-        GradientBevelFilter: GradientBevelFilter,
-        BitmapFilter:        BitmapFilter
-    }
 };
 
 /**

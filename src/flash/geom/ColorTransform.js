@@ -17,14 +17,14 @@ var ColorTransform = function (
     this._colorTransform  = [1.0, 1.0, 1.0, 1.0, 0, 0, 0, 0];
 
     // init
-    this.redMultiplier    = redMultiplier   || 1.0;
-    this.greenMultiplier  = greenMultiplier || 1.0;
-    this.blueMultiplier   = blueMultiplier  || 1.0;
-    this.alphaMultiplier  = alphaMultiplier || 1.0;
-    this.redOffset        = redOffset       || 0;
-    this.greenOffset      = greenOffset     || 0;
-    this.blueOffset       = blueOffset      || 0;
-    this.alphaOffset      = alphaOffset     || 0;
+    this.redMultiplier    = redMultiplier;
+    this.greenMultiplier  = greenMultiplier;
+    this.blueMultiplier   = blueMultiplier;
+    this.alphaMultiplier  = alphaMultiplier;
+    this.redOffset        = redOffset;
+    this.greenOffset      = greenOffset;
+    this.blueOffset       = blueOffset;
+    this.alphaOffset      = alphaOffset;
 
 };
 

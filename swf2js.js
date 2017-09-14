@@ -2453,14 +2453,14 @@ var ColorTransform = function (
     this._colorTransform  = [1.0, 1.0, 1.0, 1.0, 0, 0, 0, 0];
 
     // init
-    this.redMultiplier    = redMultiplier   || 1.0;
-    this.greenMultiplier  = greenMultiplier || 1.0;
-    this.blueMultiplier   = blueMultiplier  || 1.0;
-    this.alphaMultiplier  = alphaMultiplier || 1.0;
-    this.redOffset        = redOffset       || 0;
-    this.greenOffset      = greenOffset     || 0;
-    this.blueOffset       = blueOffset      || 0;
-    this.alphaOffset      = alphaOffset     || 0;
+    this.redMultiplier    = redMultiplier;
+    this.greenMultiplier  = greenMultiplier;
+    this.blueMultiplier   = blueMultiplier;
+    this.alphaMultiplier  = alphaMultiplier;
+    this.redOffset        = redOffset;
+    this.greenOffset      = greenOffset;
+    this.blueOffset       = blueOffset;
+    this.alphaOffset      = alphaOffset;
 
 };
 
@@ -3603,7 +3603,6 @@ Object.defineProperties(Transform.prototype, {
         set: function (colorTransform) {
             if (colorTransform instanceof ColorTransform) {
                 this._colorTransform = colorTransform.clone();
-                this._colorTransform._readOnly = true;
             }
         }
     },
@@ -3616,7 +3615,6 @@ Object.defineProperties(Transform.prototype, {
         set: function (matrix) {
             if (matrix instanceof Matrix) {
                 this._matrix = matrix.clone();
-                this._matrix._readOnly = true;
             }
         }
     },
@@ -6819,24 +6817,10 @@ DisplayObject.prototype.initialize = function ()
     this._matrix         = null;
     this._colorTransform = null;
     this._extend         = false;
+    this.transform       = new Transform();
 
     // avm2
     this.avm2 = null;
-};
-
-// filters
-DisplayObject.prototype.flash = {
-    filters: {
-        DropShadowFilter:    DropShadowFilter,
-        BlurFilter:          BlurFilter,
-        GlowFilter:          GlowFilter,
-        BevelFilter:         BevelFilter,
-        GradientGlowFilter:  GradientGlowFilter,
-        ConvolutionFilter:   ConvolutionFilter,
-        ColorMatrixFilter:   ColorMatrixFilter,
-        GradientBevelFilter: GradientBevelFilter,
-        BitmapFilter:        BitmapFilter
-    }
 };
 
 /**
@@ -10308,12 +10292,100 @@ ActionScriptVersion.prototype.constructor = ActionScriptVersion;
 /**
  * @constructor
  */
-var Bitmap = function () {};
+var Bitmap = function (bitmapData, pixelSnapping, smoothing)
+{
+    // init
+    this._bitmapData    = bitmapData||null;
+    this._pixelSnapping = pixelSnapping||"auto";
+    this._smoothing     = smoothing||false;
+};
 
 /**
+ * extends
+ */
+Bitmap.prototype = Object.create(DisplayObject.prototype);
+Bitmap.prototype.constructor = Bitmap;
+
+/**
+ * properties
+ */
+Object.defineProperties(Bitmap.prototype, {
+    bitmapData: {
+        get: function () {
+            return this._bitmapData;
+        },
+        set: function (bitmapData) {
+            this._bitmapData = bitmapData;
+        }
+    },
+    pixelSnapping: {
+        get: function () {
+            return this._pixelSnapping;
+        },
+        set: function (pixelSnapping) {
+            this._pixelSnapping = pixelSnapping;
+        }
+    },
+    smoothing: {
+        get: function () {
+            return this._smoothing;
+        },
+        set: function (smoothing) {
+            this._smoothing = smoothing;
+        }
+    }
+});
+/**
+ * @param width
+ * @param height
+ * @param transparent
+ * @param fillColor
  * @constructor
  */
-var BitmapData = function () {};
+var BitmapData = function (width, height, transparent, fillColor)
+{
+    this._width       = width|0;
+    this._height      = height|0;
+    this._transparent = true;
+    this._fillColor   = 0xFFFFFFFF;
+    this._rect        = new Rectangle(0, 0, this._width, this._height);
+};
+
+/**
+ * extends
+ */
+BitmapData.prototype = Object.create(OriginalObject.prototype);
+BitmapData.prototype.constructor = BitmapData;
+
+/**
+ * properties
+ */
+Object.defineProperties(BitmapData.prototype, {
+    width: {
+        get: function () {
+            return this._width;
+        },
+        set: function () {}
+    },
+    height: {
+        get: function () {
+            return this._height;
+        },
+        set: function () {}
+    },
+    transparent: {
+        get: function () {
+            return this._transparent;
+        },
+        set: function () {}
+    },
+    rect: {
+        get: function () {
+            return this._rect;
+        },
+        set: function () {}
+    }
+});
 /**
  * @constructor
  */
@@ -11252,6 +11324,14 @@ Graphics.prototype.buildCommand = function ()
     }
 
     return this.$vtc.buildCommand(fillRecodes);
+};
+
+/**
+ * @returns {string}
+ */
+Graphics.prototype.toString = function ()
+{
+    return "[object Graphics]"
 };
 /**
  * @param bitmapData

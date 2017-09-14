@@ -1,5 +1,4 @@
-[![Build Status](https://travis-ci.org/ienaga/swf2js.svg?branch=master)](https://travis-ci.org/ienaga/swf2js)
-
+[![Build Status](https://travis-ci.org/ienaga/swf2js.svg?branch=develop)](https://travis-ci.org/ienaga/swf2js)
 # Development And Test Branch
 
 ##  My NodeJS Version

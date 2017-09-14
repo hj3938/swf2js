@@ -2462,8 +2462,6 @@ var ColorTransform = function (
     this.blueOffset       = blueOffset;
     this.alphaOffset      = alphaOffset;
 
-    // origin
-    this._readOnly = false;
 };
 
 
@@ -2482,8 +2480,8 @@ Object.defineProperties(ColorTransform.prototype, {
             return this._colorTransform[0];
         },
         set: function (redMultiplier) {
-            if (!this._readOnly && !this.$isNaN(redMultiplier)
-                && 0 <= redMultiplier && 1 >= redMultiplier
+            if (!this.$isNaN(redMultiplier)
+                && -1 <= redMultiplier && 1 >= redMultiplier
             ) {
                 this._colorTransform[0] = redMultiplier;
             }
@@ -2494,8 +2492,8 @@ Object.defineProperties(ColorTransform.prototype, {
             return this._colorTransform[1];
         },
         set: function (greenMultiplier) {
-            if (!this._readOnly && !this.$isNaN(greenMultiplier)
-                && 0 <= greenMultiplier && 1 >= greenMultiplier
+            if (!this.$isNaN(greenMultiplier)
+                && -1 <= greenMultiplier && 1 >= greenMultiplier
             ) {
                 this._colorTransform[1] = greenMultiplier;
             }
@@ -2506,8 +2504,8 @@ Object.defineProperties(ColorTransform.prototype, {
             return this._colorTransform[2];
         },
         set: function (blueMultiplier) {
-            if (!this._readOnly && !this.$isNaN(blueMultiplier)
-                && 0 <= blueMultiplier && 1 >= blueMultiplier
+            if (!this.$isNaN(blueMultiplier)
+                && -1 <= blueMultiplier && 1 >= blueMultiplier
             ) {
                 this._colorTransform[2] = blueMultiplier;
             }
@@ -2518,8 +2516,8 @@ Object.defineProperties(ColorTransform.prototype, {
             return this._colorTransform[3];
         },
         set: function (alphaMultiplier) {
-            if (!this._readOnly && !this.$isNaN(alphaMultiplier)
-                && 0 <= alphaMultiplier && 1 >= alphaMultiplier
+            if (!this.$isNaN(alphaMultiplier)
+                && -1 <= alphaMultiplier && 1 >= alphaMultiplier
             ) {
                 this._colorTransform[3] = alphaMultiplier;
             }
@@ -2530,10 +2528,10 @@ Object.defineProperties(ColorTransform.prototype, {
             return this._colorTransform[4];
         },
         set: function (redOffset) {
-            if (!this._readOnly && !this.$isNaN(redOffset)
-                && -255 <= redOffset && 255 >= redOffset
+            if (!this.$isNaN(redOffset)
+                && -256 < redOffset && 256 > redOffset
             ) {
-                this._colorTransform[4] = redOffset;
+                this._colorTransform[4] = redOffset|0;
             }
         }
     },
@@ -2542,10 +2540,10 @@ Object.defineProperties(ColorTransform.prototype, {
             return this._colorTransform[5];
         },
         set: function (greenOffset) {
-            if (!this._readOnly && !this.$isNaN(greenOffset)
-                && -255 <= greenOffset && 255 >= greenOffset
+            if (!this.$isNaN(greenOffset)
+                && -256 < greenOffset && 256 > greenOffset
             ) {
-                this._colorTransform[5] = greenOffset;
+                this._colorTransform[5] = greenOffset|0;
             }
         }
     },
@@ -2554,10 +2552,10 @@ Object.defineProperties(ColorTransform.prototype, {
             return this._colorTransform[6];
         },
         set: function (blueOffset) {
-            if (!this._readOnly && !this.$isNaN(blueOffset)
-                && -255 <= blueOffset && 255 >= blueOffset
+            if (!this.$isNaN(blueOffset)
+                && -256 < blueOffset && 256 > blueOffset
             ) {
-                this._colorTransform[6] = blueOffset;
+                this._colorTransform[6] = blueOffset|0;
             }
         }
     },
@@ -2566,10 +2564,10 @@ Object.defineProperties(ColorTransform.prototype, {
             return this._colorTransform[7];
         },
         set: function (alphaOffset) {
-            if (!this._readOnly && !this.$isNaN(alphaOffset)
-                && -255 <= alphaOffset && 255 >= alphaOffset
+            if (!this.$isNaN(alphaOffset)
+                && -256 < alphaOffset && 256 > alphaOffset
             ) {
-                this._colorTransform[7] = alphaOffset;
+                this._colorTransform[7] = alphaOffset|0;
             }
         }
     },
@@ -2610,9 +2608,13 @@ ColorTransform.prototype.setColor = function (value)
         ? this.$intToRGBA(value)
         : this.$intToRGBA(this.$colorStringToInt(value));
 
-    this.redOffset   = obj.R;
-    this.greenOffset = obj.G;
-    this.blueOffset  = obj.B;
+    this.redOffset       = obj.R;
+    this.greenOffset     = obj.G;
+    this.blueOffset      = obj.B;
+
+    this.redMultiplier   = 0;
+    this.greenMultiplier = 0;
+    this.blueMultiplier  = 0;
 };
 
 /**
@@ -2681,9 +2683,6 @@ var Matrix = function (a, b, c, d, tx, ty)
     this.d  = d;
     this.tx = tx;
     this.ty = ty;
-
-    // origin
-    this._readOnly = false;
 };
 
 /**
@@ -2701,7 +2700,7 @@ Object.defineProperties(Matrix.prototype, {
             return this._matrix[0];
         },
         set: function (a) {
-            if (!this._readOnly && !this.$isNaN(a)) {
+            if (!this.$isNaN(a)) {
                 this._matrix[0] = a;
             }
         }
@@ -2711,7 +2710,7 @@ Object.defineProperties(Matrix.prototype, {
             return this._matrix[1];
         },
         set: function (b) {
-            if (!this._readOnly && !this.$isNaN(b)) {
+            if (!this.$isNaN(b)) {
                 this._matrix[1] = b;
             }
         }
@@ -2721,7 +2720,7 @@ Object.defineProperties(Matrix.prototype, {
             return this._matrix[2];
         },
         set: function (c) {
-            if (!this._readOnly && !this.$isNaN(c)) {
+            if (!this.$isNaN(c)) {
                 this._matrix[2] = c;
             }
         }
@@ -2731,7 +2730,7 @@ Object.defineProperties(Matrix.prototype, {
             return this._matrix[3];
         },
         set: function (d) {
-            if (!this._readOnly && !this.$isNaN(d)) {
+            if (!this.$isNaN(d)) {
                 this._matrix[3] = d;
             }
         }
@@ -2741,7 +2740,7 @@ Object.defineProperties(Matrix.prototype, {
             return this._matrix[4] / 20;
         },
         set: function (tx) {
-            if (!this._readOnly && !this.$isNaN(tx)) {
+            if (!this.$isNaN(tx)) {
                 this._matrix[4] = tx * 20;
             }
         }
@@ -2751,7 +2750,7 @@ Object.defineProperties(Matrix.prototype, {
             return this._matrix[5] / 20;
         },
         set: function (ty) {
-            if (!this._readOnly && !this.$isNaN(ty)) {
+            if (!this.$isNaN(ty)) {
                 this._matrix[5] = ty * 20;
             }
         }
@@ -3026,6 +3025,12 @@ var Matrix3D = function (v)
 {
     this._v = null;
 };
+
+/**
+ * extends
+ */
+Matrix3D.prototype = Object.create(OriginalObject.prototype);
+Matrix3D.prototype.constructor = Matrix3D;
 /**
  * @constructor
  */
@@ -3044,6 +3049,12 @@ Orientation3D.prototype.constructor = Orientation3D;
  * @constructor
  */
 var PerspectiveProjection = function () {};
+
+/**
+ * extends
+ */
+PerspectiveProjection.prototype = Object.create(OriginalObject.prototype);
+PerspectiveProjection.prototype.constructor = PerspectiveProjection;
 
 /**
  * @param x
@@ -3242,9 +3253,6 @@ var Rectangle = function (x, y, width, height)
     this.y      = y||0;
     this.width  = width||0;
     this.height = height||0;
-
-    // origin
-    this._readOnly = false;
 };
 
 /**
@@ -3262,9 +3270,7 @@ Object.defineProperties(Rectangle.prototype, {
             return this.$abs(this.y) + this.height;
         },
         set: function (bottom) {
-            if (!this._readOnly) {
-                this.height = +(bottom - this.y);
-            }
+            this.height = +(bottom - this.y);
         }
     },
     bottomRight: {
@@ -3272,10 +3278,8 @@ Object.defineProperties(Rectangle.prototype, {
             return new Point(this.right, this.bottom);
         },
         set: function (value) {
-            if (!this._readOnly) {
-                this.right  = value.x;
-                this.bottom = value.y;
-            }
+            this.right  = value.x;
+            this.bottom = value.y;
         }
     },
     height: {
@@ -3283,9 +3287,7 @@ Object.defineProperties(Rectangle.prototype, {
             return this._height / 20;
         },
         set: function (height) {
-            if (!this._readOnly) {
-                this._height = +(height * 20);
-            }
+            this._height = +(height * 20);
         }
     },
     left: {
@@ -3293,10 +3295,8 @@ Object.defineProperties(Rectangle.prototype, {
             return this.x;
         },
         set: function (left) {
-            if (!this._readOnly) {
-                this.width = +(this.right - left);
-                this.x     = left;
-            }
+            this.width = +(this.right - left);
+            this.x     = left;
         }
     },
     right: {
@@ -3304,9 +3304,7 @@ Object.defineProperties(Rectangle.prototype, {
             return +(this.$abs(this.x) + this.width);
         },
         set: function (right) {
-            if (!this._readOnly) {
-                this.width = +(right - this.x);
-            }
+            this.width = +(right - this.x);
         }
     },
     size: {
@@ -3314,10 +3312,8 @@ Object.defineProperties(Rectangle.prototype, {
             return new Point(this.width, this.height);
         },
         set: function (value) {
-            if (!this._readOnly) {
-                this.width  = value.x;
-                this.height = value.y;
-            }
+            this.width  = value.x;
+            this.height = value.y;
         }
     },
     top: {
@@ -3325,10 +3321,8 @@ Object.defineProperties(Rectangle.prototype, {
             return this.y;
         },
         set: function (top) {
-            if (!this._readOnly) {
-                this.height = +(this.bottom - top);
-                this.y      = top;
-            }
+            this.height = +(this.bottom - top);
+            this.y      = top;
         }
     },
     topLeft: {
@@ -3336,10 +3330,8 @@ Object.defineProperties(Rectangle.prototype, {
             return new Point(this.x, this.y);
         },
         set: function (value) {
-            if (!this._readOnly) {
-                this.left = value.x;
-                this.top  = value.y;
-            }
+            this.left = value.x;
+            this.top  = value.y;
         }
     },
     width: {
@@ -3347,9 +3339,7 @@ Object.defineProperties(Rectangle.prototype, {
             return this._width / 20;
         },
         set: function (width) {
-            if (!this._readOnly) {
-                this._width = +(width * 20);
-            }
+            this._width = +(width * 20);
         }
     },
     x: {
@@ -3357,9 +3347,7 @@ Object.defineProperties(Rectangle.prototype, {
             return this._x / 20;
         },
         set: function (x) {
-            if (!this._readOnly) {
-                this._x = +(x * 20);
-            }
+            this._x = +(x * 20);
         }
     },
     y: {
@@ -3367,9 +3355,7 @@ Object.defineProperties(Rectangle.prototype, {
             return this._y / 20;
         },
         set: function (y) {
-            if (!this._readOnly) {
-                this._y = +(y * 20);
-            }
+            this._y = +(y * 20);
         }
     }
 });
@@ -3704,6 +3690,12 @@ var Utils3D = function (percent, mat, pos, at, up)
 };
 
 /**
+ * extends
+ */
+Utils3D.prototype = Object.create(OriginalObject.prototype);
+Utils3D.prototype.constructor = Utils3D;
+
+/**
  * @param x
  * @param y
  * @param z
@@ -3717,6 +3709,12 @@ var Vector3D = function (x, y, z, w)
     this._z = 0;
     this._w = 0;
 };
+
+/**
+ * extends
+ */
+Vector3D.prototype = Object.create(OriginalObject.prototype);
+Vector3D.prototype.constructor = Vector3D;
 /**
  * @param requestedLocaleIDName
  * @param initialMode

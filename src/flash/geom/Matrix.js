@@ -19,9 +19,6 @@ var Matrix = function (a, b, c, d, tx, ty)
     this.d  = d;
     this.tx = tx;
     this.ty = ty;
-
-    // origin
-    this._readOnly = false;
 };
 
 /**
@@ -39,7 +36,7 @@ Object.defineProperties(Matrix.prototype, {
             return this._matrix[0];
         },
         set: function (a) {
-            if (!this._readOnly && !this.$isNaN(a)) {
+            if (!this.$isNaN(a)) {
                 this._matrix[0] = a;
             }
         }
@@ -49,7 +46,7 @@ Object.defineProperties(Matrix.prototype, {
             return this._matrix[1];
         },
         set: function (b) {
-            if (!this._readOnly && !this.$isNaN(b)) {
+            if (!this.$isNaN(b)) {
                 this._matrix[1] = b;
             }
         }
@@ -59,7 +56,7 @@ Object.defineProperties(Matrix.prototype, {
             return this._matrix[2];
         },
         set: function (c) {
-            if (!this._readOnly && !this.$isNaN(c)) {
+            if (!this.$isNaN(c)) {
                 this._matrix[2] = c;
             }
         }
@@ -69,7 +66,7 @@ Object.defineProperties(Matrix.prototype, {
             return this._matrix[3];
         },
         set: function (d) {
-            if (!this._readOnly && !this.$isNaN(d)) {
+            if (!this.$isNaN(d)) {
                 this._matrix[3] = d;
             }
         }
@@ -79,7 +76,7 @@ Object.defineProperties(Matrix.prototype, {
             return this._matrix[4] / 20;
         },
         set: function (tx) {
-            if (!this._readOnly && !this.$isNaN(tx)) {
+            if (!this.$isNaN(tx)) {
                 this._matrix[4] = tx * 20;
             }
         }
@@ -89,7 +86,7 @@ Object.defineProperties(Matrix.prototype, {
             return this._matrix[5] / 20;
         },
         set: function (ty) {
-            if (!this._readOnly && !this.$isNaN(ty)) {
+            if (!this.$isNaN(ty)) {
                 this._matrix[5] = ty * 20;
             }
         }

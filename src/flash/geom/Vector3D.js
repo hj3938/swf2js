@@ -12,3 +12,9 @@ var Vector3D = function (x, y, z, w)
     this._z = 0;
     this._w = 0;
 };
+
+/**
+ * extends
+ */
+Vector3D.prototype = Object.create(OriginalObject.prototype);
+Vector3D.prototype.constructor = Vector3D;

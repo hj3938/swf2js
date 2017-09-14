@@ -18,9 +18,6 @@ var Rectangle = function (x, y, width, height)
     this.y      = y||0;
     this.width  = width||0;
     this.height = height||0;
-
-    // origin
-    this._readOnly = false;
 };
 
 /**
@@ -38,9 +35,7 @@ Object.defineProperties(Rectangle.prototype, {
             return this.$abs(this.y) + this.height;
         },
         set: function (bottom) {
-            if (!this._readOnly) {
-                this.height = +(bottom - this.y);
-            }
+            this.height = +(bottom - this.y);
         }
     },
     bottomRight: {
@@ -48,10 +43,8 @@ Object.defineProperties(Rectangle.prototype, {
             return new Point(this.right, this.bottom);
         },
         set: function (value) {
-            if (!this._readOnly) {
-                this.right  = value.x;
-                this.bottom = value.y;
-            }
+            this.right  = value.x;
+            this.bottom = value.y;
         }
     },
     height: {
@@ -59,9 +52,7 @@ Object.defineProperties(Rectangle.prototype, {
             return this._height / 20;
         },
         set: function (height) {
-            if (!this._readOnly) {
-                this._height = +(height * 20);
-            }
+            this._height = +(height * 20);
         }
     },
     left: {
@@ -69,10 +60,8 @@ Object.defineProperties(Rectangle.prototype, {
             return this.x;
         },
         set: function (left) {
-            if (!this._readOnly) {
-                this.width = +(this.right - left);
-                this.x     = left;
-            }
+            this.width = +(this.right - left);
+            this.x     = left;
         }
     },
     right: {
@@ -80,9 +69,7 @@ Object.defineProperties(Rectangle.prototype, {
             return +(this.$abs(this.x) + this.width);
         },
         set: function (right) {
-            if (!this._readOnly) {
-                this.width = +(right - this.x);
-            }
+            this.width = +(right - this.x);
         }
     },
     size: {
@@ -90,10 +77,8 @@ Object.defineProperties(Rectangle.prototype, {
             return new Point(this.width, this.height);
         },
         set: function (value) {
-            if (!this._readOnly) {
-                this.width  = value.x;
-                this.height = value.y;
-            }
+            this.width  = value.x;
+            this.height = value.y;
         }
     },
     top: {
@@ -101,10 +86,8 @@ Object.defineProperties(Rectangle.prototype, {
             return this.y;
         },
         set: function (top) {
-            if (!this._readOnly) {
-                this.height = +(this.bottom - top);
-                this.y      = top;
-            }
+            this.height = +(this.bottom - top);
+            this.y      = top;
         }
     },
     topLeft: {
@@ -112,10 +95,8 @@ Object.defineProperties(Rectangle.prototype, {
             return new Point(this.x, this.y);
         },
         set: function (value) {
-            if (!this._readOnly) {
-                this.left = value.x;
-                this.top  = value.y;
-            }
+            this.left = value.x;
+            this.top  = value.y;
         }
     },
     width: {
@@ -123,9 +104,7 @@ Object.defineProperties(Rectangle.prototype, {
             return this._width / 20;
         },
         set: function (width) {
-            if (!this._readOnly) {
-                this._width = +(width * 20);
-            }
+            this._width = +(width * 20);
         }
     },
     x: {
@@ -133,9 +112,7 @@ Object.defineProperties(Rectangle.prototype, {
             return this._x / 20;
         },
         set: function (x) {
-            if (!this._readOnly) {
-                this._x = +(x * 20);
-            }
+            this._x = +(x * 20);
         }
     },
     y: {
@@ -143,9 +120,7 @@ Object.defineProperties(Rectangle.prototype, {
             return this._y / 20;
         },
         set: function (y) {
-            if (!this._readOnly) {
-                this._y = +(y * 20);
-            }
+            this._y = +(y * 20);
         }
     }
 });

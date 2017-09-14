@@ -22,13 +22,13 @@ describe("ColorTransform.js property valid test and clone test", function()
 
         // valid case3
         var ct3 = new ColorTransform(
-            2, 2, 2, 2,
+            1.1, 1.1, 1.1, 1.1,
             256, 256, 256, 256
         );
 
         // valid case4
         var ct4 = new ColorTransform(
-            -1, -1, -1, -1,
+            -1.1, -1.1, -1.1, -1.1,
             -256, -256, -256, -256
         );
 

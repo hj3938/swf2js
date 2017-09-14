@@ -2616,6 +2616,23 @@ ColorTransform.prototype.setColor = function (value)
 };
 
 /**
+ * @returns {ColorTransform}
+ */
+ColorTransform.prototype.clone = function ()
+{
+    return new ColorTransform(
+        this.redMultiplier,
+        this.greenMultiplier,
+        this.blueMultiplier,
+        this.alphaMultiplier,
+        this.redOffset,
+        this.greenOffset,
+        this.blueOffset,
+        this.alphaOffset
+    );
+};
+
+/**
  * @param {ColorTransform} second
  * @returns void
  */
@@ -2664,6 +2681,9 @@ var Matrix = function (a, b, c, d, tx, ty)
     this.d  = d;
     this.tx = tx;
     this.ty = ty;
+
+    // origin
+    this._readOnly = false;
 };
 
 /**
@@ -2681,7 +2701,7 @@ Object.defineProperties(Matrix.prototype, {
             return this._matrix[0];
         },
         set: function (a) {
-            if (!this.$isNaN(a)) {
+            if (!this._readOnly && !this.$isNaN(a)) {
                 this._matrix[0] = a;
             }
         }
@@ -2691,7 +2711,7 @@ Object.defineProperties(Matrix.prototype, {
             return this._matrix[1];
         },
         set: function (b) {
-            if (!this.$isNaN(b)) {
+            if (!this._readOnly && !this.$isNaN(b)) {
                 this._matrix[1] = b;
             }
         }
@@ -2701,7 +2721,7 @@ Object.defineProperties(Matrix.prototype, {
             return this._matrix[2];
         },
         set: function (c) {
-            if (!this.$isNaN(c)) {
+            if (!this._readOnly && !this.$isNaN(c)) {
                 this._matrix[2] = c;
             }
         }
@@ -2711,7 +2731,7 @@ Object.defineProperties(Matrix.prototype, {
             return this._matrix[3];
         },
         set: function (d) {
-            if (!this.$isNaN(d)) {
+            if (!this._readOnly && !this.$isNaN(d)) {
                 this._matrix[3] = d;
             }
         }
@@ -2721,7 +2741,7 @@ Object.defineProperties(Matrix.prototype, {
             return this._matrix[4] / 20;
         },
         set: function (tx) {
-            if (!this.$isNaN(tx)) {
+            if (!this._readOnly && !this.$isNaN(tx)) {
                 this._matrix[4] = tx * 20;
             }
         }
@@ -2731,7 +2751,7 @@ Object.defineProperties(Matrix.prototype, {
             return this._matrix[5] / 20;
         },
         set: function (ty) {
-            if (!this.$isNaN(ty)) {
+            if (!this._readOnly && !this.$isNaN(ty)) {
                 this._matrix[5] = ty * 20;
             }
         }
@@ -3260,11 +3280,11 @@ Object.defineProperties(Rectangle.prototype, {
     },
     height: {
         get: function () {
-            return this._height;
+            return this._height / 20;
         },
         set: function (height) {
             if (!this._readOnly) {
-                this._height = +height;
+                this._height = +(height * 20);
             }
         }
     },
@@ -3324,31 +3344,31 @@ Object.defineProperties(Rectangle.prototype, {
     },
     width: {
         get: function () {
-            return this._width;
+            return this._width / 20;
         },
         set: function (width) {
             if (!this._readOnly) {
-                this._width = +width;
+                this._width = +(width * 20);
             }
         }
     },
     x: {
         get: function () {
-            return this._x;
+            return this._x / 20;
         },
         set: function (x) {
             if (!this._readOnly) {
-                this._x = +x;
+                this._x = +(x * 20);
             }
         }
     },
     y: {
         get: function () {
-            return this._y;
+            return this._y / 20;
         },
         set: function (y) {
             if (!this._readOnly) {
-                this._y = +y;
+                this._y = +(y * 20);
             }
         }
     }
@@ -3570,8 +3590,8 @@ Rectangle.prototype.union = function (toUnion)
  */
 var Transform = function ()
 {
-    this._colorTransform        = new ColorTransform();
-    this._matrix                = new Matrix();
+    this._colorTransform        = null;
+    this._matrix                = null;
     this._matrix3D              = new Matrix3D();
     this._perspectiveProjection = new PerspectiveProjection();
     this._pixelBounds           = new Rectangle();
@@ -3590,22 +3610,27 @@ Transform.prototype.constructor = Transform;
 Object.defineProperties(Transform.prototype, {
     colorTransform: {
         get: function () {
-            return this._colorTransform;
+            return (this._colorTransform === null)
+                ? [1, 1, 1, 1, 0, 0, 0, 0]
+                : this._colorTransform;
         },
         set: function (colorTransform) {
             if (colorTransform instanceof ColorTransform) {
-                this._colorTransform = colorTransform;
+                this._colorTransform = colorTransform.clone();
                 this._colorTransform._readOnly = true;
             }
         }
     },
     matrix: {
         get: function () {
-            return this._matrix;
+            return (this._matrix === null)
+                ? [1, 0, 0, 1, 0, 0]
+                : this._matrix;
         },
         set: function (matrix) {
             if (matrix instanceof Matrix) {
                 this._matrix = matrix.clone();
+                this._matrix._readOnly = true;
             }
         }
     },

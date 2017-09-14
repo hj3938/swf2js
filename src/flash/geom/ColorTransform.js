@@ -180,6 +180,23 @@ ColorTransform.prototype.setColor = function (value)
 };
 
 /**
+ * @returns {ColorTransform}
+ */
+ColorTransform.prototype.clone = function ()
+{
+    return new ColorTransform(
+        this.redMultiplier,
+        this.greenMultiplier,
+        this.blueMultiplier,
+        this.alphaMultiplier,
+        this.redOffset,
+        this.greenOffset,
+        this.blueOffset,
+        this.alphaOffset
+    );
+};
+
+/**
  * @param {ColorTransform} second
  * @returns void
  */

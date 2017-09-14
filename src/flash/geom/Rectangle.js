@@ -56,11 +56,11 @@ Object.defineProperties(Rectangle.prototype, {
     },
     height: {
         get: function () {
-            return this._height;
+            return this._height / 20;
         },
         set: function (height) {
             if (!this._readOnly) {
-                this._height = +height;
+                this._height = +(height * 20);
             }
         }
     },
@@ -120,31 +120,31 @@ Object.defineProperties(Rectangle.prototype, {
     },
     width: {
         get: function () {
-            return this._width;
+            return this._width / 20;
         },
         set: function (width) {
             if (!this._readOnly) {
-                this._width = +width;
+                this._width = +(width * 20);
             }
         }
     },
     x: {
         get: function () {
-            return this._x;
+            return this._x / 20;
         },
         set: function (x) {
             if (!this._readOnly) {
-                this._x = +x;
+                this._x = +(x * 20);
             }
         }
     },
     y: {
         get: function () {
-            return this._y;
+            return this._y / 20;
         },
         set: function (y) {
             if (!this._readOnly) {
-                this._y = +y;
+                this._y = +(y * 20);
             }
         }
     }

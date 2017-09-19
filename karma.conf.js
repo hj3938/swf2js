@@ -19,6 +19,7 @@ module.exports = function(config)
       "src/util/Setting.js",
       "src/util/CanvasToWebGL.js",
       "src/util/Util.js",
+      "src/dynamic/*.js",
       "src/adobe/utils/*.js",
       "src/com/adobe/viewsource/*.js","src/fl/accessibility/*.js",
       "src/flash/*.js",

@@ -9,8 +9,8 @@ var BitmapData = function (width, height, transparent, fillColor)
 {
     this._width       = width|0;
     this._height      = height|0;
-    this._transparent = true;
-    this._fillColor   = 0xFFFFFFFF;
+    this._transparent = (typeof transparent === "boolean") ? transparent : true;
+    this._fillColor   = (typeof fillColor === "number") ? fillColor : 0xFFFFFFFF;
     this._rect        = new Rectangle(0, 0, this._width, this._height);
 };
 

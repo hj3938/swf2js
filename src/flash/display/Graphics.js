@@ -1,4 +1,3 @@
-/*jshint bitwise: false*/
 /**
  * @constructor
  */
@@ -8,9 +7,9 @@ var Graphics = function ()
 };
 
 /**
- * util
+ * extends
  */
-Graphics.prototype = Object.create(Util.prototype);
+Graphics.prototype = Object.create(OriginalObject.prototype);
 Graphics.prototype.constructor = Graphics;
 
 /**
@@ -84,11 +83,81 @@ Graphics.prototype.MITER_LIMIT = 12;
 Graphics.prototype.BEGIN_PATH = 13;
 
 /**
- * @returns {string}
+ * @param {BitmapData} bitmap
+ * @param {Matrix} matrix
+ * @param {boolean} repeat
+ * @param {boolean} smooth
+ * @returns void
  */
-Graphics.prototype.getClassName = function ()
+Graphics.prototype.beginBitmapFill = function (bitmap, matrix, repeat, smooth)
 {
-    return "Graphics";
+
+};
+
+/**
+ * @param rgb
+ * @param alpha
+ * @returns {Graphics}
+ */
+Graphics.prototype.beginFill = function (rgb, alpha)
+{
+    if (typeof rgb === "string") {
+        rgb = this.$colorStringToInt(rgb);
+    }
+
+    rgb   = rgb|0;
+    alpha = +alpha;
+    if (this.$isNaN(alpha)) {
+        alpha  = 100;
+    } else {
+        alpha *= 100;
+    }
+
+    var fillRecodes = this.getFillRecodes();
+
+    // beginPath
+    if (!this.isFillDraw) {
+        fillRecodes[fillRecodes.length] = [this.BEGIN_PATH];
+    }
+
+    // Fill Style
+    var color = this.$intToRGBA(rgb, alpha);
+    fillRecodes[fillRecodes.length] = [this.FILL_STYLE, color.R, color.G, color.B, color.A];
+
+    this.addCacheKey(rgb, alpha);
+
+    // on
+    this.isFillDraw = true;
+    this.isDraw     = true;
+
+    return this;
+};
+
+/**
+ *
+ * @param {string} type
+ * @param {array} colors
+ * @param {array} alphas
+ * @param {array} ratios
+ * @param {Matrix} matrix
+ * @param {string} spreadMethod
+ * @param {string} interpolationMethod
+ * @param {number} focalPointRatio
+ * @returns void
+ */
+Graphics.prototype.beginGradientFill = function (type, colors, alphas, ratios, matrix, spreadMethod, interpolationMethod, focalPointRatio)
+{
+
+};
+
+/**
+ * @param {Shader} shader
+ * @param {Matrix} matrix
+ * @returns void
+ */
+Graphics.prototype.beginShaderFill = function (shader, matrix)
+{
+
 };
 
 /**
@@ -109,6 +178,492 @@ Graphics.prototype.clear = function ()
     this.lineRecodes = [];
 
     return this;
+};
+
+/**
+ *
+ * @param {Graphics} sourceGraphics
+ * @returns {Graphics}
+ */
+Graphics.prototype.copyFrom = function (sourceGraphics)
+{
+    return new Graphics();
+};
+
+/**
+ * @param {number} cp1x
+ * @param {number} cp1y
+ * @param {number} cp2x
+ * @param {number} cp2y
+ * @param {number} x
+ * @param {number} y
+ * @returns {Graphics}
+ */
+Graphics.prototype.cubicCurveTo = function (cp1x, cp1y, cp2x, cp2y, x, y)
+{
+    if (this.isFillDraw || this.isLineDraw) {
+        cp1x = +(cp1x * 20);
+        cp1y = +(cp1y * 20);
+        cp2x = +(cp2x * 20);
+        cp2y = +(cp2y * 20);
+        x    = +(x * 20);
+        y    = +(y * 20);
+
+        this.setBounds(x, y);
+        this.setBounds(cp1x, cp1y);
+        this.setBounds(cp2x, cp2y);
+        this.addCacheKey(cp1x, cp1y, cp2x, cp2y, x, y);
+
+        var data = [this.CUBIC, cp1x, cp1y, cp2x, cp2y, x, y];
+
+        if (this.isFillDraw) {
+            var fillRecodes = this.getFillRecodes();
+            fillRecodes[fillRecodes.length] = data;
+        }
+
+        if (this.isLineDraw) {
+            var lineRecodes = this.getLineRecodes();
+            lineRecodes[lineRecodes.length] = data;
+        }
+    }
+
+    return this;
+};
+
+/**
+ * @param {number} cx
+ * @param {number} cy
+ * @param {number} dx
+ * @param {number} dy
+ * @returns {Graphics}
+ */
+Graphics.prototype.curveTo = function (cx, cy, dx, dy)
+{
+    if (this.isFillDraw || this.isLineDraw) {
+        cx = +(cx * 20);
+        cy = +(cy * 20);
+        dx = +(dx * 20);
+        dy = +(dy * 20);
+
+        this.setBounds(cx, cy);
+        this.setBounds(dx, dy);
+        this.addCacheKey(cx, cy, dx, dy);
+
+        var data = [this.CURVE_TO, cx, cy, dx, dy];
+
+        if (this.isFillDraw) {
+            var fillRecodes = this.getFillRecodes();
+            fillRecodes[fillRecodes.length] = data;
+        }
+
+        if (this.isLineDraw) {
+            var lineRecodes = this.getLineRecodes();
+            lineRecodes[lineRecodes.length] = data;
+        }
+    }
+
+    return this;
+};
+
+/**
+ * @param {number} x
+ * @param {number} y
+ * @param {number} radius
+ * @returns {Graphics}
+ */
+Graphics.prototype.drawCircle = function (x, y, radius)
+{
+    if (this.isFillDraw || this.isLineDraw) {
+        x      = +(x * 20);
+        y      = +(y * 20);
+        radius = +(radius * 20);
+
+        this.setBounds(x - radius, y - radius);
+        this.setBounds(x + radius, y + radius);
+        this.addCacheKey(x, y, radius);
+
+        var data = [this.ARC, x, y, radius];
+
+        if (this.isFillDraw) {
+            var fillRecodes = this.getFillRecodes();
+            fillRecodes[fillRecodes.length] = data;
+        }
+
+        if (this.isLineDraw) {
+            var lineRecodes = this.getLineRecodes();
+            lineRecodes[lineRecodes.length] = data;
+        }
+    }
+
+    return this;
+};
+
+/**
+ * @param {number} x
+ * @param {number} y
+ * @param {number} width
+ * @param {number} height
+ * @returns {Graphics}
+ */
+Graphics.prototype.drawEllipse = function (x, y, width, height)
+{
+    if (this.isFillDraw || this.isLineDraw) {
+        var hw = +(width  / 2); // half width
+        var hh = +(height / 2); // half height
+        var x0 = +(x + hw);
+        var y0 = +(y + hh);
+        var x1 = +(x + width);
+        var y1 = +(y + height);
+        var c  = +(4 / 3 * (this.$SQRT2 - 1));
+        var cw = +(c * hw);
+        var ch = +(c * hh);
+
+        this.moveTo(x0, y);
+        this.cubicCurveTo(x0 + cw, y, x1, y0 - ch, x1, y0);
+        this.cubicCurveTo(x1, y0 + ch, x0 + cw, y1, x0, y1);
+        this.cubicCurveTo(x0 - cw, y1, x, y0 + ch, x,  y0);
+        this.cubicCurveTo(x, y0 - ch, x0 - cw, y, x0, y);
+    }
+
+    return this;
+};
+
+/**
+ * @param {Vector} graphicsData
+ * @returns void
+ */
+Graphics.prototype.drawGraphicsData = function (graphicsData)
+{
+
+};
+
+/**
+ * @param {Vector} commands
+ * @param {Vector} data
+ * @param {string} winding
+ * @returns void
+ */
+Graphics.prototype.drawPath = function (commands, data, winding)
+{
+
+};
+
+/**
+ * @param {number} x
+ * @param {number} y
+ * @param {number} width
+ * @param {number} height
+ * @returns {Graphics}
+ */
+Graphics.prototype.drawRect = function (x, y, width, height)
+{
+    if (this.isFillDraw || this.isLineDraw) {
+        this.moveTo(x, y);
+        this.lineTo(x + width, y);
+        this.lineTo(x + width, y + height);
+        this.lineTo(x, y + height);
+        this.lineTo(x, y);
+    }
+
+    return this;
+};
+
+/**
+ * @param {number} x
+ * @param {number} y
+ * @param {number} width
+ * @param {number} height
+ * @param {number} ellipseWidth
+ * @param {number} ellipseHeight
+ * @returns {Graphics}
+ */
+Graphics.prototype.drawRoundRect = function (x, y, width, height, ellipseWidth, ellipseHeight)
+{
+    if (this.isFillDraw || this.isLineDraw) {
+        var hew = +(ellipseWidth / 2);
+        var heh = +(ellipseHeight / 2);
+        var c   = +(4 / 3 * (this.$SQRT2 - 1));
+        var cw  = +(c * hew);
+        var ch  = +(c * heh);
+
+        var dx0 = +(x + hew);
+        var dx1 = +(x + width);
+        var dx2 = +(dx1 - hew);
+
+        var dy0 = +(y + heh);
+        var dy1 = +(y + height);
+        var dy2 = +(dy1 - heh);
+
+        this.moveTo(dx0, y);
+        this.lineTo(dx2, y);
+        this.cubicCurveTo(dx2 + cw, y, dx1, dy0 - ch, dx1, dy0);
+        this.lineTo(dx1, dy2);
+        this.cubicCurveTo(dx1, dy2 + ch, dx2 + cw, dy1, dx2, dy1);
+        this.lineTo(dx0, dy1);
+        this.cubicCurveTo(dx0 - cw, dy1, x, dy2 + ch, x, dy2);
+        this.lineTo(x, dy0);
+        this.cubicCurveTo(x, dy0 - ch, dx0 - cw, y, dx0, y);
+    }
+
+    return this;
+};
+
+/**
+ * @param {Vector} vertices
+ * @param {Vector} indices
+ * @param {Vector} uvtData
+ * @param {string} culling
+ * @returns {Graphics}
+ */
+Graphics.prototype.drawTriangles = function (vertices, indices, uvtData, culling)
+{
+    var length = vertices.length;
+    if (length && length % 3 === 0) {
+        var i = 0;
+        var count = 0;
+        if (indices) {
+            length = indices.length;
+            if (length && length % 3 === 0) {
+                i = 0;
+                while (i < length) {
+                    var idx = indices[i];
+                    if (count === 0) {
+                        this.moveTo(vertices[idx], vertices[idx + 1]);
+                    } else {
+                        this.lineTo(vertices[idx], vertices[idx + 1]);
+                    }
+
+                    count++;
+                    if (count % 3 === 0) {
+                        count = 0;
+                    }
+
+                    i = (i + 1)|0;
+                }
+            }
+        } else {
+            i = 0;
+            while (i < length) {
+                if (count === 0) {
+                    this.moveTo(vertices[i++], vertices[i]);
+                } else {
+                    this.lineTo(vertices[i++], vertices[i]);
+                }
+
+                count++;
+                if (count % 3 === 0) {
+                    count = 0;
+                }
+
+                i = (i + 1)|0;
+            }
+        }
+    }
+
+    return this;
+};
+
+/**
+ * @returns {Graphics}
+ */
+Graphics.prototype.endFill = function ()
+{
+    if (this.isFillDraw) {
+        var fillRecodes = this.getFillRecodes();
+        fillRecodes[fillRecodes.length] = [this.FILL];
+    }
+
+    this.isFillDraw = false;
+
+    return this;
+};
+
+/**
+ * @param {BitmapData} bitmap
+ * @param {Matrix} matrix
+ * @param {boolean} repeat
+ * @param {boolean} smooth
+ * @returns void
+ */
+Graphics.prototype.lineBitmapStyle = function (bitmap, matrix, repeat, smooth)
+{
+
+};
+
+/**
+ * @param {string} type
+ * @param {array} colors
+ * @param {array} alphas
+ * @param {array} ratios
+ * @param {Matrix} matrix
+ * @param {string} spreadMethod
+ * @param {string} interpolationMethod
+ * @param {number} focalPointRatio
+ * @returns void
+ */
+Graphics.prototype.lineGradientStyle = function (type, colors, alphas, ratios, matrix, spreadMethod, interpolationMethod, focalPointRatio)
+{
+
+};
+
+/**
+ * @param {Shader} shader
+ * @param {Matrix} matrix
+ * @returns void
+ */
+Graphics.prototype.lineShaderStyle = function (shader, matrix)
+{
+
+};
+
+/**
+ * @param {number} width
+ * @param {number} rgb
+ * @param {number} alpha
+ * @param {boolean} pixelHinting
+ * @param {string} noScale
+ * @param {string} capsStyle
+ * @param {string} jointStyle
+ * @param {number} miterLimit
+ * @returns {Graphics}
+ */
+Graphics.prototype.lineStyle = function (width, rgb, alpha, pixelHinting, noScale, capsStyle, jointStyle, miterLimit)
+{
+    var lineRecodes = this.getLineRecodes();
+
+    width = +width;
+    if (!this.$isNaN(width)) {
+        if (rgb === undefined) {
+            rgb = 0;
+        }
+
+        if (typeof rgb === "string") {
+            rgb = this.$colorStringToInt(rgb);
+        }
+
+        if (!capsStyle) {
+            capsStyle = "round";
+        }
+
+        if (!jointStyle) {
+            jointStyle = "round";
+        }
+
+        rgb   = rgb|0;
+        alpha = +alpha;
+        if (this.$isNaN(alpha)) {
+            alpha  = 100;
+        } else {
+            alpha *= 100;
+        }
+
+        var color = this.$intToRGBA(rgb, alpha);
+        if (width < 0.5) {
+            width += 0.2;
+        }
+
+        width *= 20;
+        this.maxWidth = this.$max(this.maxWidth, width);
+
+        if (this.isLineDraw) {
+            lineRecodes[lineRecodes.length] = [this.STROKE];
+        }
+
+        lineRecodes[lineRecodes.length] = [this.BEGIN_PATH];
+        lineRecodes[lineRecodes.length] = [this.STROKE_STYLE, color.R, color.G, color.B, color.A];
+        lineRecodes[lineRecodes.length] = [this.LINE_WIDTH,   width];
+        lineRecodes[lineRecodes.length] = [this.LINE_CAP,     capsStyle];
+        lineRecodes[lineRecodes.length] = [this.LINE_JOIN,    jointStyle];
+
+        this.addCacheKey(rgb, alpha);
+
+        this.isLineDraw = true;
+        this.isDraw = true;
+
+    } else if (this.isLineDraw) {
+        this.isLineDraw = false;
+
+        lineRecodes[lineRecodes.length] = [this.STROKE];
+
+        var length      = lineRecodes.length|0;
+        var fillRecodes = this.getFillRecodes();
+        var i = 0;
+        while (i < length) {
+            fillRecodes[fillRecodes.length] = lineRecodes[i];
+            i = (i + 1)|0;
+        }
+
+        this.lineRecodes = [];
+    }
+
+    return this;
+};
+
+/**
+ * @param x
+ * @param y
+ * @returns {Graphics}
+ */
+Graphics.prototype.lineTo = function (x, y)
+{
+    if (this.isFillDraw || this.isLineDraw) {
+        x *= 20;
+        y *= 20;
+        this.setBounds(x, y);
+        this.addCacheKey(x, y);
+    }
+
+    if (this.isFillDraw) {
+        var fillRecodes = this.getFillRecodes();
+        fillRecodes[fillRecodes.length] = [this.LINE_TO, x, y];
+    }
+
+    if (this.isLineDraw) {
+        var lineRecodes = this.getLineRecodes();
+        lineRecodes[lineRecodes.length] = [this.LINE_TO, x, y];
+    }
+
+    return this;
+};
+
+/**
+ * @param x
+ * @param y
+ * @returns {Graphics}
+ */
+Graphics.prototype.moveTo = function (x, y)
+{
+    if (this.isFillDraw || this.isLineDraw) {
+        x *= 20;
+        y *= 20;
+        this.setBounds(x, y);
+        this.addCacheKey(x, y);
+    }
+
+    if (this.isFillDraw) {
+        var fillRecodes = this.getFillRecodes();
+        fillRecodes[fillRecodes.length] = [this.MOVE_TO, x, y];
+    }
+
+    if (this.isLineDraw) {
+        var lineRecodes = this.getLineRecodes();
+        lineRecodes[lineRecodes.length] = [this.MOVE_TO, x, y];
+    }
+
+    return this;
+};
+
+
+
+
+
+
+/**
+ * @returns {string}
+ */
+Graphics.prototype.getClassName = function ()
+{
+    return "Graphics";
 };
 
 /**
@@ -189,438 +744,6 @@ Graphics.prototype.setBounds = function (x, y)
     bounds.xMax = this.$max(bounds.xMax, x);
     bounds.yMin = this.$min(bounds.yMin, y);
     bounds.yMax = this.$max(bounds.yMax, y);
-};
-
-/**
- * @param rgb
- * @param alpha
- * @returns {Graphics}
- */
-Graphics.prototype.beginFill = function (rgb, alpha)
-{
-    if (typeof rgb === "string") {
-        rgb = this.$colorStringToInt(rgb);
-    }
-
-    rgb   = rgb|0;
-    alpha = +alpha;
-    if (this.$isNaN(alpha)) {
-        alpha  = 100;
-    } else {
-        alpha *= 100;
-    }
-
-    var fillRecodes = this.getFillRecodes();
-
-    // beginPath
-    if (!this.isFillDraw) {
-        fillRecodes[fillRecodes.length] = [this.BEGIN_PATH];
-    }
-
-    // Fill Style
-    var color = this.$intToRGBA(rgb, alpha);
-    fillRecodes[fillRecodes.length] = [this.FILL_STYLE, color.R, color.G, color.B, color.A];
-
-    this.addCacheKey(rgb, alpha);
-
-    // on
-    this.isFillDraw = true;
-    this.isDraw     = true;
-
-    return this;
-};
-
-/**
- * @param width
- * @param rgb
- * @param alpha
- * @param pixelHinting
- * @param noScale
- * @param capsStyle
- * @param jointStyle
- * @param miterLimit
- * @returns {Graphics}
- */
-Graphics.prototype.lineStyle = function (width, rgb, alpha, pixelHinting, noScale, capsStyle, jointStyle, miterLimit)
-{
-    var lineRecodes = this.getLineRecodes();
-
-    width = +width;
-    if (!this.$isNaN(width)) {
-        if (rgb === undefined) {
-            rgb = 0;
-        }
-
-        if (typeof rgb === "string") {
-            rgb = this.$colorStringToInt(rgb);
-        }
-
-        if (!capsStyle) {
-            capsStyle = "round";
-        }
-
-        if (!jointStyle) {
-            jointStyle = "round";
-        }
-
-        rgb   = rgb|0;
-        alpha = +alpha;
-        if (this.$isNaN(alpha)) {
-            alpha  = 100;
-        } else {
-            alpha *= 100;
-        }
-
-        var color = this.$intToRGBA(rgb, alpha);
-        if (width < 0.5) {
-            width += 0.2;
-        }
-
-        width *= 20;
-        this.maxWidth = this.$max(this.maxWidth, width);
-
-        if (this.isLineDraw) {
-            lineRecodes[lineRecodes.length] = [this.STROKE];
-        }
-
-        lineRecodes[lineRecodes.length] = [this.BEGIN_PATH];
-        lineRecodes[lineRecodes.length] = [this.STROKE_STYLE, color.R, color.G, color.B, color.A];
-        lineRecodes[lineRecodes.length] = [this.LINE_WIDTH,   width];
-        lineRecodes[lineRecodes.length] = [this.LINE_CAP,     capsStyle];
-        lineRecodes[lineRecodes.length] = [this.LINE_JOIN,    jointStyle];
-
-        this.addCacheKey(rgb, alpha);
-
-        this.isLineDraw = true;
-        this.isDraw = true;
-
-    } else if (this.isLineDraw) {
-        this.isLineDraw = false;
-
-        lineRecodes[lineRecodes.length] = [this.STROKE];
-
-        var length      = lineRecodes.length|0;
-        var fillRecodes = this.getFillRecodes();
-        var i = 0;
-        while (i < length) {
-            fillRecodes[fillRecodes.length] = lineRecodes[i];
-            i = (i + 1)|0;
-        }
-
-        this.lineRecodes = [];
-    }
-
-    return this;
-};
-
-/**
- * @param x
- * @param y
- * @returns {Graphics}
- */
-Graphics.prototype.moveTo = function (x, y)
-{
-    if (this.isFillDraw || this.isLineDraw) {
-        x *= 20;
-        y *= 20;
-        this.setBounds(x, y);
-        this.addCacheKey(x, y);
-    }
-
-    if (this.isFillDraw) {
-        var fillRecodes = this.getFillRecodes();
-        fillRecodes[fillRecodes.length] = [this.MOVE_TO, x, y];
-    }
-
-    if (this.isLineDraw) {
-        var lineRecodes = this.getLineRecodes();
-        lineRecodes[lineRecodes.length] = [this.MOVE_TO, x, y];
-    }
-
-    return this;
-};
-
-/**
- * @param x
- * @param y
- * @returns {Graphics}
- */
-Graphics.prototype.lineTo = function (x, y)
-{
-    if (this.isFillDraw || this.isLineDraw) {
-        x *= 20;
-        y *= 20;
-        this.setBounds(x, y);
-        this.addCacheKey(x, y);
-    }
-
-    if (this.isFillDraw) {
-        var fillRecodes = this.getFillRecodes();
-        fillRecodes[fillRecodes.length] = [this.LINE_TO, x, y];
-    }
-
-    if (this.isLineDraw) {
-        var lineRecodes = this.getLineRecodes();
-        lineRecodes[lineRecodes.length] = [this.LINE_TO, x, y];
-    }
-
-    return this;
-};
-
-/**
- * @param cx
- * @param cy
- * @param dx
- * @param dy
- * @returns {Graphics}
- */
-Graphics.prototype.curveTo = function (cx, cy, dx, dy)
-{
-    if (this.isFillDraw || this.isLineDraw) {
-        cx *= 20;
-        cy *= 20;
-        dx *= 20;
-        dy *= 20;
-
-        this.setBounds(cx, cy);
-        this.setBounds(dx, dy);
-        this.addCacheKey(cx, cy, dx, dy);
-    }
-
-    if (this.isFillDraw) {
-        var fillRecodes = this.getFillRecodes();
-        fillRecodes[fillRecodes.length] = [this.CURVE_TO, cx, cy, dx, dy];
-    }
-
-    if (this.isLineDraw) {
-        var lineRecodes = this.getLineRecodes();
-        lineRecodes[lineRecodes.length] = [this.CURVE_TO, cx, cy, dx, dy];
-    }
-
-    return this;
-};
-
-/**
- * @param cp1x
- * @param cp1y
- * @param cp2x
- * @param cp2y
- * @param x
- * @param y
- * @returns {Graphics}
- */
-Graphics.prototype.cubicCurveTo = function (cp1x, cp1y, cp2x, cp2y, x, y)
-{
-    if (this.isFillDraw || this.isLineDraw) {
-        cp1x *= 20;
-        cp1y *= 20;
-        cp2x *= 20;
-        cp2y *= 20;
-        x    *= 20;
-        y    *= 20;
-
-        this.setBounds(x, y);
-        this.setBounds(cp1x, cp1y);
-        this.setBounds(cp2x, cp2y);
-        this.addCacheKey(cp1x, cp1y, cp2x, cp2y, x, y);
-    }
-
-    if (this.isFillDraw) {
-        var fillRecodes = this.getFillRecodes();
-        fillRecodes[fillRecodes.length] = [this.CUBIC, cp1x, cp1y, cp2x, cp2y, x, y];
-    }
-
-    if (this.isLineDraw) {
-        var lineRecodes = this.getLineRecodes();
-        lineRecodes[lineRecodes.length] = [this.CUBIC, cp1x, cp1y, cp2x, cp2y, x, y];
-    }
-
-    return this;
-};
-
-/**
- * @param x
- * @param y
- * @param radius
- * @returns {Graphics}
- */
-Graphics.prototype.drawCircle = function (x, y, radius)
-{
-    if (this.isFillDraw || this.isLineDraw) {
-        x      *= 20;
-        y      *= 20;
-        radius *= 20;
-
-        this.setBounds(x - radius, y - radius);
-        this.setBounds(x + radius, y + radius);
-        this.addCacheKey(x, y, radius);
-    }
-
-    if (this.isFillDraw) {
-        var fillRecodes = this.getFillRecodes();
-        fillRecodes[fillRecodes.length] = [this.ARC, x, y, radius];
-    }
-
-    if (this.isLineDraw) {
-        var lineRecodes = this.getLineRecodes();
-        lineRecodes[lineRecodes.length] = [this.ARC, x, y, radius];
-    }
-
-    return this;
-};
-
-/**
- * @param x
- * @param y
- * @param width
- * @param height
- * @returns {Graphics}
- */
-Graphics.prototype.drawEllipse = function (x, y, width, height)
-{
-    var hw = width  / 2; // half width
-    var hh = height / 2; // half height
-    var x0 = x + hw;
-    var y0 = y + hh;
-    var x1 = x + width;
-    var y1 = y + height;
-    var c  = 4 / 3 * (this.$SQRT2 - 1);
-    var cw = c * hw;
-    var ch = c * hh;
-
-    this.moveTo(x0, y);
-    this.cubicCurveTo(x0 + cw, y, x1, y0 - ch, x1, y0);
-    this.cubicCurveTo(x1, y0 + ch, x0 + cw, y1, x0, y1);
-    this.cubicCurveTo(x0 - cw, y1, x, y0 + ch, x,  y0);
-    this.cubicCurveTo(x, y0 - ch, x0 - cw, y, x0, y);
-
-    return this;
-};
-
-/**
- * @param x
- * @param y
- * @param width
- * @param height
- * @returns {Graphics}
- */
-Graphics.prototype.drawRect = function (x, y, width, height)
-{
-    this.moveTo(x, y);
-    this.lineTo(x + width, y);
-    this.lineTo(x + width, y + height);
-    this.lineTo(x, y + height);
-    this.lineTo(x, y);
-
-    return this;
-};
-
-/**
- * @param x
- * @param y
- * @param width
- * @param height
- * @param ellipseWidth
- * @param ellipseHeight
- * @returns {Graphics}
- */
-Graphics.prototype.drawRoundRect = function (x, y, width, height, ellipseWidth, ellipseHeight)
-{
-    var hew = ellipseWidth  / 2;
-    var heh = ellipseHeight / 2;
-    var c   = 4 / 3 * (this.$SQRT2 - 1);
-    var cw  = c * hew;
-    var ch  = c * heh;
-
-    var dx0 = x + hew;
-    var dx1 = x + width;
-    var dx2 = dx1 - hew;
-
-    var dy0 = y + heh;
-    var dy1 = y + height;
-    var dy2 = dy1 - heh;
-
-    this.moveTo(dx0, y);
-    this.lineTo(dx2, y);
-    this.cubicCurveTo(dx2 + cw, y, dx1, dy0 - ch, dx1, dy0);
-    this.lineTo(dx1, dy2);
-    this.cubicCurveTo(dx1, dy2 + ch, dx2 + cw, dy1, dx2, dy1);
-    this.lineTo(dx0, dy1);
-    this.cubicCurveTo(dx0 - cw, dy1, x, dy2 + ch, x, dy2);
-    this.lineTo(x, dy0);
-    this.cubicCurveTo(x, dy0 - ch, dx0 - cw, y, dx0, y);
-
-    return this;
-};
-
-/**
- * @param vertices
- * @param indices
- * @param uvtData
- * @param culling
- * @returns {Graphics}
- */
-Graphics.prototype.drawTriangles = function (vertices, indices, uvtData, culling)
-{
-    var length = vertices.length;
-    if (length && length % 3 === 0) {
-        var i = 0;
-        var count = 0;
-        if (indices) {
-            length = indices.length;
-            if (length && length % 3 === 0) {
-                i = 0;
-                while (i < length) {
-                    var idx = indices[i];
-                    if (count === 0) {
-                        this.moveTo(vertices[idx], vertices[idx + 1]);
-                    } else {
-                        this.lineTo(vertices[idx], vertices[idx + 1]);
-                    }
-
-                    count++;
-                    if (count % 3 === 0) {
-                        count = 0;
-                    }
-
-                    i = (i + 1)|0;
-                }
-            }
-        } else {
-            i = 0;
-            while (i < length) {
-                if (count === 0) {
-                    this.moveTo(vertices[i++], vertices[i]);
-                } else {
-                    this.lineTo(vertices[i++], vertices[i]);
-                }
-
-                count++;
-                if (count % 3 === 0) {
-                    count = 0;
-                }
-
-                i = (i + 1)|0;
-            }
-        }
-    }
-
-    return this;
-};
-
-/**
- * @returns {Graphics}
- */
-Graphics.prototype.endFill = function ()
-{
-    if (this.isFillDraw) {
-        var fillRecodes = this.getFillRecodes();
-        fillRecodes[fillRecodes.length] = [this.FILL];
-    }
-
-    this.isFillDraw = false;
-
-    return this;
 };
 
 /**

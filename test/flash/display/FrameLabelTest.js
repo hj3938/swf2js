@@ -1,6 +1,7 @@
 
 describe("FrameLabel.js property test", function()
 {
+
     // property
     it("property test", function()
     {
@@ -20,7 +21,6 @@ describe("FrameLabel.js property test", function()
 
         expect(fl.name).toBe("test");
         expect(fl.frame).toBe(10);
-        expect(fl.toString()).toBe("[object FrameLabel]");
     });
 
 });

@@ -1,12 +1,15 @@
 /**
+ * @param name
+ * @param labels
+ * @param numFrames
  * @constructor
  */
-var Scene = function ()
+var Scene = function (name, labels, numFrames)
 {
     // default
-    this._labels    = [];
-    this._name      = "";
-    this._numFrames = 0;
+    this._name      = name;
+    this._labels    = labels;
+    this._numFrames = numFrames;
 };
 
 /**
@@ -52,7 +55,7 @@ Scene.prototype.toString = function ()
  * @param {number} frame
  * @returns void
  */
-Scene.prototype.addLabel = function (name, frame)
+Scene.prototype.__addLabel = function (name, frame)
 {
     this._labels[this._labels.length] = new FrameLabel(name, frame);
 };

@@ -27,8 +27,7 @@ Object.defineProperties(Shape.prototype, {
         get: function () {
             return this.getGraphics();
         },
-        set: function () {
-        }
+        set: function () {}
     }
 });
 
@@ -572,4 +571,12 @@ Shape.prototype.linearGradientXY = function (m)
         x1,
         y1
     ];
+};
+
+/**
+ * @returns {string}
+ */
+Shape.prototype.toString = function ()
+{
+    return "[object Shape]";
 };

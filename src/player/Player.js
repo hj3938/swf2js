@@ -1,0 +1,7 @@
+/**
+ * @constructor
+ */
+var Player = function ()
+{
+
+};

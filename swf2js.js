@@ -10844,8 +10844,42 @@ ColorCorrectionSupport.prototype.constructor = ColorCorrectionSupport;
  */
 var FrameLabel = function (name, frame)
 {
-
+    this._name  = name  || "";
+    this._frame = frame || 0;
 };
+
+/**
+ * extends
+ */
+FrameLabel.prototype = Object.create(OriginalObject.prototype);
+FrameLabel.prototype.constructor = FrameLabel;
+
+/**
+ * properties
+ */
+Object.defineProperties(FrameLabel.prototype, {
+    name: {
+        get: function () {
+            return this._name;
+        }, set: function () {
+        }
+    },
+    frame: {
+        get: function () {
+            return this._frame;
+        }, set: function () {
+        }
+    }
+});
+
+/**
+ * @returns {string}
+ */
+FrameLabel.prototype.toString = function ()
+{
+    return "[object FrameLabel]";
+};
+
 /**
  * @constructor
  */
@@ -14015,7 +14049,60 @@ SWFVersion.prototype.constructor = SWFVersion;
 /**
  * @constructor
  */
-var Scene = function () {};
+var Scene = function ()
+{
+    this._labels    = [];
+    this._name      = "";
+    this._numFrames = 0;
+};
+
+/**
+ * extends
+ */
+Scene.prototype = Object.create(OriginalObject.prototype);
+Scene.prototype.constructor = Scene;
+
+/**
+ * properties
+ */
+Object.defineProperties(Scene.prototype, {
+    labels: {
+        get: function () {
+            return this._labels;
+        },
+        set: function () {}
+    },
+    name: {
+        get: function () {
+            return this._name;
+        },
+        set: function () {}
+    },
+    numFrames: {
+        get: function () {
+            return this._numFrames;
+        },
+        set: function () {}
+    }
+});
+
+/**
+ * @returns {string}
+ */
+Scene.prototype.toString = function ()
+{
+    return "[object Scene]";
+};
+
+/**
+ * @param {string} name
+ * @param {number} frame
+ * @returns void
+ */
+Scene.prototype.addLabel = function (name, frame)
+{
+    this._labels[name] = new FrameLabel(name, frame);
+};
 /**
  * @param code
  * @constructor
@@ -14123,8 +14210,7 @@ Object.defineProperties(Shape.prototype, {
         get: function () {
             return this.getGraphics();
         },
-        set: function () {
-        }
+        set: function () {}
     }
 });
 
@@ -14668,6 +14754,14 @@ Shape.prototype.linearGradientXY = function (m)
         x1,
         y1
     ];
+};
+
+/**
+ * @returns {string}
+ */
+Shape.prototype.toString = function ()
+{
+    return "[object Shape]";
 };
 /**
  * @constructor
@@ -34220,6 +34314,13 @@ CacheStore.prototype.generateKey = function (id, matrix, cxForm)
 };
 
 Util.prototype.$cacheStore = new CacheStore();
+/**
+ * @constructor
+ */
+var Player = function ()
+{
+
+};
 /**
  * @constructor
  */

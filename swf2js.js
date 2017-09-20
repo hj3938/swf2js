@@ -10844,8 +10844,9 @@ ColorCorrectionSupport.prototype.constructor = ColorCorrectionSupport;
  */
 var FrameLabel = function (name, frame)
 {
-    this._name  = name  || "";
-    this._frame = frame || 0;
+    // init
+    this._name  = name;
+    this._frame = frame;
 };
 
 /**
@@ -10861,14 +10862,14 @@ Object.defineProperties(FrameLabel.prototype, {
     name: {
         get: function () {
             return this._name;
-        }, set: function () {
-        }
+        },
+        set: function () {}
     },
     frame: {
         get: function () {
             return this._frame;
-        }, set: function () {
-        }
+        },
+        set: function () {}
     }
 });
 
@@ -14051,6 +14052,7 @@ SWFVersion.prototype.constructor = SWFVersion;
  */
 var Scene = function ()
 {
+    // default
     this._labels    = [];
     this._name      = "";
     this._numFrames = 0;
@@ -14101,7 +14103,7 @@ Scene.prototype.toString = function ()
  */
 Scene.prototype.addLabel = function (name, frame)
 {
-    this._labels[name] = new FrameLabel(name, frame);
+    this._labels[this._labels.length] = new FrameLabel(name, frame);
 };
 /**
  * @param code

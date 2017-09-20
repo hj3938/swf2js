@@ -3,6 +3,7 @@
  */
 var Scene = function ()
 {
+    // default
     this._labels    = [];
     this._name      = "";
     this._numFrames = 0;
@@ -53,5 +54,5 @@ Scene.prototype.toString = function ()
  */
 Scene.prototype.addLabel = function (name, frame)
 {
-    this._labels[name] = new FrameLabel(name, frame);
+    this._labels[this._labels.length] = new FrameLabel(name, frame);
 };

@@ -1,2 +1,3 @@
+/*jshint bitwise: false*/
 if (!("swf2js" in window)) {
     (function(window) {

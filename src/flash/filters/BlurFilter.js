@@ -268,7 +268,7 @@ BlurFilter.prototype.render = function (cache, colorTransform, stage)
                 sy.a = pa|0;
                 sy   = sy.n;
 
-                i = (i + 1)|0
+                i = (i + 1)|0;
             }
 
             yp = w;

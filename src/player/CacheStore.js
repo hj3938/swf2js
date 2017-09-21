@@ -117,14 +117,13 @@ CacheStore.prototype.generateKey = function (id, matrix, cxForm)
     }
 
     var color = this.$rgbToInt(cxForm[4], cxForm[5], cxForm[6]);
-    return id + "_" + m
-        + "_" + this.$round(cxForm[0] * 32)
-        + "_" + this.$round(cxForm[1] * 32)
-        + "_" + this.$round(cxForm[2] * 32)
-        + "_" + this.$round(cxForm[3] * 32)
-        + "_" + color.toString(16)
-        + "_" + this.$round(cxForm[7] / 8);
+    return id + "_" + m +
+        "_" + this.$round(cxForm[0] * 32) +
+        "_" + this.$round(cxForm[1] * 32) +
+        "_" + this.$round(cxForm[2] * 32) +
+        "_" + this.$round(cxForm[3] * 32) +
+        "_" + color.toString(16) +
+        "_" + this.$round(cxForm[7] / 8);
 };
 
 Util.prototype.$cacheStore = new CacheStore();
-console.log(Util.prototype.$cacheStore);

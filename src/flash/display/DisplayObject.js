@@ -2139,9 +2139,6 @@ DisplayObject.prototype.renderBlend = function (ctx, cache, xMin, yMin, isFilter
     cache.setTransform(1, 0, 0, 1, 0, 0);
 
     switch (mode) {
-        case "alpha":
-            return ;
-            break;
         case "multiply":
             operation = "multiply";
             break;

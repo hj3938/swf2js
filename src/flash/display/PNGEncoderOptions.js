@@ -4,5 +4,5 @@
  */
 var PNGEncoderOptions = function (fastCompression)
 {
-    this._fastCompression = false
+    this._fastCompression = false;
 };

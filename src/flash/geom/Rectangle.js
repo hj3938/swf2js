@@ -149,8 +149,8 @@ Rectangle.prototype.contains = function (x, y)
  */
 Rectangle.prototype.containsPoint = function (point)
 {
-    return (this.x <= point.x && this.y <= point.y
-        && this.right > point.x && this.bottom > point.y);
+    return (this.x <= point.x && this.y <= point.y &&
+        this.right > point.x && this.bottom > point.y);
 };
 
 /**
@@ -160,8 +160,8 @@ Rectangle.prototype.containsPoint = function (point)
  */
 Rectangle.prototype.containsRect = function (rect)
 {
-    return (this.x <= rect.x && this.y <= rect.y
-        && this.right >= rect.right && this.bottom >= rect.bottom);
+    return (this.x <= rect.x && this.y <= rect.y &&
+        this.right >= rect.right && this.bottom >= rect.bottom);
 };
 
 /**
@@ -182,8 +182,8 @@ Rectangle.prototype.copyFrom = function (sourceRect)
  */
 Rectangle.prototype.equals = function (toCompare)
 {
-    return (this.x === toCompare.x && this.y === toCompare.y
-        && this.width === toCompare.width && this.height === toCompare.height);
+    return (this.x === toCompare.x && this.y === toCompare.y &&
+        this.width === toCompare.width && this.height === toCompare.height);
 };
 
 /**
@@ -226,9 +226,7 @@ Rectangle.prototype.intersection = function (toIntersect)
 
     var w = +(ex - sx);
     var h = +(ey - sy);
-    return (w > 0 && h > 0)
-        ? new Rectangle(sx, sy, w, h)
-        : new Rectangle();
+    return (w > 0 && h > 0) ? new Rectangle(sx, sy, w, h) : new Rectangle();
 };
 
 /**
@@ -321,10 +319,8 @@ Rectangle.prototype.union = function (toUnion)
     switch (true) {
         case this.isEmpty():
             return toUnion.clone();
-            break;
         case toUnion.isEmpty():
             return this.clone();
-            break;
         default:
             return new Rectangle(
                 this.$min(this.x, toUnion.x),
@@ -332,6 +328,5 @@ Rectangle.prototype.union = function (toUnion)
                 this.$max(this.right,  toUnion.right),
                 this.$max(this.bottom, toUnion.bottom)
             );
-            break;
     }
 };

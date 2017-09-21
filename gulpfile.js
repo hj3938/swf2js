@@ -59,7 +59,7 @@ gulp.task("concat", function() {
         "footer.file"
         ])
         .pipe(concat("swf2js.js"))
-        // .pipe(uglify({ preserveComments: "license" }))
+        .pipe(uglify({ output: {comments: "license"} }))
         .pipe(gulp.dest("."));
 });
 

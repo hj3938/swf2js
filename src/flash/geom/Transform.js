@@ -23,9 +23,7 @@ Transform.prototype.constructor = Transform;
 Object.defineProperties(Transform.prototype, {
     colorTransform: {
         get: function () {
-            return (this._colorTransform === null)
-                ? [1, 1, 1, 1, 0, 0, 0, 0]
-                : this._colorTransform;
+            return (this._colorTransform === null) ? [1, 1, 1, 1, 0, 0, 0, 0] : this._colorTransform;
         },
         set: function (colorTransform) {
             if (colorTransform instanceof ColorTransform) {
@@ -35,9 +33,7 @@ Object.defineProperties(Transform.prototype, {
     },
     matrix: {
         get: function () {
-            return (this._matrix === null)
-                ? [1, 0, 0, 1, 0, 0]
-                : this._matrix;
+            return (this._matrix === null) ? [1, 0, 0, 1, 0, 0] : this._matrix;
         },
         set: function (matrix) {
             if (matrix instanceof Matrix) {

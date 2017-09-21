@@ -149,8 +149,8 @@ Object.defineProperties(EventDispatcher.prototype, {
 });
 
 /**
- * @param type
- * @returns {*}
+ * @param {string} type
+ * @returns {function}
  */
 EventDispatcher.prototype.getOnEvent = function (type)
 {
@@ -158,8 +158,8 @@ EventDispatcher.prototype.getOnEvent = function (type)
 };
 
 /**
- * @param type
- * @param as
+ * @param {string} type
+ * @param {function} as
  */
 EventDispatcher.prototype.setOnEvent = function (type, as)
 {

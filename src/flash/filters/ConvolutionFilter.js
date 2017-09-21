@@ -189,9 +189,7 @@ ConvolutionFilter.prototype.render = function (cache, colorTransform, stage)
                     r = (r + data[cpx    ] * matrix[idx])|0;
                     g = (g + data[cpx + 1] * matrix[idx])|0;
                     b = (b + data[cpx + 2] * matrix[idx])|0;
-                    a = (!preserveAlpha)
-                        ? (a + data[cpx + 3] * matrix[idx])|0
-                        : 0;
+                    a = (!preserveAlpha) ? (a + data[cpx + 3] * matrix[idx])|0 : 0;
 
                     cx = (cx + 1)|0;
                 }

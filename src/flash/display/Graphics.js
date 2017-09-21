@@ -662,7 +662,7 @@ Graphics.prototype.moveTo = function (x, y)
  */
 Graphics.prototype.toString = function ()
 {
-    return "[object Graphics]"
+    return "[object Graphics]";
 };
 
 

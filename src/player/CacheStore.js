@@ -9,7 +9,7 @@ var CacheStore = function ()
 };
 
 /**
- * util
+ * extends
  */
 CacheStore.prototype = Object.create(Util.prototype);
 CacheStore.prototype.constructor = CacheStore;
@@ -116,16 +116,15 @@ CacheStore.prototype.generateKey = function (id, matrix, cxForm)
         }
     }
 
-    // colorTransform
-    var c0  = this.$sqrt(cxForm[0] * cxForm[0] + cxForm[4] * cxForm[4]);
-    var c1  = this.$sqrt(cxForm[1] * cxForm[1] + cxForm[5] * cxForm[5]);
-    var c2  = this.$sqrt(cxForm[2] * cxForm[2] + cxForm[6] * cxForm[6]);
-    var c3  = this.$sqrt(cxForm[3] * cxForm[3] + cxForm[7] * cxForm[7]);
-    var c01 = this.$sqrt(c0 * c0 + c1 * c1);
-    var c23 = this.$sqrt(c2 * c2 + c3 * c3);
-    var cx  = this.$sqrt(c01 * c01 + c23 * c23);
-
-    return id + "_" + this.$sqrt(m * m + cx * cx);
+    var color = this.$rgbToInt(cxForm[4], cxForm[5], cxForm[6]);
+    return id + "_" + m
+        + "_" + this.$round(cxForm[0] * 32)
+        + "_" + this.$round(cxForm[1] * 32)
+        + "_" + this.$round(cxForm[2] * 32)
+        + "_" + this.$round(cxForm[3] * 32)
+        + "_" + color.toString(16)
+        + "_" + this.$round(cxForm[7] / 8);
 };
 
 Util.prototype.$cacheStore = new CacheStore();
+console.log(Util.prototype.$cacheStore);

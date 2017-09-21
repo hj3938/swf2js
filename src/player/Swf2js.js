@@ -4,7 +4,7 @@
 var Swf2js = function () {};
 
 /**
- * util
+ * extends
  */
 Swf2js.prototype = Object.create(Util.prototype);
 Swf2js.prototype.constructor = Swf2js;

@@ -1,12 +1,12 @@
 
 describe("Scene.js property test", function()
 {
-    
+
     // property
     it("property test", function()
     {
         var s = new Scene("test", [], 10);
-        s.__addLabel("fl", 5);
+        s.$addLabel("fl", 5);
 
         expect(s.name).toBe("test");
         expect(s.labels.length).toBe(1);
@@ -18,7 +18,7 @@ describe("Scene.js property test", function()
     it("property readonly test", function()
     {
         var s = new Scene("test", [], 10);
-        s.__addLabel("fl", 5);
+        s.$addLabel("fl", 5);
 
         s.name      = "test2";
         s.labels    = [];

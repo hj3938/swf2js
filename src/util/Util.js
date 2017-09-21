@@ -77,6 +77,7 @@ var instanceId = 0;
     Utility.prototype.$LN2_2          = m.LN2 / 2;
     Utility.prototype.$LOG1P          = 0.29756328478758615;
     Utility.prototype.$PI             = m.PI;
+    Utility.prototype.$round          = m.round;
     Utility.prototype.$Number         = w.Number;
     Utility.prototype.$fromCharCode   = w.String.fromCharCode;
     Utility.prototype.$isNaN          = w.isNaN;

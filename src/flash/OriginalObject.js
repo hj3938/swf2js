@@ -1,3 +1,6 @@
+/**
+ * @constructor
+ */
 var OriginalObject = function () {};
 
 /**

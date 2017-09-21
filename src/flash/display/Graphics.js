@@ -3,7 +3,11 @@
  */
 var Graphics = function ()
 {
+    // init
     this.clear();
+
+    // properties
+    this.$cache = false;
 };
 
 /**
@@ -653,6 +657,16 @@ Graphics.prototype.moveTo = function (x, y)
     return this;
 };
 
+/**
+ * @returns {string}
+ */
+Graphics.prototype.toString = function ()
+{
+    return "[object Graphics]"
+};
+
+
+
 
 
 
@@ -939,12 +953,4 @@ Graphics.prototype.buildCommand = function ()
     }
 
     return this.$vtc.buildCommand(fillRecodes);
-};
-
-/**
- * @returns {string}
- */
-Graphics.prototype.toString = function ()
-{
-    return "[object Graphics]"
 };

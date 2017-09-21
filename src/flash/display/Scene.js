@@ -55,7 +55,7 @@ Scene.prototype.toString = function ()
  * @param {number} frame
  * @returns void
  */
-Scene.prototype.__addLabel = function (name, frame)
+Scene.prototype.$addLabel = function (name, frame)
 {
     this._labels[this._labels.length] = new FrameLabel(name, frame);
 };

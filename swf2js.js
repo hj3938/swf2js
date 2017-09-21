@@ -386,6 +386,7 @@ var instanceId = 0;
     Utility.prototype.$LN2_2          = m.LN2 / 2;
     Utility.prototype.$LOG1P          = 0.29756328478758615;
     Utility.prototype.$PI             = m.PI;
+    Utility.prototype.$round          = m.round;
     Utility.prototype.$Number         = w.Number;
     Utility.prototype.$fromCharCode   = w.String.fromCharCode;
     Utility.prototype.$isNaN          = w.isNaN;
@@ -10899,7 +10900,11 @@ GradientType.prototype.constructor = GradientType;
  */
 var Graphics = function ()
 {
+    // init
     this.clear();
+
+    // properties
+    this.$cache = false;
 };
 
 /**
@@ -11549,6 +11554,16 @@ Graphics.prototype.moveTo = function (x, y)
     return this;
 };
 
+/**
+ * @returns {string}
+ */
+Graphics.prototype.toString = function ()
+{
+    return "[object Graphics]"
+};
+
+
+
 
 
 
@@ -11835,14 +11850,6 @@ Graphics.prototype.buildCommand = function ()
     }
 
     return this.$vtc.buildCommand(fillRecodes);
-};
-
-/**
- * @returns {string}
- */
-Graphics.prototype.toString = function ()
-{
-    return "[object Graphics]"
 };
 /**
  * @param bitmapData
@@ -14104,7 +14111,7 @@ Scene.prototype.toString = function ()
  * @param {number} frame
  * @returns void
  */
-Scene.prototype.__addLabel = function (name, frame)
+Scene.prototype.$addLabel = function (name, frame)
 {
     this._labels[this._labels.length] = new FrameLabel(name, frame);
 };
@@ -15750,7 +15757,7 @@ Stage.prototype.getFrameRate = function ()
  */
 Stage.prototype.setFrameRate = function (fps)
 {
-    this.frameRate = (1000 / fps)|0;
+    this.frameRate = (1000 / 60)|0;
 };
 
 /**
@@ -34199,7 +34206,7 @@ var CacheStore = function ()
 };
 
 /**
- * util
+ * extends
  */
 CacheStore.prototype = Object.create(Util.prototype);
 CacheStore.prototype.constructor = CacheStore;
@@ -34306,19 +34313,18 @@ CacheStore.prototype.generateKey = function (id, matrix, cxForm)
         }
     }
 
-    // colorTransform
-    var c0  = this.$sqrt(cxForm[0] * cxForm[0] + cxForm[4] * cxForm[4]);
-    var c1  = this.$sqrt(cxForm[1] * cxForm[1] + cxForm[5] * cxForm[5]);
-    var c2  = this.$sqrt(cxForm[2] * cxForm[2] + cxForm[6] * cxForm[6]);
-    var c3  = this.$sqrt(cxForm[3] * cxForm[3] + cxForm[7] * cxForm[7]);
-    var c01 = this.$sqrt(c0 * c0 + c1 * c1);
-    var c23 = this.$sqrt(c2 * c2 + c3 * c3);
-    var cx  = this.$sqrt(c01 * c01 + c23 * c23);
-
-    return id + "_" + this.$sqrt(m * m + cx * cx);
+    var color = this.$rgbToInt(cxForm[4], cxForm[5], cxForm[6]);
+    return id + "_" + m
+        + "_" + this.$round(cxForm[0] * 32)
+        + "_" + this.$round(cxForm[1] * 32)
+        + "_" + this.$round(cxForm[2] * 32)
+        + "_" + this.$round(cxForm[3] * 32)
+        + "_" + color.toString(16)
+        + "_" + this.$round(cxForm[7] / 8);
 };
 
 Util.prototype.$cacheStore = new CacheStore();
+console.log(Util.prototype.$cacheStore);
 /**
  * @constructor
  */
@@ -34332,7 +34338,7 @@ var Player = function ()
 var Swf2js = function () {};
 
 /**
- * util
+ * extends
  */
 Swf2js.prototype = Object.create(Util.prototype);
 Swf2js.prototype.constructor = Swf2js;

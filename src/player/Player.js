@@ -5,7 +5,3 @@ var Player = function ()
 {
 
 };
-
-
-
-

@@ -473,7 +473,7 @@ Stage.prototype.getFrameRate = function ()
  */
 Stage.prototype.setFrameRate = function (fps)
 {
-    this.frameRate = (1000 / 60)|0;
+    this.frameRate = (1000 / fps)|0;
 };
 
 /**

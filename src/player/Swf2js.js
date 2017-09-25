@@ -1,7 +1,10 @@
 /**
  * @constructor
  */
-var Swf2js = function () {};
+var Swf2js = function ()
+{
+    this.packages = new Packages();
+};
 
 /**
  * extends
@@ -16,7 +19,7 @@ Swf2js.prototype.constructor = Swf2js;
  */
 Swf2js.prototype.getPackage = function (path)
 {
-    var packages = new Packages();
+    var packages = this.packages;
 
     var names  = path.split(".");
     var length = names.length;

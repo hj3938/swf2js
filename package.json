@@ -1,7 +1,7 @@
 {
   "name": "swf2js",
   "description": "Flash™ runtime written in pure JavaScript.",
-  "version": "0.7.8",
+  "version": "0.8.0",
   "author": "Toshiyuki Ienaga",
   "license": "MIT",
   "main": "index.js",

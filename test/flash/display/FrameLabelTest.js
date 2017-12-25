@@ -20,8 +20,7 @@ describe("FrameLabel.js property test", function()
         fl.frame = 1;
 
         expect(fl.name).toBe("test");
-        // expect(fl.frame).toBe(10);
-        expect(fl.frame).toBe(11);
+        expect(fl.frame).toBe(10);
     });
 
 });

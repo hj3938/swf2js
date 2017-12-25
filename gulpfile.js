@@ -5,7 +5,11 @@ var uglify  = require("gulp-uglify");
 var karma   = require("gulp-karma");
 var Server  = require("karma").Server;
 
-gulp.task("server", function () {
+/**
+ * server setting
+ */
+gulp.task("server", function ()
+{
     browser.init({
         server: {
             baseDir: "./",
@@ -14,11 +18,19 @@ gulp.task("server", function () {
     });
 });
 
-gulp.task("reload", function () {
+/**
+ * browser reload
+ */
+gulp.task("reload", function ()
+{
     browser.reload();
 });
 
-gulp.task("tdd", function (done) {
+/**
+ * output swf2js
+ */
+gulp.task("output", function ()
+{
     gulp.src([
             "copyright.file",
             "header.file",
@@ -58,27 +70,47 @@ gulp.task("tdd", function (done) {
             "src/player/*.js",
             "footer.file"
         ])
-        .pipe(new Server({
-            configFile: __dirname + "/karma.conf.js",
-            singleRun: true
-        }, done).start())
-        .on("error", function (err) {
-            throw err;
-        })
         .pipe(concat("swf2js.js"))
         // .pipe(uglify({ output: { comments: /^!/ } }))
         .pipe(gulp.dest("."));
 });
 
-gulp.task("default", ["server"], function () {
+/**
+ * default setting
+ */
+gulp.task("default", ["server"], function ()
+{
     gulp.watch(["src/**/*.js"], ["tdd"]);
     gulp.watch(["swf2js.js"], ["reload"]);
 });
 
 /**
+ * test-driven development
+ */
+gulp.task("tdd", function (done)
+{
+    new Server({
+        configFile: __dirname + "/karma.conf.js",
+        singleRun: false
+    }, done)
+        .on("run_complete", function (browsers, results)
+        {
+            if (results.failed) {
+                throw new Error("failed");
+            }
+            gulp.start.apply(gulp, ["output"]);
+        })
+        .on("error", function (err) {
+            done(err);
+        })
+        .start();
+});
+
+/**
  * Run test once and exit
  */
-gulp.task("test", function (done) {
+gulp.task("test", function (done)
+{
     new Server({
         configFile: __dirname + "/karma.conf.js",
         singleRun: true

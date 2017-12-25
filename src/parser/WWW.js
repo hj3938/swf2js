@@ -16,10 +16,3 @@ var WWW = function (bitio, swftag)
 
 
 
-
-
-
-
-
-
-

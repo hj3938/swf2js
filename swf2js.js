@@ -28535,17 +28535,6 @@ BitIO.prototype.deCompress = function (size, mode)
     this.data        = array;
     this.byte_offset = cacheOffset;
 };
-/**
- *
- * @param {BitIO} bitio
- * @param {SwfTag} swftag
- * @constructor
- */
-var Parser = function (bitio, swftag)
-{
-    this.bitio  = bitio;
-    this.swftag = swftag;
-};
 /*jshint bitwise: false*/
 /**
  * @param stage
@@ -34262,6 +34251,25 @@ VectorToCanvas.prototype.toCanvas2D = function (cache)
 };
 
 Util.prototype.$vtc = new VectorToCanvas();
+/**
+ *
+ * @param {BitIO} bitio
+ * @param {SwfTag} swftag
+ * @constructor
+ */
+var WWW = function (bitio, swftag)
+{
+    this.bitio  = bitio;
+    this.swftag = swftag;
+};
+
+
+
+
+
+
+
+
 /**
  * @constructor
  */

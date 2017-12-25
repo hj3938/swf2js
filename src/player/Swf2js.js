@@ -49,82 +49,44 @@ Swf2js.prototype.load = function (url, options)
         var self = this;
 
         // stage setup
-        var stage = (options && options.stage instanceof Stage) ? options.stage : new Stage();
-        stage.setOptions(options);
-        self.$stages[stage.getId()] = stage;
+        var player = new Player();
+        self.$players[player.getId()] = player;
 
-        // init
-        stage.init();
+        // start
+        player.setOptions(options);
+        player.initialize();
 
-        var xmlHttpRequest = new XMLHttpRequest();
-        xmlHttpRequest.open("GET", url, true);
-
-        if (self.$canXHR2) {
-            xmlHttpRequest.responseType = "arraybuffer";
-        } else {
-            xmlHttpRequest.overrideMimeType("text/plain; charset=x-user-defined");
-        }
-
-        xmlHttpRequest.onreadystatechange = function ()
-        {
-            var readyState = xmlHttpRequest.readyState|0;
-            if (readyState === 4) {
-                var status = xmlHttpRequest.status|0;
-                switch (status) {
-                    case 200:
-                    case 304:
-                        var data = (self.$canXHR2) ? xmlHttpRequest.response : xmlHttpRequest.responseText;
-                        stage.parse(data, url);
-                        self.$cacheStore.reset();
-                        break;
-                    default :
-                        alert(xmlHttpRequest.statusText);
-                        break;
+        this.$ajax({
+            "url":    url,
+            "method": "GET",
+            "mode":   "binary",
+            "event": {
+                "loadend": function ()
+                {
+                    switch (this.status) {
+                        case 200:
+                        case 304:
+                            var data = (this.response) ? this.response : this.responseText;
+                            // player.SwfParse(data, url);
+                            self.$cacheStore.reset();
+                            break;
+                        default :
+                            alert(this.statusText);
+                            break;
+                    }
                 }
+                // "progress": function (event)
+                // {
+                //     var id   = player.getName() + "_loading_span";
+                //     var span = player.$document.getElementById(id);
+                //     var per  = (event.loaded / event.total * 100)|0;
+                //     span.style.width = per + "%";
+                // }
             }
-        };
-
-        xmlHttpRequest.send(null);
+        });
     } else {
-        alert("please set swf url");
+        alert("please set swf url.");
     }
-};
-
-/**
- * @param url
- * @param options
- * @returns {*}
- */
-Swf2js.prototype.reload = function(url, options)
-{
-    if (!stageId) {
-        return this.load(url, options);
-    }
-
-    var stages = this.$stages;
-    var stage  = stages[0];
-    for (var idx in stages) {
-        if (!stages.hasOwnProperty(idx)) {
-            continue;
-        }
-
-        var target = stages[idx];
-        target.stop();
-
-        if (idx) {
-            target.deleteNode(target.tagId);
-            target = void 0;
-        }
-    }
-
-    // reset
-    stageId          = 1;
-    this.$stages     = [];
-    this.$loadStages = [];
-    this.$stages[0]  = stage;
-
-    // reload
-    stage.reload(url, options);
 };
 
 /**

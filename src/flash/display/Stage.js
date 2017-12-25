@@ -6,6 +6,7 @@ var Stage = function ()
     this.id         = stageId++;
     this.name       = "swf2js_" + this.id;
     this.intervalId = 0;
+    this.playerId   = 0;
     this.frameRate  = 0;
     this.fileSize   = 0;
     this.stopFlag   = true;
@@ -113,6 +114,22 @@ Stage.prototype.setId = function (id)
 };
 
 /**
+ * @returns {Player}
+ */
+Stage.prototype.getPlayer = function ()
+{
+    return this.$players[this.playerId];
+};
+
+/**
+ * @param {number} playerId
+ */
+Stage.prototype.setPlayer = function (playerId)
+{
+    this.playerId = playerId;
+};
+
+/**
  * @returns {*}
  */
 Stage.prototype.getParent = function ()
@@ -178,19 +195,17 @@ Stage.prototype.play = function ()
 {
     this.stopFlag = false;
 
-    var enterFrame = function (stage) {
-        var animation = stage.$requestAnimationFrame;
-        return function () {
-            animation(function () {
-                if (stage.isLoad && !stage.stopFlag) {
-                    stage.nextFrame();
-                }
-            }, 0);
-        };
-    };
-
     this.intervalId = this.$setInterval.call(
-        null, enterFrame(this), this.getFrameRate()
+        null, (function (stage) {
+            var animation = stage.$requestAnimationFrame;
+            return function () {
+                animation(function () {
+                    if (stage.isLoad && !stage.stopFlag) {
+                        stage.nextFrame();
+                    }
+                }, 0);
+            };
+        })(this), this.getFrameRate()
     );
 };
 
@@ -524,6 +539,7 @@ Stage.prototype.parse = function (data, url)
         bitio.generate(data);
     }
 
+
     var mc  = this.getParent();
     mc._url = (!mc._url) ? location.href : mc._url;
     if (this.setSwfHeader(bitio, swftag)) {
@@ -612,7 +628,7 @@ Stage.prototype.setSwfHeader = function (bitio, swftag)
         case "CWS": // ZLIB
             bitio.deCompress(fileSize, "ZLIB");
             break;
-        case "ZWS": // TODO LZMA
+        case "ZWS": // LZMA
             bitio.deCompress(fileSize, "LZMA");
             break;
     }

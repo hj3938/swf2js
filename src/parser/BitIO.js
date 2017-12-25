@@ -11,26 +11,32 @@ var BitIO = function ()
 };
 
 /**
- * util
+ * extends
  */
 BitIO.prototype = Object.create(Util.prototype);
 BitIO.prototype.constructor = BitIO;
 
 /**
- * @param data
+ * @param {array} data
+ * @returns void
  */
-BitIO.prototype.generate = function (data)
+BitIO.prototype.initialize = function (data)
 {
-    var length = 0 | data.length;
-    var array  = this.createArray(length);
+    var array = [];
+    if (this.$canXHR2) {
+        array = new Uint8Array(data);
+    } else {
+        var length = data.length|0;
+        array = this.createArray(length);
 
-    var i = 0;
-    while (i < length) {
-        array[i] = data.charCodeAt(i) & 0xff;
-        i = (i + 1)|0;
+        var i = 0;
+        while (i < length) {
+            array[i] = data.charCodeAt(i) & 0xff;
+            i = (i + 1)|0;
+        }
     }
 
-    this.data = array;
+    this.setData(array);
 };
 
 /**

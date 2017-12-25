@@ -1,6 +1,7 @@
 var Util;
 var stageId    = 0;
 var instanceId = 0;
+var playerId   = 0;
 
 (function (w) {
     "use strict";
@@ -19,6 +20,7 @@ var instanceId = 0;
     // global parameters
     Utility.prototype.$resizeId   = 0;
     Utility.prototype.$stages     = [];
+    Utility.prototype.$players    = [];
     Utility.prototype.$loadStages = [];
     Utility.prototype.$event      = null;
     Utility.prototype.$keyEvent   = null;
@@ -28,7 +30,7 @@ var instanceId = 0;
     var ua                         = w.navigator.userAgent;
     var isAndroid                  = (ua.indexOf("Android") > 0);
     var isiOS                      = (ua.indexOf("iPhone") > 0 || ua.indexOf("iPod") > 0);
-    var isTouch                    = (isAndroid || isiOS) ? true : false;
+    var isTouch                    = (isAndroid || isiOS);
     Utility.prototype.$isTouch     = isTouch;
     Utility.prototype.$isAndroid   = isAndroid;
     Utility.prototype.$isAndroid4x = (ua.indexOf("Android 4.") > 0);
@@ -93,7 +95,8 @@ var instanceId = 0;
     Utility.prototype.$devicePixelRatio  = w.devicePixelRatio || 1;
 
     // check XMLHttpRequest2
-    Utility.prototype.$canXHR2 = (function(){
+    Utility.prototype.$canXHR2 = (function ()
+    {
         var xhr = new XMLHttpRequest();
         return (typeof xhr.responseType !== "undefined");
     })();
@@ -513,5 +516,49 @@ var instanceId = 0;
         Util.prototype.$stages     = void 0;
         Util.prototype.$loadStages = void 0;
     });
+
+    /**
+     * @param option
+     */
+    Utility.prototype.$ajax = function (option)
+    {
+        if (!option) {
+            option = {
+                method: "GET"
+            };
+        }
+
+        if (!option.method) {
+            option.method = "GET";
+        }
+
+        // start
+        var xmlHttpRequest = new XMLHttpRequest();
+
+        if (option.mode === "binary") {
+            if (this.$canXHR2) {
+                xmlHttpRequest.responseType = "arraybuffer";
+            } else {
+                xmlHttpRequest.overrideMimeType("text/plain; charset=x-user-defined");
+            }
+        }
+
+        // Event Listener
+        if (option.event) {
+            var event = option.event;
+            for (var name in event) {
+                if (!event.hasOwnProperty(name)) {
+                    continue;
+                }
+                xmlHttpRequest.addEventListener(name, event[name]);
+            }
+        }
+
+        xmlHttpRequest.open(option.method, option.url, true);
+
+        var values = null;
+        xmlHttpRequest.send(values);
+    };
+
 
 })(window);

@@ -59,7 +59,7 @@ gulp.task("concat", function() {
         "footer.file"
         ])
         .pipe(concat("swf2js.js"))
-        .pipe(uglify({ output: { comments: /^!/ } }))
+        // .pipe(uglify({ output: { comments: /^!/ } }))
         .pipe(gulp.dest("."));
 });
 

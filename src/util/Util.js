@@ -560,5 +560,23 @@ var playerId   = 0;
         xmlHttpRequest.send(values);
     };
 
+    /**
+     * @returns {string}
+     */
+    Utility.prototype.$encodeVars = function (source)
+    {
+        var params = [];
+        for (var name in source) {
+            if (!source.hasOwnProperty(name)) {
+                continue;
+            }
+
+            var value = source[name];
+            params[params.length] = encodeURIComponent(name) + "=" + encodeURIComponent(value);
+        }
+
+        return params.join("&").replace(/%20/g, "+");
+    };
+
 
 })(window);

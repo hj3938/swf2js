@@ -1,44 +1,62 @@
 /**
  * @constructor
+ * @param url
  */
 var URLRequest = function (url)
 {
-    this._url = url;
-    this._authenticate  = true;
-    this._cacheResponse = true;
-    this._contentType   = "_application/x-www-form-urlencoded";
-    this._data          = null;
+    this._contentType     = "application/x-www-form-urlencoded";
+    this._data            = null;
+    this._digest          = null;
+    this._followRedirects = null;
+    this._method          = null;
+    this._requestHeaders  = [];
+    this._url             = url;
+    this._userAgent       = null;
 };
+
+/**
+ * extends
+ */
+URLRequest.prototype = Object.create(OriginalObject.prototype);
+URLRequest.prototype.constructor = URLRequest;
 
 /**
  * properties
  */
-Object.defineProperties(Xml.prototype, {
+Object.defineProperties(URLRequest.prototype, {
     url: {
         get: function () {
-            return this.getURL();
+            return this._url;
         },
         set: function (url) {
-            this.setURL(url);
+            this._url = url;
         }
     },
     contentType: {
         get: function () {
-            return this.getContentType();
+            return this._contentType;
         },
         set: function (contentType) {
-            this.setContentType(contentType);
+            this._contentType = contentType;
         }
     },
-    authenticate: {
+    data: {
         get: function () {
-            return this.getAuthenticate();
+            return this._data;
         },
-        set: function (authenticate) {
-            this.setAuthenticate(authenticate);
+        set: function (data) {
+            this._data = data;
         }
     }
 });
+
+/**
+ * @returns {string}
+ */
+URLRequest.prototype.toString = function ()
+{
+    return "[object URLRequest]";
+};
 
 /**
  * @returns {string}
@@ -70,20 +88,4 @@ URLRequest.prototype.getContentType = function ()
 URLRequest.prototype.setContentType = function (contentType)
 {
     this._contentType = contentType;
-};
-
-/**
- * @returns {boolean}
- */
-URLRequest.prototype.getAuthenticate = function ()
-{
-    return this._authenticate;
-};
-
-/**
- * @param authenticate
- */
-URLRequest.prototype.setAuthenticate = function (authenticate)
-{
-    this._authenticate = authenticate;
 };

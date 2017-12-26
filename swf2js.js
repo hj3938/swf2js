@@ -868,6 +868,24 @@ var playerId   = 0;
         xmlHttpRequest.send(values);
     };
 
+    /**
+     * @returns {string}
+     */
+    Utility.prototype.$encodeVars = function (source)
+    {
+        var params = [];
+        for (var name in source) {
+            if (!source.hasOwnProperty(name)) {
+                continue;
+            }
+
+            var value = source[name];
+            params[params.length] = encodeURIComponent(name) + "=" + encodeURIComponent(value);
+        }
+
+        return params.join("&").replace(/%20/g, "+");
+    };
+
 
 })(window);
 var Vector = function () {};
@@ -20437,54 +20455,114 @@ var SharedObjectFlushStatus = function () {};
  */
 var Socket = function () {};
 /**
+ * @param url
  * @constructor
  */
-var URLLoader = function () {};
+var URLLoader = function (url)
+{
+    this._url = "";
+};
+
+/**
+ * extends
+ */
+URLLoader.prototype = Object.create(OriginalObject.prototype);
+URLLoader.prototype.constructor = URLLoader;
+
+/**
+ * properties
+ */
+Object.defineProperties(URLLoader.prototype, {
+    url: {
+        get: function () {
+            return this._url;
+        },
+        set: function (url) {
+            if (url) {
+                this._url = url;
+            }
+        }
+    },
+    pixelSnapping: {
+        get: function () {
+            return this._pixelSnapping;
+        },
+        set: function (pixelSnapping) {
+            this._pixelSnapping = pixelSnapping;
+        }
+    },
+    smoothing: {
+        get: function () {
+            return this._smoothing;
+        },
+        set: function (smoothing) {
+            this._smoothing = smoothing;
+        }
+    }
+});
 /**
  * @constructor
  */
 var URLLoaderDataFormat = function () {};
 /**
  * @constructor
+ * @param url
  */
 var URLRequest = function (url)
 {
-    this._url = url;
-    this._authenticate  = true;
-    this._cacheResponse = true;
-    this._contentType   = "_application/x-www-form-urlencoded";
-    this._data          = null;
+    this._contentType     = "application/x-www-form-urlencoded";
+    this._data            = null;
+    this._digest          = null;
+    this._followRedirects = null;
+    this._method          = null;
+    this._requestHeaders  = [];
+    this._url             = url;
+    this._userAgent       = null;
 };
+
+/**
+ * extends
+ */
+URLRequest.prototype = Object.create(OriginalObject.prototype);
+URLRequest.prototype.constructor = URLRequest;
 
 /**
  * properties
  */
-Object.defineProperties(Xml.prototype, {
+Object.defineProperties(URLRequest.prototype, {
     url: {
         get: function () {
-            return this.getURL();
+            return this._url;
         },
         set: function (url) {
-            this.setURL(url);
+            this._url = url;
         }
     },
     contentType: {
         get: function () {
-            return this.getContentType();
+            return this._contentType;
         },
         set: function (contentType) {
-            this.setContentType(contentType);
+            this._contentType = contentType;
         }
     },
-    authenticate: {
+    data: {
         get: function () {
-            return this.getAuthenticate();
+            return this._data;
         },
-        set: function (authenticate) {
-            this.setAuthenticate(authenticate);
+        set: function (data) {
+            this._data = data;
         }
     }
 });
+
+/**
+ * @returns {string}
+ */
+URLRequest.prototype.toString = function ()
+{
+    return "[object URLRequest]";
+};
 
 /**
  * @returns {string}
@@ -20517,39 +20595,132 @@ URLRequest.prototype.setContentType = function (contentType)
 {
     this._contentType = contentType;
 };
-
-/**
- * @returns {boolean}
- */
-URLRequest.prototype.getAuthenticate = function ()
-{
-    return this._authenticate;
-};
-
-/**
- * @param authenticate
- */
-URLRequest.prototype.setAuthenticate = function (authenticate)
-{
-    this._authenticate = authenticate;
-};
-
 /**
  * @constructor
+ * @param name
+ * @param value
  */
-var URLRequestHeader = function () {};
+var URLRequestHeader = function (name, value)
+{
+    // init
+    this._name  = "";
+    this._value = "";
+
+    // set
+    this.name  = name;
+    this.value = value;
+};
+
+/**
+ * extends
+ */
+URLRequestHeader.prototype = Object.create(OriginalObject.prototype);
+URLRequestHeader.prototype.constructor = URLRequestHeader;
+
+/**
+ * properties
+ */
+Object.defineProperties(URLRequestHeader.prototype, {
+    name: {
+        get: function () {
+            return this._name;
+        },
+        set: function (name) {
+            if (typeof name === "string") {
+                this._name = name;
+            }
+        }
+    },
+    value: {
+        get: function () {
+            return this._value;
+        },
+        set: function (value) {
+            if (typeof value === "string") {
+                this._value = value;
+            }
+        }
+    }
+});
+
+/**
+ * @returns {string}
+ */
+URLRequestHeader.prototype.toString = function ()
+{
+    return "[object URLRequestHeader]";
+};
+
 /**
  * @constructor
  */
 var URLRequestMethod = function () {};
+
+URLRequestMethod.GET     = "GET";
+URLRequestMethod.DELETE  = "DELETE";
+URLRequestMethod.HEAD    = "HEAD";
+URLRequestMethod.OPTIONS = "OPTIONS";
+URLRequestMethod.POST    = "POST";
+URLRequestMethod.PUT     = "PUT";
+
+/**
+ * extends
+ */
+URLRequestMethod.prototype = Object.create(OriginalObject.prototype);
+URLRequestMethod.prototype.constructor = URLRequestMethod;
 /**
  * @constructor
  */
 var URLStream = function () {};
 /**
  * @constructor
+ * @param source
  */
-var URLVariables = function () {};
+var URLVariables = function (source)
+{
+    if (source) {
+        this.decode(source);
+    }
+};
+
+/**
+ * extends
+ */
+URLVariables.prototype = Object.create(OriginalObject.prototype);
+URLVariables.prototype.constructor = URLVariables;
+
+/**
+ * @returns {string}
+ */
+URLVariables.prototype.toString = function ()
+{
+    return this.$encodeVars(this);
+};
+
+/**
+ * @param source
+ * @return void
+ */
+URLVariables.prototype.decode = function (source)
+{
+    if (typeof source === "string") {
+        var pairs  = source.split("&");
+        var length = pairs.length;
+
+        var idx = 0;
+        while (length > idx) {
+            var pair   = pairs[idx];
+            var values = pair.split("=");
+
+            // set
+            if (values.length === 2) {
+                this[values[0]] = values[1];
+            }
+
+            idx = (idx + 1)|0;
+        }
+    }
+};
 /**
  * @constructor
  */

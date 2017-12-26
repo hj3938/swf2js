@@ -2,7 +2,6 @@ var gulp    = require("gulp");
 var browser = require("browser-sync").create();
 var concat  = require("gulp-concat");
 var uglify  = require("gulp-uglify");
-var karma   = require("gulp-karma");
 var Server  = require("karma").Server;
 
 /**

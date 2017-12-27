@@ -8,7 +8,7 @@ var URLRequest = function (url)
     this._data            = null;
     this._digest          = null;
     this._followRedirects = null;
-    this._method          = null;
+    this._method          = URLRequestMethod.GET;
     this._requestHeaders  = [];
     this._url             = url;
     this._userAgent       = null;
@@ -24,20 +24,14 @@ URLRequest.prototype.constructor = URLRequest;
  * properties
  */
 Object.defineProperties(URLRequest.prototype, {
-    url: {
-        get: function () {
-            return this._url;
-        },
-        set: function (url) {
-            this._url = url;
-        }
-    },
     contentType: {
         get: function () {
             return this._contentType;
         },
         set: function (contentType) {
-            this._contentType = contentType;
+            if (typeof contentType === "string") {
+                this._contentType = contentType;
+            }
         }
     },
     data: {
@@ -45,7 +39,69 @@ Object.defineProperties(URLRequest.prototype, {
             return this._data;
         },
         set: function (data) {
-            this._data = data;
+            if (typeof data === "object") {
+                this._data = data;
+            }
+        }
+    },
+    digest: {
+        get: function () {
+            return this._digest;
+        },
+        set: function (digest) {
+            if (typeof digest === "object") {
+                this._digest = digest;
+            }
+        }
+    },
+    followRedirects: {
+        get: function () {
+            return this._followRedirects;
+        },
+        set: function (followRedirects) {
+            if (typeof followRedirects === "boolean") {
+                this._followRedirects = followRedirects;
+            }
+        }
+    },
+    method: {
+        get: function () {
+            return this._method;
+        },
+        set: function (method) {
+            if (typeof method === "string") {
+                this._method = method;
+            }
+        }
+    },
+    requestHeaders: {
+        get: function () {
+            return this._requestHeaders;
+        },
+        set: function (requestHeaders) {
+            if (this.$isArray(requestHeaders)) {
+                this._requestHeaders = requestHeaders;
+            }
+        }
+    },
+    url: {
+        get: function () {
+            return this._url;
+        },
+        set: function (url) {
+            if (typeof url === "string") {
+                this._url = url;
+            }
+        }
+    },
+    userAgent: {
+        get: function () {
+            return this._userAgent;
+        },
+        set: function (userAgent) {
+            if (typeof userAgent === "string") {
+                this._userAgent = userAgent;
+            }
         }
     }
 });
@@ -59,33 +115,14 @@ URLRequest.prototype.toString = function ()
 };
 
 /**
- * @returns {string}
+ *
+ * @param  {URLRequest} sourceRequest
+ * @param  {boolean}    wholeURL
+ * @param  {*}          pattern
+ * @param  {string}     replace
+ * @return void
  */
-URLRequest.prototype.getURL = function ()
+URLRequest.prototype.useRedirectedURL = function (sourceRequest, wholeURL, pattern, replace)
 {
-    return this._url;
-};
-
-/**
- *  @param url
- */
-URLRequest.prototype.setURL = function (url)
-{
-    this._url = url;
-};
-
-/**
- * @returns {string}
- */
-URLRequest.prototype.getContentType = function ()
-{
-    return this._contentType;
-};
-
-/**
- * @param contentType
- */
-URLRequest.prototype.setContentType = function (contentType)
-{
-    this._contentType = contentType;
+    
 };

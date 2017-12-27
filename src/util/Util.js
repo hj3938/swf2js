@@ -578,5 +578,14 @@ var playerId   = 0;
         return params.join("&").replace(/%20/g, "+");
     };
 
+    /**
+     * @param {*} source
+     * @returns {boolean}
+     */
+    Utility.prototype.$isArray = function (source)
+    {
+        return Object.prototype.toString.call(source) === "[object Array]";
+    }
+
 
 })(window);

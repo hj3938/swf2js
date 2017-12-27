@@ -258,7 +258,87 @@ Packages.prototype = {
             "URLRequestMethod": URLRequestMethod,
             "URLStream": URLStream,
             "URLVariables": URLVariables,
-            "XMLSocket": XMLSocket
+            "XMLSocket": XMLSocket,
+            "getClassByAlias": function (aliasName)
+            {
+
+            },
+            "navigateToURL": function (request, window)
+            {
+                var form    = this.$document.createElement("form");
+                form.action = request.url;
+                form.method = request.method;
+                form.target = "_self";
+
+                if (typeof window === "string") {
+                    switch (window.toLowerCase()) {
+                        case "_blank":
+                            form.target = "_blank";
+                            break;
+                        case "_top":
+                            form.target = "_top";
+                            break;
+                        case "_parent":
+                            form.target = "_parent";
+                            break;
+                    }
+                }
+
+                var data = request.data;
+                if (data) {
+                    for (var name in data) {
+                        if (!data.hasOwnProperty(name)) {
+                            continue;
+                        }
+
+                        var input   = this.$document.createElement("input");
+                        input.type  = "hidden";
+                        input.name  = this.$encodeURIComponent(name);
+                        input.value = this.$encodeURIComponent(data[name]);
+                        form.appendChild(input);
+                    }
+                }
+
+                this.$document.body.appendChild(form);
+                form.submit();
+            },
+            "registerClassAlias": function ()
+            {
+
+            },
+            "sendToURL": function (request)
+            {
+                if (request instanceof URLRequest) {
+                    var data = null;
+                    if (request.data instanceof URLVariables) {
+                        data = request.data.toString();
+                    }
+
+                    var headers = [];
+                    if (request.requestHeaders) {
+                        var requestHeaders = request.requestHeaders;
+                        var length         = requestHeaders.length;
+
+                        var idx = 0;
+                        while (length > idx) {
+                            var requestHeader = requestHeaders[idx];
+                            if (requestHeader instanceof URLRequestHeader) {
+                                headers[requestHeader.name] = requestHeader.value;
+                            }
+                            idx = (idx + 1)|0;
+                        }
+                    }
+
+                    // execute
+                    this.$ajax({
+                        method:  request.method,
+                        url:     request.url,
+                        headers: headers,
+                        data:    data
+                    });
+                }
+            }
+
         },
         "printing": {
             "PrintJob": PrintJob,

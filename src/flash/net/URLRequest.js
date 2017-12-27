@@ -49,7 +49,7 @@ Object.defineProperties(URLRequest.prototype, {
             return this._digest;
         },
         set: function (digest) {
-            if (typeof digest === "object") {
+            if (typeof digest === "string") {
                 this._digest = digest;
             }
         }
@@ -124,5 +124,7 @@ URLRequest.prototype.toString = function ()
  */
 URLRequest.prototype.useRedirectedURL = function (sourceRequest, wholeURL, pattern, replace)
 {
-    
+    // TODO
 };
+
+

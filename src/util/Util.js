@@ -62,37 +62,38 @@ var playerId   = 0;
     Utility.prototype.$isAlphaBug = isAlphaBug;
 
     // shortcut
-    Utility.prototype.$document       = doc;
-    Utility.prototype.$min            = m.min;
-    Utility.prototype.$max            = m.max;
-    Utility.prototype.$floor          = m.floor;
-    Utility.prototype.$ceil           = m.ceil;
-    Utility.prototype.$pow            = m.pow;
-    Utility.prototype.$random         = m.random;
-    Utility.prototype.$atan2          = m.atan2;
-    Utility.prototype.$sqrt           = m.sqrt;
-    Utility.prototype.$cos            = m.cos;
-    Utility.prototype.$sin            = m.sin;
-    Utility.prototype.$log            = m.log;
-    Utility.prototype.$abs            = m.abs;
-    Utility.prototype.$SQRT2          = m.SQRT2;
-    Utility.prototype.$LN2_2          = m.LN2 / 2;
-    Utility.prototype.$LOG1P          = 0.29756328478758615;
-    Utility.prototype.$PI             = m.PI;
-    Utility.prototype.$round          = m.round;
-    Utility.prototype.$Number         = w.Number;
-    Utility.prototype.$fromCharCode   = w.String.fromCharCode;
-    Utility.prototype.$isNaN          = w.isNaN;
-    Utility.prototype.$setTimeout     = w.setTimeout;
-    Utility.prototype.$clearTimeout   = w.clearTimeout;
-    Utility.prototype.$setInterval    = w.setInterval;
-    Utility.prototype.$clearInterval  = w.clearInterval;
-    Utility.prototype.$parseInt       = w.parseInt;
-    Utility.prototype.$Function       = w.Function;
-    Utility.prototype.$Date           = new Date();
-    Utility.prototype.$canBtoa        = (typeof w.btoa !== "undefined");
-    Utility.prototype.$canArrayBuffer = (typeof w.ArrayBuffer !== "undefined");
-    Utility.prototype.$devicePixelRatio  = w.devicePixelRatio || 1;
+    Utility.prototype.$document           = doc;
+    Utility.prototype.$min                = m.min;
+    Utility.prototype.$max                = m.max;
+    Utility.prototype.$floor              = m.floor;
+    Utility.prototype.$ceil               = m.ceil;
+    Utility.prototype.$pow                = m.pow;
+    Utility.prototype.$random             = m.random;
+    Utility.prototype.$atan2              = m.atan2;
+    Utility.prototype.$sqrt               = m.sqrt;
+    Utility.prototype.$cos                = m.cos;
+    Utility.prototype.$sin                = m.sin;
+    Utility.prototype.$log                = m.log;
+    Utility.prototype.$abs                = m.abs;
+    Utility.prototype.$SQRT2              = m.SQRT2;
+    Utility.prototype.$LN2_2              = m.LN2 / 2;
+    Utility.prototype.$LOG1P              = 0.29756328478758615;
+    Utility.prototype.$PI                 = m.PI;
+    Utility.prototype.$round              = m.round;
+    Utility.prototype.$Number             = w.Number;
+    Utility.prototype.$fromCharCode       = w.String.fromCharCode;
+    Utility.prototype.$isNaN              = w.isNaN;
+    Utility.prototype.$setTimeout         = w.setTimeout;
+    Utility.prototype.$clearTimeout       = w.clearTimeout;
+    Utility.prototype.$setInterval        = w.setInterval;
+    Utility.prototype.$clearInterval      = w.clearInterval;
+    Utility.prototype.$parseInt           = w.parseInt;
+    Utility.prototype.$Function           = w.Function;
+    Utility.prototype.$encodeURIComponent = w.encodeURIComponent;
+    Utility.prototype.$Date               = new Date();
+    Utility.prototype.$canBtoa            = (typeof w.btoa !== "undefined");
+    Utility.prototype.$canArrayBuffer     = (typeof w.ArrayBuffer !== "undefined");
+    Utility.prototype.$devicePixelRatio   = w.devicePixelRatio || 1;
 
     // check XMLHttpRequest2
     Utility.prototype.$canXHR2 = (function ()
@@ -518,7 +519,7 @@ var playerId   = 0;
     });
 
     /**
-     * @param option
+     * @param {*} option
      */
     Utility.prototype.$ajax = function (option)
     {
@@ -543,10 +544,21 @@ var playerId   = 0;
             }
         }
 
+        var name;
+        if (option.headers) {
+            var headers = option.headers;
+            for (name in headers) {
+                if (!headers.hasOwnProperty(name)) {
+                    continue;
+                }
+                xmlHttpRequest.setRequestHeader(name, headers[name]);
+            }
+        }
+
         // Event Listener
         if (option.event) {
             var event = option.event;
-            for (var name in event) {
+            for (name in event) {
                 if (!event.hasOwnProperty(name)) {
                     continue;
                 }
@@ -554,10 +566,13 @@ var playerId   = 0;
             }
         }
 
-        xmlHttpRequest.open(option.method, option.url, true);
+        var value = null;
+        if (option.data) {
+            value = option.data;
+        }
 
-        var values = null;
-        xmlHttpRequest.send(values);
+        xmlHttpRequest.open(option.method, option.url, true);
+        xmlHttpRequest.send(value);
     };
 
     /**

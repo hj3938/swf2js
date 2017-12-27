@@ -1,6 +1,5 @@
 /**
  * @constructor
- * @param source
  */
 var URLVariables = function (source)
 {

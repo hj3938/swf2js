@@ -370,37 +370,38 @@ var playerId   = 0;
     Utility.prototype.$isAlphaBug = isAlphaBug;
 
     // shortcut
-    Utility.prototype.$document       = doc;
-    Utility.prototype.$min            = m.min;
-    Utility.prototype.$max            = m.max;
-    Utility.prototype.$floor          = m.floor;
-    Utility.prototype.$ceil           = m.ceil;
-    Utility.prototype.$pow            = m.pow;
-    Utility.prototype.$random         = m.random;
-    Utility.prototype.$atan2          = m.atan2;
-    Utility.prototype.$sqrt           = m.sqrt;
-    Utility.prototype.$cos            = m.cos;
-    Utility.prototype.$sin            = m.sin;
-    Utility.prototype.$log            = m.log;
-    Utility.prototype.$abs            = m.abs;
-    Utility.prototype.$SQRT2          = m.SQRT2;
-    Utility.prototype.$LN2_2          = m.LN2 / 2;
-    Utility.prototype.$LOG1P          = 0.29756328478758615;
-    Utility.prototype.$PI             = m.PI;
-    Utility.prototype.$round          = m.round;
-    Utility.prototype.$Number         = w.Number;
-    Utility.prototype.$fromCharCode   = w.String.fromCharCode;
-    Utility.prototype.$isNaN          = w.isNaN;
-    Utility.prototype.$setTimeout     = w.setTimeout;
-    Utility.prototype.$clearTimeout   = w.clearTimeout;
-    Utility.prototype.$setInterval    = w.setInterval;
-    Utility.prototype.$clearInterval  = w.clearInterval;
-    Utility.prototype.$parseInt       = w.parseInt;
-    Utility.prototype.$Function       = w.Function;
-    Utility.prototype.$Date           = new Date();
-    Utility.prototype.$canBtoa        = (typeof w.btoa !== "undefined");
-    Utility.prototype.$canArrayBuffer = (typeof w.ArrayBuffer !== "undefined");
-    Utility.prototype.$devicePixelRatio  = w.devicePixelRatio || 1;
+    Utility.prototype.$document           = doc;
+    Utility.prototype.$min                = m.min;
+    Utility.prototype.$max                = m.max;
+    Utility.prototype.$floor              = m.floor;
+    Utility.prototype.$ceil               = m.ceil;
+    Utility.prototype.$pow                = m.pow;
+    Utility.prototype.$random             = m.random;
+    Utility.prototype.$atan2              = m.atan2;
+    Utility.prototype.$sqrt               = m.sqrt;
+    Utility.prototype.$cos                = m.cos;
+    Utility.prototype.$sin                = m.sin;
+    Utility.prototype.$log                = m.log;
+    Utility.prototype.$abs                = m.abs;
+    Utility.prototype.$SQRT2              = m.SQRT2;
+    Utility.prototype.$LN2_2              = m.LN2 / 2;
+    Utility.prototype.$LOG1P              = 0.29756328478758615;
+    Utility.prototype.$PI                 = m.PI;
+    Utility.prototype.$round              = m.round;
+    Utility.prototype.$Number             = w.Number;
+    Utility.prototype.$fromCharCode       = w.String.fromCharCode;
+    Utility.prototype.$isNaN              = w.isNaN;
+    Utility.prototype.$setTimeout         = w.setTimeout;
+    Utility.prototype.$clearTimeout       = w.clearTimeout;
+    Utility.prototype.$setInterval        = w.setInterval;
+    Utility.prototype.$clearInterval      = w.clearInterval;
+    Utility.prototype.$parseInt           = w.parseInt;
+    Utility.prototype.$Function           = w.Function;
+    Utility.prototype.$encodeURIComponent = w.encodeURIComponent;
+    Utility.prototype.$Date               = new Date();
+    Utility.prototype.$canBtoa            = (typeof w.btoa !== "undefined");
+    Utility.prototype.$canArrayBuffer     = (typeof w.ArrayBuffer !== "undefined");
+    Utility.prototype.$devicePixelRatio   = w.devicePixelRatio || 1;
 
     // check XMLHttpRequest2
     Utility.prototype.$canXHR2 = (function ()
@@ -826,7 +827,7 @@ var playerId   = 0;
     });
 
     /**
-     * @param option
+     * @param {*} option
      */
     Utility.prototype.$ajax = function (option)
     {
@@ -851,10 +852,21 @@ var playerId   = 0;
             }
         }
 
+        var name;
+        if (option.headers) {
+            var headers = option.headers;
+            for (name in headers) {
+                if (!headers.hasOwnProperty(name)) {
+                    continue;
+                }
+                xmlHttpRequest.setRequestHeader(name, headers[name]);
+            }
+        }
+
         // Event Listener
         if (option.event) {
             var event = option.event;
-            for (var name in event) {
+            for (name in event) {
                 if (!event.hasOwnProperty(name)) {
                     continue;
                 }
@@ -862,10 +874,13 @@ var playerId   = 0;
             }
         }
 
-        xmlHttpRequest.open(option.method, option.url, true);
+        var value = null;
+        if (option.data) {
+            value = option.data;
+        }
 
-        var values = null;
-        xmlHttpRequest.send(values);
+        xmlHttpRequest.open(option.method, option.url, true);
+        xmlHttpRequest.send(value);
     };
 
     /**
@@ -20651,8 +20666,10 @@ URLRequest.prototype.toString = function ()
  */
 URLRequest.prototype.useRedirectedURL = function (sourceRequest, wholeURL, pattern, replace)
 {
-    
+    // TODO
 };
+
+
 
 /**
  * @constructor
@@ -20733,7 +20750,6 @@ URLRequestMethod.prototype.constructor = URLRequestMethod;
 var URLStream = function () {};
 /**
  * @constructor
- * @param source
  */
 var URLVariables = function (source)
 {
@@ -26867,7 +26883,87 @@ Packages.prototype = {
             "URLRequestMethod": URLRequestMethod,
             "URLStream": URLStream,
             "URLVariables": URLVariables,
-            "XMLSocket": XMLSocket
+            "XMLSocket": XMLSocket,
+            "getClassByAlias": function (aliasName)
+            {
+
+            },
+            "navigateToURL": function (request, window)
+            {
+                var form    = this.$document.createElement("form");
+                form.action = request.url;
+                form.method = request.method;
+                form.target = "_self";
+
+                if (typeof window === "string") {
+                    switch (window.toLowerCase()) {
+                        case "_blank":
+                            form.target = "_blank";
+                            break;
+                        case "_top":
+                            form.target = "_top";
+                            break;
+                        case "_parent":
+                            form.target = "_parent";
+                            break;
+                    }
+                }
+
+                var data = request.data;
+                if (data) {
+                    for (var name in data) {
+                        if (!data.hasOwnProperty(name)) {
+                            continue;
+                        }
+
+                        var input   = this.$document.createElement("input");
+                        input.type  = "hidden";
+                        input.name  = this.$encodeURIComponent(name);
+                        input.value = this.$encodeURIComponent(data[name]);
+                        form.appendChild(input);
+                    }
+                }
+
+                this.$document.body.appendChild(form);
+                form.submit();
+            },
+            "registerClassAlias": function ()
+            {
+
+            },
+            "sendToURL": function (request)
+            {
+                if (request instanceof URLRequest) {
+                    var data = null;
+                    if (request.data instanceof URLVariables) {
+                        data = request.data.toString();
+                    }
+
+                    var headers = [];
+                    if (request.requestHeaders) {
+                        var requestHeaders = request.requestHeaders;
+                        var length         = requestHeaders.length;
+
+                        var idx = 0;
+                        while (length > idx) {
+                            var requestHeader = requestHeaders[idx];
+                            if (requestHeader instanceof URLRequestHeader) {
+                                headers[requestHeader.name] = requestHeader.value;
+                            }
+                            idx = (idx + 1)|0;
+                        }
+                    }
+
+                    // execute
+                    this.$ajax({
+                        method:  request.method,
+                        url:     request.url,
+                        headers: headers,
+                        data:    data
+                    });
+                }
+            }
+
         },
         "printing": {
             "PrintJob": PrintJob,

@@ -20546,14 +20546,18 @@ URLLoaderDataFormat.prototype.constructor = URLLoaderDataFormat;
  */
 var URLRequest = function (url)
 {
+    // init
     this._contentType     = "application/x-www-form-urlencoded";
     this._data            = null;
     this._digest          = null;
-    this._followRedirects = null;
+    this._followRedirects = true;
     this._method          = URLRequestMethod.GET;
     this._requestHeaders  = [];
-    this._url             = url;
+    this._url             = "";
     this._userAgent       = null;
+    
+    // set
+    this.url = url;
 };
 
 /**
@@ -20591,7 +20595,7 @@ Object.defineProperties(URLRequest.prototype, {
             return this._digest;
         },
         set: function (digest) {
-            if (typeof digest === "object") {
+            if (typeof digest === "string") {
                 this._digest = digest;
             }
         }
@@ -20668,7 +20672,6 @@ URLRequest.prototype.useRedirectedURL = function (sourceRequest, wholeURL, patte
 {
     // TODO
 };
-
 
 
 /**

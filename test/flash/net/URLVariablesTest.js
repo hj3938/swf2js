@@ -17,47 +17,47 @@ describe("URLRequest.js toString test", function()
 
 describe("URLRequest.js decode test", function()
 {
-    it("decode case1", function () {
+    it("decode success case1", function () {
         var vars = new URLVariables();
         vars.decode("name=Toshiyuki Ienaga&age=100");
         expect(vars.toString()).toBe("name=Toshiyuki+Ienaga&age=100");
     });
 
-    it("decode case2", function () {
+    it("decode success case2", function () {
+        var vars = new URLVariables();
+        vars.decode("a=");
+        expect(vars.toString()).toBe("a=");
+    });
+
+    it("decode valid case1", function () {
         var vars = new URLVariables();
         vars.decode("a");
         expect(vars.toString()).toBe("");
     });
 
-    it("decode case3", function () {
+    it("decode valid case2", function () {
         var vars = new URLVariables();
         vars.decode(100);
         expect(vars.toString()).toBe("");
-    });
-
-    it("decode case4", function () {
-        var vars = new URLVariables();
-        vars.decode("a=");
-        expect(vars.toString()).toBe("a=");
     });
 });
 
 describe("URLRequest.js property test", function()
 {
-    it("property case1", function () {
+    it("property success case1", function () {
         var vars = new URLVariables();
         vars.name = "Toshiyuki Ienaga";
         vars.age  = 100;
         expect(vars.toString()).toBe("name=Toshiyuki+Ienaga&age=100");
     });
 
-    it("property case2", function () {
+    it("property success case2", function () {
         var vars = new URLVariables();
         vars.name = "";
         expect(vars.toString()).toBe("name=");
     });
 
-    it("property case3", function () {
+    it("property success case3", function () {
         var vars = new URLVariables();
         vars.a = "";
         vars.b = "";

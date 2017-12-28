@@ -4,14 +4,18 @@
  */
 var URLRequest = function (url)
 {
+    // init
     this._contentType     = "application/x-www-form-urlencoded";
     this._data            = null;
     this._digest          = null;
-    this._followRedirects = null;
+    this._followRedirects = true;
     this._method          = URLRequestMethod.GET;
     this._requestHeaders  = [];
-    this._url             = url;
+    this._url             = "";
     this._userAgent       = null;
+
+    // set
+    this.url = url;
 };
 
 /**
@@ -126,5 +130,4 @@ URLRequest.prototype.useRedirectedURL = function (sourceRequest, wholeURL, patte
 {
     // TODO
 };
-
 

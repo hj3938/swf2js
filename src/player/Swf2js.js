@@ -3,7 +3,7 @@
  */
 var Swf2js = function ()
 {
-    this.packages = new Packages();
+    this.packages = new Packages(null);
 };
 
 /**
@@ -67,6 +67,7 @@ Swf2js.prototype.load = function (url, options)
                         case 200:
                         case 304:
                             var data = (this.response) ? this.response : this.responseText;
+                            console.log(data);
                             // player.SwfParse(data, url);
                             self.$cacheStore.reset();
                             break;

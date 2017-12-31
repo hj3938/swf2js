@@ -14,6 +14,9 @@ var URLRequest = function (url)
     this._url             = "";
     this._userAgent       = null;
 
+    // option
+    this._player = null;
+
     // set
     this.url = url;
 };
@@ -106,6 +109,14 @@ Object.defineProperties(URLRequest.prototype, {
             if (typeof userAgent === "string") {
                 this._userAgent = userAgent;
             }
+        }
+    },
+    player: {
+        get: function () {
+            return this._player;
+        },
+        set: function (player) {
+            this._player = player;
         }
     }
 });

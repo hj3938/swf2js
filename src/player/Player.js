@@ -37,6 +37,9 @@ var Player = function ()
     this.FlashVars     = {};
     this.quality       = "medium"; // low = 0.25, medium = 0.8, high = 1.0
     this.bgcolor       = null;
+
+    // packages
+    this.packages      = new Packages(this);
 };
 
 /**

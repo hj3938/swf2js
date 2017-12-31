@@ -222,7 +222,7 @@ EventDispatcher.prototype.removeEventListener = function (type, listener, useCap
         var i = 0;
         while (i < length) {
             if (listeners[i] !== listener) {
-                i = 0 | i + 1;
+                i = (i + 1)|0;
                 continue;
             }
 
@@ -248,5 +248,9 @@ EventDispatcher.prototype.willTrigger = function (type)
 EventDispatcher.prototype.setActionQueue = function (as, stage, args)
 {
     var actions = stage.actions;
-    actions[actions.length] = {as: as, mc: this, args: args};
+    actions[actions.length] = {
+        as:   as,
+        mc:   this,
+        args: args
+    };
 };

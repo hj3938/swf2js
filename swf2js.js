@@ -2499,7 +2499,7 @@ EventDispatcher.prototype.removeEventListener = function (type, listener, useCap
         var i = 0;
         while (i < length) {
             if (listeners[i] !== listener) {
-                i = 0 | i + 1;
+                i = (i + 1)|0;
                 continue;
             }
 
@@ -2525,7 +2525,11 @@ EventDispatcher.prototype.willTrigger = function (type)
 EventDispatcher.prototype.setActionQueue = function (as, stage, args)
 {
     var actions = stage.actions;
-    actions[actions.length] = {as: as, mc: this, args: args};
+    actions[actions.length] = {
+        as:   as,
+        mc:   this,
+        args: args
+    };
 };
 
 /**
@@ -20479,51 +20483,135 @@ var SharedObjectFlushStatus = function () {};
  */
 var Socket = function () {};
 /**
- * @param url
+ * @param {URLRequest} request
  * @constructor
  */
-var URLLoader = function (url)
+var URLLoader = function (request)
 {
-    this._url = "";
+    // init
+    this._bytesLoaded = 0;
+    this._bytesTotal  = 0;
+    this._data        = null;
+    this._dataFormat  = URLLoaderDataFormat.TEXT;
+
+    if (request instanceof URLRequest) {
+        this.load(request);
+    }
 };
 
 /**
  * extends
  */
-URLLoader.prototype = Object.create(OriginalObject.prototype);
+URLLoader.prototype = Object.create(EventDispatcher.prototype);
 URLLoader.prototype.constructor = URLLoader;
 
 /**
  * properties
  */
 Object.defineProperties(URLLoader.prototype, {
-    url: {
+    bytesLoaded: {
         get: function () {
-            return this._url;
+            return this._bytesLoaded;
         },
-        set: function (url) {
-            if (url) {
-                this._url = url;
+        set: function (bytesLoaded) {
+            if (typeof bytesLoaded === "number") {
+                this._bytesLoaded = bytesLoaded;
             }
         }
     },
-    pixelSnapping: {
+    bytesTotal: {
         get: function () {
-            return this._pixelSnapping;
+            return this._bytesTotal;
         },
-        set: function (pixelSnapping) {
-            this._pixelSnapping = pixelSnapping;
+        set: function (bytesTotal) {
+            if (typeof bytesTotal === "number") {
+                this._bytesTotal = bytesTotal;
+            }
         }
     },
-    smoothing: {
+    data: {
         get: function () {
-            return this._smoothing;
+            return this._data;
         },
-        set: function (smoothing) {
-            this._smoothing = smoothing;
+        set: function (data) {
+            this._data = data;
+        }
+    },
+    dataFormat: {
+        get: function () {
+            return this._dataFormat;
+        },
+        set: function (dataFormat) {
+            if (typeof dataFormat === "string") {
+                this._dataFormat = dataFormat;
+            }
         }
     }
 });
+
+/**
+ * @returns {string}
+ */
+URLLoader.prototype.toString = function ()
+{
+    return "[object URLLoader]";
+};
+
+/**
+ * @return void
+ */
+URLLoader.prototype.close = function ()
+{
+    // TODO
+};
+
+/**
+ * @param {URLRequest} request
+ */
+URLLoader.prototype.load = function (request)
+{
+    if (request instanceof URLRequest) {
+        var self = this;
+        this.$ajax({
+            "url":     request.url,
+            "method":  request.method,
+            "headers": request.requestHeaders,
+            "event": {
+                "loadstart": function (event)
+                {
+                    self.bytesTotal = event.total;
+                    self.dispatchEvent("open", request.player);
+                },
+                "progress": function (event)
+                {
+                    self.bytesLoaded = event.loaded;
+                    self.dispatchEvent("progress", request.player);
+                },
+                "loadend": function ()
+                {
+                    // data set
+                    switch (self.dataFormat) {
+                        case URLLoaderDataFormat.BINARY:
+                            self.data = (this.response) ? this.response : this.responseText;
+                            break;
+                        case URLLoaderDataFormat.TEXT:
+                            self.data = this.responseText;
+                            break;
+                        case URLLoaderDataFormat.VARIABLES:
+                            self.data = new URLVariables(this.responseText);
+                            break;
+                    }
+
+                    self.dispatchEvent("complete", request.player);
+                },
+                "error": function ()
+                {
+                    self.dispatchEvent("ioerror", request.player);
+                }
+            }
+        });
+    }
+};
 
 
 /**
@@ -20555,7 +20643,10 @@ var URLRequest = function (url)
     this._requestHeaders  = [];
     this._url             = "";
     this._userAgent       = null;
-    
+
+    // option
+    this._player = null;
+
     // set
     this.url = url;
 };
@@ -20648,6 +20739,14 @@ Object.defineProperties(URLRequest.prototype, {
             if (typeof userAgent === "string") {
                 this._userAgent = userAgent;
             }
+        }
+    },
+    player: {
+        get: function () {
+            return this._player;
+        },
+        set: function (player) {
+            this._player = player;
         }
     }
 });
@@ -26628,11 +26727,11 @@ var Activation = function () {};
 
 /**
  * @constructor
- * @param stage
+ * @param {Player} player
  */
-var Packages = function (stage)
+var Packages = function (player)
 {
-    this.stage = stage;
+    this.player = player;
 };
 
 /**
@@ -34763,6 +34862,9 @@ var Player = function ()
     this.FlashVars     = {};
     this.quality       = "medium"; // low = 0.25, medium = 0.8, high = 1.0
     this.bgcolor       = null;
+
+    // packages
+    this.packages      = new Packages(this);
 };
 
 /**
@@ -35357,7 +35459,7 @@ Player.prototype.checkHeader = function ()
  */
 var Swf2js = function ()
 {
-    this.packages = new Packages();
+    this.packages = new Packages(null);
 };
 
 /**
@@ -35421,6 +35523,7 @@ Swf2js.prototype.load = function (url, options)
                         case 200:
                         case 304:
                             var data = (this.response) ? this.response : this.responseText;
+                            console.log(data);
                             // player.SwfParse(data, url);
                             self.$cacheStore.reset();
                             break;

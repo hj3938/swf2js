@@ -1,10 +1,10 @@
 /**
  * @constructor
- * @param stage
+ * @param {Player} player
  */
-var Packages = function (stage)
+var Packages = function (player)
 {
-    this.stage = stage;
+    this.player = player;
 };
 
 /**

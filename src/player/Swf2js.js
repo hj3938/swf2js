@@ -3,7 +3,7 @@
  */
 var Swf2js = function ()
 {
-    this.packages = new Packages(null);
+    this.currentPlayerId = null;
 };
 
 /**
@@ -11,28 +11,6 @@ var Swf2js = function ()
  */
 Swf2js.prototype = Object.create(Util.prototype);
 Swf2js.prototype.constructor = Swf2js;
-
-
-/**
- * @param path
- * @returns {Packages}
- */
-Swf2js.prototype.getPackage = function (path)
-{
-    var packages = this.packages;
-
-    var names  = path.split(".");
-    var length = names.length;
-
-    var idx = 0;
-    while (idx < length) {
-        var name = names[idx];
-        packages = packages[name];
-        idx = (idx + 1)|0;
-    }
-
-    return packages;
-};
 
 /**
  * @param url
@@ -50,16 +28,20 @@ Swf2js.prototype.load = function (url, options)
 
         // stage setup
         var player = new Player();
-        self.$players[player.getId()] = player;
+        self.$players[player.id] = player;
 
         // start
         player.setOptions(options);
         player.initialize();
 
+        var request = new URLRequest(url);
+        var loader  = new URLLoader();
+        loader.dataFormat = URLLoaderDataFormat.BINARY;
+        loader.load(request);
+
         this.$ajax({
-            "url":    url,
-            "method": "GET",
-            "mode":   "binary",
+            "url":   url,
+            "mode":  "binary",
             "event": {
                 "loadend": function ()
                 {
@@ -67,7 +49,6 @@ Swf2js.prototype.load = function (url, options)
                         case 200:
                         case 304:
                             var data = (this.response) ? this.response : this.responseText;
-                            console.log(data);
                             // player.SwfParse(data, url);
                             self.$cacheStore.reset();
                             break;
@@ -97,7 +78,7 @@ Swf2js.prototype.load = function (url, options)
  * @param options
  * @returns {MovieClip}
  */
-Swf2js.prototype.createRootMovieClip = function(width, height, fps, options)
+Swf2js.prototype.createRootMovieClip = function (width, height, fps, options)
 {
     var stage = new Stage();
     width     = width  || 240;
@@ -126,4 +107,15 @@ Swf2js.prototype.createRootMovieClip = function(width, height, fps, options)
     }
 
     return stage.getParent();
+};
+
+/**
+ * @returns {Player|null}
+ */
+Swf2js.prototype.getCurrentPlayer = function ()
+{
+    if (this.currentPlayerId === null) {
+        return null;
+    }
+    return this.$players[this.currentPlayerId];
 };

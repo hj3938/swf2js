@@ -3,6 +3,8 @@
  */
 var Bitmap = function (bitmapData, pixelSnapping, smoothing)
 {
+    EventDispatcher.call(this);
+
     // init
     this._bitmapData    = bitmapData||null;
     this._pixelSnapping = pixelSnapping||"auto";

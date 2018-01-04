@@ -3,6 +3,7 @@
  */
 var EventDispatcher = function ()
 {
+    // init
     this.events = {};
     this.isLoad = false;
     this.active = false;

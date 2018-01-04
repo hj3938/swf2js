@@ -1,9 +1,10 @@
 /**
- * @param {URLRequest} request
  * @constructor
  */
 var URLLoader = function (request)
 {
+    EventDispatcher.call(this);
+
     // init
     this._bytesLoaded = 0;
     this._bytesTotal  = 0;
@@ -92,15 +93,17 @@ URLLoader.prototype.load = function (request)
             "url":     request.url,
             "method":  request.method,
             "headers": request.requestHeaders,
+            "mode":    self.dataFormat,
             "event": {
-                "loadstart": function (event)
+                "loadstart": function ()
                 {
-                    self.bytesTotal = event.total;
                     self.dispatchEvent("open", request.player);
                 },
                 "progress": function (event)
                 {
+                    self.bytesTotal  = event.total;
                     self.bytesLoaded = event.loaded;
+                    console.log(event)
                     self.dispatchEvent("progress", request.player);
                 },
                 "loadend": function ()

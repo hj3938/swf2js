@@ -19,6 +19,7 @@ var URLRequest = function (url)
 
     // set
     this.url = url;
+
 };
 
 /**

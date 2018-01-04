@@ -62,6 +62,7 @@ var playerId   = 0;
     Utility.prototype.$isAlphaBug = isAlphaBug;
 
     // shortcut
+    Utility.prototype.$window             = w;
     Utility.prototype.$document           = doc;
     Utility.prototype.$min                = m.min;
     Utility.prototype.$max                = m.max;

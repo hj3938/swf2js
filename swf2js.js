@@ -370,6 +370,7 @@ var playerId   = 0;
     Utility.prototype.$isAlphaBug = isAlphaBug;
 
     // shortcut
+    Utility.prototype.$window             = w;
     Utility.prototype.$document           = doc;
     Utility.prototype.$min                = m.min;
     Utility.prototype.$max                = m.max;
@@ -2280,6 +2281,7 @@ var Event = function () {};
  */
 var EventDispatcher = function ()
 {
+    // init
     this.events = {};
     this.isLoad = false;
     this.active = false;
@@ -10376,6 +10378,8 @@ ActionScriptVersion.prototype.constructor = ActionScriptVersion;
  */
 var Bitmap = function (bitmapData, pixelSnapping, smoothing)
 {
+    EventDispatcher.call(this);
+
     // init
     this._bitmapData    = bitmapData||null;
     this._pixelSnapping = pixelSnapping||"auto";
@@ -20483,11 +20487,12 @@ var SharedObjectFlushStatus = function () {};
  */
 var Socket = function () {};
 /**
- * @param {URLRequest} request
  * @constructor
  */
 var URLLoader = function (request)
 {
+    EventDispatcher.call(this);
+
     // init
     this._bytesLoaded = 0;
     this._bytesTotal  = 0;
@@ -20576,15 +20581,17 @@ URLLoader.prototype.load = function (request)
             "url":     request.url,
             "method":  request.method,
             "headers": request.requestHeaders,
+            "mode":    self.dataFormat,
             "event": {
-                "loadstart": function (event)
+                "loadstart": function ()
                 {
-                    self.bytesTotal = event.total;
                     self.dispatchEvent("open", request.player);
                 },
                 "progress": function (event)
                 {
+                    self.bytesTotal  = event.total;
                     self.bytesLoaded = event.loaded;
+                    console.log(event)
                     self.dispatchEvent("progress", request.player);
                 },
                 "loadend": function ()
@@ -20649,6 +20656,7 @@ var URLRequest = function (url)
 
     // set
     this.url = url;
+
 };
 
 /**
@@ -34828,16 +34836,16 @@ Util.prototype.$cacheStore = new CacheStore();
  */
 var Player = function ()
 {
-    // params
-    this.setId(playerId);
+    // init
+    this.id  = playerId;
     playerId = (playerId + 1)|0;
 
-    this._name = "swf2js_" + this.getId();
+    this.name = "swf2js_" + this.id;
 
     // base stage
     var stage = new Stage();
-    stage.setPlayer(this.getId());
-    this._stage = stage;
+    stage.setPlayer(this.id);
+    this.stage = stage;
 
     // params
     this.stages        = [];
@@ -34846,6 +34854,7 @@ var Player = function ()
     this.intervalId    = 0;
     this.stopFlag      = true;
     this.isLoad        = false;
+    this.actions       = [];
 
     // canvas
     this.context       = null;
@@ -34879,113 +34888,43 @@ Player.prototype.constructor = Player;
 Object.defineProperties(Player.prototype, {
     id: {
         get: function () {
-            return this.getId();
+            return this._id;
         },
         set: function (id) {
-            this.setId(id);
+            this._id = id;
         }
     },
     name: {
         get: function () {
-            return this.getName();
+            return this._name;
         },
         set: function (name) {
-            this.setName(name);
+            this._name = name;
         }
     },
     stage: {
         get: function () {
-            return this.getStage();
+            return this._stage;
         },
         set: function (stage) {
-            this.setStage(stage);
+            this._stage = stage;
         }
     },
     frameRate: {
         get: function () {
-            return this.getFrameRate();
+            return this._frameRate;
         },
         set: function (fps) {
-            this.setFrameRate(fps);
+            this._frameRate = (1000 / fps)|0;
         }
     },
     ratio: {
         get: function () {
-            return this.getRatio();
+            return this._ratio;
         },
-        set: function (ratio) {
-            this.setRatio();
-        }
+        set: function () {}
     }
 });
-
-/**
- * @returns {number}
- */
-Player.prototype.getId = function ()
-{
-    return this._id;
-};
-
-/**
- * @param {number} id
- * @returns void
- */
-Player.prototype.setId = function (id)
-{
-    this._id = id;
-};
-
-/**
- * @returns {string}
- */
-Player.prototype.getName = function ()
-{
-    return this._name;
-};
-
-/**
- * @param {string} name
- * @returns void
- */
-Player.prototype.setName = function (name)
-{
-    this._name = name;
-};
-
-/**
- * @returns {Stage}
- */
-Player.prototype.getStage = function ()
-{
-    return this._stage;
-};
-
-/**
- * @param {Stage} stage
- * @returns void
- */
-Player.prototype.setStage = function (stage)
-{
-    this._stage = stage;
-};
-
-/**
- * @returns {number}
- */
-Player.prototype.getFrameRate = function ()
-{
-    return this._frameRate;
-};
-
-/**
- * @param {number} fps
- * @returns void
- */
-Player.prototype.setFrameRate = function (fps)
-{
-    this._frameRate = (1000 / fps)|0;
-};
 
 /**
  * @returns {{
@@ -35028,14 +34967,6 @@ Player.prototype.setOptions = function (options)
     }
 
     this.setRatio();
-};
-
-/**
- * @returns {number}
- */
-Player.prototype.getRatio = function ()
-{
-    return this._ratio;
 };
 
 /**
@@ -35143,20 +35074,20 @@ Player.prototype.initialize = function ()
             return void(0);
         }
 
-        div = doc.getElementById(this.getName());
+        div = doc.getElementById(this.name);
         if (div) {
             this.deleteNode();
         } else {
             div    = doc.createElement("div");
-            div.id = this.getName();
+            div.id = this.name;
             container.appendChild(div);
         }
 
     } else {
-        doc.body.insertAdjacentHTML("beforeend", "<div id='" + this.getName() + "'></div>");
+        doc.body.insertAdjacentHTML("beforeend", "<div id='" + this.name + "'></div>");
     }
 
-    div = doc.getElementById(this.getName());
+    div = doc.getElementById(this.name);
     if (div) {
         this.initStyle(div);
         this.buildWait();
@@ -35209,8 +35140,8 @@ Player.prototype.initStyle = function (div)
  */
 Player.prototype.loading = function ()
 {
-    var div       = this.$document.getElementById(this.getName());
-    var loadingId = this.getName() + "_loading";
+    var div       = this.$document.getElementById(this.name);
+    var loadingId = this.name + "_loading";
 
     var css = "<style type='text/css' style='display: none !important;'>";
     css += "#" + loadingId + " {\n";
@@ -35268,8 +35199,8 @@ Player.prototype.loading = function ()
  */
 Player.prototype.buildWait = function ()
 {
-    var div       = this.$document.getElementById(this.getName());
-    var loadingId = this.getName() + "_loading";
+    var div       = this.$document.getElementById(this.name);
+    var loadingId = this.name + "_loading";
 
     var css = "<style>";
     css += "#" + loadingId + " {\n";
@@ -35309,7 +35240,7 @@ Player.prototype.buildWait = function ()
  */
 Player.prototype.deleteNode = function (tagId)
 {
-    var div = this.$document.getElementById(tagId ? tagId : this.getName());
+    var div = this.$document.getElementById(tagId ? tagId : this.name);
     if (div) {
         var childNodes = div.childNodes;
 
@@ -35397,7 +35328,7 @@ Player.prototype.parseSwf = function (data, url)
     var bitio = new BitIO();
     bitio.initialize(data);
 
-    var stage   = this.getStage();
+    var stage   = this.stage;
     var mc      = stage.getParent();
     mc._url     = (!mc._url) ? location.href : mc._url;
     var swftag  = new SwfTag(stage, bitio);
@@ -35455,25 +35386,10 @@ Player.prototype.checkHeader = function ()
 };
 
 /**
- * @constructor
- */
-var Swf2js = function ()
-{
-    this.packages = new Packages(null);
-};
-
-/**
- * extends
- */
-Swf2js.prototype = Object.create(Util.prototype);
-Swf2js.prototype.constructor = Swf2js;
-
-
-/**
  * @param path
  * @returns {Packages}
  */
-Swf2js.prototype.getPackage = function (path)
+Player.prototype.getPackage = function (path)
 {
     var packages = this.packages;
 
@@ -35487,8 +35403,24 @@ Swf2js.prototype.getPackage = function (path)
         idx = (idx + 1)|0;
     }
 
+    this.$window.swf2js.currentPlayerId = this.id;
+
     return packages;
 };
+
+/**
+ * @constructor
+ */
+var Swf2js = function ()
+{
+    this.currentPlayerId = null;
+};
+
+/**
+ * extends
+ */
+Swf2js.prototype = Object.create(Util.prototype);
+Swf2js.prototype.constructor = Swf2js;
 
 /**
  * @param url
@@ -35506,16 +35438,20 @@ Swf2js.prototype.load = function (url, options)
 
         // stage setup
         var player = new Player();
-        self.$players[player.getId()] = player;
+        self.$players[player.id] = player;
 
         // start
         player.setOptions(options);
         player.initialize();
 
+        var request = new URLRequest(url);
+        var loader  = new URLLoader();
+        loader.dataFormat = URLLoaderDataFormat.BINARY;
+        loader.load(request);
+
         this.$ajax({
-            "url":    url,
-            "method": "GET",
-            "mode":   "binary",
+            "url":   url,
+            "mode":  "binary",
             "event": {
                 "loadend": function ()
                 {
@@ -35523,7 +35459,6 @@ Swf2js.prototype.load = function (url, options)
                         case 200:
                         case 304:
                             var data = (this.response) ? this.response : this.responseText;
-                            console.log(data);
                             // player.SwfParse(data, url);
                             self.$cacheStore.reset();
                             break;
@@ -35553,7 +35488,7 @@ Swf2js.prototype.load = function (url, options)
  * @param options
  * @returns {MovieClip}
  */
-Swf2js.prototype.createRootMovieClip = function(width, height, fps, options)
+Swf2js.prototype.createRootMovieClip = function (width, height, fps, options)
 {
     var stage = new Stage();
     width     = width  || 240;
@@ -35582,6 +35517,17 @@ Swf2js.prototype.createRootMovieClip = function(width, height, fps, options)
     }
 
     return stage.getParent();
+};
+
+/**
+ * @returns {Player|null}
+ */
+Swf2js.prototype.getCurrentPlayer = function ()
+{
+    if (this.currentPlayerId === null) {
+        return null;
+    }
+    return this.$players[this.currentPlayerId];
 };
 
         window.swf2js = new Swf2js();

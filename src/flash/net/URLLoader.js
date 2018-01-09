@@ -103,7 +103,6 @@ URLLoader.prototype.load = function (request)
                 {
                     self.bytesTotal  = event.total;
                     self.bytesLoaded = event.loaded;
-                    console.log(event)
                     self.dispatchEvent("progress", request.player);
                 },
                 "loadend": function ()

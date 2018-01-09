@@ -3,25 +3,26 @@
  */
 var Player = function ()
 {
+    // origin
+    this.stageId    = 0;
+    this.instanceId = 0;
+
+
     // init
     this.id  = playerId;
     playerId = (playerId + 1)|0;
 
     this.name = "swf2js_" + this.id;
 
-    // base stage
-    var stage = new Stage();
-    stage.setPlayer(this.id);
-    this.stage = stage;
+    // data
+    this._stages       = [];
+    this.actions       = [];
 
     // params
-    this.stages        = [];
     this._ratio        = 0;
-    this._frameRate    = 0;
     this.intervalId    = 0;
     this.stopFlag      = true;
     this.isLoad        = false;
-    this.actions       = [];
 
     // canvas
     this.context       = null;
@@ -41,6 +42,15 @@ var Player = function ()
 
     // packages
     this.packages      = new Packages(this);
+
+    // global vars
+    this._global       = new Global();
+
+    // base stage
+    var stage = new Stage();
+    stage.setPlayer(this);
+
+    this._baseStageId = stage.id;
 };
 
 /**
@@ -69,29 +79,39 @@ Object.defineProperties(Player.prototype, {
             this._name = name;
         }
     },
-    stage: {
-        get: function () {
-            return this._stage;
-        },
-        set: function (stage) {
-            this._stage = stage;
-        }
-    },
-    frameRate: {
-        get: function () {
-            return this._frameRate;
-        },
-        set: function (fps) {
-            this._frameRate = (1000 / fps)|0;
-        }
-    },
     ratio: {
         get: function () {
             return this._ratio;
         },
         set: function () {}
+    },
+    baseStage: {
+        get: function () {
+            return this._stages[this._baseStageId];
+        },
+        set: function () {}
     }
 });
+
+/**
+ * @param stageId
+ * @returns {Stage|null}
+ */
+Player.prototype.getStage = function (stageId)
+{
+    if (stageId in this._stages) {
+        return this._stages[stageId];
+    }
+    return null;
+};
+
+/**
+ * @param stage
+ */
+Player.prototype.setStage = function (stage)
+{
+    this._stages[stage.id] = stage;
+};
 
 /**
  * @returns {{
@@ -172,7 +192,7 @@ Player.prototype.play = function ()
                     }
                 }, 0);
             };
-        })(this), this.getFrameRate()
+        })(this), (1000 / this.baseStage.frameRate)|0
     );
 };
 
@@ -495,11 +515,10 @@ Player.prototype.parseSwf = function (data, url)
     var bitio = new BitIO();
     bitio.initialize(data);
 
-    var stage   = this.stage;
+    var stage   = this.baseStage;
     var mc      = stage.getParent();
     mc._url     = (!mc._url) ? location.href : mc._url;
     var swftag  = new SwfTag(stage, bitio);
-
 
     if (this.checkHeader(bitio, swftag)) {
 

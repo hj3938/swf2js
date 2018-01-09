@@ -281,7 +281,7 @@ var playerId   = 0;
 
     /**
      * @param str
-     * @returns {string}
+     * @returns {int}
      */
     Utility.prototype.$colorStringToInt = function(str)
     {
@@ -294,7 +294,7 @@ var playerId   = 0;
         // destroy
         this.$cacheStore.destroy(ctx);
 
-        return color;
+        return color|0;
     };
 
     /**
@@ -509,15 +509,6 @@ var playerId   = 0;
      * resize event
      */
     w.addEventListener("resize", function () { Util.prototype.$resize(); });
-
-    /**
-     * unload event
-     */
-    w.addEventListener("unload", function ()
-    {
-        Util.prototype.$stages     = void 0;
-        Util.prototype.$loadStages = void 0;
-    });
 
     /**
      * @param {*} option

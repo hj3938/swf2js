@@ -3,19 +3,16 @@
  */
 var Player = function ()
 {
-    // origin
-    this.stageId    = 0;
-    this.instanceId = 0;
-
+    // Instance ID
+    this.$numInstanceId = 1;
 
     // init
-    this.id  = playerId;
-    playerId = (playerId + 1)|0;
+    this.id = this.$players.length;
+    this.$players[this.id] = this;
 
     this.name = "swf2js_" + this.id;
 
     // data
-    this._stages       = [];
     this.actions       = [];
 
     // params
@@ -37,7 +34,7 @@ var Player = function ()
     this.callback      = null;
     this.tagId         = null;
     this.FlashVars     = {};
-    this.quality       = "medium"; // low = 0.25, medium = 0.8, high = 1.0
+    this.quality       = this.$canWebGL ? StageQuality.HIGH : StageQuality.BEST;
     this.bgcolor       = null;
 
     // packages
@@ -48,9 +45,10 @@ var Player = function ()
 
     // base stage
     var stage = new Stage();
-    stage.setPlayer(this);
+    stage.initialSetting(this);
 
-    this._baseStageId = stage.id;
+    // base set
+    this._stageId = stage.id;
 };
 
 /**
@@ -85,9 +83,15 @@ Object.defineProperties(Player.prototype, {
         },
         set: function () {}
     },
-    baseStage: {
+    stage: {
         get: function () {
-            return this._stages[this._baseStageId];
+            return this.$stages[this._stageId];
+        },
+        set: function () {}
+    },
+    root: {
+        get: function () {
+            // return this.stage.getChildAt(0);
         },
         set: function () {}
     }
@@ -97,10 +101,10 @@ Object.defineProperties(Player.prototype, {
  * @param stageId
  * @returns {Stage|null}
  */
-Player.prototype.getStage = function (stageId)
+Player.prototype.getStageAt = function (stageId)
 {
-    if (stageId in this._stages) {
-        return this._stages[stageId];
+    if (stageId in this.$stages) {
+        return this.$stages[stageId];
     }
     return null;
 };
@@ -108,9 +112,9 @@ Player.prototype.getStage = function (stageId)
 /**
  * @param stage
  */
-Player.prototype.setStage = function (stage)
+Player.prototype.addStage = function (stage)
 {
-    this._stages[stage.id] = stage;
+    this.$stages[stage.id] = stage;
 };
 
 /**
@@ -163,13 +167,14 @@ Player.prototype.setRatio = function ()
 {
     // quality
     switch (this.quality) {
-        case "medium":
-            this._ratio = this.$devicePixelRatio * 0.8;
-            break;
-        case "high":
+        case StageQuality.BEST:
+        case StageQuality.HIGH:
             this._ratio = this.$devicePixelRatio;
             break;
-        case "low":
+        case StageQuality.MEDIUM:
+            this._ratio = this.$devicePixelRatio * 0.8;
+            break;
+        case StageQuality.LOW:
             this._ratio = this.$devicePixelRatio * 0.5;
             break;
     }
@@ -192,7 +197,7 @@ Player.prototype.play = function ()
                     }
                 }, 0);
             };
-        })(this), (1000 / this.baseStage.frameRate)|0
+        })(this), (1000 / this.stage.frameRate)|0
     );
 };
 
@@ -485,7 +490,7 @@ Player.prototype.initializeCanvas = function ()
 
     // main canvas
     self.context = canvas.getContext("2d");
-    self.context.imageSmoothingEnabled = false;
+    self.context.imageSmoothingEnabled = this.$canWebGL;
     self.canvas  = canvas;
 
     // pre canvas
@@ -493,7 +498,7 @@ Player.prototype.initializeCanvas = function ()
     preCanvas.width  = 1;
     preCanvas.height = 1;
     self.preContext  = preCanvas.getContext("2d");
-    self.preContext.imageSmoothingEnabled = false;
+    self.preContext.imageSmoothingEnabled = this.$canWebGL;
 
     // hit canvas
     var hitCanvas    = self.$cacheStore.getCanvas();
@@ -501,74 +506,6 @@ Player.prototype.initializeCanvas = function ()
     hitCanvas.height = 1;
     self.hitContext  = hitCanvas.getContext("2d");
     self.hitContext.imageSmoothingEnabled = false;
-};
-
-/**
- * @param {array} data
- * @param {string} url
- * @returns void
- */
-Player.prototype.parseSwf = function (data, url)
-{
-    this.isLoad = false;
-
-    var bitio = new BitIO();
-    bitio.initialize(data);
-
-    var stage   = this.baseStage;
-    var mc      = stage.getParent();
-    mc._url     = (!mc._url) ? location.href : mc._url;
-    var swftag  = new SwfTag(stage, bitio);
-
-    if (this.checkHeader(bitio, swftag)) {
-
-        // parse
-        var tags = swftag.parse(mc);
-
-        // mc reset
-        mc.container    = [];
-        mc.instances    = [];
-        var frame       = 1;
-        var totalFrames = mc.getTotalFrames() + 1;
-        while (frame < totalFrames) {
-            mc.container[frame] = [];
-            frame = (frame + 1)|0;
-        }
-
-        // build
-        swftag.build(tags, mc);
-
-        var query = url.split("?")[1];
-        if (query) {
-            var values = query.split("&");
-            var length = values.length;
-            while (length) {
-                length    = 0 | length - 1;
-                var value = values[length];
-                var pair  = value.split("=");
-                if (pair.length > 1) {
-                    mc.setVariable(pair[0], pair[1]);
-                }
-            }
-        }
-
-        // FlashVars
-        var vars = this.FlashVars;
-        for (var key in vars) {
-            if (!vars.hasOwnProperty(key)) {
-                continue;
-            }
-            mc.setVariable(key, vars[key]);
-        }
-    }
-
-    this.isLoad = true;
-};
-
-
-Player.prototype.checkHeader = function ()
-{
-
 };
 
 /**

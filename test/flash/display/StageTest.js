@@ -1,4 +1,36 @@
 
+
+describe("Stage.js toString test", function()
+{
+    // toString
+    it("toString test success", function()
+    {
+        var stage = new Stage();
+        expect(stage.toString()).toBe("[object Stage]");
+    });
+
+});
+
+
+describe("Stage.js getClassName test", function()
+{
+    it("getClassName test success", function()
+    {
+        var stage = new Stage();
+        expect(stage.getClassName()).toBe("Stage");
+    });
+});
+
+describe("Stage.js initialSetting test", function()
+{
+    it("initialSetting test success", function()
+    {
+        var stage = new Stage();
+        stage.initialSetting(new Player());
+        expect(stage.player instanceof Player).toBe(true);
+    });
+});
+
 describe("Stage.js property test", function()
 {
 
@@ -339,6 +371,115 @@ describe("Stage.js property test", function()
         stage.quality = "Low";
         expect(stage.quality).toBe(StageQuality.LOW);
     });
+
+
+    // scaleMode
+    it("scaleMode test success", function()
+    {
+        var stage = new Stage();
+        stage.scaleMode = StageScaleMode.EXACT_FIT;
+        expect(stage.scaleMode).toBe(StageScaleMode.EXACT_FIT);
+    });
+
+    it("scaleMode test valid case1", function()
+    {
+        var stage = new Stage();
+        stage.scaleMode = 123;
+        expect(stage.scaleMode).toBe(StageScaleMode.SHOW_ALL);
+    });
+
+    it("scaleMode test valid case2", function()
+    {
+        var stage = new Stage();
+        stage.scaleMode = "abc";
+        expect(stage.scaleMode).toBe(StageScaleMode.SHOW_ALL);
+    });
+
+    it("scaleMode test valid case3", function()
+    {
+        var stage = new Stage();
+        stage.scaleMode = "noscale";
+        expect(stage.scaleMode).toBe(StageScaleMode.SHOW_ALL);
+    });
+
+
+    // showDefaultContextMenu
+    it("showDefaultContextMenu test success", function()
+    {
+        var stage = new Stage();
+        expect(stage.showDefaultContextMenu).toBe(true);
+        stage.showDefaultContextMenu = false;
+        expect(stage.showDefaultContextMenu).toBe(false);
+    });
+
+    it("showDefaultContextMenu test valid case1", function()
+    {
+        var stage = new Stage();
+        stage.showDefaultContextMenu = 120;
+        expect(stage.showDefaultContextMenu).toBe(true);
+    });
+
+    it("showDefaultContextMenu test valid case2", function()
+    {
+        var stage = new Stage();
+        stage.showDefaultContextMenu = "abc";
+        expect(stage.showDefaultContextMenu).toBe(true);
+    });
+
+
+    // softKeyboardRect
+    it("softKeyboardRect test success", function()
+    {
+        var stage = new Stage();
+        expect(stage.softKeyboardRect instanceof Rectangle).toBe(true);
+    });
+
+    it("softKeyboardRect test valid case1", function()
+    {
+        var stage = new Stage();
+        stage.softKeyboardRect = "abc";
+        expect(stage.softKeyboardRect instanceof Rectangle).toBe(true);
+    });
+
+
+    // stage3Ds
+    it("stage3Ds test success", function()
+    {
+        var stage = new Stage();
+        expect(stage.stage3Ds instanceof Stage3D).toBe(true);
+    });
+
+    it("stage3Ds test valid case1", function()
+    {
+        var stage = new Stage();
+        stage.stage3Ds = "abc";
+        expect(stage.stage3Ds instanceof Stage3D).toBe(true);
+    });
+
+
+    // stageFocusRect
+    it("stageFocusRect test success", function()
+    {
+        var stage = new Stage();
+        stage.stageFocusRect = false;
+        expect(stage.stageFocusRect).toBe(false);
+    });
+
+    it("stageFocusRect test valid case1", function()
+    {
+        var stage = new Stage();
+        stage.stageFocusRect = 0;
+        expect(stage.stageFocusRect).toBe(true);
+    });
+
+    it("stageFocusRect test valid case2", function()
+    {
+        var stage = new Stage();
+        stage.stageFocusRect = "abc";
+        expect(stage.stageFocusRect).toBe(true);
+    });
+
+
 
 
 });

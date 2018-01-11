@@ -33,6 +33,14 @@ MovieClip.prototype.constructor = MovieClip;
 /**
  * @returns {string}
  */
+MovieClip.prototype.toString = function ()
+{
+    return "[object MovieClip]";
+};
+
+/**
+ * @returns {string}
+ */
 MovieClip.prototype.getClassName = function ()
 {
     return "MovieClip";

@@ -1,7 +1,4 @@
 var Util;
-var stageId    = 0;
-var instanceId = 0;
-var playerId   = 0;
 
 (function (w) {
     "use strict";

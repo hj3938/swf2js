@@ -28,16 +28,10 @@ Swf2js.prototype.load = function (url, options)
 
         // stage setup
         var player = new Player();
-        self.$players[player.id] = player;
 
         // start
         player.setOptions(options);
         player.initialize();
-
-        var request = new URLRequest(url);
-        var loader  = new URLLoader();
-        loader.dataFormat = URLLoaderDataFormat.BINARY;
-        loader.load(request);
 
         this.$ajax({
             "url":   url,
@@ -49,7 +43,7 @@ Swf2js.prototype.load = function (url, options)
                         case 200:
                         case 304:
                             var data = (this.response) ? this.response : this.responseText;
-                            // player.SwfParse(data, url);
+                            player.stage.parseAndBuild(data);
                             self.$cacheStore.reset();
                             break;
                         default :
@@ -97,13 +91,13 @@ Swf2js.prototype.createRootMovieClip = function (width, height, fps, options)
     stage.isLoad = true;
 
     if (this.$document.readyState === "loading") {
-        var reLoad = function()
+        var reTry = function()
         {
-            window.removeEventListener("DOMContentLoaded", reLoad, false);
+            window.removeEventListener("DOMContentLoaded", reTry, false);
             stage.resize();
             stage.loaded();
         };
-        window.addEventListener("DOMContentLoaded", reLoad, false);
+        window.addEventListener("DOMContentLoaded", reTry, false);
     }
 
     return stage.getParent();
@@ -117,5 +111,10 @@ Swf2js.prototype.getCurrentPlayer = function ()
     if (this.currentPlayerId === null) {
         return null;
     }
+
+    if (!(this.currentPlayerId in this.$players)) {
+        return null;
+    }
+
     return this.$players[this.currentPlayerId];
 };

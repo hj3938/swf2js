@@ -10,11 +10,11 @@ var TextField = function (name, depth, width, height)
     InteractiveObject.call(this);
 
     if (name) {
-        this.setName(name);
+        // this.setName(name);
     }
 
     if (depth) {
-        this.setLevel(depth);
+        // this.setLevel(depth);
     }
 
     if (width === undefined) {

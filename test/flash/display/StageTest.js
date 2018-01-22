@@ -247,7 +247,7 @@ describe("Stage.js property test", function()
     {
         var stage = new Stage();
         stage.frameRate = "a";
-        expect(stage.frameRate).toBe(1000);
+        expect(stage.frameRate).toBe(60);
     });
 
 

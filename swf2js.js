@@ -6652,6 +6652,13 @@ var DisplayObject = function ()
     // origin param
     this._id      = null;
     this._stageId = null;
+    this._index   = null;
+    this._active  = false;
+
+    // property int
+    this._name = "";
+
+
 };
 
 /**
@@ -6675,11 +6682,44 @@ Object.defineProperties(DisplayObject.prototype, {
         }
     },
     stage: {
+        /**
+         * @returns {Stage}
+         */
         get: function () {
             return this.$stages[this._stageId];
         },
         set: function () {}
+    },
+    index: {
+        get: function () {
+            return this._index;
+        },
+        set: function (index) {
+            if (typeof index === "number") {
+                this._index = index;
+            }
+        }
+    },
+    active: {
+        get: function () {
+            return this._active;
+        },
+        set: function (active) {
+            if (typeof active === "boolean") {
+                this._active = active;
+            }
+        }
+    },
+    name: {
+        get: function () {
+            return this._name + "";
+        },
+        set: function (name) {
+            this._name = name + "";
+        }
     }
+
+
 });
 
 
@@ -6713,7 +6753,10 @@ var DisplayObjectContainer = function ()
     this._textSnapshot  = new TextSnapshot();
 
     // origin param
-    this._children      = [[]];
+    this._children      = [];
+    this._ratio         = 0;
+
+
 };
 
 /**
@@ -6758,6 +6801,16 @@ Object.defineProperties(DisplayObjectContainer.prototype, {
             return this._textSnapshot;
         },
         set: function () {}
+    },
+    ratio: {
+        get: function () {
+            return this._ratio;
+        },
+        set: function (ratio) {
+            if (typeof ratio === "number") {
+                this._ratio = ratio;
+            }
+        }
     }
 });
 
@@ -6792,7 +6845,10 @@ DisplayObjectContainer.prototype.$addChild = function (child, index)
     }
 
     // init
-    index    = index || this.numChildren;
+    index = index || this.numChildren;
+    if (index > this.numChildren) {
+        throw new Error("index is out of range.");
+    }
 
     // id
     child.id = this.player.$numInstanceId;
@@ -6804,16 +6860,11 @@ DisplayObjectContainer.prototype.$addChild = function (child, index)
     stage.setInstance(child);
 
     // set child data
-    if (child instanceof MovieClip) {
-        var frame = 1;
-        var total = child.totalFrames + 1;
-        while (total > frame) {
-            this._children[frame][index] = child.id;
-            frame = (frame + 1)|0;
-        }
-    } else {
-        this._children[0][index] = child.id;
+    var children = this._children;
+    if (index in children) {
+        this.$addChild(this.stage.getInstance(children[index]), index + 1);
     }
+    this._children[index] = child.id;
 
     // count up
     this._numChildren = (index + 1)|0;
@@ -6824,6 +6875,83 @@ DisplayObjectContainer.prototype.$addChild = function (child, index)
 
     return child;
 };
+
+/**
+ * @param {Point} point
+ * @returns {boolean}
+ */
+DisplayObjectContainer.prototype.areInaccessibleObjectsUnderPoint = function (point)
+{
+    // TODO
+    return true;
+};
+
+/**
+ * @param {DisplayObject} child
+ * @returns {boolean}
+ */
+DisplayObjectContainer.prototype.contains = function (child)
+{
+    if (!(child instanceof DisplayObject)) {
+        throw new Error("this child is not DisplayObject.");
+    }
+
+    var idx = 0;
+    while (this.numChildren > idx) {
+        if (idx in this._children) {
+            var id = this._children[idx];
+            if (id === child.id) {
+                return true;
+            }
+        }
+        idx = (idx + 1)|0;
+    }
+
+    return false;
+};
+
+/**
+ * @param {number} index
+ * @returns {DisplayObject}
+ */
+DisplayObjectContainer.prototype.getChildAt = function (index)
+{
+    if (index > this.numChildren) {
+        throw new Error("index is out of range.");
+    }
+
+    if (!(index in this._children)) {
+        throw new Error("data not found.");
+    }
+
+    return this.stage.getInstance(this._children[index]);
+};
+
+/**
+ *
+ * @param {string} name
+ * @returns {{DisplayObject}|null}
+ */
+DisplayObjectContainer.prototype.getChildByName = function (name)
+{
+    // to string
+    name = name + "";
+
+    var stage = this.stage;
+    var idx   = 0;
+    while (this.numChildren > idx) {
+        if (idx in this._children) {
+            var instance = stage.getInstance(this._children[idx]);
+            if (instance && instance.name === name) {
+                return instance;
+            }
+        }
+        idx = (idx + 1)|0;
+    }
+
+    return null;
+};
+
 
 
 
@@ -12560,7 +12688,7 @@ var Stage = function ()
 
     // create root
     this._mainTimelineId = new MainTimeline();
-    // this.addChild(this._root, 0);
+    // this.$addChild(this._root, 0);
 
     // property init
     this._align                       = "";
@@ -12572,7 +12700,7 @@ var Stage = function ()
     this._colorCorrectionSupport      = ColorCorrectionSupport.DEFAULT_OFF;
     this._displayState                = null;
     this._focus                       = null;
-    this._frameRate                   = 1000;
+    this._frameRate                   = 60;
     this._fullScreenHeight            = 0;
     this._fullScreenSourceRect        = null;
     this._fullScreenWidth             = 0;
@@ -12918,6 +13046,8 @@ Stage.prototype.setInstance = function (instance)
 {
     this._instances[instance.id] = instance;
 };
+
+
 
 Stage.prototype.parseAndBuild = function (data)
 {

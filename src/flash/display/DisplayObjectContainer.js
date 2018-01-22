@@ -12,7 +12,10 @@ var DisplayObjectContainer = function ()
     this._textSnapshot  = new TextSnapshot();
 
     // origin param
-    this._children      = [[]];
+    this._children      = [];
+    this._ratio         = 0;
+
+
 };
 
 /**
@@ -57,6 +60,16 @@ Object.defineProperties(DisplayObjectContainer.prototype, {
             return this._textSnapshot;
         },
         set: function () {}
+    },
+    ratio: {
+        get: function () {
+            return this._ratio;
+        },
+        set: function (ratio) {
+            if (typeof ratio === "number") {
+                this._ratio = ratio;
+            }
+        }
     }
 });
 
@@ -91,7 +104,10 @@ DisplayObjectContainer.prototype.$addChild = function (child, index)
     }
 
     // init
-    index    = index || this.numChildren;
+    index = index || this.numChildren;
+    if (index > this.numChildren) {
+        throw new Error("index is out of range.");
+    }
 
     // id
     child.id = this.player.$numInstanceId;
@@ -103,16 +119,11 @@ DisplayObjectContainer.prototype.$addChild = function (child, index)
     stage.setInstance(child);
 
     // set child data
-    if (child instanceof MovieClip) {
-        var frame = 1;
-        var total = child.totalFrames + 1;
-        while (total > frame) {
-            this._children[frame][index] = child.id;
-            frame = (frame + 1)|0;
-        }
-    } else {
-        this._children[0][index] = child.id;
+    var children = this._children;
+    if (index in children) {
+        this.$addChild(this.stage.getInstance(children[index]), index + 1);
     }
+    this._children[index] = child.id;
 
     // count up
     this._numChildren = (index + 1)|0;
@@ -123,5 +134,82 @@ DisplayObjectContainer.prototype.$addChild = function (child, index)
 
     return child;
 };
+
+/**
+ * @param {Point} point
+ * @returns {boolean}
+ */
+DisplayObjectContainer.prototype.areInaccessibleObjectsUnderPoint = function (point)
+{
+    // TODO
+    return true;
+};
+
+/**
+ * @param {DisplayObject} child
+ * @returns {boolean}
+ */
+DisplayObjectContainer.prototype.contains = function (child)
+{
+    if (!(child instanceof DisplayObject)) {
+        throw new Error("this child is not DisplayObject.");
+    }
+
+    var idx = 0;
+    while (this.numChildren > idx) {
+        if (idx in this._children) {
+            var id = this._children[idx];
+            if (id === child.id) {
+                return true;
+            }
+        }
+        idx = (idx + 1)|0;
+    }
+
+    return false;
+};
+
+/**
+ * @param {number} index
+ * @returns {DisplayObject}
+ */
+DisplayObjectContainer.prototype.getChildAt = function (index)
+{
+    if (index > this.numChildren) {
+        throw new Error("index is out of range.");
+    }
+
+    if (!(index in this._children)) {
+        throw new Error("data not found.");
+    }
+
+    return this.stage.getInstance(this._children[index]);
+};
+
+/**
+ *
+ * @param {string} name
+ * @returns {{DisplayObject}|null}
+ */
+DisplayObjectContainer.prototype.getChildByName = function (name)
+{
+    // to string
+    name = name + "";
+
+    var stage = this.stage;
+    var idx   = 0;
+    while (this.numChildren > idx) {
+        if (idx in this._children) {
+            var instance = stage.getInstance(this._children[idx]);
+            if (instance && instance.name === name) {
+                return instance;
+            }
+        }
+        idx = (idx + 1)|0;
+    }
+
+    return null;
+};
+
 
 

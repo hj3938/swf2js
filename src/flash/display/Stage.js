@@ -13,7 +13,7 @@ var Stage = function ()
 
     // create root
     this._mainTimelineId = new MainTimeline();
-    // this.addChild(this._root, 0);
+    // this.$addChild(this._root, 0);
 
     // property init
     this._align                       = "";
@@ -25,7 +25,7 @@ var Stage = function ()
     this._colorCorrectionSupport      = ColorCorrectionSupport.DEFAULT_OFF;
     this._displayState                = null;
     this._focus                       = null;
-    this._frameRate                   = 1000;
+    this._frameRate                   = 60;
     this._fullScreenHeight            = 0;
     this._fullScreenSourceRect        = null;
     this._fullScreenWidth             = 0;
@@ -371,6 +371,8 @@ Stage.prototype.setInstance = function (instance)
 {
     this._instances[instance.id] = instance;
 };
+
+
 
 Stage.prototype.parseAndBuild = function (data)
 {

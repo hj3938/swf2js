@@ -235,19 +235,19 @@ describe("DisplayObjectContainer.js getChildIndex test", function()
         expect(index).toBe(1);
     });
 
-    // it("getChildIndex success case2", function()
-    // {
-    //     var player = new Player();
-    //     var child  = new DisplayObject();
-    //     child.name = 1;
-    //
-    //     player.stage.addChild(child);
-    //     player.stage.addChild(new DisplayObject());
-    //
-    //     var instance1 = player.stage.getChildByName(1);
-    //     var instance2 = player.stage.getChildByName(2);
-    //
-    //     expect(instance1.name).toBe("1");
-    //     expect(instance2).toBe(null);
-    // });
+    it("getChildIndex success case2", function()
+    {
+        var player = new Player();
+        var child  = new DisplayObject();
+        child.name = 1;
+
+        player.stage.addChild(child);
+        player.stage.addChild(new DisplayObject());
+
+        var instance1 = player.stage.getChildByName(1);
+        var instance2 = player.stage.getChildByName(2);
+
+        expect(instance1.name).toBe("1");
+        expect(instance2).toBe(null);
+    });
 });

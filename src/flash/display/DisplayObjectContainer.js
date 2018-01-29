@@ -244,7 +244,13 @@ DisplayObjectContainer.prototype.getChildIndex = function (child)
     throw new Error("data not found.");
 };
 
-
-
+/**
+ * @param {Point} point
+ * @returns {Array}
+ */
+DisplayObjectContainer.prototype.getObjectsUnderPoint = function (point)
+{
+    return [];
+};
 
 

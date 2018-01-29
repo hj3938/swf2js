@@ -3,9 +3,6 @@
  */
 var Player = function ()
 {
-    // Instance ID
-    this.$numInstanceId = 1;
-
     // init
     this.id = this.$players.length;
     this.$players[this.id] = this;
@@ -530,3 +527,4 @@ Player.prototype.getPackage = function (path)
 
     return packages;
 };
+

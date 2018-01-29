@@ -79,7 +79,11 @@ Object.defineProperties(DisplayObjectContainer.prototype, {
  */
 DisplayObjectContainer.prototype.addChild = function (child)
 {
-    return this.$addChild(child);
+    child = this.$addChild(child);
+
+    this._numChildren = (this._numChildren + 1)|0;
+
+    return child;
 };
 
 /**
@@ -89,12 +93,20 @@ DisplayObjectContainer.prototype.addChild = function (child)
  */
 DisplayObjectContainer.prototype.addChildAt = function (child, index)
 {
-    return this.$addChild(child, index);
+    if (index > this.numChildren) {
+        throw new Error("index is out of range.");
+    }
+
+    child = this.$addChild(child, index);
+
+    this._numChildren = (this._numChildren + 1)|0;
+
+    return child;
 };
 
 /**
- * @param   {DisplayObject} child
- * @param   {number}        index
+ * @param   {DisplayObject}     child
+ * @param   {number}            index
  * @returns {DisplayObject}
  */
 DisplayObjectContainer.prototype.$addChild = function (child, index)
@@ -105,18 +117,18 @@ DisplayObjectContainer.prototype.$addChild = function (child, index)
 
     // init
     index = index || this.numChildren;
-    if (index > this.numChildren) {
-        throw new Error("index is out of range.");
-    }
-
-    // id
-    child.id = this.player.$numInstanceId;
-    this.player.$numInstanceId = (this.player.$numInstanceId + 1)|0;
 
     // set stage
     var stage = this.stage;
+    if (child.id === null) {
+        child.id = stage.$numInstanceId;
+        stage.$numInstanceId = (stage.$numInstanceId + 1)|0;
+    }
     child._stageId = stage.id;
     stage.setInstance(child);
+
+    // set parent
+    child.parent = this;
 
     // set child data
     var children = this._children;
@@ -124,9 +136,6 @@ DisplayObjectContainer.prototype.$addChild = function (child, index)
         this.$addChild(this.stage.getInstance(children[index]), index + 1);
     }
     this._children[index] = child.id;
-
-    // count up
-    this._numChildren = (index + 1)|0;
 
     // event
     child.dispatchEvent(Event.ADDED, this.stage);
@@ -210,6 +219,32 @@ DisplayObjectContainer.prototype.getChildByName = function (name)
 
     return null;
 };
+
+/**
+ * @param {DisplayObject} child
+ * @returns {number}
+ */
+DisplayObjectContainer.prototype.getChildIndex = function (child)
+{
+    if (!(child instanceof DisplayObject)) {
+        throw new Error("this child is not DisplayObject.");
+    }
+
+    var idx   = 0;
+    while (this.numChildren > idx) {
+        if (idx in this._children) {
+            var id = this._children[idx];
+            if (id === child.id) {
+                return idx;
+            }
+        }
+        idx = (idx + 1)|0;
+    }
+
+    throw new Error("data not found.");
+};
+
+
 
 
 

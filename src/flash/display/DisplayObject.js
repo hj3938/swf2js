@@ -6,13 +6,14 @@ var DisplayObject = function ()
     EventDispatcher.call(this);
 
     // origin param
-    this._id      = null;
-    this._stageId = null;
-    this._index   = null;
-    this._active  = false;
+    this._id          = null;
+    this._stageId     = null;
+    this._$parentId   = null;
+    this._$parentType = 0; // 0 = instance, 1 = stage
 
     // property int
-    this._name = "";
+    this._$name       = "";
+
 
 
 };
@@ -46,38 +47,35 @@ Object.defineProperties(DisplayObject.prototype, {
         },
         set: function () {}
     },
-    index: {
+    parent: {
         get: function () {
-            return this._index;
+            return (!this._$parentType) ? this.stage.getInstance(this._$parentId) : this.$stages[this._$parentId];
         },
-        set: function (index) {
-            if (typeof index === "number") {
-                this._index = index;
+        set: function (parent) {
+            if (parent instanceof DisplayObject) {
+                this._$parentType = 0;
+                if (parent instanceof Stage) {
+                    this._$parentType = 1;
+                }
+                this._$parentId = parent.id;
             }
         }
     },
-    active: {
+    root: {
         get: function () {
-            return this._active;
+            return this.stage._mainTimeline;
         },
-        set: function (active) {
-            if (typeof active === "boolean") {
-                this._active = active;
-            }
-        }
+        set: function () {}
+
     },
     name: {
         get: function () {
-            return this._name + "";
+            return this._$name + "";
         },
         set: function (name) {
-            this._name = name + "";
+            this._$name = name + "";
         }
     }
-
-
 });
-
-
 
 

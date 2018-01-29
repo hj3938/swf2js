@@ -5,15 +5,14 @@ var Stage = function ()
 {
     DisplayObjectContainer.call(this);
 
-    // origin param
-    this._id           = null;
-    this._playerId     = null;
-    this._instances    = [];
-    this._placeObjects = [];
+    // Instance ID
+    this.$numInstanceId = 0;
 
-    // create root
-    this._mainTimelineId = new MainTimeline();
-    // this.$addChild(this._root, 0);
+    // origin param
+    this._id            = null;
+    this._playerId      = null;
+    this._instances     = [];
+    this._placeObjects  = [];
 
     // property init
     this._align                       = "";
@@ -352,6 +351,10 @@ Stage.prototype.initialSetting = function (player)
     // add stage
     this._id = this.$stages.length;
     player.addStage(this);
+
+    // create root
+    this._mainTimeline = new MainTimeline();
+    this.addChildAt(this._mainTimeline, 0);
 };
 
 /**

@@ -98,13 +98,12 @@ describe("DisplayObjectContainer.js addChild test", function()
         var a = player.stage.addChild(new DisplayObject());
         var b = player.stage.addChild(new Loader());
 
-        expect(player.stage.numChildren).toBe(2);
+        expect(player.stage.numChildren).toBe(3);
         expect(a.id).toBe(1);
         expect(b.id).toBe(2);
     });
 
 });
-
 
 describe("DisplayObjectContainer.js addChildAt test", function()
 {
@@ -112,8 +111,7 @@ describe("DisplayObjectContainer.js addChildAt test", function()
     {
         try {
             var player = new Player();
-            player.stage.addChildAt(new DisplayObject(), 0);
-            player.stage.addChildAt(new DisplayObject(), 0);
+            player.stage.addChildAt(new DisplayObject(), 10);
         } catch (e) {
             expect(e.message).toBe("index is out of range.");
         }
@@ -124,8 +122,9 @@ describe("DisplayObjectContainer.js addChildAt test", function()
         var player = new Player();
         var a = player.stage.addChildAt(new DisplayObject(), 0);
         var b = player.stage.addChildAt(new Loader(), 1);
+        console.log(player.stage._children);
 
-        expect(player.stage.numChildren).toBe(2);
+        expect(player.stage.numChildren).toBe(3);
         expect(a.id).toBe(1);
         expect(b.id).toBe(2);
     });
@@ -168,7 +167,7 @@ describe("DisplayObjectContainer.js getChildAt test", function()
     {
         var player = new Player();
         var a      = player.stage.addChild(new DisplayObject());
-        var child  = player.stage.getChildAt(0);
+        var child  = player.stage.getChildAt(1);
         expect(child.id === a.id).toBe(true);
     });
 
@@ -187,7 +186,7 @@ describe("DisplayObjectContainer.js getChildAt test", function()
 
 describe("DisplayObjectContainer.js getChildByName test", function()
 {
-    it("getChildByName success case", function()
+    it("getChildByName success case1", function()
     {
         var player = new Player();
         var child  = new DisplayObject();
@@ -203,7 +202,7 @@ describe("DisplayObjectContainer.js getChildByName test", function()
         expect(instance2).toBe(null);
     });
 
-    it("getChildByName error case", function()
+    it("getChildByName success case2", function()
     {
         var player = new Player();
         var child  = new DisplayObject();
@@ -218,4 +217,37 @@ describe("DisplayObjectContainer.js getChildByName test", function()
         expect(instance1.name).toBe("1");
         expect(instance2).toBe(null);
     });
+});
+
+
+
+describe("DisplayObjectContainer.js getChildIndex test", function()
+{
+    it("getChildIndex success", function()
+    {
+        var player = new Player();
+        var child  = player.stage.addChild(new DisplayObject());
+
+        player.stage.addChild(new DisplayObject());
+
+        var index = player.stage.getChildIndex(child);
+
+        expect(index).toBe(1);
+    });
+
+    // it("getChildIndex success case2", function()
+    // {
+    //     var player = new Player();
+    //     var child  = new DisplayObject();
+    //     child.name = 1;
+    //
+    //     player.stage.addChild(child);
+    //     player.stage.addChild(new DisplayObject());
+    //
+    //     var instance1 = player.stage.getChildByName(1);
+    //     var instance2 = player.stage.getChildByName(2);
+    //
+    //     expect(instance1.name).toBe("1");
+    //     expect(instance2).toBe(null);
+    // });
 });

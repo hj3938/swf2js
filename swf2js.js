@@ -6654,6 +6654,7 @@ var DisplayObject = function ()
     this._stageId     = null;
     this._$parentId   = null;
     this._$parentType = 0; // 0 = instance, 1 = stage
+    this._$index      = 0;
 
     // property int
     this._$name       = "";
@@ -6681,6 +6682,12 @@ Object.defineProperties(DisplayObject.prototype, {
                 this._id = id;
             }
         }
+    },
+    index: {
+        get: function () {
+            return this._$index;
+        },
+        set: function () {}
     },
     stage: {
         /**
@@ -6866,8 +6873,9 @@ DisplayObjectContainer.prototype.$addChild = function (child, index)
     child._stageId = stage.id;
     stage.setInstance(child);
 
-    // set parent
-    child.parent = this;
+    // set param
+    child.parent  = this;
+    child._$index = index;
 
     // set child data
     var children = this._children;
@@ -6928,7 +6936,7 @@ DisplayObjectContainer.prototype.getChildAt = function (index)
     }
 
     if (!(index in this._children)) {
-        throw new Error("data not found.");
+        throw new Error("child not found.");
     }
 
     return this.stage.getInstance(this._children[index]);
@@ -6969,18 +6977,7 @@ DisplayObjectContainer.prototype.getChildIndex = function (child)
         throw new Error("this child is not DisplayObject.");
     }
 
-    var idx   = 0;
-    while (this.numChildren > idx) {
-        if (idx in this._children) {
-            var id = this._children[idx];
-            if (id === child.id) {
-                return idx;
-            }
-        }
-        idx = (idx + 1)|0;
-    }
-
-    throw new Error("data not found.");
+    return child.index;
 };
 
 /**
@@ -6989,9 +6986,45 @@ DisplayObjectContainer.prototype.getChildIndex = function (child)
  */
 DisplayObjectContainer.prototype.getObjectsUnderPoint = function (point)
 {
+    // todo
     return [];
 };
 
+/**
+ * @param {DisplayObject} child
+ * @returns {DisplayObject}
+ */
+DisplayObjectContainer.prototype.removeChild = function (child)
+{
+    if (!(child instanceof DisplayObject)) {
+        throw new Error("this child is not DisplayObject.");
+    }
+
+    if (!(child.index in this._children) || child.id !== this._children[child.index]) {
+        throw new Error("child not found.");
+    }
+
+    // remove
+    this._children.splice(child.index, 1);
+    this._numChildren = (this._numChildren - 1)|0;
+
+    var idx = 0;
+    while (this.numChildren > idx) {
+
+        var instance     = this.stage.getInstance(this._children[idx]);
+        instance._$index = idx;
+
+        idx = (idx + 1)|0;
+    }
+
+    // reset
+    child._stageId     = null;
+    child._$parentId   = null;
+    child._$parentType = 0;
+    child._$index      = 0;
+
+    return child;
+};
 
 
 /**

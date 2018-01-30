@@ -58,18 +58,33 @@ describe("DisplayObject.js property test", function() {
 
 
     // name
-    it("parent test success case1", function () {
+    it("name test success case1", function () {
         var player = new Player();
         var obj    = player.stage.addChild(new DisplayObject());
         obj.name   = "abc";
         expect(obj.name).toBe("abc");
     });
 
-    it("parent test success case2", function () {
+    it("name test success case2", function () {
         var player = new Player();
         var obj    = player.stage.addChild(new DisplayObject());
         obj.name   = 1;
         expect(obj.name).toBe("1");
+    });
+
+
+    // index
+    it("index test success", function () {
+        var player = new Player();
+        var obj    = player.stage.addChild(new DisplayObject());
+        expect(obj.index).toBe(1);
+    });
+
+    it("name test valid", function () {
+        var player = new Player();
+        var obj    = player.stage.addChild(new DisplayObject());
+        obj.index  = 99;
+        expect(obj.index).toBe(1);
     });
 
 

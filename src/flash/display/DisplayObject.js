@@ -10,6 +10,7 @@ var DisplayObject = function ()
     this._stageId     = null;
     this._$parentId   = null;
     this._$parentType = 0; // 0 = instance, 1 = stage
+    this._$index      = 0;
 
     // property int
     this._$name       = "";
@@ -37,6 +38,12 @@ Object.defineProperties(DisplayObject.prototype, {
                 this._id = id;
             }
         }
+    },
+    index: {
+        get: function () {
+            return this._$index;
+        },
+        set: function () {}
     },
     stage: {
         /**

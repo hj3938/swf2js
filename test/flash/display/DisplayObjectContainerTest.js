@@ -85,11 +85,16 @@ describe("DisplayObjectContainer.js addChild test", function()
     it("addChild error case", function()
     {
         var doc = new DisplayObjectContainer();
+
+        var error = false;
         try {
             doc.addChild({});
         } catch (e) {
+            error = true;
             expect(e.message).toBe("this child is not DisplayObject.");
         }
+
+        expect(error).toBe(true);
     });
 
     it("addChild success case", function()
@@ -109,12 +114,15 @@ describe("DisplayObjectContainer.js addChildAt test", function()
 {
     it("addChildAt error case", function()
     {
+        var error = false;
         try {
             var player = new Player();
             player.stage.addChildAt(new DisplayObject(), 10);
         } catch (e) {
+            error = true;
             expect(e.message).toBe("index is out of range.");
         }
+        expect(error).toBe(true);
     });
 
     it("addChildAt success case", function()
@@ -122,7 +130,6 @@ describe("DisplayObjectContainer.js addChildAt test", function()
         var player = new Player();
         var a = player.stage.addChildAt(new DisplayObject(), 0);
         var b = player.stage.addChildAt(new Loader(), 1);
-        console.log(player.stage._children);
 
         expect(player.stage.numChildren).toBe(3);
         expect(a.id).toBe(1);
@@ -150,12 +157,15 @@ describe("DisplayObjectContainer.js contains test", function()
 
     it("contains error case", function()
     {
-        var doc = new DisplayObjectContainer();
+        var doc   = new DisplayObjectContainer();
+        var error = false;
         try {
             doc.contains({});
         } catch (e) {
+            error = true;
             expect(e.message).toBe("this child is not DisplayObject.");
         }
+        expect(error).toBe(true);
     });
 
 });
@@ -173,12 +183,28 @@ describe("DisplayObjectContainer.js getChildAt test", function()
 
     it("getChildAt error case", function()
     {
-        var doc = new DisplayObjectContainer();
+        var doc   = new DisplayObjectContainer();
+        var error = false;
         try {
             doc.getChildAt(10);
         } catch (e) {
+            error = true;
             expect(e.message).toBe("index is out of range.");
         }
+        expect(error).toBe(true);
+    });
+
+    it("getChildAt error case", function()
+    {
+        var doc   = new DisplayObjectContainer();
+        var error = false;
+        try {
+            doc.getChildAt(new DisplayObject());
+        } catch (e) {
+            error = true;
+            expect(e.message).toBe("child not found.");
+        }
+        expect(error).toBe(true);
     });
 
 });
@@ -220,7 +246,6 @@ describe("DisplayObjectContainer.js getChildByName test", function()
 });
 
 
-
 describe("DisplayObjectContainer.js getChildIndex test", function()
 {
     it("getChildIndex success", function()
@@ -250,4 +275,76 @@ describe("DisplayObjectContainer.js getChildIndex test", function()
         expect(instance1.name).toBe("1");
         expect(instance2).toBe(null);
     });
+
+    it("getChildIndex error case1", function()
+    {
+        var player = new Player();
+        player.stage.addChild(new DisplayObject());
+        player.stage.addChild(new DisplayObject());
+
+        var error = false;
+        try {
+            player.stage.getChildIndex({});
+        } catch (e) {
+            error = true;
+            expect(e.message).toBe("this child is not DisplayObject.");
+        }
+
+        expect(error).toBe(true);
+    });
+
+});
+
+
+describe("DisplayObjectContainer.js removeChild test", function()
+{
+    it("removeChild success", function()
+    {
+        var player = new Player();
+        var child1 = player.stage.addChild(new DisplayObject());
+        var child2 = player.stage.addChild(new DisplayObject());
+
+        player.stage.removeChild(child1);
+
+        var index = player.stage.getChildIndex(child2);
+
+        expect(index).toBe(1);
+    });
+
+    it("removeChild error case1", function()
+    {
+        var player = new Player();
+        player.stage.addChild(new DisplayObject());
+        player.stage.addChild(new DisplayObject());
+
+        var error = false;
+        try {
+            var child  = new DisplayObject();
+            player.stage.removeChild(child);
+        } catch (e) {
+            error = true;
+            expect(e.message).toBe("child not found.");
+        }
+
+        expect(error).toBe(true);
+    });
+
+    it("removeChild error case2", function()
+    {
+        var player = new Player();
+        player.stage.addChild(new DisplayObject());
+        player.stage.addChild(new DisplayObject());
+
+        var error = false;
+        try {
+            player.stage.removeChild({});
+        } catch (e) {
+            error = true;
+            expect(e.message).toBe("this child is not DisplayObject.");
+        }
+
+        expect(error).toBe(true);
+    });
+
+
 });

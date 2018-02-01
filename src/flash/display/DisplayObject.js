@@ -10,7 +10,7 @@ var DisplayObject = function ()
     this._stageId     = null;
     this._$parentId   = null;
     this._$parentType = 0; // 0 = instance, 1 = stage
-    this._$index      = 0;
+    this._$index      = null;
 
     // property int
     this._$name       = "";

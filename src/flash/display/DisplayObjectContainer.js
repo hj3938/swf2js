@@ -198,7 +198,7 @@ DisplayObjectContainer.prototype.getChildAt = function (index)
 
 /**
  *
- * @param {string} name
+ * @param   {string} name
  * @returns {{DisplayObject}|null}
  */
 DisplayObjectContainer.prototype.getChildByName = function (name)
@@ -231,6 +231,10 @@ DisplayObjectContainer.prototype.getChildIndex = function (child)
         throw new Error("this child is not DisplayObject.");
     }
 
+    if (!(child.index in this._children) || child.id !== this._children[child.index]) {
+        throw new Error("child not found.");
+    }
+
     return child.index;
 };
 
@@ -245,7 +249,7 @@ DisplayObjectContainer.prototype.getObjectsUnderPoint = function (point)
 };
 
 /**
- * @param {DisplayObject} child
+ * @param    {DisplayObject} child
  * @returns {DisplayObject}
  */
 DisplayObjectContainer.prototype.removeChild = function (child)
@@ -258,6 +262,33 @@ DisplayObjectContainer.prototype.removeChild = function (child)
         throw new Error("child not found.");
     }
 
+    // remove
+    return this._$remove(child);
+};
+
+/**
+ * @param   {number} index
+ * @returns {DisplayObject}
+ */
+DisplayObjectContainer.prototype.removeChildAt = function (index)
+{
+    if (!(index in this._children)) {
+        throw new Error("child not found.");
+    }
+
+    // reset
+    var child = this.stage.getInstance(this._children[index]);
+
+    // remove
+    return this._$remove(child);
+};
+
+/**
+ * @param   {DisplayObject} child
+ * @returns {DisplayObject}
+ */
+DisplayObjectContainer.prototype._$remove = function (child)
+{
     // remove
     this._children.splice(child.index, 1);
     this._numChildren = (this._numChildren - 1)|0;
@@ -274,8 +305,8 @@ DisplayObjectContainer.prototype.removeChild = function (child)
     // reset
     child._stageId     = null;
     child._$parentId   = null;
+    child._$index      = null;
     child._$parentType = 0;
-    child._$index      = 0;
 
     return child;
 };

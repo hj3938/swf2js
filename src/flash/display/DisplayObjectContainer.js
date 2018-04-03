@@ -15,7 +15,6 @@ var DisplayObjectContainer = function ()
     this._children      = [];
     this._ratio         = 0;
 
-
 };
 
 /**
@@ -120,16 +119,18 @@ DisplayObjectContainer.prototype.$addChild = function (child, index)
 
     // set stage
     var stage = this.stage;
-    if (child.id === null) {
-        child.id = stage.$numInstanceId;
-        stage.$numInstanceId = (stage.$numInstanceId + 1)|0;
+    if (!stage) {
+        var player = this.$window.swf2js.getCurrentPlayer();
+        stage = player.stage;
     }
-    child._stageId = stage.id;
+
     stage.setInstance(child);
+
+    var placeObject = new PlaceObject();
 
     // set param
     child.parent  = this;
-    child._$index = index;
+    // child._$index = index;
 
     // set child data
     var children = this._children;
@@ -140,7 +141,7 @@ DisplayObjectContainer.prototype.$addChild = function (child, index)
 
     // event
     child.dispatchEvent(Event.ADDED, this.stage);
-    this.dispatchEvent(Event.ADDED, this.stage);
+    this.dispatchEvent(Event.ADDED,  this.stage);
 
     return child;
 };
@@ -262,7 +263,6 @@ DisplayObjectContainer.prototype.removeChild = function (child)
         throw new Error("child not found.");
     }
 
-    // remove
     return this._$remove(child);
 };
 
@@ -279,7 +279,6 @@ DisplayObjectContainer.prototype.removeChildAt = function (index)
     // reset
     var child = this.stage.getInstance(this._children[index]);
 
-    // remove
     return this._$remove(child);
 };
 
@@ -309,5 +308,33 @@ DisplayObjectContainer.prototype._$remove = function (child)
     child._$parentType = 0;
 
     return child;
+};
+
+/**
+ * @param   {number} beginIndex
+ * @param   {number} endIndex
+ * @returns void
+ */
+DisplayObjectContainer.prototype.removeChildren = function (beginIndex, endIndex)
+{
+    if (0 > beginIndex || 0 > endIndex) {
+        throw new Error("specify 0 or more.");
+    }
+
+    endIndex = (endIndex !== undefined) ? endIndex|0 : 0x7fffffff;
+    if (endIndex > this.numChildren) {
+        throw new Error("the number is over.");
+    }
+
+    var index = beginIndex;
+    endIndex  = (endIndex + 1)|0;
+    while (endIndex > index) {
+
+        var child = this.stage.getInstance(this._children[beginIndex]);
+        this._$remove(child);
+
+        index = (index + 1)|0;
+    }
+
 };
 

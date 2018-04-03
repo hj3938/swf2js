@@ -7,9 +7,10 @@ var Player = function ()
     this.id = this.$players.length;
     this.$players[this.id] = this;
 
+    // set div name
     this.name = "swf2js_" + this.id;
 
-    // data
+    // as data
     this.actions       = [];
 
     // params
@@ -17,8 +18,10 @@ var Player = function ()
     this.intervalId    = 0;
     this.stopFlag      = true;
     this.isLoad        = false;
+    this._width        = 0;
+    this._height       = 0;
 
-    // canvas
+            // canvas
     this.context       = null;
     this.canvas        = null;
     this.preContext    = null;
@@ -91,6 +94,26 @@ Object.defineProperties(Player.prototype, {
             // return this.stage.getChildAt(0);
         },
         set: function () {}
+    },
+    width: {
+        get: function () {
+            return this._width;
+        },
+        set: function (width) {
+            if (typeof width === "number" ) {
+                this._width = width;
+            }
+        }
+    },
+    height: {
+        get: function () {
+            return this._height;
+        },
+        set: function (height) {
+            if (typeof height === "number" ) {
+                this._height = height;
+            }
+        }
     }
 });
 

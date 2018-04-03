@@ -323,12 +323,15 @@ var Util;
     Util  = Utility;
 
     // global parameters
-    Utility.prototype.$resizeId   = 0;
-    Utility.prototype.$stages     = [];
-    Utility.prototype.$players    = [];
-    Utility.prototype.$loadStages = [];
-    Utility.prototype.$event      = null;
-    Utility.prototype.$keyEvent   = null;
+    Utility.prototype.$currentPlayerId = 0;
+    Utility.prototype.$resizeId        = 0;
+    Utility.prototype.$instanceId      = 0;
+    Utility.prototype.$dictionary      = [];
+    Utility.prototype.$stages          = [];
+    Utility.prototype.$players         = [];
+    Utility.prototype.$loadStages      = [];
+    Utility.prototype.$event           = null;
+    Utility.prototype.$keyEvent        = null;
 
     // OS
     Utility.prototype.$navigator   = w.navigator;
@@ -897,8 +900,7 @@ var Util;
     Utility.prototype.$isArray = function (source)
     {
         return Object.prototype.toString.call(source) === "[object Array]";
-    }
-
+    };
 
 })(window);
 var Vector = function () {};
@@ -1687,6 +1689,8 @@ var PlaceObject = function ()
     this.colorTransform = [1, 1, 1, 1, 0, 0, 0, 0];
     this.filters        = null;
     this.blendMode      = "normal";
+    this.ratio          = 0;
+    this.parentId       = null;
 };
 
 /**
@@ -1701,15 +1705,16 @@ PlaceObject.prototype.cloneArray = function(src)
     var i = 0;
     while (i < length) {
         arr[i] = src[i];
-        i = 0 | i + 1;
+
+        i = (i + 1)|0;
     }
 
     return arr;
 };
 
 /**
- * @param blendMode
- * @returns {String}
+ * @param {number|string} blendMode
+ * @returns {string}
  */
 PlaceObject.prototype.getBlendName = function (blendMode)
 {
@@ -1789,7 +1794,7 @@ PlaceObject.prototype.clone = function ()
 };
 
 /**
- * @returns {*}
+ * @returns {array}
  */
 PlaceObject.prototype.getMatrix = function ()
 {
@@ -1797,7 +1802,7 @@ PlaceObject.prototype.getMatrix = function ()
 };
 
 /**
- * @param matrix
+ * @param {array} matrix
  */
 PlaceObject.prototype.setMatrix = function (matrix)
 {
@@ -1805,7 +1810,7 @@ PlaceObject.prototype.setMatrix = function (matrix)
 };
 
 /**
- * @returns {*}
+ * @returns {array}
  */
 PlaceObject.prototype.getColorTransform = function ()
 {
@@ -1813,7 +1818,7 @@ PlaceObject.prototype.getColorTransform = function ()
 };
 
 /**
- * @param colorTransform
+ * @param {array} colorTransform
  */
 PlaceObject.prototype.setColorTransform = function (colorTransform)
 {
@@ -1821,7 +1826,7 @@ PlaceObject.prototype.setColorTransform = function (colorTransform)
 };
 
 /**
- * @returns {*}
+ * @returns {null|array}
  */
 PlaceObject.prototype.getFilters = function ()
 {
@@ -1829,7 +1834,7 @@ PlaceObject.prototype.getFilters = function ()
 };
 
 /**
- * @param filters
+ * @param {Array} filters
  */
 PlaceObject.prototype.setFilters = function (filters)
 {
@@ -1845,7 +1850,7 @@ PlaceObject.prototype.getBlendMode = function ()
 };
 
 /**
- * @param blendMode
+ * @param {string} blendMode
  */
 PlaceObject.prototype.setBlendMode = function (blendMode)
 {
@@ -6650,16 +6655,13 @@ var DisplayObject = function ()
     EventDispatcher.call(this);
 
     // origin param
-    this._id          = null;
-    this._stageId     = null;
-    this._$parentId   = null;
-    this._$parentType = 0; // 0 = instance, 1 = stage
-    this._$index      = null;
+    this._id            = 0;
+    this._stageId       = null;
+    this._$parentId     = null;
+    this._$parentType   = 0; // 0 = instance, 1 = stage
 
     // property int
-    this._$name       = "";
-
-
+    this._$name         = "";
 
 };
 
@@ -6683,12 +6685,6 @@ Object.defineProperties(DisplayObject.prototype, {
             }
         }
     },
-    index: {
-        get: function () {
-            return this._$index;
-        },
-        set: function () {}
-    },
     stage: {
         /**
          * @returns {Stage}
@@ -6704,6 +6700,7 @@ Object.defineProperties(DisplayObject.prototype, {
         },
         set: function (parent) {
             if (parent instanceof DisplayObject) {
+                this._$parentType = 0;
                 this._$parentType = 0;
                 if (parent instanceof Stage) {
                     this._$parentType = 1;
@@ -6760,7 +6757,6 @@ var DisplayObjectContainer = function ()
     // origin param
     this._children      = [];
     this._ratio         = 0;
-
 
 };
 
@@ -6866,16 +6862,18 @@ DisplayObjectContainer.prototype.$addChild = function (child, index)
 
     // set stage
     var stage = this.stage;
-    if (child.id === null) {
-        child.id = stage.$numInstanceId;
-        stage.$numInstanceId = (stage.$numInstanceId + 1)|0;
+    if (!stage) {
+        var player = this.$window.swf2js.getCurrentPlayer();
+        stage = player.stage;
     }
-    child._stageId = stage.id;
+
     stage.setInstance(child);
+
+    var placeObject = new PlaceObject();
 
     // set param
     child.parent  = this;
-    child._$index = index;
+    // child._$index = index;
 
     // set child data
     var children = this._children;
@@ -6886,7 +6884,7 @@ DisplayObjectContainer.prototype.$addChild = function (child, index)
 
     // event
     child.dispatchEvent(Event.ADDED, this.stage);
-    this.dispatchEvent(Event.ADDED, this.stage);
+    this.dispatchEvent(Event.ADDED,  this.stage);
 
     return child;
 };
@@ -7008,7 +7006,6 @@ DisplayObjectContainer.prototype.removeChild = function (child)
         throw new Error("child not found.");
     }
 
-    // remove
     return this._$remove(child);
 };
 
@@ -7025,7 +7022,6 @@ DisplayObjectContainer.prototype.removeChildAt = function (index)
     // reset
     var child = this.stage.getInstance(this._children[index]);
 
-    // remove
     return this._$remove(child);
 };
 
@@ -7055,6 +7051,34 @@ DisplayObjectContainer.prototype._$remove = function (child)
     child._$parentType = 0;
 
     return child;
+};
+
+/**
+ * @param   {number} beginIndex
+ * @param   {number} endIndex
+ * @returns void
+ */
+DisplayObjectContainer.prototype.removeChildren = function (beginIndex, endIndex)
+{
+    if (0 > beginIndex || 0 > endIndex) {
+        throw new Error("specify 0 or more.");
+    }
+
+    endIndex = (endIndex !== undefined) ? endIndex|0 : 0x7fffffff;
+    if (endIndex > this.numChildren) {
+        throw new Error("the number is over.");
+    }
+
+    var index = beginIndex;
+    endIndex  = (endIndex + 1)|0;
+    while (endIndex > index) {
+
+        var child = this.stage.getInstance(this._children[beginIndex]);
+        this._$remove(child);
+
+        index = (index + 1)|0;
+    }
+
 };
 
 
@@ -12783,9 +12807,6 @@ var Stage = function ()
 {
     DisplayObjectContainer.call(this);
 
-    // Instance ID
-    this.$numInstanceId = 0;
-
     // origin param
     this._id            = null;
     this._playerId      = null;
@@ -12815,8 +12836,6 @@ var Stage = function ()
     this._stage3Ds                    = new Stage3D();
     this._stageFocusRect              = true;
     this._stageHeight                 = 0;
-
-
 
 };
 
@@ -12848,6 +12867,12 @@ Object.defineProperties(Stage.prototype, {
         },
         set: function () {}
     },
+    _root: {
+        get: function () {
+            return this._mainTimeline;
+        },
+        set: function () {}
+    },
     parent: {
         get: function () {
             return null;
@@ -12876,6 +12901,7 @@ Object.defineProperties(Stage.prototype, {
                     case StageAlign.TOP:
                     case StageAlign.TOP_LEFT:
                     case StageAlign.TOP_RIGHT:
+                    case "":
                         this._align = value;
                         break;
                     default:
@@ -13099,7 +13125,6 @@ Object.defineProperties(Stage.prototype, {
 
 
 
-
 });
 
 /**
@@ -13150,18 +13175,13 @@ Stage.prototype.getInstance = function (id)
  */
 Stage.prototype.setInstance = function (instance)
 {
+    if (instance.id === null) {
+        instance.id         = this._instances.length;
+        instance._stageId   = this.id;
+    }
+
     this._instances[instance.id] = instance;
 };
-
-
-
-Stage.prototype.parseAndBuild = function (data)
-{
-
-};
-
-
-
 /**
  * @constructor
  */
@@ -24463,6 +24483,176 @@ BitIO.prototype.deCompress = function (size, mode)
     this.data        = array;
     this.byte_offset = cacheOffset;
 };
+/**
+ * @constructor
+ */
+var ReBuilder = function (stage)
+{
+    this.stage  = stage;
+    this.bitio  = new BitIO();
+    this.swftag = new SwfTag(stage, this.bitio);
+};
+
+/**
+ * extends
+ */
+ReBuilder.prototype = Object.create(Util.prototype);
+ReBuilder.prototype.constructor = ReBuilder;
+
+
+/**
+ * @param {array} data
+ */
+ReBuilder.prototype.start = function (data)
+{
+    // data set
+    if (this.$canXHR2) {
+        this.bitio.setData(new Uint8Array(data));
+    } else {
+        this.bitio.initialize(data);
+    }
+
+    // parse header
+    if (this.isImage(data)) {
+
+        // create image
+
+    } else {
+
+        // parse and build
+
+        this
+            .initialize()
+            .parseAndBuild();
+
+    }
+};
+
+/**
+ * @param   {array} data
+ * @returns {boolean}
+ */
+ReBuilder.prototype.isImage = function(data)
+{
+    switch (true) {
+        case (data[0] === 0x89 && data[1] === 0x50 &&
+              data[2] === 0x4E && data[3] === 0x47 &&
+              data[4] === 0x0D && data[5] === 0x0A &&
+              data[6] === 0x1A && data[7] === 0x0A): // PNG
+        case (data[0] === 0x47 && data[1] === 0x49 && data[2] === 0x46): // GIF
+        case (data[0] === 0xff && data[1] === 0xd8): // JPEG
+        case (data[0] === 0x42 && data[1] === 0x4d): // BMP
+            return true;
+        default:
+            return false;
+    }
+};
+
+/**
+ * @returns {ReBuilder}
+ */
+ReBuilder.prototype.initialize = function()
+{
+    var bitio = this.bitio;
+
+    // signature
+    var signature = bitio.getHeaderSignature();
+
+    // version
+    var version   = bitio.getVersion();
+    // this.setVersion(version);
+
+    // file size
+    var fileSize  = this.bitio.getUI32();
+    this.fileSize = fileSize;
+
+    // de compress
+    switch (signature) {
+        case "FWS": // No ZIP
+            break;
+        case "CWS": // ZLIB
+            bitio.deCompress(fileSize, "ZLIB");
+            break;
+        case "ZWS": // LZMA
+            bitio.deCompress(fileSize, "LZMA");
+            break;
+    }
+
+    // bounds
+    var bounds = this.swftag.rect();
+
+    // frameRate
+    this.stage.frameRate = bitio.getUI16() / 0x100;
+
+    // frameCount
+    this.bitio.getUI16(); // frameCount
+
+    var width  = (this.$ceil((bounds.xMax - bounds.xMin) / 20))|0;
+    var height = (this.$ceil((bounds.yMax - bounds.yMin) / 20))|0;
+
+    // player set
+    var player = this.stage.player;
+    console.log(player);
+
+    player.width  = width;
+    player.height = height;
+    if (player.tagId && !player.optionWidth && !player.optionHeight) {
+        player.optionWidth  = width;
+        player.optionHeight = height;
+    }
+
+    return this;
+};
+
+/**
+ * parseAndBuild
+ */
+ReBuilder.prototype.parseAndBuild = function()
+{
+    var main = this.stage._root;
+
+    return 0;
+
+    // parse
+    var tags = this.swftag.parse(main);
+
+    // mc reset
+    main.container  = [];
+    var frame       = 1;
+    var totalFrames = main.getTotalFrames() + 1;
+    while (frame < totalFrames) {
+        main.container[frame] = [];
+        frame = 0 | frame + 1;
+    }
+    main.instances = [];
+
+    // build
+    this.swftag.build(tags, main);
+
+    var query = url.split("?")[1];
+    if (query) {
+        var values = query.split("&");
+        var length = values.length;
+        while (length) {
+            length    = 0 | length - 1;
+            var value = values[length];
+            var pair  = value.split("=");
+            if (pair.length > 1) {
+                main.setVariable(pair[0], pair[1]);
+            }
+        }
+    }
+
+    // FlashVars
+    var vars = this.FlashVars;
+    for (var key in vars) {
+        if (!vars.hasOwnProperty(key)) {
+            continue;
+        }
+        main.setVariable(key, vars[key]);
+    }
+};
+
 /*jshint bitwise: false*/
 /**
  * @param stage
@@ -30180,21 +30370,6 @@ VectorToCanvas.prototype.toCanvas2D = function (cache)
 
 Util.prototype.$vtc = new VectorToCanvas();
 /**
- *
- * @param {BitIO} bitio
- * @param {SwfTag} swftag
- * @constructor
- */
-var WWW = function (bitio, swftag)
-{
-    this.bitio  = bitio;
-    this.swftag = swftag;
-};
-
-
-
-
-/**
  * @constructor
  */
 var CacheStore = function ()
@@ -30332,9 +30507,10 @@ var Player = function ()
     this.id = this.$players.length;
     this.$players[this.id] = this;
 
+    // set div name
     this.name = "swf2js_" + this.id;
 
-    // data
+    // as data
     this.actions       = [];
 
     // params
@@ -30342,8 +30518,10 @@ var Player = function ()
     this.intervalId    = 0;
     this.stopFlag      = true;
     this.isLoad        = false;
+    this._width        = 0;
+    this._height       = 0;
 
-    // canvas
+            // canvas
     this.context       = null;
     this.canvas        = null;
     this.preContext    = null;
@@ -30416,6 +30594,26 @@ Object.defineProperties(Player.prototype, {
             // return this.stage.getChildAt(0);
         },
         set: function () {}
+    },
+    width: {
+        get: function () {
+            return this._width;
+        },
+        set: function (width) {
+            if (typeof width === "number" ) {
+                this._width = width;
+            }
+        }
+    },
+    height: {
+        get: function () {
+            return this._height;
+        },
+        set: function (height) {
+            if (typeof height === "number" ) {
+                this._height = height;
+            }
+        }
     }
 });
 
@@ -30859,7 +31057,9 @@ Player.prototype.getPackage = function (path)
  */
 var Swf2js = function ()
 {
-    this.currentPlayerId = null;
+    // create player
+    var player = new Player();
+    this.currentPlayerId = player.id;
 };
 
 /**
@@ -30883,7 +31083,7 @@ Swf2js.prototype.load = function (url, options)
         var self = this;
 
         // stage setup
-        var player = new Player();
+        var player = self.getCurrentPlayer();
 
         // start
         player.setOptions(options);
@@ -30899,7 +31099,10 @@ Swf2js.prototype.load = function (url, options)
                         case 200:
                         case 304:
                             var data = (this.response) ? this.response : this.responseText;
-                            player.stage.parseAndBuild(data);
+
+                            var reBuilder = new ReBuilder(player.stage);
+                            reBuilder.start(data);
+
                             self.$cacheStore.reset();
                             break;
                         default :
@@ -30964,10 +31167,6 @@ Swf2js.prototype.createRootMovieClip = function (width, height, fps, options)
  */
 Swf2js.prototype.getCurrentPlayer = function ()
 {
-    if (this.currentPlayerId === null) {
-        return null;
-    }
-
     if (!(this.currentPlayerId in this.$players)) {
         return null;
     }

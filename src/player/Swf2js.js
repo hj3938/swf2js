@@ -3,7 +3,9 @@
  */
 var Swf2js = function ()
 {
-    this.currentPlayerId = null;
+    // create player
+    var player = new Player();
+    this.currentPlayerId = player.id;
 };
 
 /**
@@ -27,7 +29,7 @@ Swf2js.prototype.load = function (url, options)
         var self = this;
 
         // stage setup
-        var player = new Player();
+        var player = self.getCurrentPlayer();
 
         // start
         player.setOptions(options);
@@ -43,7 +45,10 @@ Swf2js.prototype.load = function (url, options)
                         case 200:
                         case 304:
                             var data = (this.response) ? this.response : this.responseText;
-                            player.stage.parseAndBuild(data);
+
+                            var reBuilder = new ReBuilder(player.stage);
+                            reBuilder.start(data);
+
                             self.$cacheStore.reset();
                             break;
                         default :
@@ -108,10 +113,6 @@ Swf2js.prototype.createRootMovieClip = function (width, height, fps, options)
  */
 Swf2js.prototype.getCurrentPlayer = function ()
 {
-    if (this.currentPlayerId === null) {
-        return null;
-    }
-
     if (!(this.currentPlayerId in this.$players)) {
         return null;
     }

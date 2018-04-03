@@ -5,9 +5,6 @@ var Stage = function ()
 {
     DisplayObjectContainer.call(this);
 
-    // Instance ID
-    this.$numInstanceId = 0;
-
     // origin param
     this._id            = null;
     this._playerId      = null;
@@ -37,8 +34,6 @@ var Stage = function ()
     this._stage3Ds                    = new Stage3D();
     this._stageFocusRect              = true;
     this._stageHeight                 = 0;
-
-
 
 };
 
@@ -70,6 +65,12 @@ Object.defineProperties(Stage.prototype, {
         },
         set: function () {}
     },
+    _root: {
+        get: function () {
+            return this._mainTimeline;
+        },
+        set: function () {}
+    },
     parent: {
         get: function () {
             return null;
@@ -98,6 +99,7 @@ Object.defineProperties(Stage.prototype, {
                     case StageAlign.TOP:
                     case StageAlign.TOP_LEFT:
                     case StageAlign.TOP_RIGHT:
+                    case "":
                         this._align = value;
                         break;
                     default:
@@ -321,7 +323,6 @@ Object.defineProperties(Stage.prototype, {
 
 
 
-
 });
 
 /**
@@ -372,14 +373,10 @@ Stage.prototype.getInstance = function (id)
  */
 Stage.prototype.setInstance = function (instance)
 {
+    if (instance.id === null) {
+        instance.id         = this._instances.length;
+        instance._stageId   = this.id;
+    }
+
     this._instances[instance.id] = instance;
 };
-
-
-
-Stage.prototype.parseAndBuild = function (data)
-{
-
-};
-
-

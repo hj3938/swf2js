@@ -7,6 +7,8 @@ var PlaceObject = function ()
     this.colorTransform = [1, 1, 1, 1, 0, 0, 0, 0];
     this.filters        = null;
     this.blendMode      = "normal";
+    this.ratio          = 0;
+    this.parentId       = null;
 };
 
 /**
@@ -21,15 +23,16 @@ PlaceObject.prototype.cloneArray = function(src)
     var i = 0;
     while (i < length) {
         arr[i] = src[i];
-        i = 0 | i + 1;
+
+        i = (i + 1)|0;
     }
 
     return arr;
 };
 
 /**
- * @param blendMode
- * @returns {String}
+ * @param {number|string} blendMode
+ * @returns {string}
  */
 PlaceObject.prototype.getBlendName = function (blendMode)
 {
@@ -109,7 +112,7 @@ PlaceObject.prototype.clone = function ()
 };
 
 /**
- * @returns {*}
+ * @returns {array}
  */
 PlaceObject.prototype.getMatrix = function ()
 {
@@ -117,7 +120,7 @@ PlaceObject.prototype.getMatrix = function ()
 };
 
 /**
- * @param matrix
+ * @param {array} matrix
  */
 PlaceObject.prototype.setMatrix = function (matrix)
 {
@@ -125,7 +128,7 @@ PlaceObject.prototype.setMatrix = function (matrix)
 };
 
 /**
- * @returns {*}
+ * @returns {array}
  */
 PlaceObject.prototype.getColorTransform = function ()
 {
@@ -133,7 +136,7 @@ PlaceObject.prototype.getColorTransform = function ()
 };
 
 /**
- * @param colorTransform
+ * @param {array} colorTransform
  */
 PlaceObject.prototype.setColorTransform = function (colorTransform)
 {
@@ -141,7 +144,7 @@ PlaceObject.prototype.setColorTransform = function (colorTransform)
 };
 
 /**
- * @returns {*}
+ * @returns {null|array}
  */
 PlaceObject.prototype.getFilters = function ()
 {
@@ -149,7 +152,7 @@ PlaceObject.prototype.getFilters = function ()
 };
 
 /**
- * @param filters
+ * @param {Array} filters
  */
 PlaceObject.prototype.setFilters = function (filters)
 {
@@ -165,7 +168,7 @@ PlaceObject.prototype.getBlendMode = function ()
 };
 
 /**
- * @param blendMode
+ * @param {string} blendMode
  */
 PlaceObject.prototype.setBlendMode = function (blendMode)
 {

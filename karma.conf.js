@@ -49,6 +49,7 @@ module.exports = function(config)
       "src/*.js",
       "src/parser/*.js",
       "src/player/*.js",
+      "Test.js",
       "test/**/*.js"
     ],
 

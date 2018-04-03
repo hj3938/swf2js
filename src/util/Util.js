@@ -15,12 +15,15 @@ var Util;
     Util  = Utility;
 
     // global parameters
-    Utility.prototype.$resizeId   = 0;
-    Utility.prototype.$stages     = [];
-    Utility.prototype.$players    = [];
-    Utility.prototype.$loadStages = [];
-    Utility.prototype.$event      = null;
-    Utility.prototype.$keyEvent   = null;
+    Utility.prototype.$currentPlayerId = 0;
+    Utility.prototype.$resizeId        = 0;
+    Utility.prototype.$instanceId      = 0;
+    Utility.prototype.$dictionary      = [];
+    Utility.prototype.$stages          = [];
+    Utility.prototype.$players         = [];
+    Utility.prototype.$loadStages      = [];
+    Utility.prototype.$event           = null;
+    Utility.prototype.$keyEvent        = null;
 
     // OS
     Utility.prototype.$navigator   = w.navigator;
@@ -589,7 +592,6 @@ var Util;
     Utility.prototype.$isArray = function (source)
     {
         return Object.prototype.toString.call(source) === "[object Array]";
-    }
-
+    };
 
 })(window);

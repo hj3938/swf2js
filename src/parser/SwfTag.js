@@ -1,12 +1,12 @@
 /*jshint bitwise: false*/
 /**
- * @param stage
- * @param bitio
+ * @param {MainTimeline} main
+ * @param {BitIO} bitio
  * @constructor
  */
-var SwfTag = function (stage, bitio)
+var SwfTag = function (main, bitio)
 {
-    this.stage           = stage;
+    this.main            = main;
     this.bitio           = bitio;
     this.currentPosition = {x: 0, y: 0};
     this.jpegTables      = null;
@@ -19,15 +19,15 @@ SwfTag.prototype = Object.create(Util.prototype);
 SwfTag.prototype.constructor = SwfTag;
 
 /**
- * @returns {*}
+ * @returns {MainTimeline}
  */
-SwfTag.prototype.getStage = function()
+SwfTag.prototype.getMain = function()
 {
-    return this.stage;
+    return this.main;
 };
 
 /**
- * @returns {*}
+ * @returns {BitIO}
  */
 SwfTag.prototype.getBitIO = function()
 {
@@ -35,8 +35,8 @@ SwfTag.prototype.getBitIO = function()
 };
 
 /**
- * @param mc
- * @returns {Array}
+ * @param   {MainTimeline} mc
+ * @returns {array}
  */
 SwfTag.prototype.parse = function (mc)
 {
@@ -75,7 +75,7 @@ SwfTag.prototype.showFrame = function (obj, mc, originTags)
     var idx;
     var newDepth = [];
     var frame    = obj.frame;
-    var stage    = this.getStage();
+    var main     = this.getMain();
 
     if (!(frame in originTags)) {
         originTags[frame] = [];
@@ -169,7 +169,7 @@ SwfTag.prototype.showFrame = function (obj, mc, originTags)
                     }
 
                     container[frame][depth] = prevTags[depth];
-                    stage.copyPlaceObject(parentId, depth, frame);
+                    main.copyPlaceObject(parentId, depth, frame);
 
                     originTags[frame][depth] = originTags[prevFrame][depth];
                 }
@@ -816,7 +816,7 @@ SwfTag.prototype.parseTag = function (tagType, length)
 {
     var obj   = null;
     var bitio = this.getBitIO();
-    var stage = this.getStage();
+    var main  = this.getMain();
 
     switch (tagType) {
         case 0: // End
@@ -834,7 +834,7 @@ SwfTag.prototype.parseTag = function (tagType, length)
             }
             break;
         case 9: // BackgroundColor
-            stage.setBackgroundColor(
+            main.setBackgroundColor(
                 bitio.getUI8(),
                 bitio.getUI8(),
                 bitio.getUI8()
@@ -979,6 +979,7 @@ SwfTag.prototype.parseTag = function (tagType, length)
             bitio.getUI32(); // CompilationDate
             bitio.getUI32(); // TODO
             break;
+        // TODO Tags
         case 3:  // FreeCharacter
         case 16: // StopSound
         case 23: // DefineButtonCxform
@@ -1687,8 +1688,7 @@ SwfTag.prototype.styleChangeRecord = function (tagType, changeFlag, currentNumBi
  */
 SwfTag.prototype.appendShapeTag = function (characterId, bounds, shapes, tagType)
 {
-    var stage = this.getStage();
-    stage.setCharacter(characterId, {
+    this.getMain().setCharacter(characterId, {
         tagType: tagType,
         data:    this.$vtc.convert(shapes, false),
         bounds:  bounds
@@ -3212,7 +3212,7 @@ SwfTag.prototype.buttonActions = function (endOffset)
 SwfTag.prototype.parsePlaceObject = function (tagType, length)
 {
     var bitio = this.getBitIO();
-    var stage = this.getStage();
+    var main  = this.getMain();
 
     var startOffset = bitio.byte_offset;
 
@@ -3235,7 +3235,7 @@ SwfTag.prototype.parsePlaceObject = function (tagType, length)
             break;
         default:
             obj.PlaceFlagHasClipActions = bitio.getUIBits(1);
-            if (stage.getVersion() < 5) {
+            if (main.getVersion() < 5) {
                 obj.PlaceFlagHasClipActions = 0;
             }
 
@@ -3321,12 +3321,12 @@ SwfTag.prototype.parsePlaceObject = function (tagType, length)
                         break;
                     }
 
-                    var endFlag = (stage.getVersion() <= 5) ? bitio.getUI16() : bitio.getUI32();
+                    var endFlag = (main.getVersion() <= 5) ? bitio.getUI16() : bitio.getUI32();
                     if (!endFlag) {
                         break;
                     }
 
-                    if (stage.getVersion() <= 5) {
+                    if (main.getVersion() <= 5) {
                         bitio.byte_offset -= 2;
                     } else {
                         bitio.byte_offset -= 4;
@@ -3376,7 +3376,7 @@ SwfTag.prototype.parseClipActionRecord = function (endLength)
 SwfTag.prototype.parseClipEventFlags = function ()
 {
     var bitio = this.getBitIO();
-    var stage = this.getStage();
+    var main  = this.getMain();
 
     var obj = {};
     obj.keyUp      = bitio.getUIBits(1);
@@ -3388,7 +3388,7 @@ SwfTag.prototype.parseClipEventFlags = function ()
     obj.enterFrame = bitio.getUIBits(1);
     obj.load       = bitio.getUIBits(1);
 
-    if (stage.getVersion() >= 6) {
+    if (main.getVersion() >= 6) {
         obj.dragOver       = bitio.getUIBits(1);
         obj.rollOut        = bitio.getUIBits(1);
         obj.rollOver       = bitio.getUIBits(1);
@@ -3400,7 +3400,7 @@ SwfTag.prototype.parseClipEventFlags = function ()
 
     obj.data = bitio.getUIBits(1);
 
-    if (stage.getVersion() >= 6) {
+    if (main.getVersion() >= 6) {
         bitio.getUIBits(5); // Reserved
         obj.construct = bitio.getUIBits(1);
         obj.keyPress  = bitio.getUIBits(1);
@@ -3795,12 +3795,10 @@ SwfTag.prototype.colorTransform = function ()
 SwfTag.prototype.parseDefineSprite = function (length)
 {
     var bitio = this.getBitIO();
-    var stage = this.getStage();
-
     var characterId = bitio.getUI16();
     bitio.getUI16(); // FrameCount
 
-    stage.setCharacter(characterId, this.parseTags(length, characterId));
+    this.getMain().setCharacter(characterId, this.parseTags(length, characterId));
 };
 
 /**

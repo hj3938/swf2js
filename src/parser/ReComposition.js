@@ -1,24 +1,33 @@
 /**
  * @constructor
  */
-var ReBuilder = function (stage)
+var ReComposition = function (main)
 {
-    this.stage  = stage;
+    this.main   = main;
     this.bitio  = new BitIO();
-    this.swftag = new SwfTag(stage, this.bitio);
+    this.swftag = new SwfTag(main, this.bitio);
 };
 
 /**
  * extends
  */
-ReBuilder.prototype = Object.create(Util.prototype);
-ReBuilder.prototype.constructor = ReBuilder;
-
+ReComposition.prototype = Object.create(Util.prototype);
+ReComposition.prototype.constructor = ReComposition;
 
 /**
- * @param {array} data
+ *
+ * @returns {MainTimeline}
  */
-ReBuilder.prototype.start = function (data)
+ReComposition.prototype.getMain = function ()
+{
+    return this.main;
+};
+
+/**
+ * @param data
+ * @returns {MovieClip}
+ */
+ReComposition.prototype.start = function (data)
 {
     // data set
     if (this.$canXHR2) {
@@ -28,17 +37,19 @@ ReBuilder.prototype.start = function (data)
     }
 
     // parse header
-    if (this.isImage(data)) {
+    if (!this.isImage(data)) {
 
-        // create image
+        // parse and build
+        return this
+            .initialize()
+            .parseAndBuild();
 
     } else {
 
-        // parse and build
+        // create image object
 
-        this
-            .initialize()
-            .parseAndBuild();
+
+        return this.main;
 
     }
 };
@@ -47,7 +58,7 @@ ReBuilder.prototype.start = function (data)
  * @param   {array} data
  * @returns {boolean}
  */
-ReBuilder.prototype.isImage = function(data)
+ReComposition.prototype.isImage = function(data)
 {
     switch (true) {
         case (data[0] === 0x89 && data[1] === 0x50 &&
@@ -64,9 +75,9 @@ ReBuilder.prototype.isImage = function(data)
 };
 
 /**
- * @returns {ReBuilder}
+ * @returns {ReComposition}
  */
-ReBuilder.prototype.initialize = function()
+ReComposition.prototype.initialize = function()
 {
     var bitio = this.bitio;
 
@@ -75,11 +86,11 @@ ReBuilder.prototype.initialize = function()
 
     // version
     var version   = bitio.getVersion();
-    // this.setVersion(version);
+    this.getMain().setVersion(version);
 
     // file size
     var fileSize  = this.bitio.getUI32();
-    this.fileSize = fileSize;
+    // this.fileSize = fileSize;
 
     // de compress
     switch (signature) {
@@ -97,7 +108,7 @@ ReBuilder.prototype.initialize = function()
     var bounds = this.swftag.rect();
 
     // frameRate
-    this.stage.frameRate = bitio.getUI16() / 0x100;
+    this.main.stage.frameRate = bitio.getUI16() / 0x100;
 
     // frameCount
     this.bitio.getUI16(); // frameCount
@@ -106,8 +117,7 @@ ReBuilder.prototype.initialize = function()
     var height = (this.$ceil((bounds.yMax - bounds.yMin) / 20))|0;
 
     // player set
-    var player = this.stage.player;
-    console.log(player);
+    var player = this.main.stage.player;
 
     player.width  = width;
     player.height = height;
@@ -120,16 +130,17 @@ ReBuilder.prototype.initialize = function()
 };
 
 /**
- * parseAndBuild
+ * @returns {MovieClip}
  */
-ReBuilder.prototype.parseAndBuild = function()
+ReComposition.prototype.parseAndBuild = function()
 {
-    var main = this.stage._root;
-
-    return 0;
+    var main = this.main;
 
     // parse
     var tags = this.swftag.parse(main);
+    console.log(tags);
+
+    return 0;
 
     // mc reset
     main.container  = [];
@@ -166,4 +177,6 @@ ReBuilder.prototype.parseAndBuild = function()
         }
         main.setVariable(key, vars[key]);
     }
+
+    return main;
 };

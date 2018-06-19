@@ -138,17 +138,6 @@ MovieClip.prototype.createTextField = function (name, depth, x, y, width, height
 };
 
 /**
- * @param r
- * @param g
- * @param b
- */
-MovieClip.prototype.setBackgroundColor = function (r, g, b)
-{
-    var stage = this.getStage();
-    stage.setBackgroundColor(r, g, b);
-};
-
-/**
  * play
  */
 MovieClip.prototype.play = function ()

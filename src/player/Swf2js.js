@@ -44,10 +44,11 @@ Swf2js.prototype.load = function (url, options)
                     switch (this.status) {
                         case 200:
                         case 304:
+
                             var data = (this.response) ? this.response : this.responseText;
 
-                            var reBuilder = new ReBuilder(player.stage);
-                            reBuilder.start(data);
+                            var reComposition = new ReComposition(player.stage._root);
+                            reComposition.start(data);
 
                             self.$cacheStore.reset();
                             break;
@@ -70,43 +71,43 @@ Swf2js.prototype.load = function (url, options)
     }
 };
 
-/**
- * @param width
- * @param height
- * @param fps
- * @param options
- * @returns {MovieClip}
- */
-Swf2js.prototype.createRootMovieClip = function (width, height, fps, options)
-{
-    var stage = new Stage();
-    width     = width  || 240;
-    height    = height || 240;
-    fps       = fps    || 60;
-
-    // set
-    stage.setBaseWidth(width);
-    stage.setBaseHeight(height);
-    stage.setFrameRate(fps);
-    stage.setOptions(options);
-    this.$stages[stage.getId()] = stage;
-
-    // init
-    stage.init();
-    stage.isLoad = true;
-
-    if (this.$document.readyState === "loading") {
-        var reTry = function()
-        {
-            window.removeEventListener("DOMContentLoaded", reTry, false);
-            stage.resize();
-            stage.loaded();
-        };
-        window.addEventListener("DOMContentLoaded", reTry, false);
-    }
-
-    return stage.getParent();
-};
+// /**
+//  * @param width
+//  * @param height
+//  * @param fps
+//  * @param options
+//  * @returns {MovieClip}
+//  */
+// Swf2js.prototype.createRootMovieClip = function (width, height, fps, options)
+// {
+//     var stage = new Stage();
+//     width     = width  || 240;
+//     height    = height || 240;
+//     fps       = fps    || 60;
+//
+//     // set
+//     stage.setBaseWidth(width);
+//     stage.setBaseHeight(height);
+//     stage.setFrameRate(fps);
+//     stage.setOptions(options);
+//     this.$stages[stage.getId()] = stage;
+//
+//     // init
+//     stage.init();
+//     stage.isLoad = true;
+//
+//     if (this.$document.readyState === "loading") {
+//         var reTry = function()
+//         {
+//             window.removeEventListener("DOMContentLoaded", reTry, false);
+//             stage.resize();
+//             stage.loaded();
+//         };
+//         window.addEventListener("DOMContentLoaded", reTry, false);
+//     }
+//
+//     return stage.getParent();
+// };
 
 /**
  * @returns {Player|null}

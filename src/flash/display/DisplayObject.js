@@ -6,13 +6,15 @@ var DisplayObject = function ()
     EventDispatcher.call(this);
 
     // origin param
-    this._id            = 0;
+    this._id            = null;
     this._stageId       = null;
     this._$parentId     = null;
     this._$parentType   = 0; // 0 = instance, 1 = stage
+    this.characterId    = 0;
 
     // property int
     this._$name         = "";
+
 
 };
 
@@ -43,7 +45,11 @@ Object.defineProperties(DisplayObject.prototype, {
         get: function () {
             return this.$stages[this._stageId];
         },
-        set: function () {}
+        set: function (stage) {
+            if (this._stageId === null && stage instanceof Stage) {
+                this._stageId = stage.id;
+            }
+        }
     },
     parent: {
         get: function () {

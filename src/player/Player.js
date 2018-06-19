@@ -46,6 +46,7 @@ var Player = function ()
     // base stage
     var stage = new Stage();
     stage.initialSetting(this);
+    this.addStage(stage);
 
     // base set
     this._stageId = stage.id;
@@ -91,7 +92,7 @@ Object.defineProperties(Player.prototype, {
     },
     root: {
         get: function () {
-            // return this.stage.getChildAt(0);
+            return this.stage.getChildAt(0);
         },
         set: function () {}
     },

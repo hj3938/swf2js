@@ -1815,13 +1815,13 @@ BitIO.prototype.deCompress = function (size, mode)
     // header
     var data = this.getData(cacheOffset);
 
-    var deCompress;
+    var deCompress = [];
     switch (mode) {
-        case "ZLIB":
-            deCompress = this.unzip(this.data, true);
-            break;
         case "LZMA":
             deCompress = this.unlzma(this.data, size - cacheOffset);
+            break;
+        default: // ZLIB
+            deCompress = this.unzip(this.data, true);
             break;
     }
 

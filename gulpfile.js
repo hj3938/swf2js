@@ -63,7 +63,7 @@ gulp.task("output", function ()
             "src/flash/net/*.js",
             "src/flash/printing/*.js",
             "src/flash/xml/*.js",
-            "src/as/*.js",
+            "src/actionscript/*.js",
             "src/*.js",
             "src/parser/*.js",
             "src/player/*.js",

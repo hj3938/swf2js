@@ -13,8 +13,8 @@ var DisplayObjectContainer = function ()
 
     // origin param
     this._children      = [];
+    this._controller    = [];
     this._ratio         = 0;
-
 };
 
 /**
@@ -73,6 +73,38 @@ Object.defineProperties(DisplayObjectContainer.prototype, {
 });
 
 /**
+ * @param   {number}           instance_id
+ * @param   {number|undefined} frame
+ * @returns PlaceObject
+ */
+DisplayObjectContainer.prototype.$getPlaceObject = function (instance_id, frame)
+{
+    frame = frame || 0;
+    if (instance_id in this._controller &&
+        frame in this._controller[instance_id]
+    ) {
+        return this._controller[instance_id][frame];
+    }
+
+    console.log("[error]: PlaceObject");
+    return new PlaceObject();
+};
+
+/**
+ * @param {number}           instance_id
+ * @param {number|undefined} frame
+ */
+DisplayObjectContainer.prototype.$setPlaceObject = function (instance_id, frame)
+{
+    if (!(instance_id in this._controller)) {
+        this._controller[instance_id] = [];
+    }
+
+    frame = frame || 0;
+    this._controller[instance_id][frame] = new PlaceObject();
+};
+
+/**
  * @param   {DisplayObject} child
  * @returns {DisplayObject}
  */
@@ -124,13 +156,12 @@ DisplayObjectContainer.prototype.$addChild = function (child, index)
         stage = player.stage;
     }
 
+    // stage insert origin data
     stage.setInstance(child);
-
-    var placeObject = new PlaceObject();
+    // stage.createPlaceObject(this.id, child.id);
 
     // set param
     child.parent  = this;
-    // child._$index = index;
 
     // set child data
     var children = this._children;

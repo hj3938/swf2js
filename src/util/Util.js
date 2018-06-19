@@ -15,15 +15,10 @@ var Util;
     Util  = Utility;
 
     // global parameters
-    Utility.prototype.$currentPlayerId = 0;
-    Utility.prototype.$resizeId        = 0;
-    Utility.prototype.$instanceId      = 0;
-    Utility.prototype.$dictionary      = [];
-    Utility.prototype.$stages          = [];
-    Utility.prototype.$players         = [];
-    Utility.prototype.$loadStages      = [];
-    Utility.prototype.$event           = null;
-    Utility.prototype.$keyEvent        = null;
+    Utility.prototype.$stages      = [];
+    Utility.prototype.$players     = [];
+    Utility.prototype.$event       = null;
+    Utility.prototype.$keyEvent    = null;
 
     // OS
     Utility.prototype.$navigator   = w.navigator;

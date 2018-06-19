@@ -6,10 +6,11 @@ var Stage = function ()
     DisplayObjectContainer.call(this);
 
     // origin param
-    this._id            = null;
-    this._playerId      = null;
-    this._instances     = [];
-    this._placeObjects  = [];
+    this._id              = null;
+    this._playerId        = null;
+    this._instances       = [];
+    this._mainTimelineId  = null;
+
 
     // property init
     this._align                       = "";
@@ -67,7 +68,7 @@ Object.defineProperties(Stage.prototype, {
     },
     _root: {
         get: function () {
-            return this._mainTimeline;
+            return this.getInstance(this._mainTimelineId);
         },
         set: function () {}
     },
@@ -351,11 +352,16 @@ Stage.prototype.initialSetting = function (player)
 
     // add stage
     this._id = this.$stages.length;
-    player.addStage(this);
 
     // create root
-    this._mainTimeline = new MainTimeline();
-    this.addChildAt(this._mainTimeline, 0);
+    var main   = new MainTimeline();
+    main.stage = this;
+
+    // add child
+    this.addChildAt(main, 0);
+
+    // set id
+    this._mainTimelineId = main.id;
 };
 
 /**

@@ -6,7 +6,7 @@ describe("DisplayObjectContainer.js property test", function()
         var player = window.swf2js.getCurrentPlayer();
 
         // reset
-        player.stage._mouseChildren = true;
+        player.stage._$mouseChildren = true;
 
         // start
         player.stage.mouseChildren = false;
@@ -18,7 +18,7 @@ describe("DisplayObjectContainer.js property test", function()
         var player = window.swf2js.getCurrentPlayer();
 
         // reset
-        player.stage._mouseChildren = true;
+        player.stage._$mouseChildren = true;
 
         // start
         player.stage.mouseChildren = 0;
@@ -30,7 +30,7 @@ describe("DisplayObjectContainer.js property test", function()
         var player = window.swf2js.getCurrentPlayer();
 
         // reset
-        player.stage._mouseChildren = true;
+        player.stage._$mouseChildren = true;
 
         // start
         player.stage.mouseChildren = "abc";
@@ -44,7 +44,7 @@ describe("DisplayObjectContainer.js property test", function()
         var player = window.swf2js.getCurrentPlayer();
 
         // reset
-        player.stage._numChildren = 0;
+        player.stage._$numChildren = 0;
 
         // start
         player.stage.numChildren = 10;
@@ -58,7 +58,7 @@ describe("DisplayObjectContainer.js property test", function()
         var player = window.swf2js.getCurrentPlayer();
 
         // reset
-        player.stage._tabChildren = true;
+        player.stage._$tabChildren = true;
 
         // start
         player.stage.tabChildren = false;
@@ -70,7 +70,7 @@ describe("DisplayObjectContainer.js property test", function()
         var player = window.swf2js.getCurrentPlayer();
 
         // reset
-        player.stage._tabChildren = true;
+        player.stage._$tabChildren = true;
 
         // start
         player.stage.tabChildren = 0;
@@ -82,7 +82,7 @@ describe("DisplayObjectContainer.js property test", function()
         var player = window.swf2js.getCurrentPlayer();
 
         // reset
-        player.stage._tabChildren = true;
+        player.stage._$tabChildren = true;
 
         // start
         player.stage.tabChildren = "abc";

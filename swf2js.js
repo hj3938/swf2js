@@ -889,7 +889,25 @@ var Util;
     };
 
     /**
-     * @param {*} source
+     * @param   {array} source
+     * @returns {array}
+     */
+    Utility.prototype.$cloneArray = function (source)
+    {
+        var result = [];
+        for (var idx in source) {
+            if (!source.hasOwnProperty(idx)) {
+                continue;
+            }
+
+            result[idx] = source[idx];
+        }
+
+        return result;
+    };
+
+    /**
+     * @param   {*} source
      * @returns {boolean}
      */
     Utility.prototype.$isArray = function (source)
@@ -1680,35 +1698,114 @@ OriginalObject.prototype.constructor = OriginalObject;
  */
 var PlaceObject = function ()
 {
-    this.matrix         = [1, 0, 0, 1, 0, 0];
-    this.colorTransform = [1, 1, 1, 1, 0, 0, 0, 0];
-    this.filters        = null;
-    this.blendMode      = "normal";
-    this.ratio          = 0;
-    this.parentId       = null;
+    this._$matrix         = [1, 0, 0, 1, 0, 0];
+    this._$colorTransform = [1, 1, 1, 1, 0, 0, 0, 0];
+    this._$filters        = null;
+    this._$blendMode      = "normal";
+    this._$clipDepth      = 0;
 };
 
 /**
- * @param src
- * @returns {Array}
+ * extends
  */
-PlaceObject.prototype.cloneArray = function(src)
-{
-    var arr    = [];
-    var length = 0 | src.length;
+PlaceObject.prototype = Object.create(Util.prototype);
+PlaceObject.prototype.constructor = PlaceObject;
 
-    var i = 0;
-    while (i < length) {
-        arr[i] = src[i];
 
-        i = (i + 1)|0;
+/**
+ * properties
+ */
+Object.defineProperties(PlaceObject.prototype, {
+    matrix: {
+        /**
+         * @returns {array}
+         */
+        get: function () {
+            return this._$matrix;
+        },
+        /**
+         * @param {array} matrix
+         */
+        set: function (matrix) {
+            this._$matrix = this.$cloneArray(matrix);
+        }
+    },
+    colorTransform: {
+        /**
+         * @returns {array}
+         */
+        get: function () {
+            return this._$colorTransform;
+        },
+        /**
+         * @param {array} colorTransform
+         */
+        set: function (colorTransform) {
+            this._$colorTransform = this.$cloneArray(colorTransform);
+        }
+    },
+    filters: {
+        /**
+         * @returns {array|null}
+         */
+        get: function () {
+            return this._$filters;
+        },
+        /**
+         * @param {array} filters
+         */
+        set: function (filters) {
+            this._$filters = filters;
+        }
+    },
+    blendMode: {
+        /**
+         * @returns {string}
+         */
+        get: function () {
+            return this._$blendMode;
+        },
+        /**
+         * @param {string|number} blendMode
+         */
+        set: function (blendMode) {
+            this._$blendMode = this.getBlendName(blendMode);
+        }
+    },
+    clipDepth: {
+        /**
+         * @returns {number}
+         */
+        get: function () {
+            return this._$clipDepth;
+        },
+        /**
+         * @param {number} clipDepth
+         */
+        set: function (clipDepth) {
+            this._$clipDepth = clipDepth|0;
+        }
     }
 
-    return arr;
+});
+
+/**
+ * @returns {PlaceObject}
+ */
+PlaceObject.prototype.clone = function ()
+{
+    var placeObject            = new PlaceObject();
+    placeObject.matrix         = this.matrix;
+    placeObject.colorTransform = this.colorTransform;
+    placeObject.filters        = this.filters;
+    placeObject.blendMode      = this.blendMode;
+    placeObject.ratio          = this.ratio;
+    placeObject.clipDepth      = this.clipDepth;
+    return placeObject;
 };
 
 /**
- * @param {number|string} blendMode
+ * @param   {number|string} blendMode
  * @returns {string}
  */
 PlaceObject.prototype.getBlendName = function (blendMode)
@@ -1771,86 +1868,12 @@ PlaceObject.prototype.getBlendName = function (blendMode)
         case "hardlight":
             mode = "hardlight";
             break;
+        default:
+            break;
     }
     return mode;
 };
 
-/**
- * @returns {PlaceObject}
- */
-PlaceObject.prototype.clone = function ()
-{
-    var placeObject = new PlaceObject();
-    placeObject.setMatrix(this.getMatrix());
-    placeObject.setColorTransform(this.getColorTransform());
-    placeObject.setFilters(this.getFilters());
-    placeObject.setBlendMode(this.getBlendMode());
-    return placeObject;
-};
-
-/**
- * @returns {array}
- */
-PlaceObject.prototype.getMatrix = function ()
-{
-    return this.matrix;
-};
-
-/**
- * @param {array} matrix
- */
-PlaceObject.prototype.setMatrix = function (matrix)
-{
-    this.matrix = this.cloneArray(matrix);
-};
-
-/**
- * @returns {array}
- */
-PlaceObject.prototype.getColorTransform = function ()
-{
-    return this.colorTransform;
-};
-
-/**
- * @param {array} colorTransform
- */
-PlaceObject.prototype.setColorTransform = function (colorTransform)
-{
-    this.colorTransform = this.cloneArray(colorTransform);
-};
-
-/**
- * @returns {null|array}
- */
-PlaceObject.prototype.getFilters = function ()
-{
-    return this.filters;
-};
-
-/**
- * @param {Array} filters
- */
-PlaceObject.prototype.setFilters = function (filters)
-{
-    this.filters = filters;
-};
-
-/**
- * @returns {string}
- */
-PlaceObject.prototype.getBlendMode = function ()
-{
-    return this.blendMode;
-};
-
-/**
- * @param {string} blendMode
- */
-PlaceObject.prototype.setBlendMode = function (blendMode)
-{
-    this.blendMode = this.getBlendName(blendMode);
-};
 /**
  * @constructor
  */
@@ -2327,9 +2350,9 @@ Event.WORKER_STATE                 = "workerState";
 var EventDispatcher = function ()
 {
     // init
-    this.events = {};
-    this.isLoad = false;
-    this.active = false;
+    this._$events = {};
+    this._$isLoad = false;
+    this._$active = false;
 };
 
 /**
@@ -2473,12 +2496,12 @@ Object.defineProperties(EventDispatcher.prototype, {
 });
 
 /**
- * @param {string} type
+ * @param   {string} type
  * @returns {function}
  */
 EventDispatcher.prototype.getOnEvent = function (type)
 {
-    return this.variables[type];
+    return (type in this._$variables) ? this._$variables[type]: null;
 };
 
 /**
@@ -2487,7 +2510,7 @@ EventDispatcher.prototype.getOnEvent = function (type)
  */
 EventDispatcher.prototype.setOnEvent = function (type, as)
 {
-    this.variables[type] = as;
+    this._$variables[type] = as;
 };
 
 /**
@@ -2499,7 +2522,7 @@ EventDispatcher.prototype.setOnEvent = function (type, as)
  */
 EventDispatcher.prototype.addEventListener = function (type, listener, useCapture, priority, useWeakReference)
 {
-    var events = this.events;
+    var events = this._$events;
     if (!(type in events)) {
         events[type] = [];
     }
@@ -2516,7 +2539,7 @@ EventDispatcher.prototype.dispatchEvent = function (event, stage)
 {
     var type = event.type;
     if (this.hasEventListener(type)) {
-        var events   = this.events[type];
+        var events   = this._$events[type];
         event.target = this;
         this.setActionQueue(events, stage, [event]);
     }
@@ -2528,7 +2551,7 @@ EventDispatcher.prototype.dispatchEvent = function (event, stage)
  */
 EventDispatcher.prototype.hasEventListener = function (type)
 {
-    return (type in this.events);
+    return (type in this._$events);
 };
 
 /**
@@ -2539,7 +2562,7 @@ EventDispatcher.prototype.hasEventListener = function (type)
 EventDispatcher.prototype.removeEventListener = function (type, listener, useCapture)
 {
     if (this.hasEventListener(type)) {
-        var events    = this.events;
+        var events    = this._$events;
         var listeners = events[type];
         var length    = 0 | listeners.length;
 
@@ -6650,14 +6673,19 @@ var DisplayObject = function ()
     EventDispatcher.call(this);
 
     // origin param
-    this._id            = null;
-    this._stageId       = null;
+    this._$id           = null;
+    this._$characterId  = null;
+    this._$stageId      = null;
     this._$parentId     = null;
-    this._$parentType   = 0; // 0 = instance, 1 = stage
-    this.characterId    = 0;
+    this._$variables    = {};
 
-    // property int
-    this._$name         = "";
+    // property
+    this._$accessibilityProperties = new AccessibilityProperties();
+    this._$name                    = "";
+
+
+
+
 
 
 };
@@ -6673,12 +6701,34 @@ DisplayObject.prototype.constructor = DisplayObject;
  */
 Object.defineProperties(DisplayObject.prototype, {
     id: {
+        /**
+         * @returns {number}
+         */
         get: function () {
-            return this._id;
+            return this._$id;
         },
+        /**
+         * @param {number} id
+         */
         set: function (id) {
             if (typeof id === "number") {
-                this._id = id;
+                this._$id = id;
+            }
+        }
+    },
+    characterId: {
+        /**
+         * @returns {number}
+         */
+        get: function () {
+            return this._$characterId;
+        },
+        /**
+         * @param {number} character_id
+         */
+        set: function (character_id) {
+            if (typeof character_id === "number") {
+                this._$characterId = character_id;
             }
         }
     },
@@ -6687,45 +6737,79 @@ Object.defineProperties(DisplayObject.prototype, {
          * @returns {Stage}
          */
         get: function () {
-            return this.$stages[this._stageId];
+            return (this._$stageId !== null) ? this.$stages[this._$stageId] : this._$stageId;
         },
+        /**
+         * @param {Stage} stage
+         */
         set: function (stage) {
-            if (this._stageId === null && stage instanceof Stage) {
-                this._stageId = stage.id;
+            if (this._$stageId === null && stage instanceof Stage) {
+                this._$stageId = stage.id;
             }
         }
     },
     parent: {
+        /**
+         * @returns {DisplayObject}
+         */
         get: function () {
-            return (!this._$parentType) ? this.stage.getInstance(this._$parentId) : this.$stages[this._$parentId];
+            return this.stage.getInstance(this._$parentId);
         },
+        /**
+         * @param {DisplayObject} parent
+         */
         set: function (parent) {
             if (parent instanceof DisplayObject) {
-                this._$parentType = 0;
-                this._$parentType = 0;
-                if (parent instanceof Stage) {
-                    this._$parentType = 1;
-                }
                 this._$parentId = parent.id;
             }
         }
     },
     root: {
+        /**
+         * @returns {MainTimeline}
+         */
         get: function () {
-            return this.stage._mainTimeline;
+            return this.stage._root;
         },
+        /**
+         * readonly
+         */
         set: function () {}
-
+    },
+    accessibilityProperties: {
+        /**
+         * @returns {AccessibilityProperties}
+         */
+        get: function () {
+            return this._$accessibilityProperties;
+        },
+        /**
+         * @param {AccessibilityProperties} accessibilityProperties
+         */
+        set: function (accessibilityProperties) {
+            if (accessibilityProperties instanceof AccessibilityProperties) {
+                this._$accessibilityProperties = accessibilityProperties;
+            }
+        }
     },
     name: {
+        /**
+         * @returns {string}
+         */
         get: function () {
             return this._$name + "";
         },
+        /**
+         * @param {*} name
+         */
         set: function (name) {
             this._$name = name + "";
         }
     }
 });
+
+
+
 
 
 
@@ -6750,15 +6834,19 @@ var DisplayObjectContainer = function ()
     InteractiveObject.call(this);
 
     // property init
-    this._mouseChildren = true;
-    this._numChildren   = 0;
-    this._tabChildren   = true;
-    this._textSnapshot  = new TextSnapshot();
+    this._$mouseChildren = true;
+    this._$numChildren   = 0;
+    this._$tabChildren   = true;
+    this._$textSnapshot  = new TextSnapshot();
+    this._$ratio         = 0;
 
     // origin param
-    this._children      = [];
-    this._controller    = [];
-    this._ratio         = 0;
+    this._$children      = [];
+    this._$places        = [];
+    this._$placeObjects  = [];
+    this._$controller    = [];
+    this._$container     = [];
+
 };
 
 /**
@@ -6774,60 +6862,59 @@ DisplayObjectContainer.prototype.constructor = DisplayObjectContainer;
 Object.defineProperties(DisplayObjectContainer.prototype, {
     mouseChildren: {
         get: function () {
-            return this._mouseChildren;
+            return this._$mouseChildren;
         },
         set: function (mouseChildren) {
             if (typeof mouseChildren === "boolean") {
-                this._mouseChildren = mouseChildren;
+                this._$mouseChildren = mouseChildren;
             }
         }
     },
     numChildren: {
         get: function () {
-            return this._numChildren;
+            return this._$numChildren;
         },
         set: function () {}
     },
     tabChildren: {
         get: function () {
-            return this._tabChildren;
+            return this._$tabChildren;
         },
         set: function (tabChildren) {
             if (typeof tabChildren === "boolean") {
-                this._tabChildren = tabChildren;
+                this._$tabChildren = tabChildren;
             }
         }
     },
     textSnapshot: {
         get: function () {
-            return this._textSnapshot;
+            return this._$textSnapshot;
         },
         set: function () {}
     },
     ratio: {
         get: function () {
-            return this._ratio;
+            return this._$ratio;
         },
         set: function (ratio) {
             if (typeof ratio === "number") {
-                this._ratio = ratio;
+                this._$ratio = ratio;
             }
         }
     }
 });
 
 /**
- * @param   {number}           instance_id
- * @param   {number|undefined} frame
+ * @param   {number} frame
+ * @param   {number} depth
  * @returns PlaceObject
  */
-DisplayObjectContainer.prototype.$getPlaceObject = function (instance_id, frame)
+DisplayObjectContainer.prototype._$getPlaceObject = function (frame, depth)
 {
-    frame = frame || 0;
-    if (instance_id in this._controller &&
-        frame in this._controller[instance_id]
+    if (frame in this._$places &&
+        depth in this._$places[frame]
     ) {
-        return this._controller[instance_id][frame];
+        return this._$placeObjects[this._$places[frame][depth]];
     }
 
     console.log("[error]: PlaceObject");
@@ -6835,17 +6922,72 @@ DisplayObjectContainer.prototype.$getPlaceObject = function (instance_id, frame)
 };
 
 /**
- * @param {number}           instance_id
- * @param {number|undefined} frame
+ * @param {number}      frame
+ * @param {number}      depth
+ * @param {PlaceObject} placeObject
  */
-DisplayObjectContainer.prototype.$setPlaceObject = function (instance_id, frame)
+DisplayObjectContainer.prototype._$setPlaceObject = function (frame, depth, placeObject)
 {
-    if (!(instance_id in this._controller)) {
-        this._controller[instance_id] = [];
+    if (!(frame in this._$places)) {
+        this._$places[frame] = [];
     }
 
-    frame = frame || 0;
-    this._controller[instance_id][frame] = new PlaceObject();
+    // set id
+    var id = this._$placeObjects.length;
+
+    this._$placeObjects[id]     = placeObject;
+    this._$places[frame][depth] = id;
+};
+
+/**
+ * @param   {number} frame
+ * @param   {number} depth
+ * @returns {number}
+ */
+DisplayObjectContainer.prototype._$getControllerAt = function(frame, depth)
+{
+    return this._$controller[frame][depth];
+};
+
+/**
+ * @param   {number} frame
+ * @returns {array}
+ */
+DisplayObjectContainer.prototype._$getController = function(frame)
+{
+    return this._$controller[frame];
+};
+
+/**
+ * @param {number} frame
+ * @param {number} depth
+ * @param {number} character_id
+ */
+DisplayObjectContainer.prototype._$setController = function (frame, depth, character_id)
+{
+    if (!(frame in this._$controller)) {
+        this._$controller[frame] = [];
+    }
+
+    this._$controller[frame][depth] = character_id;
+};
+
+/**
+ * @param   {number}        character_id
+ * @returns {DisplayObject}
+ */
+DisplayObjectContainer.prototype._$getContainer = function (character_id)
+{
+    return this.stage.getInstance(this._$container[character_id]);
+};
+
+/**
+ * @param {number} character_id
+ * @param {number} instance_id
+ */
+DisplayObjectContainer.prototype._$setContainer = function (character_id, instance_id)
+{
+    this._$container[character_id] = instance_id;
 };
 
 /**
@@ -6854,9 +6996,9 @@ DisplayObjectContainer.prototype.$setPlaceObject = function (instance_id, frame)
  */
 DisplayObjectContainer.prototype.addChild = function (child)
 {
-    child = this.$addChild(child);
+    child = this._$addChild(child);
 
-    this._numChildren = (this._numChildren + 1)|0;
+    this._$numChildren = (this._$numChildren + 1)|0;
 
     return child;
 };
@@ -6872,9 +7014,9 @@ DisplayObjectContainer.prototype.addChildAt = function (child, index)
         throw new Error("index is out of range.");
     }
 
-    child = this.$addChild(child, index);
+    child = this._$addChild(child, index);
 
-    this._numChildren = (this._numChildren + 1)|0;
+    this._$numChildren = (this._$numChildren + 1)|0;
 
     return child;
 };
@@ -6884,7 +7026,7 @@ DisplayObjectContainer.prototype.addChildAt = function (child, index)
  * @param   {number}            index
  * @returns {DisplayObject}
  */
-DisplayObjectContainer.prototype.$addChild = function (child, index)
+DisplayObjectContainer.prototype._$addChild = function (child, index)
 {
     if (!(child instanceof DisplayObject)) {
         throw new Error("this child is not DisplayObject.");
@@ -6908,11 +7050,11 @@ DisplayObjectContainer.prototype.$addChild = function (child, index)
     child.parent  = this;
 
     // set child data
-    var children = this._children;
+    var children = this._$children;
     if (index in children) {
-        this.$addChild(this.stage.getInstance(children[index]), index + 1);
+        this._$addChild(this.stage.getInstance(children[index]), index + 1);
     }
-    this._children[index] = child.id;
+    this._$children[index] = child.id;
 
     // event
     child.dispatchEvent(Event.ADDED, this.stage);
@@ -6943,8 +7085,8 @@ DisplayObjectContainer.prototype.contains = function (child)
 
     var idx = 0;
     while (this.numChildren > idx) {
-        if (idx in this._children) {
-            var id = this._children[idx];
+        if (idx in this._$children) {
+            var id = this._$children[idx];
             if (id === child.id) {
                 return true;
             }
@@ -6965,11 +7107,11 @@ DisplayObjectContainer.prototype.getChildAt = function (index)
         throw new Error("index is out of range.");
     }
 
-    if (!(index in this._children)) {
+    if (!(index in this._$children)) {
         throw new Error("child not found.");
     }
 
-    return this.stage.getInstance(this._children[index]);
+    return this.stage.getInstance(this._$children[index]);
 };
 
 /**
@@ -6985,8 +7127,8 @@ DisplayObjectContainer.prototype.getChildByName = function (name)
     var stage = this.stage;
     var idx   = 0;
     while (this.numChildren > idx) {
-        if (idx in this._children) {
-            var instance = stage.getInstance(this._children[idx]);
+        if (idx in this._$children) {
+            var instance = stage.getInstance(this._$children[idx]);
             if (instance && instance.name === name) {
                 return instance;
             }
@@ -7007,7 +7149,7 @@ DisplayObjectContainer.prototype.getChildIndex = function (child)
         throw new Error("this child is not DisplayObject.");
     }
 
-    if (!(child.index in this._children) || child.id !== this._children[child.index]) {
+    if (!(child.index in this._$children) || child.id !== this._$children[child.index]) {
         throw new Error("child not found.");
     }
 
@@ -7034,7 +7176,7 @@ DisplayObjectContainer.prototype.removeChild = function (child)
         throw new Error("this child is not DisplayObject.");
     }
 
-    if (!(child.index in this._children) || child.id !== this._children[child.index]) {
+    if (!(child.index in this._$children) || child.id !== this._$children[child.index]) {
         throw new Error("child not found.");
     }
 
@@ -7047,12 +7189,12 @@ DisplayObjectContainer.prototype.removeChild = function (child)
  */
 DisplayObjectContainer.prototype.removeChildAt = function (index)
 {
-    if (!(index in this._children)) {
+    if (!(index in this._$children)) {
         throw new Error("child not found.");
     }
 
     // reset
-    var child = this.stage.getInstance(this._children[index]);
+    var child = this.stage.getInstance(this._$children[index]);
 
     return this._$remove(child);
 };
@@ -7063,14 +7205,15 @@ DisplayObjectContainer.prototype.removeChildAt = function (index)
  */
 DisplayObjectContainer.prototype._$remove = function (child)
 {
+
     // remove
-    this._children.splice(child.index, 1);
-    this._numChildren = (this._numChildren - 1)|0;
+    this._$children.splice(child.index, 1);
+    this._$numChildren = (this._$numChildren - 1)|0;
 
     var idx = 0;
     while (this.numChildren > idx) {
 
-        var instance     = this.stage.getInstance(this._children[idx]);
+        var instance     = this.stage.getInstance(this._$children[idx]);
         instance._$index = idx;
 
         idx = (idx + 1)|0;
@@ -7080,7 +7223,6 @@ DisplayObjectContainer.prototype._$remove = function (child)
     child._stageId     = null;
     child._$parentId   = null;
     child._$index      = null;
-    child._$parentType = 0;
 
     return child;
 };
@@ -7105,7 +7247,7 @@ DisplayObjectContainer.prototype.removeChildren = function (beginIndex, endIndex
     endIndex  = (endIndex + 1)|0;
     while (endIndex > index) {
 
-        var child = this.stage.getInstance(this._children[beginIndex]);
+        var child = this.stage.getInstance(this._$children[beginIndex]);
         this._$remove(child);
 
         index = (index + 1)|0;
@@ -7121,13 +7263,13 @@ var Sprite = function ()
 {
     DisplayObjectContainer.call(this);
 
-    this.touchPointID    = 0;
-    this._buttonMode     = false;
-    this._useHandCursor  = false;
-    this._dropTarget     = null;
-    this._hitArea        = null;
-    this._graphics       = new Graphics();
-    this._soundTransform = new SoundTransform();
+    this.touchPointID     = 0;
+    this._$buttonMode     = false;
+    this._$useHandCursor  = false;
+    this._$dropTarget     = null;
+    this._$hitArea        = null;
+    this._$graphics       = new Graphics();
+    this._$soundTransform = new SoundTransform();
 };
 
 /**
@@ -7142,100 +7284,94 @@ Sprite.prototype.constructor = Sprite;
  */
 Object.defineProperties(Sprite.prototype, {
     graphics: {
+        /**
+         * @returns {Graphics}
+         */
         get: function () {
-            return this.getGraphics();
+            return this._$graphics;
         },
-        set: function () {
-        }
+        /**
+         * readonly
+         */
+        set: function () {}
     },
     hitArea: {
+        /**
+         * @returns {DisplayObject|null}
+         */
         get: function () {
-            return this.getHitArea();
+            return this._$hitArea;
         },
-        set: function (sprite) {
-            this.setHitArea(sprite);
+        /**
+         *
+         * @param {DisplayObject|null} hitArea
+         */
+        set: function (hitArea) {
+            if (hitArea instanceof DisplayObject || hitArea === null) {
+                this._$hitArea = hitArea;
+            }
         }
     },
     buttonMode: {
+        /**
+         * @returns {boolean}
+         */
         get: function () {
-            return this.getButtonMode();
+            return this._$buttonMode;
         },
+        /**
+         * @param {boolean} buttonMode
+         */
         set: function (buttonMode) {
-            this.setButtonMode(buttonMode);
+            if (typeof buttonMode === "boolean") {
+                this._$buttonMode = buttonMode;
+            }
         }
     },
     soundTransform: {
+        /**
+         * @returns {SoundTransform}
+         */
         get: function () {
-            return this._soundTransform;
+            return this._$soundTransform;
         },
-        set: function () {
-        }
+        /**
+         * readonly
+         */
+        set: function () {}
     },
     useHandCursor: {
+        /**
+         * @returns {boolean}
+         */
         get: function () {
-            return this.getUseHandCursor();
+            return this._$useHandCursor;
         },
+        /**
+         * @param {boolean} useHandCursor
+         */
         set: function (useHandCursor) {
-            this.setUseHandCursor(useHandCursor);
+            if (typeof useHandCursor === "boolean") {
+                this._$useHandCursor = useHandCursor;
+            }
         }
     },
     dropTarget: {
+        /**
+         * @returns {DisplayObject|null}
+         */
         get: function () {
-            return this.getDropTarget();
+            return this._$dropTarget;
         },
+        /**
+         * readonly
+         */
         set: function () {
-            this.setDropTarget();
         }
     }
 });
 
-/**
- * @returns {string}
- */
-Sprite.prototype.getClassName = function ()
-{
-    return "Sprite";
-};
 
-/**
- * @returns {Graphics}
- */
-Sprite.prototype.getGraphics = function ()
-{
-    return this._graphics;
-};
-
-/**
- * @returns {DisplayObject}
- */
-Sprite.prototype.getHitArea = function ()
-{
-    return this._hitArea;
-};
-
-/**
- * @param displayObject
- */
-Sprite.prototype.setHitArea = function (displayObject)
-{
-    this._hitArea = displayObject;
-};
-
-/**
- * @returns {boolean}
- */
-Sprite.prototype.getUseHandCursor = function ()
-{
-    return this._useHandCursor;
-};
-
-/**
- * @param useHandCursor
- */
-Sprite.prototype.setUseHandCursor = function (useHandCursor)
-{
-    this._useHandCursor = useHandCursor;
-};
 
 /**
  * startTouchDrag
@@ -9629,22 +9765,30 @@ var MovieClip = function ()
 {
     Sprite.call(this);
 
-    this._currentframe = 1;
-    this.removeTags    = [];
-    this.actions       = [];
-    this.labels        = [];
+    // origin param
+    this._$stopFlag = false;
 
-    // flag
-    this.stopFlag = false;
-    this.isAction = true;
 
-    // clip
-    this.isClipDepth = false;
-    this.clipDepth   = 0;
+    // property
+    this._$currentframe = 1;
+    this._$totalFrames  = 0;
 
-    // sound
-    this.sounds        = [];
-    this.soundStopFlag = false;
+    // controller tags
+    this._$actions       = [];
+    this._$labels        = [];
+    this._$removeObjects = [];
+
+    // // flag
+    // this.stopFlag = false;
+    // this.isAction = true;
+    //
+    // // clip
+    // this.isClipDepth = false;
+    // this.clipDepth   = 0;
+    //
+    // // sound
+    // this.sounds        = [];
+    // this.soundStopFlag = false;
 };
 
 /**
@@ -9655,6 +9799,78 @@ MovieClip.prototype = Object.create(Sprite.prototype);
 MovieClip.prototype.constructor = MovieClip;
 
 /**
+ * properties
+ */
+Object.defineProperties(MovieClip.prototype, {
+    currentFrame: {
+        get: function () {
+            return this._$currentframe;
+        },
+        set: function (id) {}
+    },
+    currentFrameLabel: {
+        get: function () {
+            return this._$id;
+        },
+        set: function (id) {}
+    },
+    currentLabel: {
+        get: function () {
+            return this._$id;
+        },
+        set: function (id) {}
+    },
+    currentLabels: {
+        get: function () {
+            return this._$id;
+        },
+        set: function (id) {}
+    },
+    currentScene: {
+        get: function () {
+            return this._$id;
+        },
+        set: function (id) {}
+    },
+    enabled: {
+        get: function () {
+            return this._$id;
+        },
+        set: function (id) {}
+    },
+    framesLoaded: {
+        get: function () {
+            return this._$id;
+        },
+        set: function (id) {}
+    },
+    isPlaying: {
+        get: function () {
+            return this._$id;
+        },
+        set: function (id) {}
+    },
+    scenes: {
+        get: function () {
+            return this._$id;
+        },
+        set: function (id) {}
+    },
+    totalFrames: {
+        get: function () {
+            return this._$totalFrames;
+        },
+        set: function () {} // readonly
+    },
+    trackAsMenu: {
+        get: function () {
+            return this._$id;
+        },
+        set: function (id) {}
+    }
+});
+
+/**
  * @returns {string}
  */
 MovieClip.prototype.toString = function ()
@@ -9663,1891 +9879,164 @@ MovieClip.prototype.toString = function ()
 };
 
 /**
- * @returns {string}
+ * @param {number} frame
+ * @param {string} name
  */
-MovieClip.prototype.getClassName = function ()
+MovieClip.prototype._$addLabel = function (frame, name)
 {
-    return "MovieClip";
+    if (typeof name !== "string") {
+        name = name + "";
+    }
+
+    this._$labels[name.toLowerCase()] = frame|0;
 };
 
 /**
- * @param name
- * @param stage
+ * @param {number}       frame
+ * @param {ActionScript} actionScript
  */
-MovieClip.prototype.dispatchOnEvent = function (name, stage)
+MovieClip.prototype._$addAction = function (frame, actionScript)
 {
-    var as = this.variables[name];
-    if (as) {
-        this.setActionQueue(as, stage);
-    }
-};
+    if (actionScript instanceof ActionScript) {
 
-/**
- * @param name
- * @param depth
- * @returns {MovieClip}
- */
-MovieClip.prototype.createEmptyMovieClip = function (name, depth)
-{
-    var stage = this.getStage();
+        frame = frame|0;
 
-    if (!name) {
-        return undefined;
-    }
-
-    var mc = this.getDisplayObject(name);
-    if (!mc) {
-        mc = new MovieClip();
-    }
-
-    depth += 16384;
-
-    mc.setName(name);
-    mc.setLevel(depth);
-    mc.setParent(this);
-    mc.setStage(stage);
-
-    var container   = this.getContainer();
-    var totalFrames = this.getTotalFrames() + 1;
-    var placeObject = new PlaceObject();
-    var instanceId  = this.instanceId;
-
-    var frame = 1;
-    while (frame < totalFrames) {
-        if (!(frame in container)) {
-            container[frame] = [];
+        // init
+        if (!(frame in this._$actions)) {
+            this._$actions[frame] = [];
         }
 
-        container[frame][depth] = mc.instanceId;
-        stage.setPlaceObject(placeObject, instanceId, depth, frame);
+        var length = this._$actions[frame].length;
+        this._$actions[frame][length] = this._$createActionScript(actionScript);
 
-        frame = 0 | frame + 1;
     }
+};
+
+/**
+ * @param   {ActionScript} script
+ * @returns {Function}
+ */
+MovieClip.prototype._$createActionScript = function (script)
+{
+    if (script instanceof ActionScript) {
+
+        return (function (clip, origin)
+        {
+            var as   = new ActionScript([], origin.constantPool, origin.register, origin.initAction);
+            as.cache = origin.cache;
+            as.scope = clip;
+
+            return function () {
+                as.reset();
+                as.variables["this"] = this;
+                return as.execute(clip);
+            };
+        })(this, script);
+
+    }
+};
+
+/**
+ * @param {number} frame
+ * @param {number} depth
+ */
+MovieClip.prototype._$addRemoveObject = function (frame, depth)
+{
+    if (!(frame in this._$removeObjects)) {
+        this._$removeObjects[frame] = [];
+    }
+
+    this._$removeObjects[frame][depth] = 1;
+};
+
+/**
+ * TODO Sound
+ * @param {number} frame
+ * @param sound
+ */
+MovieClip.prototype._$addSound = function (frame, sound)
+{
+
+};
+
+/**
+ * @returns {MovieClip}
+ */
+MovieClip.prototype._$build = function ()
+{
+    var length, frame;
+
+    var mc = new MovieClip();
+    mc.characterId = this.characterId;
+
+    /**
+     * clone controller
+     */
+    frame  = 1;
+    length = this._$controller.length|0;
+    while (length > frame) {
+
+        mc._$controller[frame] = this.$cloneArray(this._$controller[frame]);
+        frame = (frame + 1)|0;
+    }
+
+
+    /**
+     * clone PlaceObjects
+     */
+    mc._$placeObjects = this.$cloneArray(this._$placeObjects);
+
+    frame  = 1;
+    length = this._$places.length|0;
+    while (length > frame) {
+
+        mc._$places[frame] = this.$cloneArray(this._$places[frame]);
+        frame = (frame + 1)|0;
+    }
+
+
+    /**
+     * clone character
+     */
+    mc._$container = this.$cloneArray(this._$container);
+
+
+    /**
+     * clone actions
+     */
+    frame  = 1;
+    length = this._$actions.length|0;
+    while (length > frame) {
+
+        mc._$actions[frame] = this.$cloneArray(this._$actions[frame]);
+        frame = (frame + 1)|0;
+    }
+
+
+    /**
+     * clone labels
+     */
+    mc._$labels = this.$cloneArray(this._$labels);
+
+
+    /**
+     * clone remove objects
+     */
+    frame  = 1;
+    length = this._$removeObjects.length|0;
+    while (length > frame) {
+
+        mc._$removeObjects[frame] = this.$cloneArray(this._$removeObjects[frame]);
+        frame = (frame + 1)|0;
+    }
+
+    // todo sounds
 
     return mc;
 };
 
-/**
- * @param name
- * @param depth
- * @param x
- * @param y
- * @param width
- * @param height
- * @returns {TextField}
- */
-MovieClip.prototype.createTextField = function (name, depth, x, y, width, height)
-{
-    if (16384 > depth) {
-        depth += 16384;
-    }
 
-    var textField = new TextField(name, depth, width, height);
-    textField.setX(x);
-    textField.setY(y);
-    textField.setParent(this);
-    textField.setStage(this.getStage());
-    textField.setInitParams();
 
-    var container = this.getContainer();
-    for (var frame in container) {
-        if (!container.hasOwnProperty(frame)) {
-            continue;
-        }
-
-        container[frame][depth] = textField.instanceId;
-    }
-
-    return textField;
-};
-
-/**
- * play
- */
-MovieClip.prototype.play = function ()
-{
-    this.stopFlag = false;
-};
-
-/**
- * stop
- */
-MovieClip.prototype.stop = function ()
-{
-    this.stopFlag = true;
-};
-
-/**
- * @param frame
- */
-MovieClip.prototype.gotoAndPlay = function (frame)
-{
-    if (typeof frame === "string") {
-        var label = this.getLabel(frame);
-        if (label) {
-            frame = label;
-        }
-    }
-
-    frame |= 0;
-    if (typeof frame === "number" && frame > 0) {
-        this.setNextFrame(frame);
-        this.play();
-    }
-};
-
-/**
- * @param frame
- */
-MovieClip.prototype.gotoAndStop = function (frame)
-{
-    if (typeof frame === "string") {
-        var label = this.getLabel(frame);
-        if (label) {
-            frame = label;
-        }
-    }
-
-    frame |= 0;
-    if (typeof frame === "number" && frame > this.getTotalFrames()) {
-        frame = this.getTotalFrames();
-        this.isAction = false;
-    }
-
-    if (frame > 0) {
-        this.setNextFrame(frame);
-        this.stop();
-    }
-};
-
-/**
- * stopAllSounds
- */
-MovieClip.prototype.stopAllSounds = function ()
-{
-    var stage = this.getStage();
-
-    var loadSounds = stage.loadSounds;
-    var length     = 0 | loadSounds.length;
-
-    if (length) {
-        var stopSound = function () {
-            this.removeEventListener("pause", stopSound);
-            this.currentTime = 0;
-            this.loop = false;
-        };
-
-        var idx = 0;
-        while (idx < length) {
-            if (!(idx in loadSounds)) {
-                continue;
-            }
-
-            var audio = loadSounds[idx];
-            audio.addEventListener("pause", stopSound);
-            audio.pause();
-
-            idx = 0 | idx  + 1;
-        }
-    }
-
-    stage.loadSounds = [];
-};
-
-/**
- * @param url
- * @param target
- * @param SendVarsMethod
- * @returns {number}
- */
-MovieClip.prototype.loadMovie = function (url, target, SendVarsMethod)
-{
-    var stage    = this.getStage();
-    var targetMc = null;
-
-    if (!target) {
-        target   = this.getName();
-        targetMc = this;
-    }
-
-    if (!targetMc) {
-        if (typeof target === "string") {
-            var _level = target.substr(0, 6);
-            if (_level === "_level") {
-                target = +target.substr(6);
-            }
-        }
-
-        if (typeof target === "number") {
-            var parent = stage.getParent();
-            if (!parent) {
-                parent = stage.getParent();
-            }
-
-            var tags = parent.getTags();
-            targetMc = tags[target];
-        } else {
-            targetMc = this.getDisplayObject(target);
-        }
-    }
-
-    if (targetMc) {
-        this.unloadMovie(targetMc);
-
-        var xmlHttpRequest = new XMLHttpRequest();
-
-        var targetUrl = url;
-        var body      = null;
-
-        if (SendVarsMethod === 2) {
-            var urls = url.split("?");
-            if (urls[1]) {
-                body = urls[1];
-            }
-
-            targetUrl = urls[0];
-            xmlHttpRequest.open("POST", targetUrl, true);
-            xmlHttpRequest.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-        } else {
-            xmlHttpRequest.open("GET", targetUrl, true);
-        }
-
-        if (this.$canXHR2) {
-            xmlHttpRequest.responseType = "arraybuffer";
-        } else {
-            xmlHttpRequest.overrideMimeType("text/plain; charset=x-user-defined");
-        }
-
-        var self = this;
-        xmlHttpRequest.onreadystatechange = function ()
-        {
-            var readyState = xmlHttpRequest.readyState;
-            var status = xmlHttpRequest.status;
-            if (readyState === 4) {
-                switch (status) {
-                    case 200:
-                    case 304:
-                        var _root     = self.getDisplayObject("_root");
-                        var rootStage = _root.getStage();
-                        var data      = (self.$canXHR2) ? xmlHttpRequest.response : xmlHttpRequest.responseText;
-
-                        var loadStage = new Stage();
-                        self.$loadStages[loadStage.getId()] = loadStage;
-                        targetMc.reset();
-                        targetMc._url = url;
-                        loadStage.setParent(targetMc);
-                        targetMc.setLoadStage(loadStage);
-                        loadStage.parse(data, targetUrl);
-                        loadStage.stop();
-
-                        if (target === 0 || (typeof target !== "number" && !targetMc.getParent())) {
-                            stage.stop();
-                            loadStage.setId(stage.getId());
-                            loadStage.setName(stage.getName());
-                            loadStage.backgroundColor = stage.backgroundColor;
-                            loadStage.initCanvas();
-                            loadStage.loadStatus = 2;
-                            loadStage.loadEvent();
-                            delete loadStages[loadStage.getId()];
-                            stages[stage.getId()] = loadStage;
-                            stage = null;
-                        }
-
-                        var onData = targetMc.variables.onData;
-                        if (typeof onData === "function") {
-                            loadStage.executeEventAction(onData, targetMc);
-                        }
-
-                        var clipEvent = self.$clipEvent;
-                        clipEvent.type = "data";
-                        targetMc.dispatchEvent(clipEvent, rootStage);
-
-                        targetMc.addActions(rootStage);
-
-                        break;
-                }
-            }
-        };
-
-        xmlHttpRequest.send(body);
-    }
-};
-
-/**
- * @param target
- * @returns {number}
- */
-MovieClip.prototype.unloadMovie = function (target)
-{
-    var targetMc = null;
-    if (target instanceof MovieClip) {
-        targetMc = target;
-    } else {
-        targetMc = this.getDisplayObject(target);
-        if (!targetMc) {
-            return 0;
-        }
-    }
-
-    // delete
-    targetMc.reset();
-    targetMc.setLoadStage(null);
-    targetMc.setStage(this.getStage());
-    targetMc.container    = [];
-    targetMc.actions      = [];
-    targetMc.instances    = [];
-    targetMc.labels       = [];
-    targetMc.sounds       = [];
-    targetMc.removeTags   = [];
-    targetMc._totalframes = 1;
-    targetMc._url         = null;
-    targetMc._lockroot    = undefined;
-
-    var loadStage = targetMc.getStage();
-    delete this.$loadStages[loadStage.getId()];
-};
-
-/**
- * @param url
- * @param target
- * @param method
- * @returns {*}
- */
-MovieClip.prototype.getURL = function (url, target, method)
-{
-    if (typeof url === "string") {
-        var cmd = url.substr(0, 9);
-        if (cmd === "FSCommand") {
-            var values = url.split(":");
-            cmd = values.pop();
-            var str = arguments[1];
-            if (str === undefined) {
-                str = "";
-            }
-
-            var stage     = this.getStage();
-            var FSCommand = stage.abc.flash.system.fscommand;
-            return FSCommand.apply(stage, [cmd, str]);
-        }
-    }
-
-    if (target && typeof target === "string") {
-        switch (target.toLowerCase()) {
-            case "_self":
-            case "_blank":
-            case "_parent":
-            case "_top":
-                break;
-            case "post":
-                target = "_self";
-                method = "GET";
-                break;
-            case "get":
-                target = "_self";
-                method = "GET";
-                break;
-            default:
-                if (!method) {
-                    method = "GET";
-                }
-                this.loadMovie(url, target, method);
-                return 0;
-        }
-    }
-
-    // form
-    if (method === "POST") {
-        var form    = this.$document.createElement("form");
-        form.action = url;
-        form.method = method;
-        if (target) {
-            form.target = target;
-        }
-
-        var urls = url.split("?");
-        if (urls.length > 1) {
-            var pears      = urls[1].split("&");
-            var pLen       = pears.length;
-            var _encodeURI = encodeURI;
-
-            var pIdx = 0;
-            while (pIdx < pLen) {
-                var pear = pears[pIdx].split("=");
-                pIdx = 0 | pIdx + 1;
-
-                var input   = this.$document.createElement("input");
-                input.type  = "hidden";
-                input.name  = pear[0];
-                input.value = _encodeURI(pear[1] || "");
-                form.appendChild(input);
-            }
-        }
-
-        this.$document.body.appendChild(form);
-        form.submit();
-    } else {
-        url = url.replace(/'/g, "\\'");
-        var func = new this.$Function("location.href = '" + url + "';");
-        func();
-    }
-};
-
-/**
- * @param url
- * @param target
- * @param method
- */
-MovieClip.prototype.loadVariables = function (url, target, method)
-{
-    var _this = this;
-    var targetMc = _this;
-    if (target) {
-        targetMc = _this.getDisplayObject(target);
-    }
-
-    if (targetMc) {
-        var xmlHttpRequest = new XMLHttpRequest();
-        var body = null;
-        if (method === "POST") {
-            var urls = url.split("?");
-            if (urls[1]) {
-                body = urls[1];
-            }
-            xmlHttpRequest.open(method, urls[0], true);
-            xmlHttpRequest.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-        } else {
-            xmlHttpRequest.open("GET", url, true);
-        }
-
-        xmlHttpRequest.onreadystatechange = function ()
-        {
-            var readyState = xmlHttpRequest.readyState;
-            if (readyState === 4) {
-                var status = xmlHttpRequest.status;
-                switch (status) {
-                    case 200:
-                    case 304:
-                        var responseText = decodeURIComponent(xmlHttpRequest.responseText);
-                        var pairs = responseText.split("&");
-                        var length = pairs.length;
-                        for (var idx = 0; idx < length; idx++) {
-                            var pair = pairs[idx];
-                            var values = pair.split("=");
-                            targetMc.setVariable(values[0], values[1]);
-                        }
-
-                        var _root = _this.getDisplayObject();
-                        var rootStage = _root.getStage();
-                        var stage = _this.getStage();
-                        var onData = targetMc.variables.onData;
-                        if (typeof onData === "function") {
-                            stage.executeEventAction(onData, targetMc);
-                        }
-
-                        clipEvent.type = "data";
-                        targetMc.dispatchEvent(clipEvent, rootStage);
-
-                        break;
-                }
-            }
-        };
-        xmlHttpRequest.send(body);
-    }
-};
-
-/**
- * @returns {boolean}
- */
-MovieClip.prototype.hitTest = function ()
-{
-    var targetMc = arguments[0];
-    var x = 0;
-    var y = 0;
-    var bool = false;
-    if (!(targetMc instanceof MovieClip)) {
-        x = arguments[0];
-        y = arguments[1];
-        bool = arguments[2];
-        if (!x || !y) {
-            return false;
-        }
-    }
-
-    var bounds = this.getHitBounds();
-    var xMax = bounds.xMax;
-    var xMin = bounds.xMin;
-    var yMax = bounds.yMax;
-    var yMin = bounds.yMin;
-
-    if (targetMc instanceof MovieClip) {
-        var targetBounds = targetMc.getHitBounds();
-        var txMax = targetBounds.xMax;
-        var txMin = targetBounds.xMin;
-        var tyMax = targetBounds.yMax;
-        var tyMin = targetBounds.yMin;
-        return (txMax > xMin && tyMax > yMin && xMax > txMin && yMax > tyMin);
-    } else {
-        if (x >= xMin && x <= xMax && y >= yMin && y <= yMax) {
-            if (bool) {
-                var matrix = [1,0,0,1,0,0];
-                var mc = this;
-                while (true) {
-                    var parent = mc.getParent();
-                    if (!parent.getParent()) {
-                        break;
-                    }
-                    matrix = this.$multiplicationMatrix(parent.getMatrix(), matrix);
-                    mc = parent;
-                }
-                var _root = this.getDisplayObject("_root");
-                var stage = _root.getStage();
-                var ctx = stage.hitContext;
-                var scale = stage.getScale();
-                x *= scale;
-                y *= scale;
-                y *= this.$devicePixelRatio;
-                x *= this.$devicePixelRatio;
-
-                return this.renderHitTest(ctx, matrix, stage, x, y);
-            } else {
-                return true;
-            }
-        }
-        return false;
-    }
-};
-
-/**
- * @returns {{xMin: *, xMax: *, yMin: *, yMax: *}}
- * @returns {*}
- */
-MovieClip.prototype.getHitBounds = function ()
-{
-    var _this = this;
-    var mc = _this;
-    var matrix = _this.getMatrix();
-    var _multiplicationMatrix = _this.multiplicationMatrix;
-    while (true) {
-        var parent = mc.getParent();
-        if (!parent.getParent()) {
-            break;
-        }
-        matrix = _multiplicationMatrix(parent.getMatrix(), matrix);
-        mc = parent;
-    }
-    return _this.getBounds(matrix);
-};
-
-/**
- * @param depth
- * @returns {*}
- */
-MovieClip.prototype.getInstanceAtDepth = function (depth)
-{
-    var _this = this;
-    var parent = _this.getParent();
-    if (!parent) {
-        parent = _this.getDisplayObject("_root");
-    }
-    var tags = parent.getTags();
-    depth += 16384;
-    return tags[depth];
-};
-
-/**
- * swapDepths
- */
-MovieClip.prototype.swapDepths = function ()
-{
-    var _this = this;
-    var mc = arguments[0];
-    var depth = 0;
-    var parent = _this.getParent();
-    if (parent) {
-        var tags = parent.getTags();
-        if (mc instanceof MovieClip) {
-            if (parent === mc.getParent()) {
-                depth = _this.getDepth() + 16384;
-                var swapDepth = mc.getDepth() + 16384;
-                _this.setDepth(depth, swapDepth, mc);
-            }
-        } else {
-            depth = arguments[0];
-            if (this.$isNaN(depth)) {
-                depth = parent.getNextHighestDepth();
-            }
-            if (16384 > depth) {
-                depth += 16384;
-            }
-            if (depth in tags) {
-                var id = tags[depth];
-                if (id !== _this.instanceId) {
-                    var stage = _this.getStage();
-                    var instance = stage.getInstance(id);
-                    _this.swapDepths(instance);
-                }
-            } else {
-                _this.setDepth(depth, null, null);
-            }
-        }
-    }
-};
-
-/**
- * @param id
- * @param name
- * @param depth
- * @param object
- * @returns {*}
- */
-MovieClip.prototype.attachMovie = function (id, name, depth, object)
-{
-    var movieClip = null;
-    var _this = this;
-    if (_isNaN(depth)) {
-        depth = _this.getNextHighestDepth();
-    }
-    if (depth < 16384) {
-        depth += 16384;
-    }
-
-    var mc = _this.getDisplayObject(name);
-    if (mc) {
-        mc.removeMovieClip();
-    }
-
-    var stage = _this.getStage();
-    var exportAssets = stage.exportAssets;
-    if (id in exportAssets) {
-        var characterId = exportAssets[id];
-        var tag = stage.getCharacter(characterId);
-        if (tag) {
-            movieClip = new MovieClip();
-            movieClip.setStage(stage);
-            movieClip.setParent(_this);
-            movieClip.setCharacterId(characterId);
-            movieClip.setLevel(depth);
-            movieClip.setName(name);
-            movieClip.setTarget(_this.getTarget() + "/" + name);
-
-            // init action
-            var initAction = stage.initActions[characterId];
-            if (typeof initAction === "function") {
-                movieClip.active = true;
-                initAction.apply(movieClip);
-                movieClip.reset();
-            }
-
-            // registerClass
-            var RegClass = stage.registerClass[characterId];
-            if (RegClass) {
-                movieClip.variables.registerClass = new RegClass();
-            }
-
-            var swfTag = new SwfTag(stage, null);
-            swfTag.build(tag, movieClip);
-
-            var placeObject = new PlaceObject();
-            var instanceId = _this.instanceId;
-            var totalFrame = _this.getTotalFrames() + 1;
-            var container = _this.getContainer();
-            for (var frame = 1; frame < totalFrame; frame++) {
-                if (!(frame in container)) {
-                    container[frame] = [];
-                }
-                container[frame][depth] = movieClip.instanceId;
-                stage.setPlaceObject(placeObject, instanceId, depth, frame);
-            }
-
-            if (object) {
-                for (var prop in object) {
-                    if (!object.hasOwnProperty(prop)) {
-                        continue;
-                    }
-                    movieClip.setProperty(prop, object[prop]);
-                }
-            }
-
-            var _root = _this.getDisplayObject("_root");
-            var rootStage = _root.getStage();
-            movieClip.addActions(rootStage);
-        }
-    }
-    return movieClip;
-};
-
-/**
- * @returns {number}
- */
-MovieClip.prototype.getNextHighestDepth = function ()
-{
-    var depth = 0;
-    var _this = this;
-    var container = _this.getContainer();
-    for (var idx in container) {
-        if (!container.hasOwnProperty(idx)) {
-            continue;
-        }
-        var children = container[idx];
-        depth = _max(depth, children.length);
-    }
-    if (16384 > depth) {
-        depth = 0;
-    }
-    return depth;
-};
-
-/**
- * @returns {*}
- */
-MovieClip.prototype.getBytesLoaded = function ()
-{
-    var _this = this;
-    var stage = _this.getStage();
-    var bitio = stage.bitio;
-    return (!bitio) ? stage.fileSize : bitio.byte_offset;
-};
-
-/**
- * @returns {number|*|fileLength}
- */
-MovieClip.prototype.getBytesTotal = function ()
-{
-    var _this = this;
-    var stage = _this.getStage();
-    return stage.fileSize;
-};
-
-/**
- * updateAfterEvent
- */
-MovieClip.prototype.updateAfterEvent = function ()
-{
-    var _this = this;
-    var _root = _this.getDisplayObject("_root");
-    var stage = _root.getStage();
-    stage.touchRender();
-};
-
-/**
- * @returns {*}
- */
-MovieClip.prototype.duplicateMovieClip = function ()
-{
-    var _this = this;
-    var _root = _this.getDisplayObject("_root");
-    var stage = _root.getStage();
-    var target = arguments[0];
-    var name = arguments[1];
-    var depth = arguments[2];
-
-    var targetMc = _this.getDisplayObject(name);
-    var parent;
-    var object;
-    if (!targetMc && stage.getVersion() > 4) {
-        target = arguments[0];
-        depth = arguments[1];
-        if (_isNaN(depth)) {
-            parent = _this.getParent();
-            if (!parent) {
-                parent = stage.getParent();
-            }
-            depth = parent.getNextHighestDepth();
-        }
-        object = arguments[2];
-        targetMc = _this;
-    }
-
-    if (16384 > depth) {
-        depth += 16384;
-    }
-
-    var cloneMc;
-    if (targetMc && targetMc.getCharacterId() !== 0) {
-        stage = targetMc.getStage();
-        parent = targetMc.getParent();
-        if (!parent) {
-            parent = stage.getParent();
-        }
-
-        var char = stage.getCharacter(targetMc.characterId);
-        var swftag = new SwfTag(stage);
-        if (char instanceof Array) {
-            cloneMc = new MovieClip();
-            cloneMc.setStage(stage);
-            cloneMc.setParent(parent);
-            cloneMc.setLevel(depth);
-            cloneMc.setTotalFrames(targetMc.getTotalFrames());
-            cloneMc.setCharacterId(targetMc.characterId);
-            swftag.build(char, cloneMc);
-        } else {
-            var tag = {
-                CharacterId: targetMc.characterId,
-                Ratio: 0,
-                Depth: depth
-            };
-            cloneMc = swftag.buildObject(tag, parent);
-        }
-
-        cloneMc.setName(target);
-        if (targetMc._matrix) {
-            cloneMc._blendMode = targetMc._blendMode;
-            cloneMc._filters = targetMc._filters;
-            cloneMc._matrix = _this.cloneArray(targetMc._matrix);
-            cloneMc._colorTransform = _this.cloneArray(targetMc._colorTransform);
-        }
-
-        var totalFrame = parent.getTotalFrames() + 1;
-        var container = parent.getContainer();
-        var instanceId = parent.instanceId;
-        var placeObjects = stage.placeObjects[instanceId];
-        var level = targetMc.getLevel();
-        for (var frame = 1; frame < totalFrame; frame++) {
-            if (!(frame in container)) {
-                container[frame] = [];
-            }
-            container[frame][depth] = cloneMc.instanceId;
-
-            if (frame in placeObjects) {
-                var placeObject = placeObjects[frame][level];
-                if (placeObject) {
-                    if (!(frame in placeObjects)) {
-                        placeObjects[frame] = [];
-                    }
-                    placeObjects[frame][depth] = placeObject.clone();
-                }
-            }
-        }
-
-        if (object) {
-            for (var prop in object) {
-                if (!object.hasOwnProperty(prop)) {
-                    continue;
-                }
-                cloneMc.setProperty(prop, object[prop]);
-            }
-        }
-
-        cloneMc.addActions(stage);
-    }
-
-    return cloneMc;
-};
-
-/**
- * @param name
- */
-MovieClip.prototype.removeMovieClip = function (name)
-{
-    var _this = this;
-    var targetMc = _this;
-    if (typeof name === "string") {
-        var target = _this.getDisplayObject(name);
-        if (target) {
-            targetMc = target;
-        }
-    }
-
-    var depth = targetMc.getDepth() + 16384;
-    var level = targetMc.getLevel();
-    if (targetMc instanceof MovieClip && depth >= 16384) {
-        targetMc.reset();
-        targetMc.removeFlag = true;
-        var parent = targetMc.getParent();
-        var container = parent.getContainer();
-        var instanceId = targetMc.instanceId;
-        var tagId;
-        for (var frame = parent.getTotalFrames() + 1; --frame;) {
-            if (!(frame in container)) {
-                continue;
-            }
-
-            var tags = container[frame];
-            if (depth in tags) {
-                tagId = tags[depth];
-                if (tagId === instanceId) {
-                    delete container[frame][depth];
-                }
-            }
-
-            if (depth !== level && 16384 > level) {
-                if (!(level in tags)) {
-                    tags[level] = instanceId;
-                }
-            }
-        }
-    }
-};
-
-/**
- * initFrame
- */
-MovieClip.prototype.initFrame = function ()
-{
-    this.active = true;
-
-    var stage  = this.getStage();
-    var tags   = this.getTags();
-    var length = tags.length;
-    if (length) {
-        tags.reverse();
-        for (var depth in tags) {
-            if (!tags.hasOwnProperty(depth)) {
-                continue;
-            }
-
-            var instanceId = tags[depth];
-            var instance   = stage.getInstance(instanceId);
-            if (!instance) {
-                continue;
-            }
-
-            instance.initFrame();
-        }
-        tags.reverse();
-    }
-
-    var initAction = stage.initActions[this.getCharacterId()];
-    if (typeof initAction === "function") {
-        initAction.apply(this);
-    }
-};
-
-/**
- * @param stage
- * @param clipEvent
- */
-MovieClip.prototype.putFrame = function (stage, clipEvent)
-{
-    var prevTags;
-    var myStage  = this.getStage();
-    if (!this.stopFlag && this.active) {
-        var frame       = this.getCurrentFrame()|0;
-        var totalFrames = this.getTotalFrames()|0;
-        if (totalFrames > 1) {
-            if (this.isLoad) {
-                prevTags = this.getTags();
-                frame = (frame + 1)|0;
-            }
-
-            if (frame > totalFrames) {
-                frame = 1;
-                this.resetCheck();
-            }
-
-            this.setCurrentFrame(frame);
-            this.remove(stage);
-
-            this.isAction      = true;
-            this.soundStopFlag = false;
-        }
-    }
-
-    if (this.removeFlag) {
-        return 0;
-    }
-
-    this.active = true;
-    if (prevTags) {
-        if (this.isSwap) {
-            this.resetSwap();
-        }
-
-        var tags   = this.getTags();
-        var length = tags.length;
-        if (length && tags.toString() !== prevTags.toString()) {
-            for (var depth in tags) {
-                if (!tags.hasOwnProperty(depth)) {
-                    continue;
-                }
-
-                var instanceId = tags[depth];
-                if (depth in prevTags && instanceId === prevTags[depth]) {
-                    continue;
-                }
-
-                var instance = myStage.getInstance(instanceId);
-                if (instance && instance.getClassName() === "MovieClip") {
-                    stage.newTags.unshift(instance);
-                }
-            }
-        }
-    }
-
-    if (this.isLoad) {
-        clipEvent.type = "enterFrame";
-        this.dispatchEvent(clipEvent, stage);
-        this.dispatchOnEvent("onEnterFrame", stage);
-        this.addTouchEvent(stage);
-
-        if (this.isAction) {
-            this.isAction = false;
-            var as = this.getActions(this.getCurrentFrame());
-            if (as) {
-                this.setActionQueue(as, stage);
-            }
-        }
-    } else {
-        // init action
-        var initAction = myStage.initActions[this.getCharacterId()];
-        if (typeof initAction === "function") {
-            initAction.apply(this);
-        }
-    }
-};
-
-/**
- * nextFrame
- */
-MovieClip.prototype.nextFrame = function ()
-{
-    var _this = this;
-    var frame = _this.getCurrentFrame();
-    frame++;
-    _this.setNextFrame(frame);
-    _this.stop();
-};
-
-/**
- * prevFrame
- */
-MovieClip.prototype.prevFrame = function ()
-{
-    var frame = this.getCurrentFrame()|0;
-    frame = (frame - 1)|0;
-    this.setNextFrame(frame);
-    this.stop();
-};
-
-/**
- * @returns {number}
- */
-MovieClip.prototype.getCurrentFrame = function ()
-{
-    return this._currentframe;
-};
-
-/**
- * @param frame
- */
-MovieClip.prototype.setCurrentFrame = function (frame)
-{
-    this._currentframe = frame|0;
-};
-
-/**
- * @param frame
- */
-MovieClip.prototype.setNextFrame = function (frame)
-{
-    if (frame > 0 && this.getCurrentFrame() !== frame) {
-        this.isAction = true;
-
-        if (frame > this.getTotalFrames()) {
-            frame = this.getTotalFrames()|0;
-            this.isAction = false;
-        }
-
-        var maxFrame = (this.$max(frame, this.getCurrentFrame()) + 1)|0;
-        var minFrame = this.$min(frame, this.getCurrentFrame())|0;
-
-        var tag, tagId, depth, nextTag, nextTagId;
-        var checked  = [];
-        var stage    = this.getStage();
-        var tags     = this.getTags();
-        var nextTags = this.getTags(frame);
-
-        var length = this.$max(tags.length, nextTags.length)|0;
-        if (length) {
-            depth = 0;
-            while (depth < length) {
-                tagId     = (depth in tags) ? tags[depth]|0 : 0;
-                nextTagId = (depth in nextTags) ? nextTags[depth]|0 : 0;
-
-                if (!tagId && !nextTagId) {
-                    depth = (depth + 1)|0;
-                    continue;
-                }
-
-                if (tagId && nextTagId) {
-                    if (tagId === nextTagId) {
-                        checked[tagId] = true;
-                        depth = (depth + 1)|0;
-                        continue;
-                    }
-
-                    tag     = stage.getInstance(tagId);
-                    nextTag = stage.getInstance(nextTagId);
-
-                    tag.reset();
-                    nextTag.reset();
-
-                    checked[tagId]     = true;
-                    checked[nextTagId] = true;
-                } else if (tagId) {
-                    tag = stage.getInstance(tagId);
-                    tag.reset();
-                    checked[tagId] = true;
-                } else if (nextTagId) {
-                    nextTag = stage.getInstance(nextTagId);
-                    nextTag.reset();
-                    checked[nextTagId] = true;
-                }
-
-                depth = (depth + 1)|0;
-            }
-        }
-
-        if (checked.length) {
-            var chkFrame = minFrame;
-            while (chkFrame < maxFrame) {
-                var container = this.getTags(chkFrame);
-                if (!container.length) {
-                    chkFrame = (chkFrame + 1)|0;
-                    continue;
-                }
-
-                chkFrame = (chkFrame + 1)|0;
-                for (depth in container) {
-                    if (!container.hasOwnProperty(depth)) {
-                        continue;
-                    }
-
-                    tagId = container[depth|0]|0;
-                    if (tagId in checked) {
-                        continue;
-                    }
-
-                    checked[tagId] = true;
-                    tag = stage.getInstance(tagId);
-                    tag.reset();
-                }
-            }
-        }
-
-        this.setCurrentFrame(frame);
-        this.soundStopFlag = false;
-
-        var _root     = this.getDisplayObject("_root");
-        var rootStage = _root.getStage();
-        this.addActions(rootStage);
-    }
-};
-
-/**
- * @returns {number}
- */
-MovieClip.prototype.getTotalFrames = function ()
-{
-    return this._totalframes;
-};
-
-/**
- * @param frame
- */
-MovieClip.prototype.setTotalFrames = function (frame)
-{
-    this._totalframes  = frame|0;
-    this._framesloaded = frame|0;
-};
-
-/**
- * addLabel
- * @param frame
- * @param name
- */
-MovieClip.prototype.addLabel = function (frame, name)
-{
-    name = name + "";
-    this.labels[name.toLowerCase()] = frame|0;
-};
-
-/**
- * @param name
- * @returns {*}
- */
-MovieClip.prototype.getLabel = function (name)
-{
-    name = name + "";
-    return this.labels[name.toLowerCase()];
-};
-
-/**
- * @param frame
- * @param obj
- */
-MovieClip.prototype.addSound = function (frame, obj)
-{
-    if (!(frame in this.sounds)) {
-        this.sounds[frame] = [];
-    }
-    this.sounds[frame].push(obj);
-};
-
-/**
- * @returns {*}
- */
-MovieClip.prototype.getSounds = function ()
-{
-    return this.sounds[this.getCurrentFrame()|0];
-};
-
-/**
- * @param sound
- */
-MovieClip.prototype.startSound = function (sound)
-{
-    var stage   = this.getStage();
-    var soundId = sound.SoundId|0;
-
-    var tag = stage.getCharacter(soundId);
-    if (!tag) {
-        return 0;
-    }
-
-    var soundInfo = tag.SoundInfo;
-    this.$startSound(sound.Audio, soundInfo);
-    this.soundStopFlag = true;
-};
-
-/**
- * @param frame
- * @returns {*}
- */
-MovieClip.prototype.getTags = function (frame)
-{
-    return this.container[frame || this.getCurrentFrame()] || [];
-};
-
-/**
- * @param frame
- * @param tags
- */
-MovieClip.prototype.setRemoveTag = function (frame, tags)
-{
-    var removeTags = [];
-
-    var length = tags.length|0;
-    var i = 0;
-    while (i < length) {
-        var tag = tags[i];
-        i = (i + 1)|0;
-
-        removeTags[tag.Depth] = 1;
-    }
-
-    this.removeTags[frame] = removeTags;
-};
-
-/**
- * @param frame
- * @returns {*}
- */
-MovieClip.prototype.getRemoveTags = function (frame)
-{
-    return this.removeTags[frame];
-};
-
-/**
- * @param stage
- */
-MovieClip.prototype.remove = function (stage)
-{
-    var removeTags = this.getRemoveTags(this.getCurrentFrame());
-    if (removeTags) {
-        var myStage = this.getStage();
-        var frame   = (this.getCurrentFrame() - 1)|0;
-        var tags    = this.getTags(frame);
-        for (var idx in tags) {
-            if (!tags.hasOwnProperty(idx)) {
-                continue;
-            }
-
-            var instanceId = tags[idx]|0;
-            var tag = myStage.getInstance(instanceId);
-            if (!tag) {
-                continue;
-            }
-
-            if (tag.getClassName() === "MovieClip") {
-                var depth = (tag.getDepth() + 16384)|0;
-                if (!(depth in removeTags)) {
-                    continue;
-                }
-
-                var clipEvent  = this.$clipEvent;
-                clipEvent.type = "unload";
-                this.dispatchEvent(clipEvent, stage);
-
-                tag.reset();
-            } else {
-                if (!(idx in removeTags)) {
-                    continue;
-                }
-
-                tag.reset();
-            }
-        }
-    }
-};
-
-/**
- * resetCheck
- */
-MovieClip.prototype.resetCheck = function ()
-{
-    var stage = this.getStage();
-
-    var instances = this.getInstances();
-    for (var id in instances) {
-        if (!instances.hasOwnProperty(id)) {
-            continue;
-        }
-
-        var instance = stage.getInstance(id);
-        if (!instance || (!instance.getRatio() && !instance.removeFlag)) {
-            continue;
-        }
-
-        instance.reset();
-    }
-};
-
-/**
- * resetSwap
- */
-MovieClip.prototype.resetSwap = function ()
-{
-    var _this = this;
-    var stage = _this.getStage();
-    var currentTags = _this.getTags();
-    var totalFrames = _this.getTotalFrames() + 1;
-    for (var frame = 1; frame < totalFrames; frame++) {
-        var tags = _this.getTags(frame);
-        var length = tags.length;
-        if (length) {
-            var resetTags = [];
-            for (var depth in tags) {
-                if (!tags.hasOwnProperty(depth)) {
-                    continue;
-                }
-
-                depth |= 0;
-                var tagId = tags[depth];
-                var instance = stage.getInstance(tagId);
-                if (!instance) {
-                    delete tags[depth];
-                    continue;
-                }
-
-                if (instance.active) {
-                    continue;
-                }
-
-                if (instance.getLevel() !== depth) {
-                    if (!(instance.getLevel() in currentTags)) {
-                        instance._depth = null;
-                        resetTags[instance.getLevel()] = tagId;
-                    }
-                    delete tags[depth];
-                }
-            }
-
-            length = resetTags.length;
-            if (length) {
-                for (var level in resetTags) {
-                    if (!resetTags.hasOwnProperty(level)) {
-                        continue;
-                    }
-                    tags[level] = resetTags[level];
-                }
-            }
-        }
-    }
-    _this.isSwap = false;
-};
-
-/**
- * reset
- */
-MovieClip.prototype.reset = function ()
-{
-    var stage     = this.getStage();
-    var instances = this.getInstances();
-    for (var id in instances) {
-        if (!instances.hasOwnProperty(id)) {
-            continue;
-        }
-
-        var instance = stage.getInstance(id);
-        if (instance.getClassName() === "MovieClip" && instance.getDepth() >= 0) {
-            instance.removeMovieClip();
-            if (instance.getDepth() < 0) {
-                instance.removeFlag = false;
-            }
-        } else {
-            instance.reset();
-        }
-    }
-
-    var parent = this.getParent();
-    if (parent && this.getLevel() !== this.getDepth()+16384) {
-        parent.isSwap = true;
-    }
-
-    this.play();
-    this.setCurrentFrame(1);
-    this.clear();
-    this.initParams();
-    this.variables = {};
-};
-
-/**
- * init
- */
-MovieClip.prototype.initParams = function ()
-{
-    this.active          = false;
-    this.removeFlag      = false;
-    this.isLoad          = false;
-    this.isMask          = false;
-    this.isAction        = true;
-    this.soundStopFlag   = false;
-    this._droptarget     = null;
-    this._depth          = null;
-    this._mask           = null;
-    this._matrix         = null;
-    this._colorTransform = null;
-    this._filters        = null;
-    this._blendMode      = null;
-    this.buttonStatus    = "up";
-    this.mouseEnabled    = true;
-    this.setVisible(true);
-    this.setEnabled(true);
-};
-
-/**
- * @param stage
- */
-MovieClip.prototype.addTouchEvent = function (stage)
-{
-    var events = this.events;
-
-    var moveEventHits    = stage.moveEventHits;
-    var downEventHits    = stage.downEventHits;
-    var upEventHits      = stage.upEventHits;
-    var keyDownEventHits = stage.keyDownEventHits;
-    for (var name in events) {
-        if (!events.hasOwnProperty(name)) {
-            continue;
-        }
-        var as = events[name];
-        switch (name) {
-            case "mouseDown":
-                downEventHits[downEventHits.length] = {
-                    as: as,
-                    mc: this
-                };
-                break;
-            case "mouseMove":
-                moveEventHits[moveEventHits.length] = {
-                    as: as,
-                    mc: this
-                };
-                break;
-            case "mouseUp":
-                upEventHits[upEventHits.length] = {
-                    as: as,
-                    mc: this
-                };
-                break;
-            case "keyDown":
-                if (this.$isTouch) {
-                    downEventHits[downEventHits.length] = {
-                        as: as,
-                        mc: this
-                    };
-                } else {
-                    keyDownEventHits[keyDownEventHits.length] = {
-                        as: as,
-                        mc: this
-                    };
-                }
-                break;
-            case "keyUp":
-                upEventHits[upEventHits.length] = {
-                    as: as,
-                    mc: this
-                };
-                break;
-        }
-    }
-
-    var variables = this.variables;
-
-    var onMouseDown = variables.onMouseDown;
-    if (onMouseDown) {
-        downEventHits[downEventHits.length] = {mc: this};
-    }
-    var onMouseMove = variables.onMouseMove;
-    if (onMouseMove) {
-        moveEventHits[moveEventHits.length] = {mc: this};
-    }
-    var onMouseUp = variables.onMouseUp;
-    if (onMouseUp) {
-        upEventHits[upEventHits.length] = {mc: this};
-    }
-};
-
-/**
- * @param script
- * @returns {*}
- */
-MovieClip.prototype.createActionScript = function (script)
-{
-    return (function (clip, origin)
-    {
-        var as = new ActionScript([], origin.constantPool, origin.register, origin.initAction);
-        as.cache = origin.cache;
-        as.scope = clip;
-        return function ()
-        {
-            as.reset();
-            as.variables["this"] = this;
-            return as.execute(clip);
-        };
-    })(this, script);
-};
-
-/**
- * @param script
- * @param parent
- */
-MovieClip.prototype.createActionScript2 = function (script, parent)
-{
-    return (function (clip, origin, chain)
-    {
-        return function ()
-        {
-            var as = new ActionScript([], origin.constantPool, origin.register, origin.initAction);
-            as.parentId = origin.id; // todo
-            as.cache    = origin.cache;
-            as.scope    = clip;
-            as.parent   = (chain) ? chain : null;
-            if (as.register.length) {
-                as.initVariable(arguments);
-            }
-            as.variables["this"] = this;
-            return as.execute(clip);
-        };
-    })(this, script, parent);
-};
-
-/**
- * addFrameScript
- */
-MovieClip.prototype.addFrameScript = function ()
-{
-    var args   = arguments;
-    var length = args.length;
-    var i = 0;
-    while (i < length) {
-        var frame = args[i];
-        i = (i + 1)|0;
-
-        var script = args[i];
-        i = (i + 1)|0;
-
-        if (typeof frame === "string") {
-            frame = this.getLabel(frame)|0;
-        } else {
-            frame = (frame + 1)|0;
-        }
-
-        frame = frame|0;
-        if (frame > 0 && this.getTotalFrames() >= frame) {
-            var actions = this.actions;
-            if (!(frame in actions)) {
-                actions[frame] = [];
-            }
-
-            if (!script) {
-                actions[frame] = [];
-            } else {
-                var aLen = actions[frame].length|0;
-                actions[frame][aLen] = script;
-            }
-        }
-    }
-};
-
-/**
- * @param stage
- */
-MovieClip.prototype.addActions = function (stage)
-{
-    this.active = true;
-    var myStage = this.getStage();
-
-    if (this.isAction) {
-        this.isAction = false;
-        if (!this.isLoad) {
-
-            // as3
-            this.buildAVM2();
-
-            // registerClass
-            var RegClass = myStage.registerClass[this.getCharacterId()];
-            if (typeof RegClass === "function") {
-                this.variables.registerClass = new RegClass();
-            }
-
-            // clipEvent
-            var clipEvent = this.$clipEvent;
-
-            // initialize
-            clipEvent.type = "initialize";
-            this.dispatchEvent(clipEvent, stage);
-
-            // construct
-            clipEvent.type = "construct";
-            this.dispatchEvent(clipEvent, stage);
-
-            // load
-            clipEvent.type = "load";
-            this.dispatchEvent(clipEvent, stage);
-
-            var onLoad = this.variables.onLoad;
-            if (typeof onLoad === "function") {
-                this.setActionQueue(onLoad, stage);
-            }
-
-            this.addTouchEvent(stage);
-        }
-
-        var action = this.getActions(this.getCurrentFrame());
-        if (action) {
-            this.setActionQueue(action, stage);
-        }
-    }
-
-    var tags   = this.getTags();
-    var length = tags.length;
-    if (length) {
-        for (var depth in tags) {
-            if (!tags.hasOwnProperty(depth)) {
-                continue;
-            }
-
-            var instanceId = tags[depth]|0;
-            var instance   = myStage.getInstance(instanceId);
-            if (!instance) {
-                continue;
-            }
-
-            instance.addActions(stage);
-        }
-    }
-};
-
-/**
- * @param frame
- * @returns {*}
- */
-MovieClip.prototype.getActions = function (frame)
-{
-    return this.actions[frame];
-
-};
-
-/**
- * @param frame
- * @param actionScript
- */
-MovieClip.prototype.setActions = function (frame, actionScript)
-{
-    var actions = this.actions;
-    if (!(frame in actions)) {
-        actions[frame] = [];
-    }
-
-    var length = actions[frame].length;
-    actions[frame][length] = this.createActionScript(actionScript);
-};
-
-/**
- * @param frame
- * @param action
- */
-MovieClip.prototype.overWriteAction = function (frame, action)
-{
-    if (typeof frame === "string") {
-        var label = this.getLabel(frame);
-        if (label) {
-            frame = label;
-        }
-    }
-
-    frame |= 0;
-    if (frame > 0 && this.getTotalFrames() >= frame) {
-        this.actions[frame] = [action];
-    }
-};
-
-/**
- * @param frame
- * @param action
- */
-MovieClip.prototype.addAction = function (frame, action)
-{
-    if (typeof frame === "string") {
-        var label = this.getLabel(frame);
-        if (label) {
-            frame = label;
-        }
-    }
-
-    frame |= 0;
-    if (frame > 0 && this.getTotalFrames() >= frame) {
-        var actions = this.actions;
-        if (!(frame in actions)) {
-            actions[frame] = [];
-        }
-
-        var length = actions[frame].length;
-        actions[frame][length] = action;
-    }
-};
-
-/**
- * @param frame
- */
-MovieClip.prototype.executeActions = function (frame)
-{
-    var actions = this.getActions(frame);
-    if (actions) {
-        var length = actions.length|0;
-
-        var i = 0;
-        while (i < length) {
-            var action = actions[i];
-            i = (i + 1)|0;
-
-            action.apply(this);
-        }
-    }
-};
-
-/**
- * ASSetPropFlags
- */
-MovieClip.prototype.ASSetPropFlags = function ()
-{
-    // object, properties, n, allowFalse
-};
-
-/**
- * @param rgb
- * @param alpha
- */
-MovieClip.prototype.beginFill = function (rgb, alpha)
-{
-    this.getGraphics().beginFill(rgb, alpha);
-};
-
-/**
- * @param width
- * @param rgb
- * @param alpha
- * @param pixelHinting
- * @param noScale
- * @param capsStyle
- * @param jointStyle
- * @param miterLimit
- */
-MovieClip.prototype.lineStyle = function (width, rgb, alpha, pixelHinting, noScale, capsStyle, jointStyle, miterLimit)
-{
-    this.getGraphics().lineStyle(width, rgb, alpha, pixelHinting, noScale, capsStyle, jointStyle, miterLimit);
-};
-
-/**
- * @param dx
- * @param dy
- */
-MovieClip.prototype.moveTo = function (dx, dy)
-{
-    this.getGraphics().moveTo(dx, dy);
-};
-
-/**
- * @param dx
- * @param dy
- */
-MovieClip.prototype.lineTo = function (dx, dy)
-{
-    this.getGraphics().lineTo(dx, dy);
-};
-
-/**
- * @param cx
- * @param cy
- * @param dx
- * @param dy
- */
-MovieClip.prototype.curveTo = function (cx, cy, dx, dy)
-{
-    this.getGraphics().curveTo(cx, cy, dx, dy);
-};
-
-/**
- * clear
- */
-MovieClip.prototype.clear = function ()
-{
-    this.getGraphics().clear();
-};
-
-/**
- * endFill
- */
-MovieClip.prototype.endFill = function ()
-{
-    this.getGraphics().endFill();
-};
-
-/**
- * buildAVM2
- */
-MovieClip.prototype.buildAVM2 = function ()
-{
-    return;
-    var _this = this;
-    var stage = _this.getStage();
-    var symbol = stage.symbols[_this.getCharacterId()];
-    if (symbol) {
-        var symbols = symbol.split(".");
-        var classMethod = symbols.pop();
-        var length = symbols.length;
-        var classObj = stage.avm2;
-        var abcObj = stage.abc;
-        for (var i = 0; i < length; i++) {
-            classObj = classObj[symbols[i]];
-            abcObj = abcObj[symbols[i]];
-        }
-
-        // build abc
-        var DoABC = abcObj[classMethod];
-        var ABCObj = new DoABC(_this);
-        // classObj[classMethod] = ABCObj;
-        _this.avm2 = ABCObj;
-        // AVM2 init
-        var AVM2 = ABCObj[classMethod];
-        if (typeof AVM2 === "function") {
-            _this.actions = [];
-            AVM2.apply(_this, []);
-        }
-    }
-};
 /**
  * @param fastCompression
  * @constructor
@@ -11739,11 +10228,17 @@ var Shape = function ()
 {
     DisplayObject.call(this);
 
-    this.data      = null;
-    this._graphics = new Graphics();
+    this._$data     = null;
+    this._$graphics = new Graphics();
+    this._$morphing = false;
 
     var no = this.$Number.MAX_VALUE;
-    this.setBounds({xMin: no, xMax: -no, yMin: no, yMax: -no});
+    this.setBounds({
+        xMin: no,
+        xMax: -no,
+        yMin: no,
+        yMax: -no
+    });
 };
 
 /**
@@ -11758,9 +10253,15 @@ Shape.prototype.constructor = Shape;
  */
 Object.defineProperties(Shape.prototype, {
     graphics: {
+        /**
+         * @returns {Graphics}
+         */
         get: function () {
             return this.getGraphics();
         },
+        /**
+         * readonly
+         */
         set: function () {}
     }
 });
@@ -11775,9 +10276,22 @@ Shape.prototype.setHitRange = function () {};
 /**
  * @returns {string}
  */
-Shape.prototype.getClassName = function ()
+Shape.prototype.toString = function ()
 {
-    return "Shape";
+    return "[object Shape]";
+};
+
+/**
+ * @returns {Shape}
+ */
+Shape.prototype._$build = function ()
+{
+    var shape = new Shape();
+    shape.characterId = this.characterId;
+
+    return shape
+        .setData(this.getData())
+        .setBounds(this._$bounds);
 };
 
 /**
@@ -11795,27 +10309,31 @@ Shape.prototype.putFrame = function (stage, clipEvent)
  */
 Shape.prototype.getGraphics = function ()
 {
-    return this._graphics;
+    return this._$graphics;
 };
 
 /**
- * @returns []
+ * @returns {array}
  */
 Shape.prototype.getData = function ()
 {
-    return this.data;
+    return this._$data;
 };
 
 /**
- * @param data
+ * @param   {object} data
+ * @returns {Shape}
  */
 Shape.prototype.setData = function (data)
 {
-    this.data = data;
+    this._$data = data;
+    return this;
 };
 
 /**
- * @returns {{}}
+ *
+ * @param   {array}  matrix
+ * @returns {object}
  */
 Shape.prototype.getBounds = function (matrix)
 {
@@ -11825,7 +10343,7 @@ Shape.prototype.getBounds = function (matrix)
     var isDraw   = graphics.isDraw;
 
     if (matrix) {
-        bounds = this.boundsMatrix(this.bounds, matrix);
+        bounds = this.boundsMatrix(this._$bounds, matrix);
         if (isDraw) {
             gBounds = this.boundsMatrix(graphics.getBounds(), matrix);
             bounds.xMin = +this.$min(gBounds.xMin, bounds.xMin);
@@ -11844,7 +10362,7 @@ Shape.prototype.getBounds = function (matrix)
         }
 
     } else {
-        bounds = this.bounds;
+        bounds = this._$bounds;
         if (isDraw) {
             gBounds = graphics.getBounds();
             bounds.xMin = +this.$min(gBounds.xMin, bounds.xMin);
@@ -11858,11 +10376,13 @@ Shape.prototype.getBounds = function (matrix)
 };
 
 /**
- * @param bounds
+ * @param   {object} bounds
+ * @returns {Shape}
  */
 Shape.prototype.setBounds = function (bounds)
 {
-    this.bounds = bounds;
+    this._$bounds = bounds;
+    return this;
 };
 
 /**
@@ -11870,8 +10390,7 @@ Shape.prototype.setBounds = function (bounds)
  */
 Shape.prototype.isMorphing = function ()
 {
-    var tagType = this.getTagType();
-    return (tagType === 46 || tagType === 84);
+    return this._$morphing;
 };
 
 /**
@@ -12272,8 +10791,8 @@ Shape.prototype.executeRender = function (ctx, minScale, colorTransform, isClipD
 };
 
 /**
- * @param m
- * @returns {*[]}
+ * @param   {array} m
+ * @returns {array}
  */
 Shape.prototype.linearGradientXY = function (m)
 {
@@ -12305,14 +10824,6 @@ Shape.prototype.linearGradientXY = function (m)
         x1,
         y1
     ];
-};
-
-/**
- * @returns {string}
- */
-Shape.prototype.toString = function ()
-{
-    return "[object Shape]";
 };
 /**
  * @constructor
@@ -12829,10 +11340,11 @@ var Stage = function ()
     DisplayObjectContainer.call(this);
 
     // origin param
-    this._id              = null;
-    this._playerId        = null;
-    this._instances       = [];
-    this._mainTimelineId  = null;
+    this._$id              = null;
+    this._$playerId        = null;
+    this._$mainTimelineId  = null;
+    this._$instances       = [];
+    this._$characters      = [];
 
 
     // property init
@@ -12873,13 +11385,13 @@ Stage.prototype.constructor = Stage;
 Object.defineProperties(Stage.prototype, {
     id: {
         get: function () {
-            return this._id;
+            return this._$id;
         },
         set: function () {}
     },
     player: {
         get: function () {
-            return this.$players[this._playerId];
+            return this.$players[this._$playerId];
         },
         set: function () {}
     },
@@ -12891,7 +11403,7 @@ Object.defineProperties(Stage.prototype, {
     },
     _root: {
         get: function () {
-            return this.getInstance(this._mainTimelineId);
+            return this.getInstance(this._$mainTimelineId);
         },
         set: function () {}
     },
@@ -13158,24 +11670,10 @@ Stage.prototype.toString = function ()
 };
 
 /**
- * @returns {string}
+ * @returns {Stage}
  */
-Stage.prototype.getClassName = function ()
+Stage.prototype.initialSetting = function ()
 {
-    return "Stage";
-};
-
-/**
- * @param {Player} player
- */
-Stage.prototype.initialSetting = function (player)
-{
-    // set player id
-    this._playerId = player.id;
-
-    // add stage
-    this._id = this.$stages.length;
-
     // create root
     var main   = new MainTimeline();
     main.stage = this;
@@ -13184,7 +11682,24 @@ Stage.prototype.initialSetting = function (player)
     this.addChildAt(main, 0);
 
     // set id
-    this._mainTimelineId = main.id;
+    this._$mainTimelineId = main.id;
+
+    return this;
+};
+
+/**
+ * @param   {Player} player
+ * @returns {Stage}
+ */
+Stage.prototype.initialDictionary = function (player)
+{
+    // set player id
+    this._$playerId = player.id;
+
+    // add stage
+    this._$id = this.$stages.length;
+
+    return this;
 };
 
 /**
@@ -13193,7 +11708,7 @@ Stage.prototype.initialSetting = function (player)
  */
 Stage.prototype.getInstance = function (id)
 {
-    return this._instances[id];
+    return this._$instances[id];
 };
 
 /**
@@ -13203,11 +11718,11 @@ Stage.prototype.getInstance = function (id)
 Stage.prototype.setInstance = function (instance)
 {
     if (instance.id === null) {
-        instance.id         = this._instances.length;
-        instance._stageId   = this.id;
+        instance.id         = this._$instances.length;
+        instance.stage      = this;
     }
 
-    this._instances[instance.id] = instance;
+    this._$instances[instance.id] = instance;
 };
 /**
  * @constructor
@@ -22190,6 +20705,8 @@ var MainTimeline = function ()
     this._$version         = 10;
     this._$characters      = [];
     this._$controller      = [];
+
+
 };
 
 /**
@@ -24642,7 +23159,7 @@ ReComposition.prototype.getMain = function ()
  * @param data
  * @returns {MovieClip}
  */
-ReComposition.prototype.start = function (data)
+ReComposition.prototype.run = function (data)
 {
     // data set
     if (this.$canXHR2) {
@@ -24753,7 +23270,7 @@ ReComposition.prototype.parseAndBuild = function()
 
     // parse
     var tags = this.swftag.parse(main);
-    console.log(tags);
+
 
     return 0;
 
@@ -24798,7 +23315,7 @@ ReComposition.prototype.parseAndBuild = function()
 
 /*jshint bitwise: false*/
 /**
- * @param {MainTimeline} main
+ * @param {MainTimeline|MovieClip} main
  * @param {BitIO} bitio
  * @constructor
  */
@@ -24808,6 +23325,7 @@ var SwfTag = function (main, bitio)
     this.bitio           = bitio;
     this.currentPosition = {x: 0, y: 0};
     this.jpegTables      = null;
+    this.characters      = [];
 };
 
 /**
@@ -24833,14 +23351,32 @@ SwfTag.prototype.getBitIO = function()
 };
 
 /**
- * @param   {MainTimeline} mc
- * @returns {array}
+ *
+ * @param   {number} character_id
+ * @returns {DisplayObject}
  */
-SwfTag.prototype.parse = function (mc)
+SwfTag.prototype.getCharacter = function(character_id)
+{
+    return this.main.stage._$characters[character_id];
+};
+
+/**
+ *
+ * @param {DisplayObject} instance
+ */
+SwfTag.prototype.setCharacter = function(instance)
+{
+    this.main.stage._$characters[instance.characterId] = instance;
+};
+
+/**
+ * @param {MovieClip} parent
+ */
+SwfTag.prototype.parse = function (parent)
 {
     var bitio  = this.getBitIO();
     var length = bitio.data.length|0;
-    return this.parseTags(length, mc.characterId);
+    this.parseTags(length, parent);
 };
 
 /**
@@ -24864,11 +23400,189 @@ SwfTag.prototype.build = function (tags, parent)
 };
 
 /**
+ * @param {MovieClip} parent
+ * @param {object}    tags
+ * @param {number}    frame
+ */
+SwfTag.prototype.showFrame = function (parent, tags, frame)
+{
+    var idx, length;
+    var installed = [];
+
+    // add total frame
+    parent._$totalFrames = frame;
+
+    // action script
+    var actions = tags.actions;
+    if (actions.length) {
+        for (idx in actions) {
+            if (!actions.hasOwnProperty(idx)) {
+                continue;
+            }
+
+            parent._$addAction(frame, actions[idx]);
+        }
+    }
+
+    // Frame Label
+    var labels = tags.frameLabel;
+    if (labels.length) {
+        for (idx in labels) {
+            if (!labels.hasOwnProperty(idx)) {
+                continue;
+            }
+
+            var label = labels[idx];
+            parent._$addLabel(label.frame, label.name);
+        }
+    }
+
+    // TODO sound
+    var sounds = tags.sounds;
+    if (sounds.length) {
+        for (idx in sounds) {
+            if (!sounds.hasOwnProperty(idx)) {
+                continue;
+            }
+
+            parent._$addSound(frame, sounds[idx]);
+        }
+    }
+
+    // remove objects
+    var removeObjects = tags.removeObjects;
+    if (removeObjects.length) {
+        for (idx in removeObjects) {
+            if (!removeObjects.hasOwnProperty(idx)) {
+                continue;
+            }
+
+            var removeObject = removeObjects[idx];
+            parent._$addRemoveObject(frame, removeObject.Depth);
+
+            installed[removeObject.Depth] = 1;
+        }
+    }
+
+    // place objects
+    var placeObjects = tags.placeObjects;
+    if (placeObjects.length) {
+        length = placeObjects.length|0;
+
+
+        idx = 0;
+        while (length > idx) {
+            var instance = null;
+
+            var placeObject = placeObjects[idx];
+
+            var characterId = (placeObject.PlaceFlagHasCharacter === 1)
+                ? placeObject.CharacterId
+                : parent._$getControllerAt(frame - 1, placeObject.Depth);
+
+
+            var isRecycling = true;
+            if (placeObject.PlaceFlagMove === 1) {
+
+                if (placeObject.PlaceFlagHasCharacter === 1 && placeObject.CharacterId !== characterId) {
+                    isRecycling = false;
+                }
+
+
+
+            }
+
+
+            // character clone
+            if (frame > 1 && isRecycling) {
+
+                instance = parent._$getContainer(characterId);
+
+            }
+
+            // character new build
+            if (!instance) {
+
+                var character = this.getCharacter(characterId);
+                instance      = character._$build();
+
+                instance.parent = parent;
+                parent.stage.setInstance(instance);
+
+            }
+
+            // set name
+            if (placeObject.PlaceFlagHasName) {
+                instance.name = placeObject.Name;
+            }
+
+            // set ratio
+            if (placeObject.PlaceFlagHasRatio) {
+                instance.ratio = placeObject.Ratio;
+            }
+
+            // start set instance
+            parent._$setController(frame, placeObject.Depth, characterId);
+            parent._$setContainer(characterId, instance.id);
+            parent._$setPlaceObject(frame, placeObject.Depth, this.buildPlaceObject(placeObject));
+
+            // flag
+            installed[placeObject.Depth] = 1;
+
+            console.log(placeObject);
+
+            idx = (idx + 1)|0;
+        }
+    }
+
+    // clone prev frame
+    if (frame > 1) {
+
+        var prevFrame = (frame - 1)|0;
+
+        if (!(frame in parent._$controller)) {
+            parent._$controller[frame] = [];
+        }
+
+        var controller = parent._$controller[prevFrame];
+        for (idx in controller) {
+            if (!controller.hasOwnProperty(idx)) {
+                continue;
+            }
+
+            if (idx in installed) {
+                continue;
+            }
+
+            parent._$controller[frame][idx] = controller[idx];
+        }
+
+
+        if (!(frame in parent._$places)) {
+            parent._$places[frame] = [];
+        }
+
+        var places = parent._$places[prevFrame];
+        for (idx in places) {
+            if (!places.hasOwnProperty(idx)) {
+                continue;
+            }
+
+            if (idx in parent._$places[frame]) {
+                continue;
+            }
+
+            parent._$places[frame][idx] = places[idx];
+        }
+    }
+};
+
+/**
  * @param obj
  * @param mc
  * @param originTags
  */
-SwfTag.prototype.showFrame = function (obj, mc, originTags)
+SwfTag.prototype.ShowFrame = function (obj, mc, originTags)
 {
     var idx;
     var newDepth = [];
@@ -25124,7 +23838,7 @@ SwfTag.prototype.buildObject = function (tag, parent, isCopy, frame)
 };
 
 /**
- * @param tag
+ * @param   {object} tag
  * @returns {PlaceObject}
  */
 SwfTag.prototype.buildPlaceObject = function (tag)
@@ -25133,22 +23847,22 @@ SwfTag.prototype.buildPlaceObject = function (tag)
 
     // Matrix
     if (tag.PlaceFlagHasMatrix) {
-        placeObject.setMatrix(tag.Matrix);
+        placeObject.matrix = tag.Matrix;
     }
 
     // ColorTransform
     if (tag.PlaceFlagHasColorTransform) {
-        placeObject.setColorTransform(tag.ColorTransform);
+        placeObject.colorTransform = tag.ColorTransform;
     }
 
     // Filter
     if (tag.PlaceFlagHasFilterList) {
-        placeObject.setFilters(tag.SurfaceFilterList);
+        placeObject.filters = tag.SurfaceFilterList;
     }
 
     // BlendMode
     if (tag.PlaceFlagHasBlendMode) {
-        placeObject.setBlendMode(tag.BlendMode);
+        placeObject.blendMode = tag.BlendMode;
     }
 
     return placeObject;
@@ -25408,17 +24122,16 @@ SwfTag.prototype.buildText = function (tag, character)
 };
 
 /**
- * @param tag
- * @param character
+ * @param   {object} data
+ * @param   {object} bounds
  * @returns {Shape}
  */
-SwfTag.prototype.buildShape = function (tag, character)
+SwfTag.prototype.buildShape = function (data, bounds)
 {
     var shape = new Shape();
-    shape.setTagType(character.tagType);
-    shape.setBounds(character.bounds);
-    shape.setData(character.data);
-    return shape;
+    return shape
+        .setData(data)
+        .setBounds(bounds);
 };
 
 /**
@@ -25541,31 +24254,41 @@ SwfTag.prototype.generateDefaultTagObj = function (frame, characterId)
 };
 
 /**
- * @param dataLength
- * @param characterId
- * @returns {Array}
+ * @param   {number}    dataLength
+ * @param   {MovieClip} parent
  */
-SwfTag.prototype.parseTags = function (dataLength, characterId)
+SwfTag.prototype.parseTags = function (dataLength, parent)
 {
     var frame   = 1;
-    var tags    = [];
     var tagType = 0;
     var bitio   = this.getBitIO();
 
-    // default set
-    tags[frame] = this.generateDefaultTagObj(frame, characterId);
+    var tagStartOffset,
+        tagLength,
+        length,
+        tagDataStartOffset,
+        offset;
+
+    var tags = {
+        placeObjects:  [],
+        actions:       [],
+        sounds:        [],
+        removeObjects: [],
+        frameLabel:    []
+    };
 
     while (bitio.byte_offset < dataLength) {
-        var tagStartOffset = bitio.byte_offset;
+
+        tagStartOffset = bitio.byte_offset;
         if (tagStartOffset + 2 > dataLength) {
             break;
         }
 
-        var tagLength = bitio.getUI16();
-        tagType       = tagLength >> 6;
+        tagLength = bitio.getUI16();
+        tagType   = tagLength >> 6;
 
         // long
-        var length = tagLength & 0x3f;
+        length = tagLength & 0x3f;
         if (length === 0x3f) {
             if (tagStartOffset + 6 > dataLength) {
                 bitio.byte_offset = tagStartOffset;
@@ -25575,51 +24298,50 @@ SwfTag.prototype.parseTags = function (dataLength, characterId)
             length = bitio.getUI32();
         }
 
-        var tagDataStartOffset = bitio.byte_offset;
+        tagDataStartOffset = bitio.byte_offset;
+        this.parseTag(tagType, length, parent, frame, tags);
+
         if (tagType === 1) {
             frame = (frame+1)|0;
-            if (dataLength > tagDataStartOffset + 2) {
-                tags[frame] = this.generateDefaultTagObj(frame, characterId);
-            }
+
+            // reset
+            tags = {
+                placeObjects:  [],
+                actions:       [],
+                sounds:        [],
+                removeObjects: [],
+                frameLabel:    []
+            };
         }
 
-        var tag = this.parseTag(tagType, length);
-
-        var o = (bitio.byte_offset - tagDataStartOffset)|0;
-        if (o !== length) {
-            if (o < length) {
-                var eat = (length - o)|0;
-                if (eat > 0) {
-                    bitio.byte_offset = (bitio.byte_offset + eat)|0;
-                }
+        offset = (bitio.byte_offset - tagDataStartOffset)|0;
+        if (offset !== length) {
+            if (offset < length) {
+                bitio.byte_offset = (bitio.byte_offset + (length - offset))|0;
             }
-        }
-
-        if (tag) {
-            tags = this.addTag(tagType, tags, tag, frame);
         }
 
         bitio.bit_offset = 0;
     }
-
-    return tags;
 };
 
 /**
- * @param tagType
- * @param length
- * @returns {*}
+ * @param {number}    tagType
+ * @param {number}    length
+ * @param {MovieClip} parent
+ * @param {number}    frame
+ * @param {object}    tags
  */
-SwfTag.prototype.parseTag = function (tagType, length)
+SwfTag.prototype.parseTag = function (tagType, length, parent, frame, tags)
 {
     var obj   = null;
     var bitio = this.getBitIO();
-    var main  = this.getMain();
 
     switch (tagType) {
         case 0: // End
             break;
         case 1: // ShowFrame
+            this.showFrame(parent, tags, frame);
             break;
         case 2:  // DefineShape
         case 22: // DefineShape2
@@ -25632,7 +24354,7 @@ SwfTag.prototype.parseTag = function (tagType, length)
             }
             break;
         case 9: // BackgroundColor
-            main.setBackgroundColor(
+            this.getMain().setBackgroundColor(
                 bitio.getUI8(),
                 bitio.getUI8(),
                 bitio.getUI8()
@@ -25651,33 +24373,33 @@ SwfTag.prototype.parseTag = function (tagType, length)
         case 33: // DefineText2
             this.parseDefineText(tagType);
             break;
-        case 4: // PlaceObject
+        case 4:  // PlaceObject
         case 26: // PlaceObject2
-        case 70: //PlaceObject3
-            obj = this.parsePlaceObject(tagType, length);
+        case 70: // PlaceObject3
+            tags.placeObjects[tags.placeObjects.length] = this.parsePlaceObject(tagType, length);
             break;
         case 37: // DefineEditText
             this.parseDefineEditText(tagType);
             break;
         case 39: // DefineSprite
-            this.parseDefineSprite(bitio.byte_offset + length);
+            this.parseDefineSprite(bitio.byte_offset + length, parent);
             break;
         case 12: // DoAction
-            obj = this.parseDoAction(length);
+            tags.actions[tags.actions.length] = this.parseDoAction(length);
             break;
         case 59: // DoInitAction
             this.parseDoInitAction(length);
             break;
-        case 5: // RemoveObject
+        case 5:  // RemoveObject
         case 28: // RemoveObject2
-            obj = this.parseRemoveObject(tagType);
+            tags.removeObjects[tags.removeObjects.length] = this.parseRemoveObject(tagType);
             break;
-        case 7: // DefineButton
+        case 7:  // DefineButton
         case 34: // DefineButton2
             obj = this.parseDefineButton(tagType, length);
             break;
         case 43: // FrameLabel
-            obj = this.parseFrameLabel();
+            tags.frameLabel[tags.frameLabel.length] = this.parseFrameLabel();
             break;
         case 88: // DefineFontName
             this.parseDefineFontName();
@@ -25686,13 +24408,13 @@ SwfTag.prototype.parseTag = function (tagType, length)
         case 36: // DefineBitsLossless2
             this.parseDefineBitsLossLess(tagType, length);
             break;
-        case 6: // DefineBits
+        case 6:  // DefineBits
         case 21: // DefineBitsJPEG2
         case 35: // DefineBitsJPEG3
         case 90: // DefineBitsJPEG4
             this.parseDefineBits(tagType, length, this.jpegTables);
             break;
-        case 8: // JPEGTables
+        case 8:  // JPEGTables
             this.jpegTables = this.parseJPEGTables(length);
             break;
         case 56: // ExportAssets
@@ -25861,7 +24583,8 @@ SwfTag.prototype.addTag = function (tagType, tags, tag, frame)
 };
 
 /**
- * @param tagType
+ * @param {number}    tagType
+ * @param {MovieClip} parent
  */
 SwfTag.prototype.parseDefineShape = function (tagType)
 {
@@ -25878,8 +24601,15 @@ SwfTag.prototype.parseDefineShape = function (tagType)
         obj.UsesScalingStrokes    = bitio.getUIBits(1);
     }
 
-    var shapes = this.shapeWithStyle(tagType);
-    this.appendShapeTag(characterId, bounds, shapes, tagType);
+    // create data
+    var data  = this.$vtc.convert(this.shapeWithStyle(tagType));
+
+    // build shape object
+    var shape = this.buildShape(data, bounds);
+    shape.characterId = characterId;
+
+    // set
+    this.setCharacter(shape);
 };
 
 /**
@@ -25900,8 +24630,8 @@ SwfTag.prototype.rect = function ()
 };
 
 /**
- * @param tagType
- * @returns {{}}
+ * @param   {number} tagType
+ * @returns {object}
  */
 SwfTag.prototype.shapeWithStyle = function (tagType)
 {
@@ -26479,18 +25209,18 @@ SwfTag.prototype.styleChangeRecord = function (tagType, changeFlag, currentNumBi
 };
 
 /**
- * @param characterId
- * @param bounds
- * @param shapes
- * @param tagType
+ *
+ * @param   {object} shapes
+ * @returns {array}
  */
-SwfTag.prototype.appendShapeTag = function (characterId, bounds, shapes, tagType)
+SwfTag.prototype.appendShapeTag = function (shapes)
 {
-    this.getMain().setCharacter(characterId, {
-        tagType: tagType,
-        data:    this.$vtc.convert(shapes, false),
-        bounds:  bounds
-    });
+    return this.$vtc.convert(shapes, false);
+    // this.getMain().setCharacter(characterId, {
+    //     tagType: tagType,
+    //     data:    this.$vtc.convert(shapes, false),
+    //     bounds:  bounds
+    // });
 };
 
 /**
@@ -28003,8 +26733,8 @@ SwfTag.prototype.buttonActions = function (endOffset)
 };
 
 /**
- * @param tagType
- * @param length
+ * @param {number}    tagType
+ * @param {number}    length
  * @returns {{}}
  */
 SwfTag.prototype.parsePlaceObject = function (tagType, length)
@@ -28588,15 +27318,27 @@ SwfTag.prototype.colorTransform = function ()
 };
 
 /**
- * @param length
+ * @param {number}    length
+ * @param {MovieClip} parent
  */
-SwfTag.prototype.parseDefineSprite = function (length)
+SwfTag.prototype.parseDefineSprite = function (length, parent)
 {
     var bitio = this.getBitIO();
+
     var characterId = bitio.getUI16();
     bitio.getUI16(); // FrameCount
 
-    this.getMain().setCharacter(characterId, this.parseTags(length, characterId));
+    // new MovieClip
+    var mc   = new MovieClip();
+    mc.characterId = characterId;
+    mc.parent = parent;
+    parent.stage.setInstance(mc);
+
+    // set
+    this.setCharacter(mc);
+
+    // parse
+    this.parseTags(length, mc);
 };
 
 /**
@@ -28730,7 +27472,7 @@ SwfTag.prototype.parseSoundStreamHead = function (tagType)
 SwfTag.prototype.parseDoABC = function (tagType, length)
 {
     var bitio = this.getBitIO();
-    var stage = this.getStage();
+    var stage = this.getMain().stage;
 
     stage.abcFlag = true;
 
@@ -28803,7 +27545,7 @@ SwfTag.prototype.parseDoABC = function (tagType, length)
     var classCount = 0 | ABCBitIO.getU30();
     obj.instance   = [];
     obj.class      = [];
-    console.log(classCount);
+    // console.log(classCount);
     if (classCount) {
         // instance_info
         var instance = [];
@@ -28812,7 +27554,7 @@ SwfTag.prototype.parseDoABC = function (tagType, length)
             instance[i] = this.ABCInstanceInfo(ABCBitIO);
             i = 0 | i + 1;
         }
-        console.log(instance);
+        // console.log(instance);
         obj.instance = instance;
 
         // class_info
@@ -28864,7 +27606,7 @@ SwfTag.prototype.parseDoABC = function (tagType, length)
  */
 SwfTag.prototype.ABCBuildInstance = function (obj)
 {
-    var stage = this.getStage();
+    var stage = this.getMain().stage;
 
     var instances  = obj.instance;
     var length     = instances.length|0;
@@ -28953,8 +27695,8 @@ SwfTag.prototype.ABCBuildInstance = function (obj)
         prop[localName].register = register;
 
         // build
-        var abc = stage.abc;
-        var classObj = stage.avm2;
+        var abc = {};//stage.abc;
+        var classObj = {};//stage.avm2;
         if (ns) {
             var nss  = ns.split(".");
             var nLen = 0 | nss.length;
@@ -28986,7 +27728,7 @@ SwfTag.prototype.ABCBuildInstance = function (obj)
  */
 SwfTag.prototype.ABCCreateActionScript3 = function (obj, methodId, abcKey)
 {
-    var stage = this.getStage();
+    var stage = this.getMain().stage;
     return (function (data, id, ns, stage)
     {
         return function ()
@@ -29616,9 +28358,9 @@ SwfTag.prototype.ABCTrait = function (ABCBitIO)
 SwfTag.prototype.parseSymbolClass = function ()
 {
     var bitio = this.getBitIO();
-    var stage = this.getStage();
+    var stage = this.getMain().stage;
 
-    var symbols = stage.symbols;
+    var symbols = {};//stage.symbols;
     var count   = bitio.getUI16();
     if (count) {
         var i = 0;
@@ -30686,7 +29428,10 @@ var Player = function ()
 
     // base stage
     var stage = new Stage();
-    stage.initialSetting(this);
+    stage
+        .initialDictionary(this)
+        .initialSetting();
+
     this.addStage(stage);
 
     // base set
@@ -31243,8 +29988,7 @@ Swf2js.prototype.load = function (url, options)
 
                             var data = (this.response) ? this.response : this.responseText;
 
-                            var reComposition = new ReComposition(player.stage._root);
-                            reComposition.start(data);
+                            (new ReComposition(player.stage._root)).run(data);
 
                             self.$cacheStore.reset();
                             break;

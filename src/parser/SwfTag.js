@@ -1,6 +1,6 @@
 /*jshint bitwise: false*/
 /**
- * @param {MainTimeline} main
+ * @param {MainTimeline|MovieClip} main
  * @param {BitIO} bitio
  * @constructor
  */
@@ -10,6 +10,7 @@ var SwfTag = function (main, bitio)
     this.bitio           = bitio;
     this.currentPosition = {x: 0, y: 0};
     this.jpegTables      = null;
+    this.characters      = [];
 };
 
 /**
@@ -35,14 +36,32 @@ SwfTag.prototype.getBitIO = function()
 };
 
 /**
- * @param   {MainTimeline} mc
- * @returns {array}
+ *
+ * @param   {number} character_id
+ * @returns {DisplayObject}
  */
-SwfTag.prototype.parse = function (mc)
+SwfTag.prototype.getCharacter = function(character_id)
+{
+    return this.main.stage._$characters[character_id];
+};
+
+/**
+ *
+ * @param {DisplayObject} instance
+ */
+SwfTag.prototype.setCharacter = function(instance)
+{
+    this.main.stage._$characters[instance.characterId] = instance;
+};
+
+/**
+ * @param {MovieClip} parent
+ */
+SwfTag.prototype.parse = function (parent)
 {
     var bitio  = this.getBitIO();
     var length = bitio.data.length|0;
-    return this.parseTags(length, mc.characterId);
+    this.parseTags(length, parent);
 };
 
 /**
@@ -66,11 +85,189 @@ SwfTag.prototype.build = function (tags, parent)
 };
 
 /**
+ * @param {MovieClip} parent
+ * @param {object}    tags
+ * @param {number}    frame
+ */
+SwfTag.prototype.showFrame = function (parent, tags, frame)
+{
+    var idx, length;
+    var installed = [];
+
+    // add total frame
+    parent._$totalFrames = frame;
+
+    // action script
+    var actions = tags.actions;
+    if (actions.length) {
+        for (idx in actions) {
+            if (!actions.hasOwnProperty(idx)) {
+                continue;
+            }
+
+            parent._$addAction(frame, actions[idx]);
+        }
+    }
+
+    // Frame Label
+    var labels = tags.frameLabel;
+    if (labels.length) {
+        for (idx in labels) {
+            if (!labels.hasOwnProperty(idx)) {
+                continue;
+            }
+
+            var label = labels[idx];
+            parent._$addLabel(label.frame, label.name);
+        }
+    }
+
+    // TODO sound
+    var sounds = tags.sounds;
+    if (sounds.length) {
+        for (idx in sounds) {
+            if (!sounds.hasOwnProperty(idx)) {
+                continue;
+            }
+
+            parent._$addSound(frame, sounds[idx]);
+        }
+    }
+
+    // remove objects
+    var removeObjects = tags.removeObjects;
+    if (removeObjects.length) {
+        for (idx in removeObjects) {
+            if (!removeObjects.hasOwnProperty(idx)) {
+                continue;
+            }
+
+            var removeObject = removeObjects[idx];
+            parent._$addRemoveObject(frame, removeObject.Depth);
+
+            installed[removeObject.Depth] = 1;
+        }
+    }
+
+    // place objects
+    var placeObjects = tags.placeObjects;
+    if (placeObjects.length) {
+        length = placeObjects.length|0;
+
+
+        idx = 0;
+        while (length > idx) {
+            var instance = null;
+
+            var placeObject = placeObjects[idx];
+
+            var characterId = (placeObject.PlaceFlagHasCharacter === 1)
+                ? placeObject.CharacterId
+                : parent._$getControllerAt(frame - 1, placeObject.Depth);
+
+
+            var isRecycling = true;
+            if (placeObject.PlaceFlagMove === 1) {
+
+                if (placeObject.PlaceFlagHasCharacter === 1 && placeObject.CharacterId !== characterId) {
+                    isRecycling = false;
+                }
+
+
+
+            }
+
+
+            // character clone
+            if (frame > 1 && isRecycling) {
+
+                instance = parent._$getContainer(characterId);
+
+            }
+
+            // character new build
+            if (!instance) {
+
+                var character = this.getCharacter(characterId);
+                instance      = character._$build();
+
+                instance.parent = parent;
+                parent.stage.setInstance(instance);
+
+            }
+
+            // set name
+            if (placeObject.PlaceFlagHasName) {
+                instance.name = placeObject.Name;
+            }
+
+            // set ratio
+            if (placeObject.PlaceFlagHasRatio) {
+                instance.ratio = placeObject.Ratio;
+            }
+
+            // start set instance
+            parent._$setController(frame, placeObject.Depth, characterId);
+            parent._$setContainer(characterId, instance.id);
+            parent._$setPlaceObject(frame, placeObject.Depth, this.buildPlaceObject(placeObject));
+
+            // flag
+            installed[placeObject.Depth] = 1;
+
+            console.log(placeObject);
+
+            idx = (idx + 1)|0;
+        }
+    }
+
+    // clone prev frame
+    if (frame > 1) {
+
+        var prevFrame = (frame - 1)|0;
+
+        if (!(frame in parent._$controller)) {
+            parent._$controller[frame] = [];
+        }
+
+        var controller = parent._$controller[prevFrame];
+        for (idx in controller) {
+            if (!controller.hasOwnProperty(idx)) {
+                continue;
+            }
+
+            if (idx in installed) {
+                continue;
+            }
+
+            parent._$controller[frame][idx] = controller[idx];
+        }
+
+
+        if (!(frame in parent._$places)) {
+            parent._$places[frame] = [];
+        }
+
+        var places = parent._$places[prevFrame];
+        for (idx in places) {
+            if (!places.hasOwnProperty(idx)) {
+                continue;
+            }
+
+            if (idx in parent._$places[frame]) {
+                continue;
+            }
+
+            parent._$places[frame][idx] = places[idx];
+        }
+    }
+};
+
+/**
  * @param obj
  * @param mc
  * @param originTags
  */
-SwfTag.prototype.showFrame = function (obj, mc, originTags)
+SwfTag.prototype.ShowFrame = function (obj, mc, originTags)
 {
     var idx;
     var newDepth = [];
@@ -326,7 +523,7 @@ SwfTag.prototype.buildObject = function (tag, parent, isCopy, frame)
 };
 
 /**
- * @param tag
+ * @param   {object} tag
  * @returns {PlaceObject}
  */
 SwfTag.prototype.buildPlaceObject = function (tag)
@@ -335,22 +532,22 @@ SwfTag.prototype.buildPlaceObject = function (tag)
 
     // Matrix
     if (tag.PlaceFlagHasMatrix) {
-        placeObject.setMatrix(tag.Matrix);
+        placeObject.matrix = tag.Matrix;
     }
 
     // ColorTransform
     if (tag.PlaceFlagHasColorTransform) {
-        placeObject.setColorTransform(tag.ColorTransform);
+        placeObject.colorTransform = tag.ColorTransform;
     }
 
     // Filter
     if (tag.PlaceFlagHasFilterList) {
-        placeObject.setFilters(tag.SurfaceFilterList);
+        placeObject.filters = tag.SurfaceFilterList;
     }
 
     // BlendMode
     if (tag.PlaceFlagHasBlendMode) {
-        placeObject.setBlendMode(tag.BlendMode);
+        placeObject.blendMode = tag.BlendMode;
     }
 
     return placeObject;
@@ -610,17 +807,16 @@ SwfTag.prototype.buildText = function (tag, character)
 };
 
 /**
- * @param tag
- * @param character
+ * @param   {object} data
+ * @param   {object} bounds
  * @returns {Shape}
  */
-SwfTag.prototype.buildShape = function (tag, character)
+SwfTag.prototype.buildShape = function (data, bounds)
 {
     var shape = new Shape();
-    shape.setTagType(character.tagType);
-    shape.setBounds(character.bounds);
-    shape.setData(character.data);
-    return shape;
+    return shape
+        .setData(data)
+        .setBounds(bounds);
 };
 
 /**
@@ -743,31 +939,41 @@ SwfTag.prototype.generateDefaultTagObj = function (frame, characterId)
 };
 
 /**
- * @param dataLength
- * @param characterId
- * @returns {Array}
+ * @param   {number}    dataLength
+ * @param   {MovieClip} parent
  */
-SwfTag.prototype.parseTags = function (dataLength, characterId)
+SwfTag.prototype.parseTags = function (dataLength, parent)
 {
     var frame   = 1;
-    var tags    = [];
     var tagType = 0;
     var bitio   = this.getBitIO();
 
-    // default set
-    tags[frame] = this.generateDefaultTagObj(frame, characterId);
+    var tagStartOffset,
+        tagLength,
+        length,
+        tagDataStartOffset,
+        offset;
+
+    var tags = {
+        placeObjects:  [],
+        actions:       [],
+        sounds:        [],
+        removeObjects: [],
+        frameLabel:    []
+    };
 
     while (bitio.byte_offset < dataLength) {
-        var tagStartOffset = bitio.byte_offset;
+
+        tagStartOffset = bitio.byte_offset;
         if (tagStartOffset + 2 > dataLength) {
             break;
         }
 
-        var tagLength = bitio.getUI16();
-        tagType       = tagLength >> 6;
+        tagLength = bitio.getUI16();
+        tagType   = tagLength >> 6;
 
         // long
-        var length = tagLength & 0x3f;
+        length = tagLength & 0x3f;
         if (length === 0x3f) {
             if (tagStartOffset + 6 > dataLength) {
                 bitio.byte_offset = tagStartOffset;
@@ -777,51 +983,50 @@ SwfTag.prototype.parseTags = function (dataLength, characterId)
             length = bitio.getUI32();
         }
 
-        var tagDataStartOffset = bitio.byte_offset;
+        tagDataStartOffset = bitio.byte_offset;
+        this.parseTag(tagType, length, parent, frame, tags);
+
         if (tagType === 1) {
             frame = (frame+1)|0;
-            if (dataLength > tagDataStartOffset + 2) {
-                tags[frame] = this.generateDefaultTagObj(frame, characterId);
-            }
+
+            // reset
+            tags = {
+                placeObjects:  [],
+                actions:       [],
+                sounds:        [],
+                removeObjects: [],
+                frameLabel:    []
+            };
         }
 
-        var tag = this.parseTag(tagType, length);
-
-        var o = (bitio.byte_offset - tagDataStartOffset)|0;
-        if (o !== length) {
-            if (o < length) {
-                var eat = (length - o)|0;
-                if (eat > 0) {
-                    bitio.byte_offset = (bitio.byte_offset + eat)|0;
-                }
+        offset = (bitio.byte_offset - tagDataStartOffset)|0;
+        if (offset !== length) {
+            if (offset < length) {
+                bitio.byte_offset = (bitio.byte_offset + (length - offset))|0;
             }
-        }
-
-        if (tag) {
-            tags = this.addTag(tagType, tags, tag, frame);
         }
 
         bitio.bit_offset = 0;
     }
-
-    return tags;
 };
 
 /**
- * @param tagType
- * @param length
- * @returns {*}
+ * @param {number}    tagType
+ * @param {number}    length
+ * @param {MovieClip} parent
+ * @param {number}    frame
+ * @param {object}    tags
  */
-SwfTag.prototype.parseTag = function (tagType, length)
+SwfTag.prototype.parseTag = function (tagType, length, parent, frame, tags)
 {
     var obj   = null;
     var bitio = this.getBitIO();
-    var main  = this.getMain();
 
     switch (tagType) {
         case 0: // End
             break;
         case 1: // ShowFrame
+            this.showFrame(parent, tags, frame);
             break;
         case 2:  // DefineShape
         case 22: // DefineShape2
@@ -834,7 +1039,7 @@ SwfTag.prototype.parseTag = function (tagType, length)
             }
             break;
         case 9: // BackgroundColor
-            main.setBackgroundColor(
+            this.getMain().setBackgroundColor(
                 bitio.getUI8(),
                 bitio.getUI8(),
                 bitio.getUI8()
@@ -853,33 +1058,33 @@ SwfTag.prototype.parseTag = function (tagType, length)
         case 33: // DefineText2
             this.parseDefineText(tagType);
             break;
-        case 4: // PlaceObject
+        case 4:  // PlaceObject
         case 26: // PlaceObject2
-        case 70: //PlaceObject3
-            obj = this.parsePlaceObject(tagType, length);
+        case 70: // PlaceObject3
+            tags.placeObjects[tags.placeObjects.length] = this.parsePlaceObject(tagType, length);
             break;
         case 37: // DefineEditText
             this.parseDefineEditText(tagType);
             break;
         case 39: // DefineSprite
-            this.parseDefineSprite(bitio.byte_offset + length);
+            this.parseDefineSprite(bitio.byte_offset + length, parent);
             break;
         case 12: // DoAction
-            obj = this.parseDoAction(length);
+            tags.actions[tags.actions.length] = this.parseDoAction(length);
             break;
         case 59: // DoInitAction
             this.parseDoInitAction(length);
             break;
-        case 5: // RemoveObject
+        case 5:  // RemoveObject
         case 28: // RemoveObject2
-            obj = this.parseRemoveObject(tagType);
+            tags.removeObjects[tags.removeObjects.length] = this.parseRemoveObject(tagType);
             break;
-        case 7: // DefineButton
+        case 7:  // DefineButton
         case 34: // DefineButton2
             obj = this.parseDefineButton(tagType, length);
             break;
         case 43: // FrameLabel
-            obj = this.parseFrameLabel();
+            tags.frameLabel[tags.frameLabel.length] = this.parseFrameLabel();
             break;
         case 88: // DefineFontName
             this.parseDefineFontName();
@@ -888,13 +1093,13 @@ SwfTag.prototype.parseTag = function (tagType, length)
         case 36: // DefineBitsLossless2
             this.parseDefineBitsLossLess(tagType, length);
             break;
-        case 6: // DefineBits
+        case 6:  // DefineBits
         case 21: // DefineBitsJPEG2
         case 35: // DefineBitsJPEG3
         case 90: // DefineBitsJPEG4
             this.parseDefineBits(tagType, length, this.jpegTables);
             break;
-        case 8: // JPEGTables
+        case 8:  // JPEGTables
             this.jpegTables = this.parseJPEGTables(length);
             break;
         case 56: // ExportAssets
@@ -1063,7 +1268,8 @@ SwfTag.prototype.addTag = function (tagType, tags, tag, frame)
 };
 
 /**
- * @param tagType
+ * @param {number}    tagType
+ * @param {MovieClip} parent
  */
 SwfTag.prototype.parseDefineShape = function (tagType)
 {
@@ -1080,8 +1286,15 @@ SwfTag.prototype.parseDefineShape = function (tagType)
         obj.UsesScalingStrokes    = bitio.getUIBits(1);
     }
 
-    var shapes = this.shapeWithStyle(tagType);
-    this.appendShapeTag(characterId, bounds, shapes, tagType);
+    // create data
+    var data  = this.$vtc.convert(this.shapeWithStyle(tagType));
+
+    // build shape object
+    var shape = this.buildShape(data, bounds);
+    shape.characterId = characterId;
+
+    // set
+    this.setCharacter(shape);
 };
 
 /**
@@ -1102,8 +1315,8 @@ SwfTag.prototype.rect = function ()
 };
 
 /**
- * @param tagType
- * @returns {{}}
+ * @param   {number} tagType
+ * @returns {object}
  */
 SwfTag.prototype.shapeWithStyle = function (tagType)
 {
@@ -1681,18 +1894,18 @@ SwfTag.prototype.styleChangeRecord = function (tagType, changeFlag, currentNumBi
 };
 
 /**
- * @param characterId
- * @param bounds
- * @param shapes
- * @param tagType
+ *
+ * @param   {object} shapes
+ * @returns {array}
  */
-SwfTag.prototype.appendShapeTag = function (characterId, bounds, shapes, tagType)
+SwfTag.prototype.appendShapeTag = function (shapes)
 {
-    this.getMain().setCharacter(characterId, {
-        tagType: tagType,
-        data:    this.$vtc.convert(shapes, false),
-        bounds:  bounds
-    });
+    return this.$vtc.convert(shapes, false);
+    // this.getMain().setCharacter(characterId, {
+    //     tagType: tagType,
+    //     data:    this.$vtc.convert(shapes, false),
+    //     bounds:  bounds
+    // });
 };
 
 /**
@@ -3205,8 +3418,8 @@ SwfTag.prototype.buttonActions = function (endOffset)
 };
 
 /**
- * @param tagType
- * @param length
+ * @param {number}    tagType
+ * @param {number}    length
  * @returns {{}}
  */
 SwfTag.prototype.parsePlaceObject = function (tagType, length)
@@ -3790,15 +4003,27 @@ SwfTag.prototype.colorTransform = function ()
 };
 
 /**
- * @param length
+ * @param {number}    length
+ * @param {MovieClip} parent
  */
-SwfTag.prototype.parseDefineSprite = function (length)
+SwfTag.prototype.parseDefineSprite = function (length, parent)
 {
     var bitio = this.getBitIO();
+
     var characterId = bitio.getUI16();
     bitio.getUI16(); // FrameCount
 
-    this.getMain().setCharacter(characterId, this.parseTags(length, characterId));
+    // new MovieClip
+    var mc   = new MovieClip();
+    mc.characterId = characterId;
+    mc.parent = parent;
+    parent.stage.setInstance(mc);
+
+    // set
+    this.setCharacter(mc);
+
+    // parse
+    this.parseTags(length, mc);
 };
 
 /**
@@ -3932,7 +4157,7 @@ SwfTag.prototype.parseSoundStreamHead = function (tagType)
 SwfTag.prototype.parseDoABC = function (tagType, length)
 {
     var bitio = this.getBitIO();
-    var stage = this.getStage();
+    var stage = this.getMain().stage;
 
     stage.abcFlag = true;
 
@@ -4005,7 +4230,7 @@ SwfTag.prototype.parseDoABC = function (tagType, length)
     var classCount = 0 | ABCBitIO.getU30();
     obj.instance   = [];
     obj.class      = [];
-    console.log(classCount);
+    // console.log(classCount);
     if (classCount) {
         // instance_info
         var instance = [];
@@ -4014,7 +4239,7 @@ SwfTag.prototype.parseDoABC = function (tagType, length)
             instance[i] = this.ABCInstanceInfo(ABCBitIO);
             i = 0 | i + 1;
         }
-        console.log(instance);
+        // console.log(instance);
         obj.instance = instance;
 
         // class_info
@@ -4066,7 +4291,7 @@ SwfTag.prototype.parseDoABC = function (tagType, length)
  */
 SwfTag.prototype.ABCBuildInstance = function (obj)
 {
-    var stage = this.getStage();
+    var stage = this.getMain().stage;
 
     var instances  = obj.instance;
     var length     = instances.length|0;
@@ -4155,8 +4380,8 @@ SwfTag.prototype.ABCBuildInstance = function (obj)
         prop[localName].register = register;
 
         // build
-        var abc = stage.abc;
-        var classObj = stage.avm2;
+        var abc = {};//stage.abc;
+        var classObj = {};//stage.avm2;
         if (ns) {
             var nss  = ns.split(".");
             var nLen = 0 | nss.length;
@@ -4188,7 +4413,7 @@ SwfTag.prototype.ABCBuildInstance = function (obj)
  */
 SwfTag.prototype.ABCCreateActionScript3 = function (obj, methodId, abcKey)
 {
-    var stage = this.getStage();
+    var stage = this.getMain().stage;
     return (function (data, id, ns, stage)
     {
         return function ()
@@ -4818,9 +5043,9 @@ SwfTag.prototype.ABCTrait = function (ABCBitIO)
 SwfTag.prototype.parseSymbolClass = function ()
 {
     var bitio = this.getBitIO();
-    var stage = this.getStage();
+    var stage = this.getMain().stage;
 
-    var symbols = stage.symbols;
+    var symbols = {};//stage.symbols;
     var count   = bitio.getUI16();
     if (count) {
         var i = 0;

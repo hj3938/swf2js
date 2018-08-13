@@ -27,7 +27,7 @@ ReComposition.prototype.getMain = function ()
  * @param data
  * @returns {MovieClip}
  */
-ReComposition.prototype.start = function (data)
+ReComposition.prototype.run = function (data)
 {
     // data set
     if (this.$canXHR2) {
@@ -138,7 +138,7 @@ ReComposition.prototype.parseAndBuild = function()
 
     // parse
     var tags = this.swftag.parse(main);
-    console.log(tags);
+
 
     return 0;
 

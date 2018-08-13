@@ -5,11 +5,17 @@ var Shape = function ()
 {
     DisplayObject.call(this);
 
-    this.data      = null;
-    this._graphics = new Graphics();
+    this._$data     = null;
+    this._$graphics = new Graphics();
+    this._$morphing = false;
 
     var no = this.$Number.MAX_VALUE;
-    this.setBounds({xMin: no, xMax: -no, yMin: no, yMax: -no});
+    this.setBounds({
+        xMin: no,
+        xMax: -no,
+        yMin: no,
+        yMax: -no
+    });
 };
 
 /**
@@ -24,9 +30,15 @@ Shape.prototype.constructor = Shape;
  */
 Object.defineProperties(Shape.prototype, {
     graphics: {
+        /**
+         * @returns {Graphics}
+         */
         get: function () {
             return this.getGraphics();
         },
+        /**
+         * readonly
+         */
         set: function () {}
     }
 });
@@ -41,9 +53,22 @@ Shape.prototype.setHitRange = function () {};
 /**
  * @returns {string}
  */
-Shape.prototype.getClassName = function ()
+Shape.prototype.toString = function ()
 {
-    return "Shape";
+    return "[object Shape]";
+};
+
+/**
+ * @returns {Shape}
+ */
+Shape.prototype._$build = function ()
+{
+    var shape = new Shape();
+    shape.characterId = this.characterId;
+
+    return shape
+        .setData(this.getData())
+        .setBounds(this._$bounds);
 };
 
 /**
@@ -61,27 +86,31 @@ Shape.prototype.putFrame = function (stage, clipEvent)
  */
 Shape.prototype.getGraphics = function ()
 {
-    return this._graphics;
+    return this._$graphics;
 };
 
 /**
- * @returns []
+ * @returns {array}
  */
 Shape.prototype.getData = function ()
 {
-    return this.data;
+    return this._$data;
 };
 
 /**
- * @param data
+ * @param   {object} data
+ * @returns {Shape}
  */
 Shape.prototype.setData = function (data)
 {
-    this.data = data;
+    this._$data = data;
+    return this;
 };
 
 /**
- * @returns {{}}
+ *
+ * @param   {array}  matrix
+ * @returns {object}
  */
 Shape.prototype.getBounds = function (matrix)
 {
@@ -91,7 +120,7 @@ Shape.prototype.getBounds = function (matrix)
     var isDraw   = graphics.isDraw;
 
     if (matrix) {
-        bounds = this.boundsMatrix(this.bounds, matrix);
+        bounds = this.boundsMatrix(this._$bounds, matrix);
         if (isDraw) {
             gBounds = this.boundsMatrix(graphics.getBounds(), matrix);
             bounds.xMin = +this.$min(gBounds.xMin, bounds.xMin);
@@ -110,7 +139,7 @@ Shape.prototype.getBounds = function (matrix)
         }
 
     } else {
-        bounds = this.bounds;
+        bounds = this._$bounds;
         if (isDraw) {
             gBounds = graphics.getBounds();
             bounds.xMin = +this.$min(gBounds.xMin, bounds.xMin);
@@ -124,11 +153,13 @@ Shape.prototype.getBounds = function (matrix)
 };
 
 /**
- * @param bounds
+ * @param   {object} bounds
+ * @returns {Shape}
  */
 Shape.prototype.setBounds = function (bounds)
 {
-    this.bounds = bounds;
+    this._$bounds = bounds;
+    return this;
 };
 
 /**
@@ -136,8 +167,7 @@ Shape.prototype.setBounds = function (bounds)
  */
 Shape.prototype.isMorphing = function ()
 {
-    var tagType = this.getTagType();
-    return (tagType === 46 || tagType === 84);
+    return this._$morphing;
 };
 
 /**
@@ -538,8 +568,8 @@ Shape.prototype.executeRender = function (ctx, minScale, colorTransform, isClipD
 };
 
 /**
- * @param m
- * @returns {*[]}
+ * @param   {array} m
+ * @returns {array}
  */
 Shape.prototype.linearGradientXY = function (m)
 {
@@ -571,12 +601,4 @@ Shape.prototype.linearGradientXY = function (m)
         x1,
         y1
     ];
-};
-
-/**
- * @returns {string}
- */
-Shape.prototype.toString = function ()
-{
-    return "[object Shape]";
 };

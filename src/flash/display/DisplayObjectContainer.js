@@ -6,15 +6,19 @@ var DisplayObjectContainer = function ()
     InteractiveObject.call(this);
 
     // property init
-    this._mouseChildren = true;
-    this._numChildren   = 0;
-    this._tabChildren   = true;
-    this._textSnapshot  = new TextSnapshot();
+    this._$mouseChildren = true;
+    this._$numChildren   = 0;
+    this._$tabChildren   = true;
+    this._$textSnapshot  = new TextSnapshot();
+    this._$ratio         = 0;
 
     // origin param
-    this._children      = [];
-    this._controller    = [];
-    this._ratio         = 0;
+    this._$children      = [];
+    this._$places        = [];
+    this._$placeObjects  = [];
+    this._$controller    = [];
+    this._$container     = [];
+
 };
 
 /**
@@ -30,60 +34,59 @@ DisplayObjectContainer.prototype.constructor = DisplayObjectContainer;
 Object.defineProperties(DisplayObjectContainer.prototype, {
     mouseChildren: {
         get: function () {
-            return this._mouseChildren;
+            return this._$mouseChildren;
         },
         set: function (mouseChildren) {
             if (typeof mouseChildren === "boolean") {
-                this._mouseChildren = mouseChildren;
+                this._$mouseChildren = mouseChildren;
             }
         }
     },
     numChildren: {
         get: function () {
-            return this._numChildren;
+            return this._$numChildren;
         },
         set: function () {}
     },
     tabChildren: {
         get: function () {
-            return this._tabChildren;
+            return this._$tabChildren;
         },
         set: function (tabChildren) {
             if (typeof tabChildren === "boolean") {
-                this._tabChildren = tabChildren;
+                this._$tabChildren = tabChildren;
             }
         }
     },
     textSnapshot: {
         get: function () {
-            return this._textSnapshot;
+            return this._$textSnapshot;
         },
         set: function () {}
     },
     ratio: {
         get: function () {
-            return this._ratio;
+            return this._$ratio;
         },
         set: function (ratio) {
             if (typeof ratio === "number") {
-                this._ratio = ratio;
+                this._$ratio = ratio;
             }
         }
     }
 });
 
 /**
- * @param   {number}           instance_id
- * @param   {number|undefined} frame
+ * @param   {number} frame
+ * @param   {number} depth
  * @returns PlaceObject
  */
-DisplayObjectContainer.prototype.$getPlaceObject = function (instance_id, frame)
+DisplayObjectContainer.prototype._$getPlaceObject = function (frame, depth)
 {
-    frame = frame || 0;
-    if (instance_id in this._controller &&
-        frame in this._controller[instance_id]
+    if (frame in this._$places &&
+        depth in this._$places[frame]
     ) {
-        return this._controller[instance_id][frame];
+        return this._$placeObjects[this._$places[frame][depth]];
     }
 
     console.log("[error]: PlaceObject");
@@ -91,17 +94,72 @@ DisplayObjectContainer.prototype.$getPlaceObject = function (instance_id, frame)
 };
 
 /**
- * @param {number}           instance_id
- * @param {number|undefined} frame
+ * @param {number}      frame
+ * @param {number}      depth
+ * @param {PlaceObject} placeObject
  */
-DisplayObjectContainer.prototype.$setPlaceObject = function (instance_id, frame)
+DisplayObjectContainer.prototype._$setPlaceObject = function (frame, depth, placeObject)
 {
-    if (!(instance_id in this._controller)) {
-        this._controller[instance_id] = [];
+    if (!(frame in this._$places)) {
+        this._$places[frame] = [];
     }
 
-    frame = frame || 0;
-    this._controller[instance_id][frame] = new PlaceObject();
+    // set id
+    var id = this._$placeObjects.length;
+
+    this._$placeObjects[id]     = placeObject;
+    this._$places[frame][depth] = id;
+};
+
+/**
+ * @param   {number} frame
+ * @param   {number} depth
+ * @returns {number}
+ */
+DisplayObjectContainer.prototype._$getControllerAt = function(frame, depth)
+{
+    return this._$controller[frame][depth];
+};
+
+/**
+ * @param   {number} frame
+ * @returns {array}
+ */
+DisplayObjectContainer.prototype._$getController = function(frame)
+{
+    return this._$controller[frame];
+};
+
+/**
+ * @param {number} frame
+ * @param {number} depth
+ * @param {number} character_id
+ */
+DisplayObjectContainer.prototype._$setController = function (frame, depth, character_id)
+{
+    if (!(frame in this._$controller)) {
+        this._$controller[frame] = [];
+    }
+
+    this._$controller[frame][depth] = character_id;
+};
+
+/**
+ * @param   {number}        character_id
+ * @returns {DisplayObject}
+ */
+DisplayObjectContainer.prototype._$getContainer = function (character_id)
+{
+    return this.stage.getInstance(this._$container[character_id]);
+};
+
+/**
+ * @param {number} character_id
+ * @param {number} instance_id
+ */
+DisplayObjectContainer.prototype._$setContainer = function (character_id, instance_id)
+{
+    this._$container[character_id] = instance_id;
 };
 
 /**
@@ -110,9 +168,9 @@ DisplayObjectContainer.prototype.$setPlaceObject = function (instance_id, frame)
  */
 DisplayObjectContainer.prototype.addChild = function (child)
 {
-    child = this.$addChild(child);
+    child = this._$addChild(child);
 
-    this._numChildren = (this._numChildren + 1)|0;
+    this._$numChildren = (this._$numChildren + 1)|0;
 
     return child;
 };
@@ -128,9 +186,9 @@ DisplayObjectContainer.prototype.addChildAt = function (child, index)
         throw new Error("index is out of range.");
     }
 
-    child = this.$addChild(child, index);
+    child = this._$addChild(child, index);
 
-    this._numChildren = (this._numChildren + 1)|0;
+    this._$numChildren = (this._$numChildren + 1)|0;
 
     return child;
 };
@@ -140,7 +198,7 @@ DisplayObjectContainer.prototype.addChildAt = function (child, index)
  * @param   {number}            index
  * @returns {DisplayObject}
  */
-DisplayObjectContainer.prototype.$addChild = function (child, index)
+DisplayObjectContainer.prototype._$addChild = function (child, index)
 {
     if (!(child instanceof DisplayObject)) {
         throw new Error("this child is not DisplayObject.");
@@ -164,11 +222,11 @@ DisplayObjectContainer.prototype.$addChild = function (child, index)
     child.parent  = this;
 
     // set child data
-    var children = this._children;
+    var children = this._$children;
     if (index in children) {
-        this.$addChild(this.stage.getInstance(children[index]), index + 1);
+        this._$addChild(this.stage.getInstance(children[index]), index + 1);
     }
-    this._children[index] = child.id;
+    this._$children[index] = child.id;
 
     // event
     child.dispatchEvent(Event.ADDED, this.stage);
@@ -199,8 +257,8 @@ DisplayObjectContainer.prototype.contains = function (child)
 
     var idx = 0;
     while (this.numChildren > idx) {
-        if (idx in this._children) {
-            var id = this._children[idx];
+        if (idx in this._$children) {
+            var id = this._$children[idx];
             if (id === child.id) {
                 return true;
             }
@@ -221,11 +279,11 @@ DisplayObjectContainer.prototype.getChildAt = function (index)
         throw new Error("index is out of range.");
     }
 
-    if (!(index in this._children)) {
+    if (!(index in this._$children)) {
         throw new Error("child not found.");
     }
 
-    return this.stage.getInstance(this._children[index]);
+    return this.stage.getInstance(this._$children[index]);
 };
 
 /**
@@ -241,8 +299,8 @@ DisplayObjectContainer.prototype.getChildByName = function (name)
     var stage = this.stage;
     var idx   = 0;
     while (this.numChildren > idx) {
-        if (idx in this._children) {
-            var instance = stage.getInstance(this._children[idx]);
+        if (idx in this._$children) {
+            var instance = stage.getInstance(this._$children[idx]);
             if (instance && instance.name === name) {
                 return instance;
             }
@@ -263,7 +321,7 @@ DisplayObjectContainer.prototype.getChildIndex = function (child)
         throw new Error("this child is not DisplayObject.");
     }
 
-    if (!(child.index in this._children) || child.id !== this._children[child.index]) {
+    if (!(child.index in this._$children) || child.id !== this._$children[child.index]) {
         throw new Error("child not found.");
     }
 
@@ -290,7 +348,7 @@ DisplayObjectContainer.prototype.removeChild = function (child)
         throw new Error("this child is not DisplayObject.");
     }
 
-    if (!(child.index in this._children) || child.id !== this._children[child.index]) {
+    if (!(child.index in this._$children) || child.id !== this._$children[child.index]) {
         throw new Error("child not found.");
     }
 
@@ -303,12 +361,12 @@ DisplayObjectContainer.prototype.removeChild = function (child)
  */
 DisplayObjectContainer.prototype.removeChildAt = function (index)
 {
-    if (!(index in this._children)) {
+    if (!(index in this._$children)) {
         throw new Error("child not found.");
     }
 
     // reset
-    var child = this.stage.getInstance(this._children[index]);
+    var child = this.stage.getInstance(this._$children[index]);
 
     return this._$remove(child);
 };
@@ -319,14 +377,15 @@ DisplayObjectContainer.prototype.removeChildAt = function (index)
  */
 DisplayObjectContainer.prototype._$remove = function (child)
 {
+
     // remove
-    this._children.splice(child.index, 1);
-    this._numChildren = (this._numChildren - 1)|0;
+    this._$children.splice(child.index, 1);
+    this._$numChildren = (this._$numChildren - 1)|0;
 
     var idx = 0;
     while (this.numChildren > idx) {
 
-        var instance     = this.stage.getInstance(this._children[idx]);
+        var instance     = this.stage.getInstance(this._$children[idx]);
         instance._$index = idx;
 
         idx = (idx + 1)|0;
@@ -336,7 +395,6 @@ DisplayObjectContainer.prototype._$remove = function (child)
     child._stageId     = null;
     child._$parentId   = null;
     child._$index      = null;
-    child._$parentType = 0;
 
     return child;
 };
@@ -361,7 +419,7 @@ DisplayObjectContainer.prototype.removeChildren = function (beginIndex, endIndex
     endIndex  = (endIndex + 1)|0;
     while (endIndex > index) {
 
-        var child = this.stage.getInstance(this._children[beginIndex]);
+        var child = this.stage.getInstance(this._$children[beginIndex]);
         this._$remove(child);
 
         index = (index + 1)|0;

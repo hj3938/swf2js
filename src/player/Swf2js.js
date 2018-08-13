@@ -47,8 +47,7 @@ Swf2js.prototype.load = function (url, options)
 
                             var data = (this.response) ? this.response : this.responseText;
 
-                            var reComposition = new ReComposition(player.stage._root);
-                            reComposition.start(data);
+                            (new ReComposition(player.stage._root)).run(data);
 
                             self.$cacheStore.reset();
                             break;

@@ -5,13 +5,13 @@ var Sprite = function ()
 {
     DisplayObjectContainer.call(this);
 
-    this.touchPointID    = 0;
-    this._buttonMode     = false;
-    this._useHandCursor  = false;
-    this._dropTarget     = null;
-    this._hitArea        = null;
-    this._graphics       = new Graphics();
-    this._soundTransform = new SoundTransform();
+    this.touchPointID     = 0;
+    this._$buttonMode     = false;
+    this._$useHandCursor  = false;
+    this._$dropTarget     = null;
+    this._$hitArea        = null;
+    this._$graphics       = new Graphics();
+    this._$soundTransform = new SoundTransform();
 };
 
 /**
@@ -26,100 +26,94 @@ Sprite.prototype.constructor = Sprite;
  */
 Object.defineProperties(Sprite.prototype, {
     graphics: {
+        /**
+         * @returns {Graphics}
+         */
         get: function () {
-            return this.getGraphics();
+            return this._$graphics;
         },
-        set: function () {
-        }
+        /**
+         * readonly
+         */
+        set: function () {}
     },
     hitArea: {
+        /**
+         * @returns {DisplayObject|null}
+         */
         get: function () {
-            return this.getHitArea();
+            return this._$hitArea;
         },
-        set: function (sprite) {
-            this.setHitArea(sprite);
+        /**
+         *
+         * @param {DisplayObject|null} hitArea
+         */
+        set: function (hitArea) {
+            if (hitArea instanceof DisplayObject || hitArea === null) {
+                this._$hitArea = hitArea;
+            }
         }
     },
     buttonMode: {
+        /**
+         * @returns {boolean}
+         */
         get: function () {
-            return this.getButtonMode();
+            return this._$buttonMode;
         },
+        /**
+         * @param {boolean} buttonMode
+         */
         set: function (buttonMode) {
-            this.setButtonMode(buttonMode);
+            if (typeof buttonMode === "boolean") {
+                this._$buttonMode = buttonMode;
+            }
         }
     },
     soundTransform: {
+        /**
+         * @returns {SoundTransform}
+         */
         get: function () {
-            return this._soundTransform;
+            return this._$soundTransform;
         },
-        set: function () {
-        }
+        /**
+         * readonly
+         */
+        set: function () {}
     },
     useHandCursor: {
+        /**
+         * @returns {boolean}
+         */
         get: function () {
-            return this.getUseHandCursor();
+            return this._$useHandCursor;
         },
+        /**
+         * @param {boolean} useHandCursor
+         */
         set: function (useHandCursor) {
-            this.setUseHandCursor(useHandCursor);
+            if (typeof useHandCursor === "boolean") {
+                this._$useHandCursor = useHandCursor;
+            }
         }
     },
     dropTarget: {
+        /**
+         * @returns {DisplayObject|null}
+         */
         get: function () {
-            return this.getDropTarget();
+            return this._$dropTarget;
         },
+        /**
+         * readonly
+         */
         set: function () {
-            this.setDropTarget();
         }
     }
 });
 
-/**
- * @returns {string}
- */
-Sprite.prototype.getClassName = function ()
-{
-    return "Sprite";
-};
 
-/**
- * @returns {Graphics}
- */
-Sprite.prototype.getGraphics = function ()
-{
-    return this._graphics;
-};
-
-/**
- * @returns {DisplayObject}
- */
-Sprite.prototype.getHitArea = function ()
-{
-    return this._hitArea;
-};
-
-/**
- * @param displayObject
- */
-Sprite.prototype.setHitArea = function (displayObject)
-{
-    this._hitArea = displayObject;
-};
-
-/**
- * @returns {boolean}
- */
-Sprite.prototype.getUseHandCursor = function ()
-{
-    return this._useHandCursor;
-};
-
-/**
- * @param useHandCursor
- */
-Sprite.prototype.setUseHandCursor = function (useHandCursor)
-{
-    this._useHandCursor = useHandCursor;
-};
 
 /**
  * startTouchDrag

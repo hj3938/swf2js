@@ -4,9 +4,9 @@
 var EventDispatcher = function ()
 {
     // init
-    this.events = {};
-    this.isLoad = false;
-    this.active = false;
+    this._$events = {};
+    this._$isLoad = false;
+    this._$active = false;
 };
 
 /**
@@ -150,12 +150,12 @@ Object.defineProperties(EventDispatcher.prototype, {
 });
 
 /**
- * @param {string} type
+ * @param   {string} type
  * @returns {function}
  */
 EventDispatcher.prototype.getOnEvent = function (type)
 {
-    return this.variables[type];
+    return (type in this._$variables) ? this._$variables[type]: null;
 };
 
 /**
@@ -164,7 +164,7 @@ EventDispatcher.prototype.getOnEvent = function (type)
  */
 EventDispatcher.prototype.setOnEvent = function (type, as)
 {
-    this.variables[type] = as;
+    this._$variables[type] = as;
 };
 
 /**
@@ -176,7 +176,7 @@ EventDispatcher.prototype.setOnEvent = function (type, as)
  */
 EventDispatcher.prototype.addEventListener = function (type, listener, useCapture, priority, useWeakReference)
 {
-    var events = this.events;
+    var events = this._$events;
     if (!(type in events)) {
         events[type] = [];
     }
@@ -193,7 +193,7 @@ EventDispatcher.prototype.dispatchEvent = function (event, stage)
 {
     var type = event.type;
     if (this.hasEventListener(type)) {
-        var events   = this.events[type];
+        var events   = this._$events[type];
         event.target = this;
         this.setActionQueue(events, stage, [event]);
     }
@@ -205,7 +205,7 @@ EventDispatcher.prototype.dispatchEvent = function (event, stage)
  */
 EventDispatcher.prototype.hasEventListener = function (type)
 {
-    return (type in this.events);
+    return (type in this._$events);
 };
 
 /**
@@ -216,7 +216,7 @@ EventDispatcher.prototype.hasEventListener = function (type)
 EventDispatcher.prototype.removeEventListener = function (type, listener, useCapture)
 {
     if (this.hasEventListener(type)) {
-        var events    = this.events;
+        var events    = this._$events;
         var listeners = events[type];
         var length    = 0 | listeners.length;
 

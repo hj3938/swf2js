@@ -10,6 +10,8 @@ var MainTimeline = function ()
     this._$version         = 10;
     this._$characters      = [];
     this._$controller      = [];
+
+
 };
 
 /**

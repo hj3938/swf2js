@@ -12,16 +12,6 @@ describe("Stage.js toString test", function()
 });
 
 
-describe("Stage.js getClassName test", function()
-{
-    it("getClassName test success", function()
-    {
-        var player = window.swf2js.getCurrentPlayer();
-        expect(player.stage.getClassName()).toBe("Stage");
-    });
-});
-
-
 describe("Stage.js initialSetting test", function()
 {
     it("initialSetting test success", function()

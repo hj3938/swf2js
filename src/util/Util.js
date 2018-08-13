@@ -581,7 +581,25 @@ var Util;
     };
 
     /**
-     * @param {*} source
+     * @param   {array} source
+     * @returns {array}
+     */
+    Utility.prototype.$cloneArray = function (source)
+    {
+        var result = [];
+        for (var idx in source) {
+            if (!source.hasOwnProperty(idx)) {
+                continue;
+            }
+
+            result[idx] = source[idx];
+        }
+
+        return result;
+    };
+
+    /**
+     * @param   {*} source
      * @returns {boolean}
      */
     Utility.prototype.$isArray = function (source)

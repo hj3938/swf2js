@@ -45,7 +45,10 @@ var Player = function ()
 
     // base stage
     var stage = new Stage();
-    stage.initialSetting(this);
+    stage
+        .initialDictionary(this)
+        .initialSetting();
+
     this.addStage(stage);
 
     // base set

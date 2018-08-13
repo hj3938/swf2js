@@ -6,10 +6,11 @@ var Stage = function ()
     DisplayObjectContainer.call(this);
 
     // origin param
-    this._id              = null;
-    this._playerId        = null;
-    this._instances       = [];
-    this._mainTimelineId  = null;
+    this._$id              = null;
+    this._$playerId        = null;
+    this._$mainTimelineId  = null;
+    this._$instances       = [];
+    this._$characters      = [];
 
 
     // property init
@@ -50,13 +51,13 @@ Stage.prototype.constructor = Stage;
 Object.defineProperties(Stage.prototype, {
     id: {
         get: function () {
-            return this._id;
+            return this._$id;
         },
         set: function () {}
     },
     player: {
         get: function () {
-            return this.$players[this._playerId];
+            return this.$players[this._$playerId];
         },
         set: function () {}
     },
@@ -68,7 +69,7 @@ Object.defineProperties(Stage.prototype, {
     },
     _root: {
         get: function () {
-            return this.getInstance(this._mainTimelineId);
+            return this.getInstance(this._$mainTimelineId);
         },
         set: function () {}
     },
@@ -335,24 +336,10 @@ Stage.prototype.toString = function ()
 };
 
 /**
- * @returns {string}
+ * @returns {Stage}
  */
-Stage.prototype.getClassName = function ()
+Stage.prototype.initialSetting = function ()
 {
-    return "Stage";
-};
-
-/**
- * @param {Player} player
- */
-Stage.prototype.initialSetting = function (player)
-{
-    // set player id
-    this._playerId = player.id;
-
-    // add stage
-    this._id = this.$stages.length;
-
     // create root
     var main   = new MainTimeline();
     main.stage = this;
@@ -361,7 +348,24 @@ Stage.prototype.initialSetting = function (player)
     this.addChildAt(main, 0);
 
     // set id
-    this._mainTimelineId = main.id;
+    this._$mainTimelineId = main.id;
+
+    return this;
+};
+
+/**
+ * @param   {Player} player
+ * @returns {Stage}
+ */
+Stage.prototype.initialDictionary = function (player)
+{
+    // set player id
+    this._$playerId = player.id;
+
+    // add stage
+    this._$id = this.$stages.length;
+
+    return this;
 };
 
 /**
@@ -370,7 +374,7 @@ Stage.prototype.initialSetting = function (player)
  */
 Stage.prototype.getInstance = function (id)
 {
-    return this._instances[id];
+    return this._$instances[id];
 };
 
 /**
@@ -380,9 +384,9 @@ Stage.prototype.getInstance = function (id)
 Stage.prototype.setInstance = function (instance)
 {
     if (instance.id === null) {
-        instance.id         = this._instances.length;
-        instance._stageId   = this.id;
+        instance.id         = this._$instances.length;
+        instance.stage      = this;
     }
 
-    this._instances[instance.id] = instance;
+    this._$instances[instance.id] = instance;
 };

@@ -59,13 +59,23 @@ Shape.prototype.toString = function ()
 };
 
 /**
+ * @param   {MovieClip} parent
+ * @param   {number}    index
+ * @param   {object}    tag
+ * @param   {boolean}   shouldAction
  * @returns {Shape}
  */
-Shape.prototype._$build = function ()
+Shape.prototype._$build = function (parent, index, tag, shouldAction)
 {
     var shape = new Shape();
-    shape.characterId = this.characterId;
 
+    // init
+    shape.id          = index;
+    shape.characterId = this.characterId;
+    shape.parent      = parent;
+    shape.stage       = parent.stage;
+
+    // default
     return shape
         .setData(this.getData())
         .setBounds(this._$bounds);

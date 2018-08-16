@@ -1,7 +1,10 @@
 /**
  * @constructor
  */
-var BitmapEncodingColorSpace = function () {};
+var BitmapEncodingColorSpace = function ()
+{
+    OriginalObject.call(this);
+};
 
 BitmapEncodingColorSpace.COLORSPACE_4_2_0 = "4:2:0";
 BitmapEncodingColorSpace.COLORSPACE_4_2_2 = "4:2:2";

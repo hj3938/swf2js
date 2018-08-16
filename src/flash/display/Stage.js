@@ -69,7 +69,7 @@ Object.defineProperties(Stage.prototype, {
     },
     _root: {
         get: function () {
-            return this.getInstance(this._$mainTimelineId);
+            return this._$getInstance(this._$mainTimelineId);
         },
         set: function () {}
     },
@@ -321,10 +321,6 @@ Object.defineProperties(Stage.prototype, {
         }
     }
 
-
-
-
-
 });
 
 /**
@@ -336,13 +332,15 @@ Stage.prototype.toString = function ()
 };
 
 /**
+ * @param   {Stage} stage
  * @returns {Stage}
  */
-Stage.prototype.initialSetting = function ()
+Stage.prototype.initialSetting = function (stage)
 {
     // create root
-    var main   = new MainTimeline();
-    main.stage = this;
+    var main       = new MainTimeline();
+    main.stage     = stage; // main stage
+    main.container = this;  // container stage
 
     // add child
     this.addChildAt(main, 0);
@@ -366,27 +364,4 @@ Stage.prototype.initialDictionary = function (player)
     this._$id = this.$stages.length;
 
     return this;
-};
-
-/**
- * @param   {number} id
- * @returns {DisplayObject|undefined}
- */
-Stage.prototype.getInstance = function (id)
-{
-    return this._$instances[id];
-};
-
-/**
- * @param   {DisplayObject} instance
- * @returns void
- */
-Stage.prototype.setInstance = function (instance)
-{
-    if (instance.id === null) {
-        instance.id         = this._$instances.length;
-        instance.stage      = this;
-    }
-
-    this._$instances[instance.id] = instance;
 };

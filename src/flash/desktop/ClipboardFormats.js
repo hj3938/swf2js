@@ -1,7 +1,10 @@
 /**
  * @constructor
  */
-var ClipboardFormats = function () {};
+var ClipboardFormats = function ()
+{
+    OriginalObject.call(this);
+};
 
 ClipboardFormats.HTML_FORMAT      = "air:html";
 ClipboardFormats.RICH_TEXT_FORMAT = "air:rtf";

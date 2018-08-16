@@ -1,7 +1,10 @@
 /**
  * @constructor
  */
-var BitmapFilter = function () {};
+var BitmapFilter = function ()
+{
+    OriginalObject.call(this);
+};
 
 /**
  * util

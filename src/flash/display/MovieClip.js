@@ -5,8 +5,9 @@ var MovieClip = function ()
 {
     Sprite.call(this);
 
-    // origin param
-    this._$stopFlag = false;
+    // origin flag
+    this._$stopFlag  = false;
+    this._$canAction = true;
 
 
     // property
@@ -18,10 +19,6 @@ var MovieClip = function ()
     this._$labels        = [];
     this._$removeObjects = [];
 
-    // // flag
-    // this.stopFlag = false;
-    // this.isAction = true;
-    //
     // // clip
     // this.isClipDepth = false;
     // this.clipDepth   = 0;
@@ -39,32 +36,40 @@ MovieClip.prototype = Object.create(Sprite.prototype);
 MovieClip.prototype.constructor = MovieClip;
 
 /**
+ * TODO
  * properties
  */
 Object.defineProperties(MovieClip.prototype, {
     currentFrame: {
+        /**
+         * @return {number}
+         */
         get: function () {
             return this._$currentframe;
         },
-        set: function (id) {}
+        /**
+         * readonly
+         * @return void
+         */
+        set: function () {}
     },
     currentFrameLabel: {
         get: function () {
             return this._$id;
         },
-        set: function (id) {}
+        set: function () {}
     },
     currentLabel: {
         get: function () {
             return this._$id;
         },
-        set: function (id) {}
+        set: function () {}
     },
     currentLabels: {
         get: function () {
             return this._$id;
         },
-        set: function (id) {}
+        set: function () {}
     },
     currentScene: {
         get: function () {
@@ -153,6 +158,34 @@ MovieClip.prototype._$addAction = function (frame, actionScript)
 };
 
 /**
+ * @param   {number|null|undefined} frame
+ * @returns void
+ */
+MovieClip.prototype._$prepareActions = function (frame)
+{
+    if (this._$canAction) {
+
+        if (typeof frame !== "number") {
+            frame = this.currentFrame|0;
+        }
+
+        if (frame in this._$actions) {
+
+            var actions = this.stage.player.actions;
+
+            actions[actions.length] = {
+                actions: this._$actions[this.currentFrame],
+                caller:  this
+            };
+
+        }
+
+    }
+
+    this._$canAction = false;
+};
+
+/**
  * @param   {ActionScript} script
  * @returns {Function}
  */
@@ -200,14 +233,69 @@ MovieClip.prototype._$addSound = function (frame, sound)
 };
 
 /**
+ * @param   {MovieClip} parent
+ * @param   {number }   index
+ * @param   {object}    tag
+ * @param   {boolean}   shouldAction
  * @returns {MovieClip}
  */
-MovieClip.prototype._$build = function ()
+MovieClip.prototype._$build = function (parent, index, tag, shouldAction)
 {
     var length, frame;
 
     var mc = new MovieClip();
+
+    // init
+    mc.id          = index|0;
     mc.characterId = this.characterId;
+    mc.parent      = parent;
+    mc.stage       = parent.stage;
+
+    /**
+     * set place data
+     */
+    // name
+    if (tag.PlaceFlagHasName === 1) {
+        mc.name = tag.Name;
+    }
+
+    // ratio
+    if (tag.PlaceFlagHasRatio === 1) {
+        mc.ratio = tag.Ratio;
+    }
+
+    // clip actions
+    if (tag.PlaceFlagHasClipActions === 1) {
+
+        var ClipActionRecords = tag.ClipActionRecords;
+
+        length = ClipActionRecords.length|0;
+
+        var eventName, i = 0;
+        while (i < length) {
+
+            var actionRecord = ClipActionRecords[i];
+
+            var eventFlag    = actionRecord.EventFlags;
+            for (eventName in eventFlag) {
+
+                if (!eventFlag.hasOwnProperty(eventName)) {
+                    continue;
+                }
+
+                if (!eventFlag[eventName]) {
+                    continue;
+                }
+
+                // TODO
+                var action = mc.createActionScript(actionRecord.Actions);
+                mc.addEventListener(eventName, action);
+            }
+
+            i = (i + 1)|0;
+        }
+    }
+
 
     /**
      * clone controller
@@ -215,8 +303,8 @@ MovieClip.prototype._$build = function ()
     frame  = 1;
     length = this._$controller.length|0;
     while (length > frame) {
-
         mc._$controller[frame] = this.$cloneArray(this._$controller[frame]);
+
         frame = (frame + 1)|0;
     }
 
@@ -229,16 +317,10 @@ MovieClip.prototype._$build = function ()
     frame  = 1;
     length = this._$places.length|0;
     while (length > frame) {
-
         mc._$places[frame] = this.$cloneArray(this._$places[frame]);
+
         frame = (frame + 1)|0;
     }
-
-
-    /**
-     * clone character
-     */
-    mc._$container = this.$cloneArray(this._$container);
 
 
     /**
@@ -247,8 +329,8 @@ MovieClip.prototype._$build = function ()
     frame  = 1;
     length = this._$actions.length|0;
     while (length > frame) {
-
         mc._$actions[frame] = this.$cloneArray(this._$actions[frame]);
+
         frame = (frame + 1)|0;
     }
 
@@ -265,12 +347,39 @@ MovieClip.prototype._$build = function ()
     frame  = 1;
     length = this._$removeObjects.length|0;
     while (length > frame) {
-
         mc._$removeObjects[frame] = this.$cloneArray(this._$removeObjects[frame]);
+
         frame = (frame + 1)|0;
     }
 
+    /**
+     * clone dictionary
+     */
+    var id  = 0;
+    length = this._$dictionary.length|0;
+    while (length > id) {
+        mc._$dictionary = this.$cloneArray(this._$dictionary);
+
+        id = (id + 1)|0;
+    }
+
+    var nextAction = false;
+    if (shouldAction && mc.ratio === 0) {
+
+        var controller = parent._$getController(parent.currentFrame);
+
+        if (controller && controller.indexOf(index) !== -1) {
+
+            mc._$prepareActions();
+
+            nextAction = true;
+        }
+    }
+
     // todo sounds
+
+    // build dictionary
+    mc._$characterBuild(nextAction);
 
     return mc;
 };

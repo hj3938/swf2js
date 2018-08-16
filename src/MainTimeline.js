@@ -8,10 +8,6 @@ var MainTimeline = function ()
     // origin params
     this._$backgroundColor = "transparent";
     this._$version         = 10;
-    this._$characters      = [];
-    this._$controller      = [];
-
-
 };
 
 /**
@@ -74,68 +70,6 @@ MainTimeline.prototype.setBackgroundColor = function (r, g, b)
     }
 
     this._$backgroundColor = "rgb(" + r + "," + g + "," + b + ")";
-};
-
-/**
- * @param   {number} id
- * @returns {object}
- */
-MainTimeline.prototype.getCharacter = function (id)
-{
-    return this._$characters[id];
-};
-
-/**
- * @param {number} id
- * @param {object} obj
- */
-MainTimeline.prototype.setCharacter = function (id, obj)
-{
-    this._$characters[id] = obj;
-};
-
-/**
- * @param {number} instanceId
- * @param {number} depth
- * @param {number} frame
- * @returns {PlaceObject|null}
- */
-MainTimeline.prototype.getPlaceObject = function (instanceId, depth, frame)
-{
-    if (!(instanceId in this._$controller)) {
-        return null;
-    }
-
-    var placeObject = this._$controller[instanceId];
-    if (!(frame in placeObject)) {
-        return null;
-    }
-
-    var tags = placeObject[frame];
-    if (!(depth in tags)) {
-        return null;
-    }
-
-    return tags[depth];
-};
-
-/**
- * @param {PlaceObject} placeObject
- * @param {number} instanceId
- * @param {number} depth
- * @param {number} frame
- */
-MainTimeline.prototype.setPlaceObject = function (placeObject, instanceId, depth, frame)
-{
-    if (!(instanceId in this._$controller)) {
-        this._$controller[instanceId] = [];
-    }
-
-    if (!(frame in this._$controller[instanceId])) {
-        this._$controller[instanceId][frame] = [];
-    }
-
-    this._$controller[instanceId][frame][depth] = placeObject;
 };
 
 /**

@@ -1,7 +1,10 @@
 /**
  * @constructor
  */
-var OriginalObject = function () {};
+var OriginalObject = function ()
+{
+    Util.call(this);
+};
 
 /**
  * util

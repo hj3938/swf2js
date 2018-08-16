@@ -17,8 +17,8 @@ var DisplayObjectContainer = function ()
     this._$places        = [];
     this._$placeObjects  = [];
     this._$controller    = [];
-    this._$container     = [];
-
+    this._$dictionary    = [];
+    this._$instances     = [];
 };
 
 /**
@@ -77,6 +77,29 @@ Object.defineProperties(DisplayObjectContainer.prototype, {
 });
 
 /**
+ * @param   {boolean} shouldAction
+ * @returns void
+ */
+DisplayObjectContainer.prototype._$characterBuild = function (shouldAction)
+{
+    var id = 0;
+    var length = this._$dictionary.length|0;
+
+    while (length > id) {
+
+        // build
+        var tag       = this._$dictionary[id];
+        var character = this.stage._$characters[tag.CharacterId];
+        var obj       = character._$build(this, id, tag, shouldAction);
+
+        this._$addInstance(id, obj);
+
+        id = (id + 1)|0;
+    }
+};
+
+
+/**
  * @param   {number} frame
  * @param   {number} depth
  * @returns PlaceObject
@@ -114,10 +137,18 @@ DisplayObjectContainer.prototype._$setPlaceObject = function (frame, depth, plac
 /**
  * @param   {number} frame
  * @param   {number} depth
- * @returns {number}
+ * @returns {number|null}
  */
 DisplayObjectContainer.prototype._$getControllerAt = function(frame, depth)
 {
+    if (!(frame in this._$controller)) {
+        return null;
+    }
+
+    if (!(depth in this._$controller[frame])) {
+        return null;
+    }
+
     return this._$controller[frame][depth];
 };
 
@@ -127,39 +158,57 @@ DisplayObjectContainer.prototype._$getControllerAt = function(frame, depth)
  */
 DisplayObjectContainer.prototype._$getController = function(frame)
 {
+    if (!(frame in this._$controller)) {
+        return null;
+    }
+
     return this._$controller[frame];
 };
 
 /**
  * @param {number} frame
  * @param {number} depth
- * @param {number} character_id
+ * @param {number} instance_id
  */
-DisplayObjectContainer.prototype._$setController = function (frame, depth, character_id)
+DisplayObjectContainer.prototype._$setController = function (frame, depth, instance_id)
 {
     if (!(frame in this._$controller)) {
         this._$controller[frame] = [];
     }
 
-    this._$controller[frame][depth] = character_id;
+    this._$controller[frame][depth] = instance_id;
 };
 
 /**
- * @param   {number}        character_id
- * @returns {DisplayObject}
+ * @param   {object} placeObject
+ * @returns {number}
  */
-DisplayObjectContainer.prototype._$getContainer = function (character_id)
+DisplayObjectContainer.prototype._$addDictionary = function (placeObject)
 {
-    return this.stage.getInstance(this._$container[character_id]);
+    var id = this._$dictionary.length|0;
+
+    this._$dictionary[id] = placeObject;
+
+    return id;
 };
 
 /**
- * @param {number} character_id
- * @param {number} instance_id
+ * @param {number}        index
+ * @param {DisplayObject} instance
  */
-DisplayObjectContainer.prototype._$setContainer = function (character_id, instance_id)
+DisplayObjectContainer.prototype._$addInstance = function (index, instance)
 {
-    this._$container[character_id] = instance_id;
+    this._$instances[index] = instance;
+};
+
+/**
+ *
+ * @param  {number} index
+ * @return {DisplayObject}
+ */
+DisplayObjectContainer.prototype._$getInstance = function (index)
+{
+    return this._$instances[index];
 };
 
 /**
@@ -207,25 +256,16 @@ DisplayObjectContainer.prototype._$addChild = function (child, index)
     // init
     index = index || this.numChildren;
 
-    // set stage
-    var stage = this.stage;
-    if (!stage) {
-        var player = this.$window.swf2js.getCurrentPlayer();
-        stage = player.stage;
-    }
-
     // stage insert origin data
-    stage.setInstance(child);
-    // stage.createPlaceObject(this.id, child.id);
+    if (child.id === null) {
+        child.id = this._$instances.length|0;
+        this._$instances[child.id] = child;
+    }
 
     // set param
+    child.stage   = this.stage;
     child.parent  = this;
 
-    // set child data
-    var children = this._$children;
-    if (index in children) {
-        this._$addChild(this.stage.getInstance(children[index]), index + 1);
-    }
     this._$children[index] = child.id;
 
     // event
@@ -283,7 +323,7 @@ DisplayObjectContainer.prototype.getChildAt = function (index)
         throw new Error("child not found.");
     }
 
-    return this.stage.getInstance(this._$children[index]);
+    return this._$getInstance(this._$children[index]);
 };
 
 /**

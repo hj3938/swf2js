@@ -54,20 +54,20 @@ describe("DisplayObject.js property test", function()
         expect(obj.parent.toString()).toBe("[object MainTimeline]");
     });
 
-    // it("parent test success case2", function () {
-    //     var player = new Player();
-    //     var obj    = player.stage.addChild(new DisplayObject());
-    //     expect(obj.parent.id).toBe(player.stage.id);
-    //     expect(obj.parent.toString()).toBe("[object Stage]");
-    // });
-    //
-    // it("parent test valid", function () {
-    //     var player = new Player();
-    //     var obj    = player.stage.addChild(new DisplayObject());
-    //
-    //     obj.parent = null;
-    //     expect(obj.parent.toString()).toBe("[object Stage]");
-    // });
+    it("parent test success case2", function () {
+        var player = new Player();
+        var obj    = player.stage.addChild(new DisplayObject());
+        expect(obj.parent.id).toBe(player.stage.id);
+        expect(obj.parent.toString()).toBe("[object Stage]");
+    });
+
+    it("parent test valid", function () {
+        var player = new Player();
+        var obj    = player.stage.addChild(new DisplayObject());
+
+        obj.parent = null;
+        expect(obj.parent.toString()).toBe("[object Stage]");
+    });
 
 
     // name

@@ -1,7 +1,10 @@
 /**
  * @constructor
  */
-var BlendMode = function () {};
+var BlendMode = function ()
+{
+    OriginalObject.call(this);
+};
 
 BlendMode.ADD        = "add";
 BlendMode.ALPHA      = "alpha";

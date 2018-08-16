@@ -1,11 +1,15 @@
 /**
+ * @param {Player} player
  * @constructor
  */
-var ReComposition = function (main)
+var ReComposition = function (player)
 {
-    this.main   = main;
+    Util.call(this);
+
+    this.player = player;
+    this.main   = player.stage._root;
     this.bitio  = new BitIO();
-    this.swftag = new SwfTag(main, this.bitio);
+    this.swftag = new SwfTag(this.main, this.bitio);
 };
 
 /**
@@ -15,19 +19,11 @@ ReComposition.prototype = Object.create(Util.prototype);
 ReComposition.prototype.constructor = ReComposition;
 
 /**
- *
- * @returns {MainTimeline}
- */
-ReComposition.prototype.getMain = function ()
-{
-    return this.main;
-};
-
-/**
- * @param data
+ * @param   {array}  data
+ * @param   {string} url
  * @returns {MovieClip}
  */
-ReComposition.prototype.run = function (data)
+ReComposition.prototype.run = function (data, url)
 {
     // data set
     if (this.$canXHR2) {
@@ -42,7 +38,7 @@ ReComposition.prototype.run = function (data)
         // parse and build
         return this
             .initialize()
-            .parseAndBuild();
+            .parseAndBuild(url);
 
     } else {
 
@@ -86,7 +82,7 @@ ReComposition.prototype.initialize = function()
 
     // version
     var version   = bitio.getVersion();
-    this.getMain().setVersion(version);
+    this.main.setVersion(version);
 
     // file size
     var fileSize  = this.bitio.getUI32();
@@ -119,8 +115,8 @@ ReComposition.prototype.initialize = function()
     // player set
     var player = this.main.stage.player;
 
-    player.width  = width;
-    player.height = height;
+    player.baseWidth  = width;
+    player.baseHeight = height;
     if (player.tagId && !player.optionWidth && !player.optionHeight) {
         player.optionWidth  = width;
         player.optionHeight = height;
@@ -130,37 +126,24 @@ ReComposition.prototype.initialize = function()
 };
 
 /**
+ * @param   {string} url
  * @returns {MovieClip}
  */
-ReComposition.prototype.parseAndBuild = function()
+ReComposition.prototype.parseAndBuild = function(url)
 {
     var main = this.main;
 
     // parse
-    var tags = this.swftag.parse(main);
-
-
-    return 0;
-
-    // mc reset
-    main.container  = [];
-    var frame       = 1;
-    var totalFrames = main.getTotalFrames() + 1;
-    while (frame < totalFrames) {
-        main.container[frame] = [];
-        frame = 0 | frame + 1;
-    }
-    main.instances = [];
-
-    // build
-    this.swftag.build(tags, main);
+    this.swftag.parse(main);
 
     var query = url.split("?")[1];
     if (query) {
+
         var values = query.split("&");
         var length = values.length;
+
         while (length) {
-            length    = 0 | length - 1;
+            length    = (length - 1)|0;
             var value = values[length];
             var pair  = value.split("=");
             if (pair.length > 1) {
@@ -172,11 +155,23 @@ ReComposition.prototype.parseAndBuild = function()
     // FlashVars
     var vars = this.FlashVars;
     for (var key in vars) {
+
         if (!vars.hasOwnProperty(key)) {
             continue;
         }
+
         main.setVariable(key, vars[key]);
     }
+
+    // build
+    main._$prepareActions();
+    main._$characterBuild(true);
+
+    // load end
+    this.player.isLoad     = true;
+    this.player.loadStatus = (this.player.loadStatus + 1)|0;
+
+    console.log(main);
 
     return main;
 };

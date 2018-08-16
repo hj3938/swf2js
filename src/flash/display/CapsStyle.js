@@ -1,7 +1,10 @@
 /**
  * @constructor
  */
-var CapsStyle = function () {};
+var CapsStyle = function ()
+{
+    OriginalObject.call(this);
+};
 
 CapsStyle.NONE   = "none";
 CapsStyle.ROUND  = "round";

@@ -3,6 +3,8 @@
  */
 var EventDispatcher = function ()
 {
+    OriginalObject.call(this);
+
     // init
     this._$events = {};
     this._$isLoad = false;

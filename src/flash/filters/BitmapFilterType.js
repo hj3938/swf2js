@@ -1,7 +1,10 @@
 /**
  * @constructor
  */
-var BitmapFilterType = function () {};
+var BitmapFilterType = function ()
+{
+    OriginalObject.call(this);
+};
 
 BitmapFilterType.FULL  = "full";
 BitmapFilterType.INNER = "inner";

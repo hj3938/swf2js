@@ -1,7 +1,11 @@
 /**
  * @constructor
  */
-var ActionScriptVersion = function () {};
+var ActionScriptVersion = function ()
+{
+    OriginalObject.call(this);
+};
+
 ActionScriptVersion.ACTIONSCRIPT2 = 2;
 ActionScriptVersion.ACTIONSCRIPT3 = 3;
 

@@ -1,7 +1,10 @@
 /**
  * @constructor
  */
-var BitmapDataChannel = function () {};
+var BitmapDataChannel = function ()
+{
+    OriginalObject.call(this);
+};
 
 BitmapDataChannel.ALPHA = 8;
 BitmapDataChannel.BLUE  = 4;

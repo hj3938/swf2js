@@ -9,7 +9,8 @@ var DisplayObject = function ()
     this._$id           = null;
     this._$characterId  = null;
     this._$stageId      = null;
-    this._$parentId     = null;
+    this._$containerId  = null;
+    this._$parent       = null;
     this._$variables    = {};
 
     // property
@@ -65,6 +66,22 @@ Object.defineProperties(DisplayObject.prototype, {
             }
         }
     },
+    container: {
+        /**
+         * @returns {Stage}
+         */
+        get: function () {
+            return (this._$containerId !== null) ? this.$stages[this._$containerId] : this._$containerId;
+        },
+        /**
+         * @param {Stage} stage
+         */
+        set: function (stage) {
+            if (this._$containerId === null && stage instanceof Stage) {
+                this._$containerId = stage.id;
+            }
+        }
+    },
     stage: {
         /**
          * @returns {Stage}
@@ -86,14 +103,14 @@ Object.defineProperties(DisplayObject.prototype, {
          * @returns {DisplayObject}
          */
         get: function () {
-            return this.stage.getInstance(this._$parentId);
+            return this._$parent;
         },
         /**
          * @param {DisplayObject} parent
          */
         set: function (parent) {
             if (parent instanceof DisplayObject) {
-                this._$parentId = parent.id;
+                this._$parent = parent;
             }
         }
     },

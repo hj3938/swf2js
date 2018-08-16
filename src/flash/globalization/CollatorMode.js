@@ -1,7 +1,10 @@
 /**
  * @constructor
  */
-var CollatorMode = function () {};
+var CollatorMode = function ()
+{
+    OriginalObject.call(this);
+};
 
 CollatorMode.MATCHING = "matching";
 CollatorMode.SORTING  = "sorting";

@@ -1,7 +1,10 @@
 /**
  * @constructor
  */
-var ClipboardTransferMode = function () {};
+var ClipboardTransferMode = function ()
+{
+    OriginalObject.call(this);
+};
 
 ClipboardTransferMode.CLONE_ONLY         = "cloneOnly";
 ClipboardTransferMode.CLONE_PREFERRED    = "clonePreferred";

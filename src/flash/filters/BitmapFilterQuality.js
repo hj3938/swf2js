@@ -1,7 +1,10 @@
 /**
  * @constructor
  */
-var BitmapFilterQuality = function () {};
+var BitmapFilterQuality = function ()
+{
+    OriginalObject.call(this);
+};
 
 BitmapFilterQuality.LOW    = 1;
 BitmapFilterQuality.MEDIUM = 2;

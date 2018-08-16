@@ -7,6 +7,8 @@
  */
 var BitmapData = function (width, height, transparent, fillColor)
 {
+    OriginalObject.call(this);
+
     this._width       = width|0;
     this._height      = height|0;
     this._transparent = (typeof transparent === "boolean") ? transparent : true;

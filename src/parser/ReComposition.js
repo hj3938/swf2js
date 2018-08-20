@@ -81,8 +81,7 @@ ReComposition.prototype.initialize = function()
     var signature = bitio.getHeaderSignature();
 
     // version
-    var version   = bitio.getVersion();
-    this.main.setVersion(version);
+    this.main.version = bitio.getVersion()|0;
 
     // file size
     var fileSize  = this.bitio.getUI32();
@@ -164,7 +163,7 @@ ReComposition.prototype.parseAndBuild = function(url)
     }
 
     // build
-    main._$prepareActions();
+    main._$prepareActions(1);
     main._$characterBuild(true);
 
     // load end

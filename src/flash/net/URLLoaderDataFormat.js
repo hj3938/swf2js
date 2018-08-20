@@ -1,14 +1,8 @@
 /**
- * @constructor
+ * @type {{BINARY: string, TEXT: string, VARIABLES: string}}
  */
-var URLLoaderDataFormat = function () {};
-
-URLLoaderDataFormat.BINARY    = "binary";
-URLLoaderDataFormat.TEXT      = "text";
-URLLoaderDataFormat.VARIABLES = "variables";
-
-/**
- * extends
- */
-URLLoaderDataFormat.prototype = Object.create(OriginalObject.prototype);
-URLLoaderDataFormat.prototype.constructor = URLLoaderDataFormat;
+var URLLoaderDataFormat = {
+    "BINARY"   : "binary",
+    "TEXT"     : "text",
+    "VARIABLES": "variables"
+};

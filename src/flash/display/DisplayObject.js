@@ -6,21 +6,22 @@ var DisplayObject = function ()
     EventDispatcher.call(this);
 
     // origin param
-    this._$id           = null;
-    this._$characterId  = null;
-    this._$stageId      = null;
-    this._$containerId  = null;
-    this._$parent       = null;
-    this._$variables    = {};
+    this._$id             = null;
+    this._$characterId    = null;
+    this._$stageId        = null;
+    this._$containerId    = null;
+    this._$parent         = null;
+    this._$variables      = {};
+
+
+    // draw param
+    this._$matrix         = null;
+    this._$colorTransform = null;
+
 
     // property
     this._$accessibilityProperties = new AccessibilityProperties();
     this._$name                    = "";
-
-
-
-
-
 
 };
 
@@ -155,10 +156,69 @@ Object.defineProperties(DisplayObject.prototype, {
         set: function (name) {
             this._$name = name + "";
         }
+    },
+    matrix: {
+        /**
+         * @return {array|null}
+         */
+        get: function () {
+            return this._$matrix;
+        },
+        /**
+         * @param {array} matrix
+         */
+        set: function (matrix) {
+            if (this.$isArray(matrix)) {
+                this._$matrix = this.$cloneArray(matrix);
+            }
+        }
+    },
+    colorTransform: {
+        /**
+         * @return {array|null}
+         */
+        get: function () {
+            return this._$colorTransform;
+        },
+        /**
+         * @param {array} colorTransform
+         */
+        set: function (colorTransform) {
+            if (this.$isArray(colorTransform)) {
+                this._$colorTransform = this.$cloneArray(colorTransform);
+            }
+        }
     }
 });
 
+/**
+ * @param  {number} frame
+ * @param  {number} depth
+ * @return {array}
+ */
+DisplayObject.prototype._$getMatrix = function (frame, depth)
+{
+    if (this.matrix !== null) {
+        return this.matrix;
+    }
 
+    var placeObject = this.parent._$getPlaceObject(frame, depth);
 
+    return placeObject.matrix;
+};
 
+/**
+ * @param  {number} frame
+ * @param  {number} depth
+ * @return {array}
+ */
+DisplayObject.prototype._$getColorTransform = function (frame, depth)
+{
+    if (this.colorTransform !== null) {
+        return this.colorTransform;
+    }
 
+    var placeObject = this.parent._$getPlaceObject(frame, depth);
+
+    return placeObject.colorTransform;
+};

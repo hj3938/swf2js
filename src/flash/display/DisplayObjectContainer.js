@@ -159,7 +159,7 @@ DisplayObjectContainer.prototype._$getControllerAt = function(frame, depth)
 DisplayObjectContainer.prototype._$getController = function(frame)
 {
     if (!(frame in this._$controller)) {
-        return null;
+        return [];
     }
 
     return this._$controller[frame];

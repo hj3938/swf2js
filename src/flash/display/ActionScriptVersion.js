@@ -1,16 +1,7 @@
 /**
- * @constructor
+ * @type {{ACTIONSCRIPT2: number, ACTIONSCRIPT3: number}}
  */
-var ActionScriptVersion = function ()
-{
-    OriginalObject.call(this);
+var ActionScriptVersion = {
+    "ACTIONSCRIPT2": 2,
+    "ACTIONSCRIPT3": 3
 };
-
-ActionScriptVersion.ACTIONSCRIPT2 = 2;
-ActionScriptVersion.ACTIONSCRIPT3 = 3;
-
-/**
- * extends
- */
-ActionScriptVersion.prototype = Object.create(OriginalObject.prototype);
-ActionScriptVersion.prototype.constructor = ActionScriptVersion;

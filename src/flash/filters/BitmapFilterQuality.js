@@ -1,17 +1,8 @@
 /**
- * @constructor
+ * @type {{LOW: number, MEDIUM: number, HIGH: number}}
  */
-var BitmapFilterQuality = function ()
-{
-    OriginalObject.call(this);
+var BitmapFilterQuality = {
+    "LOW"   : 1,
+    "MEDIUM": 2,
+    "HIGH"  : 3
 };
-
-BitmapFilterQuality.LOW    = 1;
-BitmapFilterQuality.MEDIUM = 2;
-BitmapFilterQuality.HIGH   = 3;
-
-/**
- * extends
- */
-BitmapFilterQuality.prototype = Object.create(OriginalObject.prototype);
-BitmapFilterQuality.prototype.constructor = BitmapFilterQuality;

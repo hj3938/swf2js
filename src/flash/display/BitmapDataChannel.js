@@ -1,18 +1,9 @@
 /**
- * @constructor
+ * @type {{ALPHA: number, BLUE: number, GREEN: number, RED: number}}
  */
-var BitmapDataChannel = function ()
-{
-    OriginalObject.call(this);
+var BitmapDataChannel = {
+    "ALPHA": 8,
+    "BLUE" : 4,
+    "GREEN": 2,
+    "RED"  : 1
 };
-
-BitmapDataChannel.ALPHA = 8;
-BitmapDataChannel.BLUE  = 4;
-BitmapDataChannel.GREEN = 2;
-BitmapDataChannel.RED   = 1;
-
-/**
- * extends
- */
-BitmapDataChannel.prototype = Object.create(OriginalObject.prototype);
-BitmapDataChannel.prototype.constructor = BitmapDataChannel;

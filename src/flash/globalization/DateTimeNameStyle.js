@@ -1,7 +1,8 @@
 /**
- * @constructor
+ * @type {{FULL: string, LONG_ABBREVIATION: string, SHORT_ABBREVIATION: string}}
  */
-var DateTimeNameStyle = function () {};
-DateTimeNameStyle.prototype.FULL               = "full";
-DateTimeNameStyle.prototype.LONG_ABBREVIATION  = "longAbbreviation";
-DateTimeNameStyle.prototype.SHORT_ABBREVIATION = "shortAbbreviation";
+var DateTimeNameStyle = {
+    "FULL"              : "full",
+    "LONG_ABBREVIATION" : "longAbbreviation",
+    "SHORT_ABBREVIATION": "shortAbbreviation"
+};

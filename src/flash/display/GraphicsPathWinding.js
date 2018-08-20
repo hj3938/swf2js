@@ -1,13 +1,7 @@
 /**
- * @constructor
+ * @type {{EVEN_ODD: string, NON_ZERO: string}}
  */
-var GraphicsPathWinding = function () {};
-
-GraphicsPathWinding.EVEN_ODD = "evenOdd";
-GraphicsPathWinding.NON_ZERO = "nonZero";
-
-/**
- * extends
- */
-GraphicsPathWinding.prototype = Object.create(OriginalObject.prototype);
-GraphicsPathWinding.prototype.constructor = GraphicsPathWinding;
+var GraphicsPathWinding = {
+    "EVEN_ODD": "evenOdd",
+    "NON_ZERO": "nonZero"
+};

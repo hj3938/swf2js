@@ -1,14 +1,8 @@
 /**
- * @constructor
+ * @type {{PAD: string, REFLECT: string, REPEAT: string}}
  */
-var SpreadMethod = function () {};
-
-SpreadMethod.PAD     = "pad";
-SpreadMethod.REFLECT = "reflect";
-SpreadMethod.REPEAT  = "repeat";
-
-/**
- * extends
- */
-SpreadMethod.prototype = Object.create(OriginalObject.prototype);
-SpreadMethod.prototype.constructor = SpreadMethod;
+var SpreadMethod = {
+    "PAD"    : "pad",
+    "REFLECT": "reflect",
+    "REPEAT" : "repeat"
+};

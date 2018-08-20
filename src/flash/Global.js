@@ -7,8 +7,7 @@ var Global = function ()
 };
 
 /**
- *
- * @param name
+ * @param   {string} name
  * @returns {*}
  */
 Global.prototype.getVariable = function (name)
@@ -17,29 +16,11 @@ Global.prototype.getVariable = function (name)
 };
 
 /**
- * @param name
- * @param value
+ * @param   {string} name
+ * @param   {string} value
  * @returns {*}
  */
 Global.prototype.setVariable = function (name, value)
-{
-    this.variables[name] = value;
-};
-
-/**
- * @param name
- * @returns {*}
- */
-Global.prototype.getProperty = function (name)
-{
-    return this.variables[name];
-};
-
-/**
- * @param name
- * @param value
- */
-Global.prototype.setProperty = function (name, value)
 {
     this.variables[name] = value;
 };

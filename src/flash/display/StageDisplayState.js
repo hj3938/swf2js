@@ -1,14 +1,8 @@
 /**
- * @constructor
+ * @type {{FULL_SCREEN: string, FULL_SCREEN_INTERACTIVE: string, NORMAL: string}}
  */
-var StageDisplayState = function () {};
-
-StageDisplayState.FULL_SCREEN             = "fullScreen";
-StageDisplayState.FULL_SCREEN_INTERACTIVE = "fullScreenInteractive";
-StageDisplayState.NORMAL                  = "normal";
-
-/**
- * extends
- */
-StageDisplayState.prototype = Object.create(OriginalObject.prototype);
-StageDisplayState.prototype.constructor = StageDisplayState;
+var StageDisplayState = {
+    "FULL_SCREEN"            : "fullScreen",
+    "FULL_SCREEN_INTERACTIVE": "fullScreenInteractive",
+    "NORMAL"                 : "normal"
+};

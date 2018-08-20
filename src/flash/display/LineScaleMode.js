@@ -1,15 +1,9 @@
 /**
- * @constructor
+ * @type {{HORIZONTAL: string, NONE: string, NORMAL: string, VERTICAL: string}}
  */
-var LineScaleMode = function () {};
-
-LineScaleMode.HORIZONTAL = "horizontal";
-LineScaleMode.NONE       = "none";
-LineScaleMode.NORMAL     = "normal";
-LineScaleMode.VERTICAL   = "vertical";
-
-/**
- * extends
- */
-LineScaleMode.prototype = Object.create(OriginalObject.prototype);
-LineScaleMode.prototype.constructor = LineScaleMode;
+var LineScaleMode = {
+    "HORIZONTAL": "horizontal",
+    "NONE"      : "none",
+    "NORMAL"    : "normal",
+    "VERTICAL"  : "vertical"
+};

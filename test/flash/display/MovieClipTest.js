@@ -10,32 +10,28 @@ describe("MovieClip.js toString test", function()
 });
 
 
-describe("MovieClip.js _$addLabel test", function()
+describe("MovieClip.js _$addFrameLabel test", function()
 {
 
-    it("_$addLabel test success", function () {
+    it("_$addFrameLabel test success", function () {
         var mc = new MovieClip();
-        mc._$addLabel(1, "test");
-        expect(mc._$labels["test"]).toBe(1);
+        mc._$addFrameLabel(new FrameLabel("test", 1));
+
+        var fl = mc._$frameLabels[0];
+        expect(fl instanceof FrameLabel).toBe(true);
     });
 
-    it("_$addLabel test valid1", function () {
+    it("_$addFrameLabel test valid1", function () {
         var mc = new MovieClip();
-        mc._$addLabel(100, 12);
-        expect(mc._$labels["12"]).toBe(100);
+        mc._$addFrameLabel({
+            "name": 10,
+            "frame": 12
+        });
+
+        var fl = mc._$frameLabels[0];
+        expect(fl).toBe(undefined);
     });
 
-    it("_$addLabel test valid2", function () {
-        var mc = new MovieClip();
-        mc._$addLabel("100", 12);
-        expect(mc._$labels["12"]).toBe(100);
-    });
-
-    it("_$addLabel test valid2", function () {
-        var mc = new MovieClip();
-        mc._$addLabel("a", 12);
-        expect(mc._$labels["12"]).toBe(0);
-    });
 });
 
 

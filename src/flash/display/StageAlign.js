@@ -1,19 +1,13 @@
 /**
- * @constructor
+ * @type {{BOTTOM: string, BOTTOM_LEFT: string, BOTTOM_RIGHT: string, LEFT: string, RIGHT: string, TOP: string, TOP_LEFT: string, TOP_RIGHT: string}}
  */
-var StageAlign = function () {};
-
-StageAlign.BOTTOM       = "B";
-StageAlign.BOTTOM_LEFT  = "BL";
-StageAlign.BOTTOM_RIGHT = "BR";
-StageAlign.LEFT         = "L";
-StageAlign.RIGHT        = "R";
-StageAlign.TOP          = "T";
-StageAlign.TOP_LEFT     = "TL";
-StageAlign.TOP_RIGHT    = "TR";
-
-/**
- * extends
- */
-StageAlign.prototype = Object.create(OriginalObject.prototype);
-StageAlign.prototype.constructor = StageAlign;
+var StageAlign = {
+    "BOTTOM"      : "B",
+    "BOTTOM_LEFT" : "BL",
+    "BOTTOM_RIGHT": "BR",
+    "LEFT"        : "L",
+    "RIGHT"       : "R",
+    "TOP"         : "T",
+    "TOP_LEFT"    : "TL",
+    "TOP_RIGHT"   : "TR"
+};

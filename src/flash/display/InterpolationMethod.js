@@ -1,13 +1,7 @@
 /**
- * @constructor
+ * @type {{LINEAR_RGB: string, RGB: string}}
  */
-var InterpolationMethod = function () {};
-
-InterpolationMethod.LINEAR_RGB = "linearRGB";
-InterpolationMethod.RGB        = "rgb";
-
-/**
- * extends
- */
-InterpolationMethod.prototype = Object.create(OriginalObject.prototype);
-InterpolationMethod.prototype.constructor = InterpolationMethod;
+var InterpolationMethod = {
+    "LINEAR_RGB": "linearRGB",
+    "RGB"       : "rgb"
+};

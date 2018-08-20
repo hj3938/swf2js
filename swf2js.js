@@ -1034,8 +1034,7 @@ var Global = function ()
 };
 
 /**
- *
- * @param name
+ * @param   {string} name
  * @returns {*}
  */
 Global.prototype.getVariable = function (name)
@@ -1044,29 +1043,11 @@ Global.prototype.getVariable = function (name)
 };
 
 /**
- * @param name
- * @param value
+ * @param   {string} name
+ * @param   {string} value
  * @returns {*}
  */
 Global.prototype.setVariable = function (name, value)
-{
-    this.variables[name] = value;
-};
-
-/**
- * @param name
- * @returns {*}
- */
-Global.prototype.getProperty = function (name)
-{
-    return this.variables[name];
-};
-
-/**
- * @param name
- * @param value
- */
-Global.prototype.setProperty = function (name, value)
 {
     this.variables[name] = value;
 };
@@ -2277,64 +2258,66 @@ var DataEvent = function (type, bubbles, cancelable, data)
     this._data       = "";
 };
 /**
- * @constructor
+ * @type {{ACTIVATE: string, ADDED: string, ADDED_TO_STAGE: string, BROWSER_ZOOM_CHANGE: string, CANCEL: string, CHANGE: string, CHANNEL_MESSAGE: string, CHANNEL_STATE: string, CLEAR: string, CLOSE: string, CLOSING: string, COMPLETE: string, CONNECT: string, CONTEXT3D_CREATE: string, COPY: string, CUT: string, DEACTIVATE: string, DISPLAYING: string, ENTER_FRAME: string, EXIT_FRAME: string, EXITING: string, FRAME_CONSTRUCTED: string, FRAME_LABEL: string, FULLSCREEN: string, HTML_BOUNDS_CHANGE: string, HTML_DOM_INITIALIZE: string, HTML_RENDER: string, ID3: string, INIT: string, LOCATION_CHANGE: string, MOUSE_LEAVE: string, OPEN: string, PASTE: string, REMOVED: string, REMOVED_FROM_STAGE: string, RENDER: string, RESIZE: string, SCROLL: string, SELECT: string, SELECT_ALL: string, SOUND_COMPLETE: string, STANDARD_ERROR_CLOSE: string, STANDARD_INPUT_CLOSE: string, STANDARD_OUTPUT_CLOSE: string, TAB_CHILDREN_CHANGE: string, TAB_ENABLED_CHANGE: string, TAB_INDEX_CHANGE: string, TEXT_INTERACTION_MODE_CHANGE: string, TEXTURE_READY: string, UNLOAD: string, USER_IDLE: string, USER_PRESENT: string, VIDEO_FRAME: string, WORKER_STATE: string}}
  */
-var Event = function () {};
+var Event = {
+    "ACTIVATE"                    : "activate",
+    "ADDED"                       : "added",
+    "ADDED_TO_STAGE"              : "addedToStage",
+    "BROWSER_ZOOM_CHANGE"         : "browserZoomChange",
+    "CANCEL"                      : "cancel",
+    "CHANGE"                      : "change",
+    "CHANNEL_MESSAGE"             : "channelMessage",
+    "CHANNEL_STATE"               : "channelState",
+    "CLEAR"                       : "clear",
+    "CLOSE"                       : "close",
+    "CLOSING"                     : "closing",
+    "COMPLETE"                    : "complete",
+    "CONNECT"                     : "connect",
+    "CONTEXT3D_CREATE"            : "context3DCreate",
+    "COPY"                        : "copy",
+    "CUT"                         : "cut",
+    "DEACTIVATE"                  : "deactivate",
+    "DISPLAYING"                  : "displaying",
+    "ENTER_FRAME"                 : "enterFrame",
+    "EXIT_FRAME"                  : "exitFrame",
+    "EXITING"                     : "exiting",
+    "FRAME_CONSTRUCTED"           : "frameConstructed",
+    "FRAME_LABEL"                 : "frameLabel",
+    "FULLSCREEN"                  : "fullScreen",
+    "HTML_BOUNDS_CHANGE"          : "htmlBoundsChange",
+    "HTML_DOM_INITIALIZE"         : "htmlDOMInitialize",
+    "HTML_RENDER"                 : "htmlRender",
+    "ID3"                         : "id3",
+    "INIT"                        : "init",
+    "LOCATION_CHANGE"             : "locationChange",
+    "MOUSE_LEAVE"                 : "mouseLeave",
+    "OPEN"                        : "open",
+    "PASTE"                       : "paste",
+    "REMOVED"                     : "removed",
+    "REMOVED_FROM_STAGE"          : "removedFromStage",
+    "RENDER"                      : "render",
+    "RESIZE"                      : "resize",
+    "SCROLL"                      : "scroll",
+    "SELECT"                      : "select",
+    "SELECT_ALL"                  : "selectAll",
+    "SOUND_COMPLETE"              : "soundComplete",
+    "STANDARD_ERROR_CLOSE"        : "standardErrorClose",
+    "STANDARD_INPUT_CLOSE"        : "standardInputClose",
+    "STANDARD_OUTPUT_CLOSE"       : "standardOutputClose",
+    "TAB_CHILDREN_CHANGE"         : "tabChildrenChange",
+    "TAB_ENABLED_CHANGE"          : "tabEnabledChange",
+    "TAB_INDEX_CHANGE"            : "tabIndexChange",
+    "TEXT_INTERACTION_MODE_CHANGE": "textInteractionModeChange",
+    "TEXTURE_READY"               : "textureReady",
+    "UNLOAD"                      : "unload",
+    "USER_IDLE"                   : "userIdle",
+    "USER_PRESENT"                : "userPresent",
+    "VIDEO_FRAME"                 : "videoFrame",
+    "WORKER_STATE"                : "workerState"
+};
 
-Event.ACTIVATE                     = "activate";
-Event.ADDED                        = "added";
-Event.ADDED_TO_STAGE               = "addedToStage";
-Event.BROWSER_ZOOM_CHANGE          = "browserZoomChange";
-Event.CANCEL                       = "cancel";
-Event.CHANGE                       = "change";
-Event.CHANNEL_MESSAGE              = "channelMessage";
-Event.CHANNEL_STATE                = "channelState";
-Event.CLEAR                        = "clear";
-Event.CLOSE                        = "close";
-Event.CLOSING                      = "closing";
-Event.COMPLETE                     = "complete";
-Event.CONNECT                      = "connect";
-Event.CONTEXT3D_CREATE             = "context3DCreate";
-Event.COPY                         = "copy";
-Event.CUT                          = "cut";
-Event.DEACTIVATE                   = "deactivate";
-Event.DISPLAYING                   = "displaying";
-Event.ENTER_FRAME                  = "enterFrame";
-Event.EXIT_FRAME                   = "exitFrame";
-Event.EXITING                      = "exiting";
-Event.FRAME_CONSTRUCTED            = "frameConstructed";
-Event.FRAME_LABEL                  = "frameLabel";
-Event.FULLSCREEN                   = "fullScreen";
-Event.HTML_BOUNDS_CHANGE           = "htmlBoundsChange";
-Event.HTML_DOM_INITIALIZE          = "htmlDOMInitialize";
-Event.HTML_RENDER                  = "htmlRender";
-Event.ID3                          = "id3";
-Event.INIT                         = "init";
-Event.LOCATION_CHANGE              = "locationChange";
-Event.MOUSE_LEAVE                  = "mouseLeave";
-Event.OPEN                         = "open";
-Event.PASTE                        = "paste";
-Event.REMOVED                      = "removed";
-Event.REMOVED_FROM_STAGE           = "removedFromStage";
-Event.RENDER                       = "render";
-Event.RESIZE                       = "resize";
-Event.SCROLL                       = "scroll";
-Event.SELECT                       = "select";
-Event.SELECT_ALL                   = "selectAll";
-Event.SOUND_COMPLETE               = "soundComplete";
-Event.STANDARD_ERROR_CLOSE         = "standardErrorClose";
-Event.STANDARD_INPUT_CLOSE         = "standardInputClose";
-Event.STANDARD_OUTPUT_CLOSE        = "standardOutputClose";
-Event.TAB_CHILDREN_CHANGE          = "tabChildrenChange";
-Event.TAB_ENABLED_CHANGE           = "tabEnabledChange";
-Event.TAB_INDEX_CHANGE             = "tabIndexChange";
-Event.TEXT_INTERACTION_MODE_CHANGE = "textInteractionModeChange";
-Event.TEXTURE_READY                = "textureReady";
-Event.UNLOAD                       = "unload";
-Event.USER_IDLE                    = "userIdle";
-Event.USER_PRESENT                 = "userPresent";
-Event.VIDEO_FRAME                  = "videoFrame";
-Event.WORKER_STATE                 = "workerState";
+
 
 
 
@@ -3194,29 +3177,17 @@ var Matrix3D = function (v)
 Matrix3D.prototype = Object.create(OriginalObject.prototype);
 Matrix3D.prototype.constructor = Matrix3D;
 /**
- * @constructor
+ * @type {{AXIS_ANGLE: string, EULER_ANGLES: string, QUATERNION: string}}
  */
-var Orientation3D = function () {};
-
-Orientation3D.AXIS_ANGLE   = "axisAngle";
-Orientation3D.EULER_ANGLES = "eulerAngles";
-Orientation3D.QUATERNION   = "quaternion";
-
-/**
- * extends
- */
-Orientation3D.prototype = Object.create(OriginalObject.prototype);
-Orientation3D.prototype.constructor = Orientation3D;
+var Orientation3D = {
+    "AXIS_ANGLE"  : "axisAngle",
+    "EULER_ANGLES": "eulerAngles",
+    "QUATERNION"  : "quaternion"
+};
 /**
  * @constructor
  */
 var PerspectiveProjection = function () {};
-
-/**
- * extends
- */
-PerspectiveProjection.prototype = Object.create(OriginalObject.prototype);
-PerspectiveProjection.prototype.constructor = PerspectiveProjection;
 
 /**
  * @param x
@@ -3225,6 +3196,8 @@ PerspectiveProjection.prototype.constructor = PerspectiveProjection;
  */
 var Point = function (x, y)
 {
+    OriginalObject.call(this);
+
     // default
     this._x = 0;
     this._y = 0;
@@ -3235,7 +3208,7 @@ var Point = function (x, y)
 };
 
 /**
- * util
+ * extends
  */
 Point.prototype = Object.create(OriginalObject.prototype);
 Point.prototype.constructor = Point;
@@ -3877,21 +3850,12 @@ var Collator = function (requestedLocaleIDName, initialMode)
     this._initialMode           = "sorting";
 };
 /**
- * @constructor
+ * @type {{MATCHING: string, SORTING: string}}
  */
-var CollatorMode = function ()
-{
-    OriginalObject.call(this);
+var CollatorMode = {
+    "MATCHING": "matching",
+    "SORTING" : "sorting"
 };
-
-CollatorMode.MATCHING = "matching";
-CollatorMode.SORTING  = "sorting";
-
-/**
- * extends
- */
-CollatorMode.prototype = Object.create(OriginalObject.prototype);
-CollatorMode.prototype.constructor = CollatorMode;
 /**
  * @param requestedLocaleIDName
  * @constructor
@@ -3925,70 +3889,53 @@ var DateTimeFormatter = function (requestedLocaleIDName, dateStyle, timeStyle)
     this._timeStyle             = "long";
 };
 /**
- * @constructor
+ * @type {{FORMAT: string, STANDALONE: string}}
  */
-var DateTimeNameContext = function () {};
-
-DateTimeNameContext.FORMAT     = "format";
-DateTimeNameContext.STANDALONE = "standalone";
+var DateTimeNameContext = {
+    "FORMAT"    : "format",
+    "STANDALONE": "standalone"
+};
+/**
+ * @type {{FULL: string, LONG_ABBREVIATION: string, SHORT_ABBREVIATION: string}}
+ */
+var DateTimeNameStyle = {
+    "FULL"              : "full",
+    "LONG_ABBREVIATION" : "longAbbreviation",
+    "SHORT_ABBREVIATION": "shortAbbreviation"
+};
 
 /**
- * extends
+ * @type {{CUSTOM: string, LONG: string, MEDIUM: string, NONE: string, SHORT: string}}
  */
-DateTimeNameContext.prototype = Object.create(OriginalObject.prototype);
-DateTimeNameContext.prototype.constructor = DateTimeNameContext;
+var DateTimeStyle = {
+    "CUSTOM": "custom",
+    "LONG"  : "long",
+    "MEDIUM": "medium",
+    "NONE"  : "none",
+    "SHORT" : "short"
+};
 /**
- * @constructor
+ * @type {{BUFFER_OVERFLOW_ERROR: string, ERROR_CODE_UNKNOWN: string, ILLEGAL_ARGUMENT_ERROR: string, INDEX_OUT_OF_BOUNDS_ERROR: string, INVALID_ATTR_VALUE: string, INVALID_CHAR_FOUND: string, MEMORY_ALLOCATION_ERROR: string, NO_ERROR: string, NUMBER_OVERFLOW_ERROR: string, PARSE_ERROR: string, PATTERN_SYNTAX_ERROR: string, PLATFORM_API_FAILED: string, TRUNCATED_CHAR_FOUND: string, UNEXPECTED_TOKEN: string, UNSUPPORTED_ERROR: string, USING_DEFAULT_WARNING: string, USING_FALLBACK_WARNING: string}}
  */
-var DateTimeNameStyle = function () {};
-DateTimeNameStyle.prototype.FULL               = "full";
-DateTimeNameStyle.prototype.LONG_ABBREVIATION  = "longAbbreviation";
-DateTimeNameStyle.prototype.SHORT_ABBREVIATION = "shortAbbreviation";
-/**
- * @constructor
- */
-var DateTimeStyle = function () {};
-
-DateTimeStyle.CUSTOM = "custom";
-DateTimeStyle.LONG   = "long";
-DateTimeStyle.MEDIUM = "medium";
-DateTimeStyle.NONE   = "none";
-DateTimeStyle.SHORT  = "short";
-
-/**
- * extends
- */
-DateTimeStyle.prototype = Object.create(OriginalObject.prototype);
-DateTimeStyle.prototype.constructor = DateTimeStyle;
-/**
- * @constructor
- */
-var LastOperationStatus = function () {};
-
-LastOperationStatus.BUFFER_OVERFLOW_ERROR     = "bufferOverflowError";
-LastOperationStatus.ERROR_CODE_UNKNOWN        = "errorCodeUnknown";
-LastOperationStatus.ILLEGAL_ARGUMENT_ERROR    = "illegalArgumentError";
-LastOperationStatus.INDEX_OUT_OF_BOUNDS_ERROR = "indexOutOfBoundsError";
-LastOperationStatus.INVALID_ATTR_VALUE        = "invalidAttrValue";
-LastOperationStatus.INVALID_CHAR_FOUND        = "invalidCharFound";
-LastOperationStatus.MEMORY_ALLOCATION_ERROR   = "memoryAllocationError";
-LastOperationStatus.NO_ERROR                  = "noError";
-LastOperationStatus.NUMBER_OVERFLOW_ERROR     = "numberOverflowError";
-LastOperationStatus.PARSE_ERROR               = "parseError";
-LastOperationStatus.PATTERN_SYNTAX_ERROR      = "patternSyntaxError";
-LastOperationStatus.PLATFORM_API_FAILED       = "platformAPIFailed";
-LastOperationStatus.TRUNCATED_CHAR_FOUND      = "truncatedCharFound";
-LastOperationStatus.UNEXPECTED_TOKEN          = "unexpectedToken";
-LastOperationStatus.UNSUPPORTED_ERROR         = "unsupportedError";
-LastOperationStatus.USING_DEFAULT_WARNING     = "usingDefaultWarning";
-LastOperationStatus.USING_FALLBACK_WARNING    = "usingFallbackWarning";
-
-/**
- * extends
- */
-LastOperationStatus.prototype = Object.create(OriginalObject.prototype);
-LastOperationStatus.prototype.constructor = LastOperationStatus;
-
+var LastOperationStatus = {
+    "BUFFER_OVERFLOW_ERROR"    : "bufferOverflowError",
+    "ERROR_CODE_UNKNOWN"       : "errorCodeUnknown",
+    "ILLEGAL_ARGUMENT_ERROR"   : "illegalArgumentError",
+    "INDEX_OUT_OF_BOUNDS_ERROR": "indexOutOfBoundsError",
+    "INVALID_ATTR_VALUE"       : "invalidAttrValue",
+    "INVALID_CHAR_FOUND"       : "invalidCharFound",
+    "MEMORY_ALLOCATION_ERROR"  : "memoryAllocationError",
+    "NO_ERROR"                 : "noError",
+    "NUMBER_OVERFLOW_ERROR"    : "numberOverflowError",
+    "PARSE_ERROR"              : "parseError",
+    "PATTERN_SYNTAX_ERROR"     : "patternSyntaxError",
+    "PLATFORM_API_FAILED"      : "platformAPIFailed",
+    "TRUNCATED_CHAR_FOUND"     : "truncatedCharFound",
+    "UNEXPECTED_TOKEN"         : "unexpectedToken",
+    "UNSUPPORTED_ERROR"        : "unsupportedError",
+    "USING_DEFAULT_WARNING"    : "usingDefaultWarning",
+    "USING_FALLBACK_WARNING"   : "usingFallbackWarning"
+};
 
 /**
  * @param name
@@ -4000,48 +3947,42 @@ var LocaleID = function (name)
 };
 
 /**
- * @constructor
+ * @type {{ARABIC_INDIC: number, BALINESE: number, BENGALI: number, CHAM: number, DEVANAGARI: number, EUROPEAN: number, EXTENDED_ARABIC_INDIC: number, FULL_WIDTH: number, GUJARATI: number, GURMUKHI: number, KANNADA: number, KAYAH_LI: number, KHMER: number, LAO: number, LEPCHA: number, LIMBU: number, MALAYALAM: number, MONGOLIAN: number, MYANMAR: number, MYANMAR_SHAN: number, NEW_TAI_LUE: number, NKO: number, OL_CHIKI: number, ORIYA: number, OSMANYA: number, SAURASHTRA: number, SUNDANESE: number, TAMIL: number, TELUGU: number, THAI: number, TIBETAN: number, VAI: number}}
  */
-var NationalDigitsType = function () {};
-
-NationalDigitsType.ARABIC_INDIC          = 0x0660;
-NationalDigitsType.BALINESE              = 0x1B50;
-NationalDigitsType.BENGALI               = 0x09E6;
-NationalDigitsType.CHAM                  = 0xAA50;
-NationalDigitsType.DEVANAGARI            = 0x0966;
-NationalDigitsType.EUROPEAN              = 0x0030;
-NationalDigitsType.EXTENDED_ARABIC_INDIC = 0x06F0;
-NationalDigitsType.FULL_WIDTH            = 0xFF10;
-NationalDigitsType.GUJARATI              = 0x0AE6;
-NationalDigitsType.GURMUKHI              = 0x0A66;
-NationalDigitsType.KANNADA               = 0x0CE6;
-NationalDigitsType.KAYAH_LI              = 0xA900;
-NationalDigitsType.KHMER                 = 0x17E0;
-NationalDigitsType.LAO                   = 0x0ED0;
-NationalDigitsType.LEPCHA                = 0x1C40;
-NationalDigitsType.LIMBU                 = 0x1946;
-NationalDigitsType.MALAYALAM             = 0x0D66;
-NationalDigitsType.MONGOLIAN             = 0x1810;
-NationalDigitsType.MYANMAR               = 0x1040;
-NationalDigitsType.MYANMAR_SHAN          = 0x1090;
-NationalDigitsType.NEW_TAI_LUE           = 0x19D0;
-NationalDigitsType.NKO                   = 0x07C0;
-NationalDigitsType.OL_CHIKI              = 0x1C50;
-NationalDigitsType.ORIYA                 = 0x0B66;
-NationalDigitsType.OSMANYA               = 0x104A0;
-NationalDigitsType.SAURASHTRA            = 0xA8D0;
-NationalDigitsType.SUNDANESE             = 0x1BB0;
-NationalDigitsType.TAMIL                 = 0x0BE6;
-NationalDigitsType.TELUGU                = 0x0C66;
-NationalDigitsType.THAI                  = 0x0E50;
-NationalDigitsType.TIBETAN               = 0x0F20;
-NationalDigitsType.VAI                   = 0xA620;
-
-/**
- * extends
- */
-NationalDigitsType.prototype = Object.create(OriginalObject.prototype);
-NationalDigitsType.prototype.constructor = NationalDigitsType;
+var NationalDigitsType = {
+    "ARABIC_INDIC"         : 0x0660,
+    "BALINESE"             : 0x1B50,
+    "BENGALI"              : 0x09E6,
+    "CHAM"                 : 0xAA50,
+    "DEVANAGARI"           : 0x0966,
+    "EUROPEAN"             : 0x0030,
+    "EXTENDED_ARABIC_INDIC": 0x06F0,
+    "FULL_WIDTH"           : 0xFF10,
+    "GUJARATI"             : 0x0AE6,
+    "GURMUKHI"             : 0x0A66,
+    "KANNADA"              : 0x0CE6,
+    "KAYAH_LI"             : 0xA900,
+    "KHMER"                : 0x17E0,
+    "LAO"                  : 0x0ED0,
+    "LEPCHA"               : 0x1C40,
+    "LIMBU"                : 0x1946,
+    "MALAYALAM"            : 0x0D66,
+    "MONGOLIAN"            : 0x1810,
+    "MYANMAR"              : 0x1040,
+    "MYANMAR_SHAN"         : 0x1090,
+    "NEW_TAI_LUE"          : 0x19D0,
+    "NKO"                  : 0x07C0,
+    "OL_CHIKI"             : 0x1C50,
+    "ORIYA"                : 0x0B66,
+    "OSMANYA"              : 0x104A0,
+    "SAURASHTRA"           : 0xA8D0,
+    "SUNDANESE"            : 0x1BB0,
+    "TAMIL"                : 0x0BE6,
+    "TELUGU"               : 0x0C66,
+    "THAI"                 : 0x0E50,
+    "TIBETAN"              : 0x0F20,
+    "VAI"                  : 0xA620
+};
 /**
  * @param requestedLocaleIDName
  * @constructor
@@ -4526,39 +4467,21 @@ BevelFilter.prototype.render = function (cache, colorTransform, stage)
     return synCtx;
 };
 /**
- * @constructor
+ * @type {{LOW: number, MEDIUM: number, HIGH: number}}
  */
-var BitmapFilterQuality = function ()
-{
-    OriginalObject.call(this);
+var BitmapFilterQuality = {
+    "LOW"   : 1,
+    "MEDIUM": 2,
+    "HIGH"  : 3
 };
-
-BitmapFilterQuality.LOW    = 1;
-BitmapFilterQuality.MEDIUM = 2;
-BitmapFilterQuality.HIGH   = 3;
-
 /**
- * extends
+ * @type {{FULL: string, INNER: string, OUTER: string}}
  */
-BitmapFilterQuality.prototype = Object.create(OriginalObject.prototype);
-BitmapFilterQuality.prototype.constructor = BitmapFilterQuality;
-/**
- * @constructor
- */
-var BitmapFilterType = function ()
-{
-    OriginalObject.call(this);
+var BitmapFilterType = {
+    "FULL" : "full",
+    "INNER": "inner",
+    "OUTER": "outer"
 };
-
-BitmapFilterType.FULL  = "full";
-BitmapFilterType.INNER = "inner";
-BitmapFilterType.OUTER = "outer";
-
-/**
- * extends
- */
-BitmapFilterType.prototype = Object.create(OriginalObject.prototype);
-BitmapFilterType.prototype.constructor = BitmapFilterType;
 /**
  * @constructor
  */
@@ -5433,20 +5356,14 @@ DisplacementMapFilter.prototype.render = function (cache, colorTransform, stage)
 };
 
 /**
- * @constructor
+ * @type {{CLAMP: string, COLOR: string, IGNORE: string, WRAP: string}}
  */
-var DisplacementMapFilterMode = function () {};
-
-DisplacementMapFilterMode.CLAMP  = "clamp";
-DisplacementMapFilterMode.COLOR  = "color";
-DisplacementMapFilterMode.IGNORE = "ignore";
-DisplacementMapFilterMode.WRAP   = "wrap";
-
-/**
- * extends
- */
-DisplacementMapFilterMode.prototype = Object.create(OriginalObject.prototype);
-DisplacementMapFilterMode.prototype.constructor = DisplacementMapFilterMode;
+var DisplacementMapFilterMode = {
+    "CLAMP" : "clamp",
+    "COLOR" : "color",
+    "IGNORE": "ignore",
+    "WRAP"  : "wrap"
+};
 /**
  * @constructor
  */
@@ -6681,21 +6598,22 @@ var DisplayObject = function ()
     EventDispatcher.call(this);
 
     // origin param
-    this._$id           = null;
-    this._$characterId  = null;
-    this._$stageId      = null;
-    this._$containerId  = null;
-    this._$parent       = null;
-    this._$variables    = {};
+    this._$id             = null;
+    this._$characterId    = null;
+    this._$stageId        = null;
+    this._$containerId    = null;
+    this._$parent         = null;
+    this._$variables      = {};
+
+
+    // draw param
+    this._$matrix         = null;
+    this._$colorTransform = null;
+
 
     // property
     this._$accessibilityProperties = new AccessibilityProperties();
     this._$name                    = "";
-
-
-
-
-
 
 };
 
@@ -6830,14 +6748,72 @@ Object.defineProperties(DisplayObject.prototype, {
         set: function (name) {
             this._$name = name + "";
         }
+    },
+    matrix: {
+        /**
+         * @return {array|null}
+         */
+        get: function () {
+            return this._$matrix;
+        },
+        /**
+         * @param {array} matrix
+         */
+        set: function (matrix) {
+            if (this.$isArray(matrix)) {
+                this._$matrix = this.$cloneArray(matrix);
+            }
+        }
+    },
+    colorTransform: {
+        /**
+         * @return {array|null}
+         */
+        get: function () {
+            return this._$colorTransform;
+        },
+        /**
+         * @param {array} colorTransform
+         */
+        set: function (colorTransform) {
+            if (this.$isArray(colorTransform)) {
+                this._$colorTransform = this.$cloneArray(colorTransform);
+            }
+        }
     }
 });
 
+/**
+ * @param  {number} frame
+ * @param  {number} depth
+ * @return {array}
+ */
+DisplayObject.prototype._$getMatrix = function (frame, depth)
+{
+    if (this.matrix !== null) {
+        return this.matrix;
+    }
 
+    var placeObject = this.parent._$getPlaceObject(frame, depth);
 
+    return placeObject.matrix;
+};
 
+/**
+ * @param  {number} frame
+ * @param  {number} depth
+ * @return {array}
+ */
+DisplayObject.prototype._$getColorTransform = function (frame, depth)
+{
+    if (this.colorTransform !== null) {
+        return this.colorTransform;
+    }
 
+    var placeObject = this.parent._$getPlaceObject(frame, depth);
 
+    return placeObject.colorTransform;
+};
 /**
  * @constructor
  */
@@ -7012,7 +6988,7 @@ DisplayObjectContainer.prototype._$getControllerAt = function(frame, depth)
 DisplayObjectContainer.prototype._$getController = function(frame)
 {
     if (!(frame in this._$controller)) {
-        return null;
+        return [];
     }
 
     return this._$controller[frame];
@@ -8021,21 +7997,12 @@ var AVLoader = function () {};
 var AVM1Movie = function () {};
 
 /**
- * @constructor
+ * @type {{ACTIONSCRIPT2: number, ACTIONSCRIPT3: number}}
  */
-var ActionScriptVersion = function ()
-{
-    OriginalObject.call(this);
+var ActionScriptVersion = {
+    "ACTIONSCRIPT2": 2,
+    "ACTIONSCRIPT3": 3
 };
-
-ActionScriptVersion.ACTIONSCRIPT2 = 2;
-ActionScriptVersion.ACTIONSCRIPT3 = 3;
-
-/**
- * extends
- */
-ActionScriptVersion.prototype = Object.create(OriginalObject.prototype);
-ActionScriptVersion.prototype.constructor = ActionScriptVersion;
 /**
  * @constructor
  */
@@ -8490,131 +8457,89 @@ BitmapData.prototype.unlock = function (changeRect)
 };
 
 /**
- * @constructor
+ * @type {{ALPHA: number, BLUE: number, GREEN: number, RED: number}}
  */
-var BitmapDataChannel = function ()
-{
-    OriginalObject.call(this);
+var BitmapDataChannel = {
+    "ALPHA": 8,
+    "BLUE" : 4,
+    "GREEN": 2,
+    "RED"  : 1
 };
-
-BitmapDataChannel.ALPHA = 8;
-BitmapDataChannel.BLUE  = 4;
-BitmapDataChannel.GREEN = 2;
-BitmapDataChannel.RED   = 1;
-
 /**
- * extends
+ * @type {{COLORSPACE_4_2_0: string, COLORSPACE_4_2_2: string, COLORSPACE_4_4_4: string, COLORSPACE_AUTO: string}}
  */
-BitmapDataChannel.prototype = Object.create(OriginalObject.prototype);
-BitmapDataChannel.prototype.constructor = BitmapDataChannel;
-/**
- * @constructor
- */
-var BitmapEncodingColorSpace = function ()
-{
-    OriginalObject.call(this);
+var BitmapEncodingColorSpace = {
+    "COLORSPACE_4_2_0": "4:2:0",
+    "COLORSPACE_4_2_2": "4:2:2",
+    "COLORSPACE_4_4_4": "4:4:4",
+    "COLORSPACE_AUTO" : "auto"
 };
-
-BitmapEncodingColorSpace.COLORSPACE_4_2_0 = "4:2:0";
-BitmapEncodingColorSpace.COLORSPACE_4_2_2 = "4:2:2";
-BitmapEncodingColorSpace.COLORSPACE_4_4_4 = "4:4:4";
-BitmapEncodingColorSpace.COLORSPACE_AUTO  = "auto";
-
 /**
- * extends
+ * @type {{ADD: string, ALPHA: string, DARKEN: string, DIFFERENCE: string, ERASE: string, HARDLIGHT: string, INVERT: string, LAYER: string, LIGHTEN: string, MULTIPLY: string, NORMAL: string, OVERLAY: string, SCREEN: string, SHADER: string, SUBTRACT: string}}
  */
-BitmapEncodingColorSpace.prototype = Object.create(OriginalObject.prototype);
-BitmapEncodingColorSpace.prototype.constructor = BitmapEncodingColorSpace;
-/**
- * @constructor
- */
-var BlendMode = function ()
-{
-    OriginalObject.call(this);
+var BlendMode = {
+    "ADD"       : "add",
+    "ALPHA"     : "alpha",
+    "DARKEN"    : "darken",
+    "DIFFERENCE": "difference",
+    "ERASE"     : "erase",
+    "HARDLIGHT" : "hardlight",
+    "INVERT"    : "invert",
+    "LAYER"     : "layer",
+    "LIGHTEN"   : "lighten",
+    "MULTIPLY"  : "multiply",
+    "NORMAL"    : "normal",
+    "OVERLAY"   : "overlay",
+    "SCREEN"    : "screen",
+    "SHADER"    : "shader",
+    "SUBTRACT"  : "subtract"
 };
-
-BlendMode.ADD        = "add";
-BlendMode.ALPHA      = "alpha";
-BlendMode.DARKEN     = "darken";
-BlendMode.DIFFERENCE = "difference";
-BlendMode.ERASE      = "erase";
-BlendMode.HARDLIGHT  = "hardlight";
-BlendMode.INVERT     = "invert";
-BlendMode.LAYER      = "layer";
-BlendMode.LIGHTEN    = "lighten";
-BlendMode.MULTIPLY   = "multiply";
-BlendMode.NORMAL     = "normal";
-BlendMode.OVERLAY    = "overlay";
-BlendMode.SCREEN     = "screen";
-BlendMode.SHADER     = "shader";
-BlendMode.SUBTRACT   = "subtract";
-
 /**
- * extends
+ * @type {{NONE: string, ROUND: string, SQUARE: string}}
  */
-BlendMode.prototype = Object.create(OriginalObject.prototype);
-BlendMode.prototype.constructor = BlendMode;
-/**
- * @constructor
- */
-var CapsStyle = function ()
-{
-    OriginalObject.call(this);
+var CapsStyle = {
+    "NONE"  : "none",
+    "ROUND" : "round",
+    "SQUARE": "square"
 };
-
-CapsStyle.NONE   = "none";
-CapsStyle.ROUND  = "round";
-CapsStyle.SQUARE = "square";
-
 /**
- * extends
+ * @type {{DEFAULT: string, OFF: string, ON: string}}
  */
-CapsStyle.prototype = Object.create(OriginalObject.prototype);
-CapsStyle.prototype.constructor = CapsStyle;
+var ColorCorrection = {
+    "DEFAULT": "default",
+    "OFF"    : "off",
+    "ON"     : "on"
+};
 /**
- * @constructor
+ * @type {{DEFAULT_OFF: string, DEFAULT_ON: string, UNSUPPORTED: string}}
  */
-var ColorCorrection = function () {};
-
-ColorCorrection.DEFAULT = "default";
-ColorCorrection.OFF     = "off";
-ColorCorrection.ON      = "on";
-
+var ColorCorrectionSupport = {
+    "DEFAULT_OFF": "defaultOff",
+    "DEFAULT_ON" : "defaultOn",
+    "UNSUPPORTED": "unsupported"
+};
 /**
- * extends
- */
-ColorCorrection.prototype = Object.create(OriginalObject.prototype);
-ColorCorrection.prototype.constructor = ColorCorrection;
-/**
- * @constructor
- */
-var ColorCorrectionSupport = function () {};
-
-ColorCorrectionSupport.DEFAULT_OFF  = "defaultOff";
-ColorCorrectionSupport.DEFAULT_ON   = "defaultOn";
-ColorCorrectionSupport.UNSUPPORTED  = "unsupported";
-
-/**
- * extends
- */
-ColorCorrectionSupport.prototype = Object.create(OriginalObject.prototype);
-ColorCorrectionSupport.prototype.constructor = ColorCorrectionSupport;
-/**
- * @param name
- * @param frame
+ * @param {string} name
+ * @param {number} frame
  * @constructor
  */
 var FrameLabel = function (name, frame)
 {
+    EventDispatcher.call(this);
+
     // init
-    this._name  = name;
-    this._frame = frame;
+    if (typeof name !== "string") {
+        name = name + "";
+    }
+
+    this._$name  = name.toLowerCase();
+    this._$frame = frame|0;
 };
 
 /**
  * extends
  */
-FrameLabel.prototype = Object.create(OriginalObject.prototype);
+FrameLabel.prototype = Object.create(EventDispatcher.prototype);
 FrameLabel.prototype.constructor = FrameLabel;
 
 /**
@@ -8622,15 +8547,29 @@ FrameLabel.prototype.constructor = FrameLabel;
  */
 Object.defineProperties(FrameLabel.prototype, {
     name: {
+        /**
+         * @return {string}
+         */
         get: function () {
-            return this._name;
+            return this._$name;
         },
+        /**
+         * readonly
+         * @return void
+         */
         set: function () {}
     },
     frame: {
+        /**
+         * @return {number}
+         */
         get: function () {
-            return this._frame;
+            return this._$frame;
         },
+        /**
+         * readonly
+         * @return void
+         */
         set: function () {}
     }
 });
@@ -8644,18 +8583,12 @@ FrameLabel.prototype.toString = function ()
 };
 
 /**
- * @constructor
+ * @type {{LINEAR: string, RADIAL: string}}
  */
-var GradientType = function () {};
-
-GradientType.LINEAR = "linear";
-GradientType.RADIAL = "radial";
-
-/**
- * extends
- */
-GradientType.prototype = Object.create(OriginalObject.prototype);
-GradientType.prototype.constructor = GradientType;
+var GradientType = {
+    "LINEAR": "linear",
+    "RADIAL": "radial"
+};
 /**
  * @constructor
  */
@@ -9669,36 +9602,24 @@ var GraphicsPath = function (commands, data, winding)
     this._winding  = "evenOdd";
 };
 /**
- * @constructor
+ * @type {{CUBIC_CURVE_TO: number, CURVE_TO: number, LINE_TO: number, MOVE_TO: number, NO_OP: number, WIDE_LINE_TO: number, WIDE_MOVE_TO: number}}
  */
-var GraphicsPathCommand = function () {};
-
-GraphicsPathCommand.CUBIC_CURVE_TO = 6;
-GraphicsPathCommand.CURVE_TO       = 3;
-GraphicsPathCommand.LINE_TO        = 2;
-GraphicsPathCommand.MOVE_TO        = 1;
-GraphicsPathCommand.NO_OP          = 0;
-GraphicsPathCommand.WIDE_LINE_TO   = 5;
-GraphicsPathCommand.WIDE_MOVE_TO   = 4;
-
+var GraphicsPathCommand = {
+    "NO_OP"         : 0,
+    "MOVE_TO"       : 1,
+    "LINE_TO"       : 2,
+    "CURVE_TO"      : 3,
+    "WIDE_MOVE_TO"  : 4,
+    "WIDE_LINE_TO"  : 5,
+    "CUBIC_CURVE_TO": 6
+};
 /**
- * extends
+ * @type {{EVEN_ODD: string, NON_ZERO: string}}
  */
-GraphicsPathCommand.prototype = Object.create(OriginalObject.prototype);
-GraphicsPathCommand.prototype.constructor = GraphicsPathCommand;
-/**
- * @constructor
- */
-var GraphicsPathWinding = function () {};
-
-GraphicsPathWinding.EVEN_ODD = "evenOdd";
-GraphicsPathWinding.NON_ZERO = "nonZero";
-
-/**
- * extends
- */
-GraphicsPathWinding.prototype = Object.create(OriginalObject.prototype);
-GraphicsPathWinding.prototype.constructor = GraphicsPathWinding;
+var GraphicsPathWinding = {
+    "EVEN_ODD": "evenOdd",
+    "NON_ZERO": "nonZero"
+};
 /**
  * @param shader
  * @param matrix
@@ -9757,18 +9678,12 @@ var GraphicsTrianglePath = function (vertices, indices, uvtData, culling)
     this._culling  = "none";
 };
 /**
- * @constructor
+ * @type {{LINEAR_RGB: string, RGB: string}}
  */
-var InterpolationMethod = function () {};
-
-InterpolationMethod.LINEAR_RGB = "linearRGB";
-InterpolationMethod.RGB        = "rgb";
-
-/**
- * extends
- */
-InterpolationMethod.prototype = Object.create(OriginalObject.prototype);
-InterpolationMethod.prototype.constructor = InterpolationMethod;
+var InterpolationMethod = {
+    "LINEAR_RGB": "linearRGB",
+    "RGB"       : "rgb"
+};
 /**
  * @param quality
  * @constructor
@@ -9790,34 +9705,22 @@ var JPEGXREncoderOptions = function (quantization, colorSpace, trimFlexBits)
     this._trimFlexBits = 0;
 };
 /**
- * @constructor
+ * @type {{BEVEL: string, MITER: string, ROUND: string}}
  */
-var JointStyle = function () {};
-
-JointStyle.BEVEL = "bevel";
-JointStyle.MITER = "miter";
-JointStyle.ROUND = "round";
-
+var JointStyle = {
+    "BEVEL": "bevel",
+    "MITER": "miter",
+    "ROUND": "round"
+};
 /**
- * extends
+ * @type {{HORIZONTAL: string, NONE: string, NORMAL: string, VERTICAL: string}}
  */
-JointStyle.prototype = Object.create(OriginalObject.prototype);
-JointStyle.prototype.constructor = JointStyle;
-/**
- * @constructor
- */
-var LineScaleMode = function () {};
-
-LineScaleMode.HORIZONTAL = "horizontal";
-LineScaleMode.NONE       = "none";
-LineScaleMode.NORMAL     = "normal";
-LineScaleMode.VERTICAL   = "vertical";
-
-/**
- * extends
- */
-LineScaleMode.prototype = Object.create(OriginalObject.prototype);
-LineScaleMode.prototype.constructor = LineScaleMode;
+var LineScaleMode = {
+    "HORIZONTAL": "horizontal",
+    "NONE"      : "none",
+    "NORMAL"    : "normal",
+    "VERTICAL"  : "vertical"
+};
 /**
  * @constructor
  */
@@ -9849,18 +9752,20 @@ var MovieClip = function ()
     Sprite.call(this);
 
     // origin flag
-    this._$stopFlag  = false;
-    this._$canAction = true;
-
+    this._$stopFlag      = false;
+    this._$canAction     = true;
 
     // property
-    this._$currentframe = 1;
-    this._$totalFrames  = 0;
+    this._$currentframe  = 1;
+    this._$totalFrames   = 0;
+    this._$isPlaying     = false;
 
     // controller tags
     this._$actions       = [];
-    this._$labels        = [];
+    this._$frameLabels   = [];
     this._$removeObjects = [];
+
+
 
     // // clip
     // this.isClipDepth = false;
@@ -9896,6 +9801,7 @@ Object.defineProperties(MovieClip.prototype, {
          */
         set: function () {}
     },
+    // TODO
     currentFrameLabel: {
         get: function () {
             return this._$id;
@@ -9933,10 +9839,20 @@ Object.defineProperties(MovieClip.prototype, {
         set: function (id) {}
     },
     isPlaying: {
+        /**
+         * @return {boolean}
+         */
         get: function () {
-            return this._$id;
+            return this._$isPlaying;
         },
-        set: function (id) {}
+        /**
+         * @param {boolean} isPlaying
+         */
+        set: function (isPlaying) {
+            if (typeof isPlaying === "boolean") {
+                this._$isPlaying = isPlaying;
+            }
+        }
     },
     scenes: {
         get: function () {
@@ -9945,10 +9861,17 @@ Object.defineProperties(MovieClip.prototype, {
         set: function (id) {}
     },
     totalFrames: {
+        /**
+         * @return {number}
+         */
         get: function () {
             return this._$totalFrames;
         },
-        set: function () {} // readonly
+        /**
+         * readonly
+         * @return void
+         */
+        set: function () {}
     },
     trackAsMenu: {
         get: function () {
@@ -9957,6 +9880,7 @@ Object.defineProperties(MovieClip.prototype, {
         set: function (id) {}
     }
 });
+
 
 /**
  * @returns {string}
@@ -9967,16 +9891,13 @@ MovieClip.prototype.toString = function ()
 };
 
 /**
- * @param {number} frame
- * @param {string} name
+ * @param {FrameLabel} frameLabel
  */
-MovieClip.prototype._$addLabel = function (frame, name)
+MovieClip.prototype._$addFrameLabel = function (frameLabel)
 {
-    if (typeof name !== "string") {
-        name = name + "";
+    if (frameLabel instanceof  FrameLabel) {
+        this._$frameLabels[this._$frameLabels.length] = frameLabel;
     }
-
-    this._$labels[name.toLowerCase()] = frame|0;
 };
 
 /**
@@ -10206,6 +10127,10 @@ MovieClip.prototype._$build = function (parent, index, tag, shouldAction)
         id = (id + 1)|0;
     }
 
+    // todo sounds
+
+
+
     var nextAction = false;
     if (shouldAction && mc.ratio === 0) {
 
@@ -10213,13 +10138,11 @@ MovieClip.prototype._$build = function (parent, index, tag, shouldAction)
 
         if (controller && controller.indexOf(index) !== -1) {
 
-            mc._$prepareActions();
+            mc._$prepareActions(1);
 
             nextAction = true;
         }
     }
-
-    // todo sounds
 
     // build dictionary
     mc._$characterBuild(nextAction);
@@ -10228,7 +10151,71 @@ MovieClip.prototype._$build = function (parent, index, tag, shouldAction)
 };
 
 
+MovieClip.prototype._$draw = function (matrix, colorTransform)
+{
 
+    var frame = this.currentFrame;
+
+    var controller = this._$getController(this.currentFrame);
+
+    // case action script3
+    if (this.stage.root.actionScriptVersion === ActionScriptVersion.ACTIONSCRIPT3) {
+
+
+
+        // next frame
+        this._$putFrame();
+
+
+
+    }
+
+
+    for (var depth in controller) {
+
+        if (!controller.hasOwnProperty(depth)) {
+            continue;
+        }
+
+        var instance = this._$getInstance(controller[depth]);
+
+        instance._$draw(
+            this.$multiplicationMatrix(matrix, instance._$getMatrix(frame, depth)),
+            this.$multiplicationColor(colorTransform, instance._$getColorTransform(frame, depth))
+        );
+
+    }
+
+};
+
+
+MovieClip.prototype._$putFrame = function ()
+{
+    console.log(this);
+    if (!this._$stopFlag && this.totalFrames >= this.currentFrame) {
+
+        if (this.totalFrames === this.currentFrame) {
+
+            // loop
+            if (this.ratio === 0) {
+                this._$currentFrame = 1;
+
+                // action on
+                this._$canAction = true;
+            }
+
+        } else {
+
+            // next frame
+            this._$currentFrame = (this._$currentFrame + 1)|0;
+
+            // action on
+            this._$canAction = true;
+        }
+
+    }
+
+};
 /**
  * @param fastCompression
  * @constructor
@@ -10238,42 +10225,30 @@ var PNGEncoderOptions = function (fastCompression)
     this._fastCompression = false;
 };
 /**
- * @constructor
+ * @type {{ALWAYS: string, AUTO: string, NEVER: string}}
  */
-var PixelSnapping = function () {};
-
-PixelSnapping.ALWAYS = "always";
-PixelSnapping.AUTO   = "auto";
-PixelSnapping.NEVER  = "never";
-
+var PixelSnapping = {
+    "ALWAYS": "always",
+    "AUTO"  : "auto",
+    "NEVER" : "never"
+};
 /**
- * extends
+ * @type {{FLASH1: number, FLASH10: number, FLASH11: number, FLASH12: number, FLASH2: number, FLASH3: number, FLASH4: number, FLASH5: number, FLASH6: number, FLASH7: number, FLASH8: number, FLASH9: number}}
  */
-PixelSnapping.prototype = Object.create(OriginalObject.prototype);
-PixelSnapping.prototype.constructor = PixelSnapping;
-/**
- * @constructor
- */
-var SWFVersion = function () {};
-
-SWFVersion.FLASH1  = 1;
-SWFVersion.FLASH10 = 10;
-SWFVersion.FLASH11 = 11;
-SWFVersion.FLASH12 = 12;
-SWFVersion.FLASH2  = 2;
-SWFVersion.FLASH3  = 3;
-SWFVersion.FLASH4  = 4;
-SWFVersion.FLASH5  = 5;
-SWFVersion.FLASH6  = 6;
-SWFVersion.FLASH7  = 7;
-SWFVersion.FLASH8  = 8;
-SWFVersion.FLASH9  = 9;
-
-/**
- * extends
- */
-SWFVersion.prototype = Object.create(OriginalObject.prototype);
-SWFVersion.prototype.constructor = SWFVersion;
+var SWFVersion = {
+    "FLASH1" : 1,
+    "FLASH10": 10,
+    "FLASH11": 11,
+    "FLASH12": 12,
+    "FLASH2" : 2,
+    "FLASH3" : 3,
+    "FLASH4" : 4,
+    "FLASH5" : 5,
+    "FLASH6" : 6,
+    "FLASH7" : 7,
+    "FLASH8" : 8,
+    "FLASH9" : 9
+};
 /**
  * @param name
  * @param labels
@@ -10375,44 +10350,32 @@ var ShaderJob = function (shader, target, width, height)
 var ShaderParameter = function () {};
 
 /**
- * @constructor
+ * @type {{BOOL: string, BOOL2: string, BOOL3: string, BOOL4: string, FLOAT: string, FLOAT2: string, FLOAT3: string, FLOAT4: string, INT: string, INT2: string, INT3: string, INT4: string, MATRIX2X2: string, MATRIX3X3: string, MATRIX4X4: string}}
  */
-var ShaderParameterType = function () {};
-
-ShaderParameterType.BOOL      = "bool";
-ShaderParameterType.BOOL2     = "bool2";
-ShaderParameterType.BOOL3     = "bool3";
-ShaderParameterType.BOOL4     = "bool4";
-ShaderParameterType.FLOAT     = "float";
-ShaderParameterType.FLOAT2    = "float2";
-ShaderParameterType.FLOAT3    = "float3";
-ShaderParameterType.FLOAT4    = "float4";
-ShaderParameterType.INT       = "int";
-ShaderParameterType.INT2      = "int2";
-ShaderParameterType.INT3      = "int3";
-ShaderParameterType.INT4      = "int4";
-ShaderParameterType.MATRIX2X2 = "matrix2x2";
-ShaderParameterType.MATRIX3X3 = "matrix3x3";
-ShaderParameterType.MATRIX4X4 = "matrix4x4";
-
+var ShaderParameterType = {
+    "BOOL"     : "bool",
+    "BOOL2"    : "bool2",
+    "BOOL3"    : "bool3",
+    "BOOL4"    : "bool4",
+    "FLOAT"    : "float",
+    "FLOAT2"   : "float2",
+    "FLOAT3"   : "float3",
+    "FLOAT4"   : "float4",
+    "INT"      : "int",
+    "INT2"     : "int2",
+    "INT3"     : "int3",
+    "INT4"     : "int4",
+    "MATRIX2X2": "matrix2x2",
+    "MATRIX3X3": "matrix3x3",
+    "MATRIX4X4": "matrix4x4"
+};
 /**
- * extends
+ * @type {{FAST: string, FULL: string}}
  */
-ShaderParameterType.prototype = Object.create(OriginalObject.prototype);
-ShaderParameterType.prototype.constructor = ShaderParameterType;
-/**
- * @constructor
- */
-var ShaderPrecision = function () {};
-
-ShaderPrecision.FAST = "fast";
-ShaderPrecision.FULL = "full";
-
-/**
- * extends
- */
-ShaderPrecision.prototype = Object.create(OriginalObject.prototype);
-ShaderPrecision.prototype.constructor = ShaderPrecision;
+var ShaderPrecision = {
+    "FAST": "fast",
+    "FULL": "full"
+};
 /**
  * @constructor
  */
@@ -10494,6 +10457,15 @@ Shape.prototype._$build = function (parent, index, tag, shouldAction)
     return shape
         .setData(this.getData())
         .setBounds(this._$bounds);
+};
+
+/**
+ * @param {array} matrix
+ * @param {array} colorTransform
+ */
+Shape.prototype._$draw = function (matrix, colorTransform)
+{
+
 };
 
 /**
@@ -11521,19 +11493,13 @@ SimpleButton.prototype.addActions = function (stage)
 SimpleButton.prototype.getTags   = function () { return undefined; };
 SimpleButton.prototype.initFrame = function () {};
 /**
- * @constructor
+ * @type {{PAD: string, REFLECT: string, REPEAT: string}}
  */
-var SpreadMethod = function () {};
-
-SpreadMethod.PAD     = "pad";
-SpreadMethod.REFLECT = "reflect";
-SpreadMethod.REPEAT  = "repeat";
-
-/**
- * extends
- */
-SpreadMethod.prototype = Object.create(OriginalObject.prototype);
-SpreadMethod.prototype.constructor = SpreadMethod;
+var SpreadMethod = {
+    "PAD"    : "pad",
+    "REFLECT": "reflect",
+    "REPEAT" : "repeat"
+};
 /**
  * @constructor
  */
@@ -11906,86 +11872,56 @@ Stage.prototype.initialDictionary = function (player)
  */
 var Stage3D = function () {};
 /**
- * @constructor
+ * @type {{BOTTOM: string, BOTTOM_LEFT: string, BOTTOM_RIGHT: string, LEFT: string, RIGHT: string, TOP: string, TOP_LEFT: string, TOP_RIGHT: string}}
  */
-var StageAlign = function () {};
-
-StageAlign.BOTTOM       = "B";
-StageAlign.BOTTOM_LEFT  = "BL";
-StageAlign.BOTTOM_RIGHT = "BR";
-StageAlign.LEFT         = "L";
-StageAlign.RIGHT        = "R";
-StageAlign.TOP          = "T";
-StageAlign.TOP_LEFT     = "TL";
-StageAlign.TOP_RIGHT    = "TR";
-
+var StageAlign = {
+    "BOTTOM"      : "B",
+    "BOTTOM_LEFT" : "BL",
+    "BOTTOM_RIGHT": "BR",
+    "LEFT"        : "L",
+    "RIGHT"       : "R",
+    "TOP"         : "T",
+    "TOP_LEFT"    : "TL",
+    "TOP_RIGHT"   : "TR"
+};
 /**
- * extends
+ * @type {{FULL_SCREEN: string, FULL_SCREEN_INTERACTIVE: string, NORMAL: string}}
  */
-StageAlign.prototype = Object.create(OriginalObject.prototype);
-StageAlign.prototype.constructor = StageAlign;
+var StageDisplayState = {
+    "FULL_SCREEN"            : "fullScreen",
+    "FULL_SCREEN_INTERACTIVE": "fullScreenInteractive",
+    "NORMAL"                 : "normal"
+};
 /**
- * @constructor
+ * @type {{BEST: string, HIGH: string, HIGH_16X16: string, HIGH_16X16_LINEAR: string, HIGH_8X8: string, HIGH_8X8_LINEAR: string, LOW: string, MEDIUM: string}}
  */
-var StageDisplayState = function () {};
-
-StageDisplayState.FULL_SCREEN             = "fullScreen";
-StageDisplayState.FULL_SCREEN_INTERACTIVE = "fullScreenInteractive";
-StageDisplayState.NORMAL                  = "normal";
-
+var StageQuality = {
+    "BEST"             : "best",
+    "HIGH"             : "high",
+    "HIGH_16X16"       : "16x16",
+    "HIGH_16X16_LINEAR": "16x16linear",
+    "HIGH_8X8"         : "8x8",
+    "HIGH_8X8_LINEAR"  : "8x8linear",
+    "LOW"              : "low",
+    "MEDIUM"           : "medium"
+};
 /**
- * extends
+ * @type {{EXACT_FIT: string, NO_BORDER: string, NO_SCALE: string, SHOW_ALL: string}}
  */
-StageDisplayState.prototype = Object.create(OriginalObject.prototype);
-StageDisplayState.prototype.constructor = StageDisplayState;
+var StageScaleMode = {
+    "EXACT_FIT": "exactFit",
+    "NO_BORDER": "noBorder",
+    "NO_SCALE" : "noScale",
+    "SHOW_ALL" : "showAll"
+};
 /**
- * @constructor
+ * @type {{NEGATIVE: string, NONE: string, POSITIVE: string}}
  */
-var StageQuality = function () {};
-
-StageQuality.BEST              = "best";
-StageQuality.HIGH              = "high";
-StageQuality.HIGH_16X16        = "16x16";
-StageQuality.HIGH_16X16_LINEAR = "16x16linear";
-StageQuality.HIGH_8X8          = "8x8";
-StageQuality.HIGH_8X8_LINEAR   = "8x8linear";
-StageQuality.LOW               = "low";
-StageQuality.MEDIUM            = "medium";
-
-/**
- * extends
- */
-StageQuality.prototype = Object.create(OriginalObject.prototype);
-StageQuality.prototype.constructor = StageQuality;
-/**
- * @constructor
- */
-var StageScaleMode = function () {};
-
-StageScaleMode.EXACT_FIT = "exactFit";
-StageScaleMode.NO_BORDER = "noBorder";
-StageScaleMode.NO_SCALE  = "noScale";
-StageScaleMode.SHOW_ALL  = "showAll";
-
-/**
- * extends
- */
-StageScaleMode.prototype = Object.create(OriginalObject.prototype);
-StageScaleMode.prototype.constructor = StageScaleMode;
-/**
- * @constructor
- */
-var TriangleCulling = function () {};
-
-TriangleCulling.NEGATIVE = "negative";
-TriangleCulling.NONE     = "none";
-TriangleCulling.POSITIVE = "positive";
-
-/**
- * extends
- */
-TriangleCulling.prototype = Object.create(OriginalObject.prototype);
-TriangleCulling.prototype.constructor = TriangleCulling;
+var TriangleCulling = {
+    "NEGATIVE": "negative",
+    "NONE"    : "none",
+    "POSITIVE": "positive"
+};
 /**
  * @constructor
  */
@@ -12011,40 +11947,22 @@ var VideoTexture = function () {};
  */
 var Clipboard = function () {};
 /**
- * @constructor
+ * @type {{HTML_FORMAT: string, RICH_TEXT_FORMAT: string, TEXT_FORMA: string}}
  */
-var ClipboardFormats = function ()
-{
-    OriginalObject.call(this);
+var ClipboardFormats = {
+    "HTML_FORMAT"     : "air:html",
+    "RICH_TEXT_FORMAT": "air:rtf",
+    "TEXT_FORMA"      : "air:text"
 };
-
-ClipboardFormats.HTML_FORMAT      = "air:html";
-ClipboardFormats.RICH_TEXT_FORMAT = "air:rtf";
-ClipboardFormats.TEXT_FORMA       = "air:text";
-
 /**
- * extends
+ * @type {{CLONE_ONLY: string, CLONE_PREFERRED: string, ORIGINAL_ONLY: string, ORIGINAL_PREFERRED: string}}
  */
-ClipboardFormats.prototype = Object.create(OriginalObject.prototype);
-ClipboardFormats.prototype.constructor = ClipboardFormats;
-/**
- * @constructor
- */
-var ClipboardTransferMode = function ()
-{
-    OriginalObject.call(this);
+var ClipboardTransferMode = {
+    "CLONE_ONLY"        : "cloneOnly",
+    "CLONE_PREFERRED"   : "clonePreferred",
+    "ORIGINAL_ONLY"     : "originalOnly",
+    "ORIGINAL_PREFERRED": "originalPreferred"
 };
-
-ClipboardTransferMode.CLONE_ONLY         = "cloneOnly";
-ClipboardTransferMode.CLONE_PREFERRED    = "clonePreferred";
-ClipboardTransferMode.ORIGINAL_ONLY      = "originalOnly";
-ClipboardTransferMode.ORIGINAL_PREFERRED = "originalPreferred";
-
-/**
- * extends
- */
-ClipboardTransferMode.prototype = Object.create(OriginalObject.prototype);
-ClipboardTransferMode.prototype.constructor = ClipboardTransferMode;
 /**
  * @constructor
  */
@@ -14765,19 +14683,13 @@ URLLoader.prototype.load = function (request)
 
 
 /**
- * @constructor
+ * @type {{BINARY: string, TEXT: string, VARIABLES: string}}
  */
-var URLLoaderDataFormat = function () {};
-
-URLLoaderDataFormat.BINARY    = "binary";
-URLLoaderDataFormat.TEXT      = "text";
-URLLoaderDataFormat.VARIABLES = "variables";
-
-/**
- * extends
- */
-URLLoaderDataFormat.prototype = Object.create(OriginalObject.prototype);
-URLLoaderDataFormat.prototype.constructor = URLLoaderDataFormat;
+var URLLoaderDataFormat = {
+    "BINARY"   : "binary",
+    "TEXT"     : "text",
+    "VARIABLES": "variables"
+};
 /**
  * @constructor
  * @param url
@@ -14981,22 +14893,16 @@ URLRequestHeader.prototype.toString = function ()
 };
 
 /**
- * @constructor
+ * @type {{GET: string, DELETE: string, HEAD: string, OPTIONS: string, POST: string, PUT: string}}
  */
-var URLRequestMethod = function () {};
-
-URLRequestMethod.GET     = "GET";
-URLRequestMethod.DELETE  = "DELETE";
-URLRequestMethod.HEAD    = "HEAD";
-URLRequestMethod.OPTIONS = "OPTIONS";
-URLRequestMethod.POST    = "POST";
-URLRequestMethod.PUT     = "PUT";
-
-/**
- * extends
- */
-URLRequestMethod.prototype = Object.create(OriginalObject.prototype);
-URLRequestMethod.prototype.constructor = URLRequestMethod;
+var URLRequestMethod = {
+    "GET"    : "GET",
+    "DELETE" : "DELETE",
+    "HEAD"   : "HEAD",
+    "OPTIONS": "OPTIONS",
+    "POST"   : "POST",
+    "PUT"    : "PUT"
+};
 /**
  * @constructor
  */
@@ -15068,18 +14974,12 @@ var PrintJobOptions = function (printAsBitmap)
 };
 
 /**
- * @constructor
+ * @type {{LANDSCAPE: string, PORTRAIT: string}}
  */
-var PrintJobOrientation = function () {};
-
-PrintJobOrientation.LANDSCAPE = "landscape";
-PrintJobOrientation.PORTRAIT  = "portrait";
-
-/**
- * extends
- */
-PrintJobOrientation.prototype = Object.create(OriginalObject.prototype);
-PrintJobOrientation.prototype.constructor = PrintJobOrientation;
+var PrintJobOrientation = {
+    "LANDSCAPE": "landscape",
+    "PORTRAIT":  "portrait"
+};
 /**
  * @param source
  * @constructor
@@ -15102,18 +15002,12 @@ var XMLNode = function (type, value)
     this._value = null;
 };
 /**
- * @constructor
+ * @type {{ELEMENT_NODE: number, TEXT_NODE: number}}
  */
-var XMLNodeType = function () {};
-
-XMLNodeType.ELEMENT_NODE = 1;
-XMLNodeType.TEXT_NODE    = 3;
-
-/**
- * extends
- */
-XMLNodeType.prototype = Object.create(OriginalObject.prototype);
-XMLNodeType.prototype.constructor = XMLNodeType;
+var XMLNodeType = {
+    "ELEMENT_NODE": 1,
+    "TEXT_NODE"   : 3
+};
 /**
  * @param data
  * @param constantPool
@@ -20884,8 +20778,9 @@ var MainTimeline = function ()
     MovieClip.call(this);
 
     // origin params
-    this._$backgroundColor = "transparent";
-    this._$version         = 10;
+    this._$version             = 10;
+    this._$actionScriptVersion = ActionScriptVersion.ACTIONSCRIPT2;
+
 };
 
 /**
@@ -20895,6 +20790,46 @@ MainTimeline.prototype = Object.create(MovieClip.prototype);
 MainTimeline.prototype.constructor = MainTimeline;
 
 /**
+ * properties
+ */
+Object.defineProperties(MainTimeline.prototype, {
+    version: {
+        /**
+         * @return {number}
+         */
+        get: function () {
+            return this._$version;
+        },
+        /**
+         * @param {number} version
+         */
+        set: function (version) {
+            if (typeof version !== "number") {
+                version = 10;
+            }
+            this._$version = version;
+        }
+    },
+    actionScriptVersion: {
+        /**
+         * @return {number}
+         */
+        get: function () {
+            return this._$actionScriptVersion;
+        },
+        /**
+         * @param {number} actionScriptVersion
+         */
+        set: function (actionScriptVersion) {
+            if (typeof actionScriptVersion !== "number") {
+                actionScriptVersion = ActionScriptVersion.ACTIONSCRIPT2;
+            }
+            this._$actionScriptVersion = actionScriptVersion;
+        }
+    }
+});
+
+/**
  * @returns {string}
  */
 MainTimeline.prototype.toString = function ()
@@ -20902,64 +20837,7 @@ MainTimeline.prototype.toString = function ()
     return "[object MainTimeline]";
 };
 
-/**
- * @returns {number}
- */
-MainTimeline.prototype.getVersion = function ()
-{
-    return this._$version;
-};
 
-/**
- * @param {number} version
- */
-MainTimeline.prototype.setVersion = function (version)
-{
-    if (typeof version !== "number") {
-        version = 10;
-    }
-    this._$version = version;
-};
-
-/**
- *
- * @returns {string}
- */
-MainTimeline.prototype.getBackgroundColor = function ()
-{
-    return this._$backgroundColor;
-};
-
-/**
- * @param {number} r
- * @param {number} g
- * @param {number} b
- */
-MainTimeline.prototype.setBackgroundColor = function (r, g, b)
-{
-    if (typeof r !== "number") {
-        r = 255;
-    }
-    if (typeof g !== "number") {
-        g = 255;
-    }
-    if (typeof b !== "number") {
-        b = 255;
-    }
-
-    this._$backgroundColor = "rgb(" + r + "," + g + "," + b + ")";
-};
-
-/**
- * @param {number} instanceId
- * @param {number} depth
- * @param {number} frame
- */
-MainTimeline.prototype.copyPlaceObject = function (instanceId, depth, frame)
-{
-    var placeObject = this.getPlaceObject(instanceId, depth, frame - 1);
-    this.setPlaceObject(placeObject, instanceId, depth, frame);
-};
 /**
  * @constructor
  * @param {Player} player
@@ -23330,8 +23208,7 @@ ReComposition.prototype.initialize = function()
     var signature = bitio.getHeaderSignature();
 
     // version
-    var version   = bitio.getVersion();
-    this.main.setVersion(version);
+    this.main.version = bitio.getVersion()|0;
 
     // file size
     var fileSize  = this.bitio.getUI32();
@@ -23413,7 +23290,7 @@ ReComposition.prototype.parseAndBuild = function(url)
     }
 
     // build
-    main._$prepareActions();
+    main._$prepareActions(1);
     main._$characterBuild(true);
 
     // load end
@@ -23501,6 +23378,7 @@ SwfTag.prototype.showFrame = function (parent, tags, frame)
         }
     }
 
+
     // Frame Label
     var labels = tags.frameLabel;
     if (labels.length) {
@@ -23510,7 +23388,7 @@ SwfTag.prototype.showFrame = function (parent, tags, frame)
             }
 
             var label = labels[idx];
-            parent._$addLabel(label.frame, label.name);
+            parent._$addFrameLabel(new FrameLabel(label.name, label.frame));
         }
     }
 
@@ -24117,7 +23995,7 @@ SwfTag.prototype.parseTag = function (tagType, length, parent, frame, tags)
             }
             break;
         case 9: // BackgroundColor
-            this.main.setBackgroundColor(
+            this.main.stage.player.setBackgroundColor(
                 this.bitio.getUI8(),
                 this.bitio.getUI8(),
                 this.bitio.getUI8()
@@ -26489,7 +26367,7 @@ SwfTag.prototype.buttonActions = function (endOffset)
  */
 SwfTag.prototype.parsePlaceObject = function (tagType, length)
 {
-    var version = this.main.getVersion();
+    var version = this.main.version;
 
     var startOffset = this.bitio.byte_offset|0;
 
@@ -26657,7 +26535,7 @@ SwfTag.prototype.parseClipActionRecord = function (endLength)
  */
 SwfTag.prototype.parseClipEventFlags = function ()
 {
-    var version = this.main.getVersion();
+    var version = this.main.version;
 
     var obj = {};
     obj.keyUp      = this.bitio.getUIBits(1);
@@ -28524,9 +28402,21 @@ SwfTag.prototype.parseFileAttributes = function ()
     obj.UseGPU        = this.bitio.getUIBit();
     obj.HasMetadata   = this.bitio.getUIBit();
     obj.ActionScript3 = this.bitio.getUIBit();
-    obj.Reserved2     = this.bitio.getUIBits(3);
+
+    // Reserved
+    this.bitio.getUIBits(3);
+
     obj.UseNetwork    = this.bitio.getUIBit();
-    obj.Reserved3     = this.bitio.getUIBits(24);
+
+    // Reserved
+    this.bitio.getUIBits(24);
+
+    if (obj.ActionScript3) {
+        this.main.actionScriptVersion = ActionScriptVersion.ACTIONSCRIPT3;
+    } else {
+        this.main.actionScriptVersion = ActionScriptVersion.ACTIONSCRIPT2;
+    }
+
 };
 
 /**
@@ -29210,38 +29100,40 @@ var Player = function ()
     this._$keyUpEventHits   = [];
 
     // params
-    this._$ratio        = 1;
-    this._$intervalId   = 0;
-    this._$stopFlag     = true;
-    this._$isLoad       = false;
-    this._$loadStatus   = 0;
-    this._$width        = 0;
-    this._$height       = 0;
-    this._$baseWidth    = 0;
-    this._$baseHeight   = 0;
-    this._$scale        = 1;
-    this._$matrix       = [1, 0, 0, 1, 0, 0];
+    this._$ratio           = 1;
+    this._$intervalId      = 0;
+    this._$stopFlag        = true;
+    this._$isLoad          = false;
+    this._$loadStatus      = 0;
+    this._$width           = 0;
+    this._$height          = 0;
+    this._$baseWidth       = 0;
+    this._$baseHeight      = 0;
+    this._$scale           = 1;
+    this._$matrix          = [1, 0, 0, 1, 0, 0];
+    this._$colorTransform  = [1, 1, 1, 1, 0, 0, 0, 0];
+    this._$backgroundColor = "transparent";
 
     // canvas
-    this._$context      = null;
-    this._$canvas       = null;
-    this._$preContext   = null;
-    this._$hitContext   = null;
+    this._$context         = null;
+    this._$canvas          = null;
+    this._$preContext      = null;
+    this._$hitContext      = null;
 
     // options
-    this._$optionWidth  = 0;
-    this._$optionHeight = 0;
-    this._$callback     = null;
-    this._$tagId        = null;
-    this._$FlashVars    = {};
-    this._$quality      = this.$canWebGL ? StageQuality.HIGH : StageQuality.BEST;
-    this._$bgcolor      = null;
+    this._$optionWidth     = 0;
+    this._$optionHeight    = 0;
+    this._$callback        = null;
+    this._$tagId           = null;
+    this._$FlashVars       = {};
+    this._$quality         = this.$canWebGL ? StageQuality.HIGH : StageQuality.BEST;
+    this._$bgcolor         = "";
 
     // packages
-    this._$packages     = new Packages(this);
+    this._$packages        = new Packages(this);
 
     // global vars
-    this._$global       = new Global();
+    this._$global          = new Global();
 
     // base stage
     var stage = new Stage();
@@ -29429,6 +29321,38 @@ Object.defineProperties(Player.prototype, {
         set: function (matrix) {
             if (this.$isArray(matrix)) {
                 this._$matrix = this.$cloneArray(matrix);
+            }
+        }
+    },
+    colorTransform: {
+        /**
+         * @return {array}
+         */
+        get: function () {
+            return this._$colorTransform;
+        },
+        /**
+         * @param {array} colorTransform
+         */
+        set: function (colorTransform) {
+            if (this.$isArray(colorTransform)) {
+                this._$colorTransform = this.$cloneArray(colorTransform);
+            }
+        }
+    },
+    backgroundColor: {
+        /**
+         * @return {string}
+         */
+        get: function () {
+            return this._$backgroundColor;
+        },
+        /**
+         * @param {string} backgroundColor
+         */
+        set: function (backgroundColor) {
+            if (typeof backgroundColor === "string") {
+                this._$backgroundColor = backgroundColor;
             }
         }
     },
@@ -29789,6 +29713,28 @@ Object.defineProperties(Player.prototype, {
     }
 });
 
+
+/**
+ * @param   {number} r
+ * @param   {number} g
+ * @param   {number} b
+ * @returns void
+ */
+Player.prototype.setBackgroundColor = function (r, g, b)
+{
+    if (typeof r !== "number") {
+        r = 255;
+    }
+    if (typeof g !== "number") {
+        g = 255;
+    }
+    if (typeof b !== "number") {
+        b = 255;
+    }
+
+    this._$backgroundColor = "rgb(" + r + "," + g + "," + b + ")";
+};
+
 /**
  * @param   {number} stageId
  * @returns {Stage|null}
@@ -30082,7 +30028,6 @@ Player.prototype.loaded = function ()
         // this.upEventHits      = [];
         // this.keyDownEventHits = [];
         // this.keyUpEventHits   = [];
-        // this.actions          = [];
 
         // action start
         this.doAction();
@@ -30140,8 +30085,9 @@ Player.prototype.loaded = function ()
         });
 
         // render start
-        this.backgroundRender();
-        this.frontendRender();
+        this.draw();
+
+        // append canvas
         div.appendChild(this.canvas);
 
         this.play();
@@ -30330,21 +30276,19 @@ Player.prototype.run = function ()
 {
     stats.begin(); // 計測
 
-    // reset
+    // hits reset
     // this.buttonHits       = [];
     // this.downEventHits    = [];
     // this.moveEventHits    = [];
     // this.upEventHits      = [];
     // this.keyDownEventHits = [];
     // this.keyUpEventHits   = [];
-    // this.actions          = [];
 
     // execute
     // this.putFrame();
     // this.addActions();
-    // this.doAction();
-    // this.backgroundRender();
-    // this.frontendRender();
+    this.doAction();
+    this.draw();
 
     stats.end(); // 計測
 };
@@ -30370,25 +30314,106 @@ Player.prototype.addActions = function ()
  */
 Player.prototype.doAction = function ()
 {
+    if (this.actions.length) {
 
+        var i = 0;
+        while (i < this.actions.length) {
+            var obj = this.actions[i];
+            i = (i + 1)|0;
+
+            var mc = obj.caller;
+            if (!mc.active) {
+                continue;
+            }
+
+            var args    = obj.args || [];
+            var actions = obj.actions;
+            switch (typeof actions) {
+                case "function":
+                    actions.apply(mc, args);
+                    break;
+
+                default:
+                    var length = actions.length|0;
+                    var idx    = 0;
+                    while (idx < length) {
+                        var action = actions[idx];
+                        idx = (idx + 1)|0;
+
+                        switch (typeof action) {
+                            case "function":
+                                action.apply(mc, args);
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+
+                    break;
+            }
+        }
+    }
+
+    // reset
+    this.actions = [];
 };
 
 /**
  * @returns void
  */
-Player.prototype.backgroundRender = function ()
+Player.prototype.draw = function ()
 {
+    /**
+     * pre draw
+     */
+    var ctx    = this.preContext;
+    var canvas = ctx.canvas;
+    var width  = canvas.width|0;
+    var height = canvas.height|0;
 
+    if (width > 0 && height > 0) {
+
+        // reset
+        ctx.globalCompositeOperation = "source-over";
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+
+        // background color
+        switch (this.backgroundColor) {
+            case "transparent":
+            case false:
+
+                // pre clear
+                ctx.clearRect(0, 0, width + 1, height + 1);
+
+                // main clear
+                this.context.clearRect(0, 0, width + 1, height + 1);
+
+                break;
+            default:
+
+                ctx.fillStyle = this.backgroundColor;
+                ctx.fillRect(0, 0, width + 1, height + 1);
+
+                break;
+        }
+
+        // pre draw
+        this.root._$draw(this.matrix, this.colorTransform);
+
+
+        /**
+         * draw
+         */
+
+        // reset
+        this.context.clearRect(0, 0, width + 1, height + 1);
+
+        // draw
+        this.context.setTransform(1, 0, 0, 1, 0, 0);
+        this.context.drawImage(canvas, 0, 0, width, height);
+
+    }
 };
-
-/**
- * @returns void
- */
-Player.prototype.frontendRender = function ()
-{
-
-};
-
 /**
  * @constructor
  */

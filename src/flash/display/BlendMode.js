@@ -1,29 +1,20 @@
 /**
- * @constructor
+ * @type {{ADD: string, ALPHA: string, DARKEN: string, DIFFERENCE: string, ERASE: string, HARDLIGHT: string, INVERT: string, LAYER: string, LIGHTEN: string, MULTIPLY: string, NORMAL: string, OVERLAY: string, SCREEN: string, SHADER: string, SUBTRACT: string}}
  */
-var BlendMode = function ()
-{
-    OriginalObject.call(this);
+var BlendMode = {
+    "ADD"       : "add",
+    "ALPHA"     : "alpha",
+    "DARKEN"    : "darken",
+    "DIFFERENCE": "difference",
+    "ERASE"     : "erase",
+    "HARDLIGHT" : "hardlight",
+    "INVERT"    : "invert",
+    "LAYER"     : "layer",
+    "LIGHTEN"   : "lighten",
+    "MULTIPLY"  : "multiply",
+    "NORMAL"    : "normal",
+    "OVERLAY"   : "overlay",
+    "SCREEN"    : "screen",
+    "SHADER"    : "shader",
+    "SUBTRACT"  : "subtract"
 };
-
-BlendMode.ADD        = "add";
-BlendMode.ALPHA      = "alpha";
-BlendMode.DARKEN     = "darken";
-BlendMode.DIFFERENCE = "difference";
-BlendMode.ERASE      = "erase";
-BlendMode.HARDLIGHT  = "hardlight";
-BlendMode.INVERT     = "invert";
-BlendMode.LAYER      = "layer";
-BlendMode.LIGHTEN    = "lighten";
-BlendMode.MULTIPLY   = "multiply";
-BlendMode.NORMAL     = "normal";
-BlendMode.OVERLAY    = "overlay";
-BlendMode.SCREEN     = "screen";
-BlendMode.SHADER     = "shader";
-BlendMode.SUBTRACT   = "subtract";
-
-/**
- * extends
- */
-BlendMode.prototype = Object.create(OriginalObject.prototype);
-BlendMode.prototype.constructor = BlendMode;

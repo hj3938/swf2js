@@ -1,14 +1,8 @@
 /**
- * @constructor
+ * @type {{BEVEL: string, MITER: string, ROUND: string}}
  */
-var JointStyle = function () {};
-
-JointStyle.BEVEL = "bevel";
-JointStyle.MITER = "miter";
-JointStyle.ROUND = "round";
-
-/**
- * extends
- */
-JointStyle.prototype = Object.create(OriginalObject.prototype);
-JointStyle.prototype.constructor = JointStyle;
+var JointStyle = {
+    "BEVEL": "bevel",
+    "MITER": "miter",
+    "ROUND": "round"
+};

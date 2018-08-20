@@ -1,16 +1,10 @@
 /**
- * @constructor
+ * @type {{CUSTOM: string, LONG: string, MEDIUM: string, NONE: string, SHORT: string}}
  */
-var DateTimeStyle = function () {};
-
-DateTimeStyle.CUSTOM = "custom";
-DateTimeStyle.LONG   = "long";
-DateTimeStyle.MEDIUM = "medium";
-DateTimeStyle.NONE   = "none";
-DateTimeStyle.SHORT  = "short";
-
-/**
- * extends
- */
-DateTimeStyle.prototype = Object.create(OriginalObject.prototype);
-DateTimeStyle.prototype.constructor = DateTimeStyle;
+var DateTimeStyle = {
+    "CUSTOM": "custom",
+    "LONG"  : "long",
+    "MEDIUM": "medium",
+    "NONE"  : "none",
+    "SHORT" : "short"
+};

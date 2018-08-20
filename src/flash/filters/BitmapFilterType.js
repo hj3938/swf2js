@@ -1,17 +1,8 @@
 /**
- * @constructor
+ * @type {{FULL: string, INNER: string, OUTER: string}}
  */
-var BitmapFilterType = function ()
-{
-    OriginalObject.call(this);
+var BitmapFilterType = {
+    "FULL" : "full",
+    "INNER": "inner",
+    "OUTER": "outer"
 };
-
-BitmapFilterType.FULL  = "full";
-BitmapFilterType.INNER = "inner";
-BitmapFilterType.OUTER = "outer";
-
-/**
- * extends
- */
-BitmapFilterType.prototype = Object.create(OriginalObject.prototype);
-BitmapFilterType.prototype.constructor = BitmapFilterType;

@@ -1,14 +1,8 @@
 /**
- * @constructor
+ * @type {{AXIS_ANGLE: string, EULER_ANGLES: string, QUATERNION: string}}
  */
-var Orientation3D = function () {};
-
-Orientation3D.AXIS_ANGLE   = "axisAngle";
-Orientation3D.EULER_ANGLES = "eulerAngles";
-Orientation3D.QUATERNION   = "quaternion";
-
-/**
- * extends
- */
-Orientation3D.prototype = Object.create(OriginalObject.prototype);
-Orientation3D.prototype.constructor = Orientation3D;
+var Orientation3D = {
+    "AXIS_ANGLE"  : "axisAngle",
+    "EULER_ANGLES": "eulerAngles",
+    "QUATERNION"  : "quaternion"
+};

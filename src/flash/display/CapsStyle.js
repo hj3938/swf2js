@@ -1,17 +1,8 @@
 /**
- * @constructor
+ * @type {{NONE: string, ROUND: string, SQUARE: string}}
  */
-var CapsStyle = function ()
-{
-    OriginalObject.call(this);
+var CapsStyle = {
+    "NONE"  : "none",
+    "ROUND" : "round",
+    "SQUARE": "square"
 };
-
-CapsStyle.NONE   = "none";
-CapsStyle.ROUND  = "round";
-CapsStyle.SQUARE = "square";
-
-/**
- * extends
- */
-CapsStyle.prototype = Object.create(OriginalObject.prototype);
-CapsStyle.prototype.constructor = CapsStyle;

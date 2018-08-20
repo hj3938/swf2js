@@ -1,13 +1,7 @@
 /**
- * @constructor
+ * @type {{LINEAR: string, RADIAL: string}}
  */
-var GradientType = function () {};
-
-GradientType.LINEAR = "linear";
-GradientType.RADIAL = "radial";
-
-/**
- * extends
- */
-GradientType.prototype = Object.create(OriginalObject.prototype);
-GradientType.prototype.constructor = GradientType;
+var GradientType = {
+    "LINEAR": "linear",
+    "RADIAL": "radial"
+};

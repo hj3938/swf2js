@@ -1,13 +1,7 @@
 /**
- * @constructor
+ * @type {{FAST: string, FULL: string}}
  */
-var ShaderPrecision = function () {};
-
-ShaderPrecision.FAST = "fast";
-ShaderPrecision.FULL = "full";
-
-/**
- * extends
- */
-ShaderPrecision.prototype = Object.create(OriginalObject.prototype);
-ShaderPrecision.prototype.constructor = ShaderPrecision;
+var ShaderPrecision = {
+    "FAST": "fast",
+    "FULL": "full"
+};

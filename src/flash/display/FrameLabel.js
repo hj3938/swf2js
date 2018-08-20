@@ -1,19 +1,25 @@
 /**
- * @param name
- * @param frame
+ * @param {string} name
+ * @param {number} frame
  * @constructor
  */
 var FrameLabel = function (name, frame)
 {
+    EventDispatcher.call(this);
+
     // init
-    this._name  = name;
-    this._frame = frame;
+    if (typeof name !== "string") {
+        name = name + "";
+    }
+
+    this._$name  = name.toLowerCase();
+    this._$frame = frame|0;
 };
 
 /**
  * extends
  */
-FrameLabel.prototype = Object.create(OriginalObject.prototype);
+FrameLabel.prototype = Object.create(EventDispatcher.prototype);
 FrameLabel.prototype.constructor = FrameLabel;
 
 /**
@@ -21,15 +27,29 @@ FrameLabel.prototype.constructor = FrameLabel;
  */
 Object.defineProperties(FrameLabel.prototype, {
     name: {
+        /**
+         * @return {string}
+         */
         get: function () {
-            return this._name;
+            return this._$name;
         },
+        /**
+         * readonly
+         * @return void
+         */
         set: function () {}
     },
     frame: {
+        /**
+         * @return {number}
+         */
         get: function () {
-            return this._frame;
+            return this._$frame;
         },
+        /**
+         * readonly
+         * @return void
+         */
         set: function () {}
     }
 });

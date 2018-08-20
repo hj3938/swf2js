@@ -1,13 +1,7 @@
 /**
- * @constructor
+ * @type {{ELEMENT_NODE: number, TEXT_NODE: number}}
  */
-var XMLNodeType = function () {};
-
-XMLNodeType.ELEMENT_NODE = 1;
-XMLNodeType.TEXT_NODE    = 3;
-
-/**
- * extends
- */
-XMLNodeType.prototype = Object.create(OriginalObject.prototype);
-XMLNodeType.prototype.constructor = XMLNodeType;
+var XMLNodeType = {
+    "ELEMENT_NODE": 1,
+    "TEXT_NODE"   : 3
+};

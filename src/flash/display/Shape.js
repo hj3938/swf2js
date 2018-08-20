@@ -82,6 +82,15 @@ Shape.prototype._$build = function (parent, index, tag, shouldAction)
 };
 
 /**
+ * @param {array} matrix
+ * @param {array} colorTransform
+ */
+Shape.prototype._$draw = function (matrix, colorTransform)
+{
+
+};
+
+/**
  * @param stage
  * @param clipEvent
  */

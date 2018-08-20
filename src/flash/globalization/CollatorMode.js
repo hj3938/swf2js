@@ -1,16 +1,7 @@
 /**
- * @constructor
+ * @type {{MATCHING: string, SORTING: string}}
  */
-var CollatorMode = function ()
-{
-    OriginalObject.call(this);
+var CollatorMode = {
+    "MATCHING": "matching",
+    "SORTING" : "sorting"
 };
-
-CollatorMode.MATCHING = "matching";
-CollatorMode.SORTING  = "sorting";
-
-/**
- * extends
- */
-CollatorMode.prototype = Object.create(OriginalObject.prototype);
-CollatorMode.prototype.constructor = CollatorMode;

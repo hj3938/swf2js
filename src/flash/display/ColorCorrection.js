@@ -1,14 +1,8 @@
 /**
- * @constructor
+ * @type {{DEFAULT: string, OFF: string, ON: string}}
  */
-var ColorCorrection = function () {};
-
-ColorCorrection.DEFAULT = "default";
-ColorCorrection.OFF     = "off";
-ColorCorrection.ON      = "on";
-
-/**
- * extends
- */
-ColorCorrection.prototype = Object.create(OriginalObject.prototype);
-ColorCorrection.prototype.constructor = ColorCorrection;
+var ColorCorrection = {
+    "DEFAULT": "default",
+    "OFF"    : "off",
+    "ON"     : "on"
+};

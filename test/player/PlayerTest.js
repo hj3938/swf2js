@@ -18,3 +18,39 @@ describe("Player.js packages test", function()
 
 });
 
+describe("Player.js setBackgroundColor test", function()
+{
+
+    it("setBackgroundColor success", function()
+    {
+        var player = new Player();
+        player.setBackgroundColor(1, 2, 3);
+
+        expect(player.backgroundColor).toBe("rgb(1,2,3)");
+    });
+
+    it("setBackgroundColor valid case1", function()
+    {
+        var player = new Player();
+        player.setBackgroundColor("a",2,3);
+
+        expect(player.backgroundColor).toBe("rgb(255,2,3)");
+    });
+
+    it("setBackgroundColor valid case2", function()
+    {
+        var player = new Player();
+        player.setBackgroundColor(1,"b",3);
+
+        expect(player.backgroundColor).toBe("rgb(1,255,3)");
+    });
+
+    it("setBackgroundColor valid case3", function()
+    {
+        var player = new Player();
+        player.setBackgroundColor(1,2,"c");
+
+        expect(player.backgroundColor).toBe("rgb(1,2,255)");
+    });
+});
+

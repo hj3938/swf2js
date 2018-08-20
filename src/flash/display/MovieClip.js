@@ -6,18 +6,20 @@ var MovieClip = function ()
     Sprite.call(this);
 
     // origin flag
-    this._$stopFlag  = false;
-    this._$canAction = true;
-
+    this._$stopFlag      = false;
+    this._$canAction     = true;
 
     // property
-    this._$currentframe = 1;
-    this._$totalFrames  = 0;
+    this._$currentframe  = 1;
+    this._$totalFrames   = 0;
+    this._$isPlaying     = false;
 
     // controller tags
     this._$actions       = [];
-    this._$labels        = [];
+    this._$frameLabels   = [];
     this._$removeObjects = [];
+
+
 
     // // clip
     // this.isClipDepth = false;
@@ -53,6 +55,7 @@ Object.defineProperties(MovieClip.prototype, {
          */
         set: function () {}
     },
+    // TODO
     currentFrameLabel: {
         get: function () {
             return this._$id;
@@ -90,10 +93,20 @@ Object.defineProperties(MovieClip.prototype, {
         set: function (id) {}
     },
     isPlaying: {
+        /**
+         * @return {boolean}
+         */
         get: function () {
-            return this._$id;
+            return this._$isPlaying;
         },
-        set: function (id) {}
+        /**
+         * @param {boolean} isPlaying
+         */
+        set: function (isPlaying) {
+            if (typeof isPlaying === "boolean") {
+                this._$isPlaying = isPlaying;
+            }
+        }
     },
     scenes: {
         get: function () {
@@ -102,10 +115,17 @@ Object.defineProperties(MovieClip.prototype, {
         set: function (id) {}
     },
     totalFrames: {
+        /**
+         * @return {number}
+         */
         get: function () {
             return this._$totalFrames;
         },
-        set: function () {} // readonly
+        /**
+         * readonly
+         * @return void
+         */
+        set: function () {}
     },
     trackAsMenu: {
         get: function () {
@@ -114,6 +134,7 @@ Object.defineProperties(MovieClip.prototype, {
         set: function (id) {}
     }
 });
+
 
 /**
  * @returns {string}
@@ -124,16 +145,13 @@ MovieClip.prototype.toString = function ()
 };
 
 /**
- * @param {number} frame
- * @param {string} name
+ * @param {FrameLabel} frameLabel
  */
-MovieClip.prototype._$addLabel = function (frame, name)
+MovieClip.prototype._$addFrameLabel = function (frameLabel)
 {
-    if (typeof name !== "string") {
-        name = name + "";
+    if (frameLabel instanceof  FrameLabel) {
+        this._$frameLabels[this._$frameLabels.length] = frameLabel;
     }
-
-    this._$labels[name.toLowerCase()] = frame|0;
 };
 
 /**
@@ -363,6 +381,10 @@ MovieClip.prototype._$build = function (parent, index, tag, shouldAction)
         id = (id + 1)|0;
     }
 
+    // todo sounds
+
+
+
     var nextAction = false;
     if (shouldAction && mc.ratio === 0) {
 
@@ -370,13 +392,11 @@ MovieClip.prototype._$build = function (parent, index, tag, shouldAction)
 
         if (controller && controller.indexOf(index) !== -1) {
 
-            mc._$prepareActions();
+            mc._$prepareActions(1);
 
             nextAction = true;
         }
     }
-
-    // todo sounds
 
     // build dictionary
     mc._$characterBuild(nextAction);
@@ -385,3 +405,68 @@ MovieClip.prototype._$build = function (parent, index, tag, shouldAction)
 };
 
 
+MovieClip.prototype._$draw = function (matrix, colorTransform)
+{
+
+    var frame = this.currentFrame;
+
+    var controller = this._$getController(this.currentFrame);
+
+    // case action script3
+    if (this.stage.root.actionScriptVersion === ActionScriptVersion.ACTIONSCRIPT3) {
+
+
+
+        // next frame
+        this._$putFrame();
+
+
+
+    }
+
+
+    for (var depth in controller) {
+
+        if (!controller.hasOwnProperty(depth)) {
+            continue;
+        }
+
+        var instance = this._$getInstance(controller[depth]);
+
+        instance._$draw(
+            this.$multiplicationMatrix(matrix, instance._$getMatrix(frame, depth)),
+            this.$multiplicationColor(colorTransform, instance._$getColorTransform(frame, depth))
+        );
+
+    }
+
+};
+
+
+MovieClip.prototype._$putFrame = function ()
+{
+    console.log(this);
+    if (!this._$stopFlag && this.totalFrames >= this.currentFrame) {
+
+        if (this.totalFrames === this.currentFrame) {
+
+            // loop
+            if (this.ratio === 0) {
+                this._$currentFrame = 1;
+
+                // action on
+                this._$canAction = true;
+            }
+
+        } else {
+
+            // next frame
+            this._$currentFrame = (this._$currentFrame + 1)|0;
+
+            // action on
+            this._$canAction = true;
+        }
+
+    }
+
+};

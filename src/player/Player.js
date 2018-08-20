@@ -19,38 +19,40 @@ var Player = function ()
     this._$keyUpEventHits   = [];
 
     // params
-    this._$ratio        = 1;
-    this._$intervalId   = 0;
-    this._$stopFlag     = true;
-    this._$isLoad       = false;
-    this._$loadStatus   = 0;
-    this._$width        = 0;
-    this._$height       = 0;
-    this._$baseWidth    = 0;
-    this._$baseHeight   = 0;
-    this._$scale        = 1;
-    this._$matrix       = [1, 0, 0, 1, 0, 0];
+    this._$ratio           = 1;
+    this._$intervalId      = 0;
+    this._$stopFlag        = true;
+    this._$isLoad          = false;
+    this._$loadStatus      = 0;
+    this._$width           = 0;
+    this._$height          = 0;
+    this._$baseWidth       = 0;
+    this._$baseHeight      = 0;
+    this._$scale           = 1;
+    this._$matrix          = [1, 0, 0, 1, 0, 0];
+    this._$colorTransform  = [1, 1, 1, 1, 0, 0, 0, 0];
+    this._$backgroundColor = "transparent";
 
     // canvas
-    this._$context      = null;
-    this._$canvas       = null;
-    this._$preContext   = null;
-    this._$hitContext   = null;
+    this._$context         = null;
+    this._$canvas          = null;
+    this._$preContext      = null;
+    this._$hitContext      = null;
 
     // options
-    this._$optionWidth  = 0;
-    this._$optionHeight = 0;
-    this._$callback     = null;
-    this._$tagId        = null;
-    this._$FlashVars    = {};
-    this._$quality      = this.$canWebGL ? StageQuality.HIGH : StageQuality.BEST;
-    this._$bgcolor      = null;
+    this._$optionWidth     = 0;
+    this._$optionHeight    = 0;
+    this._$callback        = null;
+    this._$tagId           = null;
+    this._$FlashVars       = {};
+    this._$quality         = this.$canWebGL ? StageQuality.HIGH : StageQuality.BEST;
+    this._$bgcolor         = "";
 
     // packages
-    this._$packages     = new Packages(this);
+    this._$packages        = new Packages(this);
 
     // global vars
-    this._$global       = new Global();
+    this._$global          = new Global();
 
     // base stage
     var stage = new Stage();
@@ -238,6 +240,38 @@ Object.defineProperties(Player.prototype, {
         set: function (matrix) {
             if (this.$isArray(matrix)) {
                 this._$matrix = this.$cloneArray(matrix);
+            }
+        }
+    },
+    colorTransform: {
+        /**
+         * @return {array}
+         */
+        get: function () {
+            return this._$colorTransform;
+        },
+        /**
+         * @param {array} colorTransform
+         */
+        set: function (colorTransform) {
+            if (this.$isArray(colorTransform)) {
+                this._$colorTransform = this.$cloneArray(colorTransform);
+            }
+        }
+    },
+    backgroundColor: {
+        /**
+         * @return {string}
+         */
+        get: function () {
+            return this._$backgroundColor;
+        },
+        /**
+         * @param {string} backgroundColor
+         */
+        set: function (backgroundColor) {
+            if (typeof backgroundColor === "string") {
+                this._$backgroundColor = backgroundColor;
             }
         }
     },
@@ -598,6 +632,28 @@ Object.defineProperties(Player.prototype, {
     }
 });
 
+
+/**
+ * @param   {number} r
+ * @param   {number} g
+ * @param   {number} b
+ * @returns void
+ */
+Player.prototype.setBackgroundColor = function (r, g, b)
+{
+    if (typeof r !== "number") {
+        r = 255;
+    }
+    if (typeof g !== "number") {
+        g = 255;
+    }
+    if (typeof b !== "number") {
+        b = 255;
+    }
+
+    this._$backgroundColor = "rgb(" + r + "," + g + "," + b + ")";
+};
+
 /**
  * @param   {number} stageId
  * @returns {Stage|null}
@@ -891,7 +947,6 @@ Player.prototype.loaded = function ()
         // this.upEventHits      = [];
         // this.keyDownEventHits = [];
         // this.keyUpEventHits   = [];
-        // this.actions          = [];
 
         // action start
         this.doAction();
@@ -949,8 +1004,9 @@ Player.prototype.loaded = function ()
         });
 
         // render start
-        this.backgroundRender();
-        this.frontendRender();
+        this.draw();
+
+        // append canvas
         div.appendChild(this.canvas);
 
         this.play();
@@ -1139,21 +1195,19 @@ Player.prototype.run = function ()
 {
     stats.begin(); // 計測
 
-    // reset
+    // hits reset
     // this.buttonHits       = [];
     // this.downEventHits    = [];
     // this.moveEventHits    = [];
     // this.upEventHits      = [];
     // this.keyDownEventHits = [];
     // this.keyUpEventHits   = [];
-    // this.actions          = [];
 
     // execute
     // this.putFrame();
     // this.addActions();
-    // this.doAction();
-    // this.backgroundRender();
-    // this.frontendRender();
+    this.doAction();
+    this.draw();
 
     stats.end(); // 計測
 };
@@ -1179,21 +1233,103 @@ Player.prototype.addActions = function ()
  */
 Player.prototype.doAction = function ()
 {
+    if (this.actions.length) {
 
+        var i = 0;
+        while (i < this.actions.length) {
+            var obj = this.actions[i];
+            i = (i + 1)|0;
+
+            var mc = obj.caller;
+            if (!mc.active) {
+                continue;
+            }
+
+            var args    = obj.args || [];
+            var actions = obj.actions;
+            switch (typeof actions) {
+                case "function":
+                    actions.apply(mc, args);
+                    break;
+
+                default:
+                    var length = actions.length|0;
+                    var idx    = 0;
+                    while (idx < length) {
+                        var action = actions[idx];
+                        idx = (idx + 1)|0;
+
+                        switch (typeof action) {
+                            case "function":
+                                action.apply(mc, args);
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+
+                    break;
+            }
+        }
+    }
+
+    // reset
+    this.actions = [];
 };
 
 /**
  * @returns void
  */
-Player.prototype.backgroundRender = function ()
+Player.prototype.draw = function ()
 {
+    /**
+     * pre draw
+     */
+    var ctx    = this.preContext;
+    var canvas = ctx.canvas;
+    var width  = canvas.width|0;
+    var height = canvas.height|0;
 
-};
+    if (width > 0 && height > 0) {
 
-/**
- * @returns void
- */
-Player.prototype.frontendRender = function ()
-{
+        // reset
+        ctx.globalCompositeOperation = "source-over";
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
 
+        // background color
+        switch (this.backgroundColor) {
+            case "transparent":
+            case false:
+
+                // pre clear
+                ctx.clearRect(0, 0, width + 1, height + 1);
+
+                // main clear
+                this.context.clearRect(0, 0, width + 1, height + 1);
+
+                break;
+            default:
+
+                ctx.fillStyle = this.backgroundColor;
+                ctx.fillRect(0, 0, width + 1, height + 1);
+
+                break;
+        }
+
+        // pre draw
+        this.root._$draw(this.matrix, this.colorTransform);
+
+
+        /**
+         * draw
+         */
+
+        // reset
+        this.context.clearRect(0, 0, width + 1, height + 1);
+
+        // draw
+        this.context.setTransform(1, 0, 0, 1, 0, 0);
+        this.context.drawImage(canvas, 0, 0, width, height);
+
+    }
 };

@@ -1,14 +1,8 @@
 /**
- * @constructor
+ * @type {{DEFAULT_OFF: string, DEFAULT_ON: string, UNSUPPORTED: string}}
  */
-var ColorCorrectionSupport = function () {};
-
-ColorCorrectionSupport.DEFAULT_OFF  = "defaultOff";
-ColorCorrectionSupport.DEFAULT_ON   = "defaultOn";
-ColorCorrectionSupport.UNSUPPORTED  = "unsupported";
-
-/**
- * extends
- */
-ColorCorrectionSupport.prototype = Object.create(OriginalObject.prototype);
-ColorCorrectionSupport.prototype.constructor = ColorCorrectionSupport;
+var ColorCorrectionSupport = {
+    "DEFAULT_OFF": "defaultOff",
+    "DEFAULT_ON" : "defaultOn",
+    "UNSUPPORTED": "unsupported"
+};

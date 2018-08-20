@@ -1,14 +1,8 @@
 /**
- * @constructor
+ * @type {{ALWAYS: string, AUTO: string, NEVER: string}}
  */
-var PixelSnapping = function () {};
-
-PixelSnapping.ALWAYS = "always";
-PixelSnapping.AUTO   = "auto";
-PixelSnapping.NEVER  = "never";
-
-/**
- * extends
- */
-PixelSnapping.prototype = Object.create(OriginalObject.prototype);
-PixelSnapping.prototype.constructor = PixelSnapping;
+var PixelSnapping = {
+    "ALWAYS": "always",
+    "AUTO"  : "auto",
+    "NEVER" : "never"
+};

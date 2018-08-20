@@ -1,18 +1,9 @@
 /**
- * @constructor
+ * @type {{CLONE_ONLY: string, CLONE_PREFERRED: string, ORIGINAL_ONLY: string, ORIGINAL_PREFERRED: string}}
  */
-var ClipboardTransferMode = function ()
-{
-    OriginalObject.call(this);
+var ClipboardTransferMode = {
+    "CLONE_ONLY"        : "cloneOnly",
+    "CLONE_PREFERRED"   : "clonePreferred",
+    "ORIGINAL_ONLY"     : "originalOnly",
+    "ORIGINAL_PREFERRED": "originalPreferred"
 };
-
-ClipboardTransferMode.CLONE_ONLY         = "cloneOnly";
-ClipboardTransferMode.CLONE_PREFERRED    = "clonePreferred";
-ClipboardTransferMode.ORIGINAL_ONLY      = "originalOnly";
-ClipboardTransferMode.ORIGINAL_PREFERRED = "originalPreferred";
-
-/**
- * extends
- */
-ClipboardTransferMode.prototype = Object.create(OriginalObject.prototype);
-ClipboardTransferMode.prototype.constructor = ClipboardTransferMode;

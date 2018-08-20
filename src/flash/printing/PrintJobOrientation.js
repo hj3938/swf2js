@@ -1,13 +1,7 @@
 /**
- * @constructor
+ * @type {{LANDSCAPE: string, PORTRAIT: string}}
  */
-var PrintJobOrientation = function () {};
-
-PrintJobOrientation.LANDSCAPE = "landscape";
-PrintJobOrientation.PORTRAIT  = "portrait";
-
-/**
- * extends
- */
-PrintJobOrientation.prototype = Object.create(OriginalObject.prototype);
-PrintJobOrientation.prototype.constructor = PrintJobOrientation;
+var PrintJobOrientation = {
+    "LANDSCAPE": "landscape",
+    "PORTRAIT":  "portrait"
+};

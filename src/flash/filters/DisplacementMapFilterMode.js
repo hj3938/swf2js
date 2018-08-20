@@ -1,15 +1,9 @@
 /**
- * @constructor
+ * @type {{CLAMP: string, COLOR: string, IGNORE: string, WRAP: string}}
  */
-var DisplacementMapFilterMode = function () {};
-
-DisplacementMapFilterMode.CLAMP  = "clamp";
-DisplacementMapFilterMode.COLOR  = "color";
-DisplacementMapFilterMode.IGNORE = "ignore";
-DisplacementMapFilterMode.WRAP   = "wrap";
-
-/**
- * extends
- */
-DisplacementMapFilterMode.prototype = Object.create(OriginalObject.prototype);
-DisplacementMapFilterMode.prototype.constructor = DisplacementMapFilterMode;
+var DisplacementMapFilterMode = {
+    "CLAMP" : "clamp",
+    "COLOR" : "color",
+    "IGNORE": "ignore",
+    "WRAP"  : "wrap"
+};

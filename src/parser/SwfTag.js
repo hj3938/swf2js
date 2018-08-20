@@ -74,6 +74,7 @@ SwfTag.prototype.showFrame = function (parent, tags, frame)
         }
     }
 
+
     // Frame Label
     var labels = tags.frameLabel;
     if (labels.length) {
@@ -83,7 +84,7 @@ SwfTag.prototype.showFrame = function (parent, tags, frame)
             }
 
             var label = labels[idx];
-            parent._$addLabel(label.frame, label.name);
+            parent._$addFrameLabel(new FrameLabel(label.name, label.frame));
         }
     }
 
@@ -690,7 +691,7 @@ SwfTag.prototype.parseTag = function (tagType, length, parent, frame, tags)
             }
             break;
         case 9: // BackgroundColor
-            this.main.setBackgroundColor(
+            this.main.stage.player.setBackgroundColor(
                 this.bitio.getUI8(),
                 this.bitio.getUI8(),
                 this.bitio.getUI8()
@@ -3062,7 +3063,7 @@ SwfTag.prototype.buttonActions = function (endOffset)
  */
 SwfTag.prototype.parsePlaceObject = function (tagType, length)
 {
-    var version = this.main.getVersion();
+    var version = this.main.version;
 
     var startOffset = this.bitio.byte_offset|0;
 
@@ -3230,7 +3231,7 @@ SwfTag.prototype.parseClipActionRecord = function (endLength)
  */
 SwfTag.prototype.parseClipEventFlags = function ()
 {
-    var version = this.main.getVersion();
+    var version = this.main.version;
 
     var obj = {};
     obj.keyUp      = this.bitio.getUIBits(1);
@@ -5097,9 +5098,21 @@ SwfTag.prototype.parseFileAttributes = function ()
     obj.UseGPU        = this.bitio.getUIBit();
     obj.HasMetadata   = this.bitio.getUIBit();
     obj.ActionScript3 = this.bitio.getUIBit();
-    obj.Reserved2     = this.bitio.getUIBits(3);
+
+    // Reserved
+    this.bitio.getUIBits(3);
+
     obj.UseNetwork    = this.bitio.getUIBit();
-    obj.Reserved3     = this.bitio.getUIBits(24);
+
+    // Reserved
+    this.bitio.getUIBits(24);
+
+    if (obj.ActionScript3) {
+        this.main.actionScriptVersion = ActionScriptVersion.ACTIONSCRIPT3;
+    } else {
+        this.main.actionScriptVersion = ActionScriptVersion.ACTIONSCRIPT2;
+    }
+
 };
 
 /**

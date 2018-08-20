@@ -5,6 +5,8 @@
  */
 var Point = function (x, y)
 {
+    OriginalObject.call(this);
+
     // default
     this._x = 0;
     this._y = 0;
@@ -15,7 +17,7 @@ var Point = function (x, y)
 };
 
 /**
- * util
+ * extends
  */
 Point.prototype = Object.create(OriginalObject.prototype);
 Point.prototype.constructor = Point;

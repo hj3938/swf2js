@@ -1,14 +1,8 @@
 /**
- * @constructor
+ * @type {{NEGATIVE: string, NONE: string, POSITIVE: string}}
  */
-var TriangleCulling = function () {};
-
-TriangleCulling.NEGATIVE = "negative";
-TriangleCulling.NONE     = "none";
-TriangleCulling.POSITIVE = "positive";
-
-/**
- * extends
- */
-TriangleCulling.prototype = Object.create(OriginalObject.prototype);
-TriangleCulling.prototype.constructor = TriangleCulling;
+var TriangleCulling = {
+    "NEGATIVE": "negative",
+    "NONE"    : "none",
+    "POSITIVE": "positive"
+};

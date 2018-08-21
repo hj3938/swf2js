@@ -17,4 +17,16 @@ describe("BitmapEncodingColorSpace.js property test", function()
     it("COLORSPACE_AUTO test", function () {
         expect(BitmapEncodingColorSpace.COLORSPACE_AUTO).toBe("auto");
     });
+
+    it("length test", function () {
+        var length = 0;
+        for (var idx in BitmapEncodingColorSpace) {
+            if (!BitmapEncodingColorSpace.hasOwnProperty(idx)) {
+                continue;
+            }
+            length++;
+        }
+        expect(length).toBe(4);
+    });
+
 });

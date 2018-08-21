@@ -18,4 +18,15 @@ describe("ClipboardTransferMode.js property test", function()
         expect(ClipboardTransferMode.ORIGINAL_PREFERRED).toBe("originalPreferred");
     });
 
+    it("length test", function () {
+        var length = 0;
+        for (var idx in ClipboardTransferMode) {
+            if (!ClipboardTransferMode.hasOwnProperty(idx)) {
+                continue;
+            }
+            length++;
+        }
+        expect(length).toBe(4);
+    });
+
 });

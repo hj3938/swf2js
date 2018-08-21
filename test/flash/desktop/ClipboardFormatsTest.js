@@ -14,4 +14,15 @@ describe("ClipboardFormats.js property test", function()
         expect(ClipboardFormats.TEXT_FORMA).toBe("air:text");
     });
 
+    it("length test", function () {
+        var length = 0;
+        for (var idx in ClipboardFormats) {
+            if (!ClipboardFormats.hasOwnProperty(idx)) {
+                continue;
+            }
+            length++;
+        }
+        expect(length).toBe(3);
+    });
+
 });

@@ -62,4 +62,15 @@ describe("BlendMode.js property test", function()
         expect(BlendMode.SUBTRACT).toBe("subtract");
     });
 
+    it("length test", function () {
+        var length = 0;
+        for (var idx in BlendMode) {
+            if (!BlendMode.hasOwnProperty(idx)) {
+                continue;
+            }
+            length++;
+        }
+        expect(length).toBe(15);
+    });
+
 });

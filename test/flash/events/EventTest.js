@@ -222,4 +222,15 @@ describe("Event.js property test", function()
         expect(Event.WORKER_STATE).toBe("workerState");
     });
 
+    it("length test", function () {
+        var length = 0;
+        for (var idx in Event) {
+            if (!Event.hasOwnProperty(idx)) {
+                continue;
+            }
+            length++;
+        }
+        expect(length).toBe(54);
+    });
+
 });

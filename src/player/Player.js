@@ -45,7 +45,7 @@ var Player = function ()
     this._$callback        = null;
     this._$tagId           = null;
     this._$FlashVars       = {};
-    this._$quality         = this.$canWebGL ? StageQuality.HIGH : StageQuality.BEST;
+    this._$quality         = this.$canWebGL ? StageQuality.BEST : StageQuality.HIGH;
     this._$bgcolor         = "";
 
     // packages
@@ -726,13 +726,13 @@ Player.prototype.setRatio = function ()
     switch (this.quality) {
         case StageQuality.BEST:
         case StageQuality.HIGH:
-            this._ratio = this.$devicePixelRatio;
+            this._$ratio = this.$devicePixelRatio;
             break;
         case StageQuality.MEDIUM:
-            this._ratio = this.$devicePixelRatio * 0.8;
+            this._$ratio = this.$devicePixelRatio * 0.8;
             break;
         case StageQuality.LOW:
-            this._ratio = this.$devicePixelRatio * 0.5;
+            this._$ratio = this.$devicePixelRatio * 0.5;
             break;
     }
 };
@@ -742,7 +742,7 @@ Player.prototype.setRatio = function ()
  */
 Player.prototype.play = function ()
 {
-    this.stopFlag   = false;
+    this.stopFlag = false;
 
     this.intervalId = this.$setInterval.call(null,
         (function (player) {
@@ -1155,6 +1155,7 @@ Player.prototype.resize = function ()
                 var tmpContext   = this.$tmpContext;
                 var tmpCanvas    = tmpContext.canvas;
                 tmpCanvas.width  = width;
+
                 tmpCanvas.height = height;
             }
 
@@ -1317,7 +1318,7 @@ Player.prototype.draw = function ()
         }
 
         // pre draw
-        this.root._$draw(this.matrix, this.colorTransform);
+        this.root._$draw(this.matrix, this.colorTransform, false, true);
 
 
         /**

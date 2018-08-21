@@ -462,7 +462,7 @@ Util.prototype.$startSound = function (audio, soundInfo)
 Util.prototype.$resize = function ()
 {
     this.$clearTimeout.call(null, this.$resizeId);
-    this.$resizeId = this.$setTimeout.call(null, this.$resizeExecute, 300);
+    this.$resizeId = this.$setTimeout.call(null, Util.prototype.$resizeExecute, 300);
 };
 
 /**
@@ -470,7 +470,7 @@ Util.prototype.$resize = function ()
  */
 Util.prototype.$resizeExecute = function ()
 {
-    var players = this.$players;
+    var players = Util.prototype.$players;
 
     for (var idx in players) {
 
@@ -524,7 +524,7 @@ Util.prototype.$multiplicationMatrix = function(a, b)
 };
 
 /**
- * @param   {object} color
+ * @param   {{R: number, G: number, B: number, A: number}} color
  * @param   {array} data
  * @returns {{R: number, G: number, B: number, A: number}}
  */
@@ -591,6 +591,42 @@ Util.prototype.$colorStringToInt = function(str)
     this.$cacheStore.destroy(ctx);
 
     return color|0;
+};
+
+/**
+ * @param   {array} matrix
+ * @returns {array}
+ */
+Util.prototype.$linearGradientXY = function (matrix)
+{
+    var x0  = +(-16384 * matrix[0] - 16384 * matrix[2] + matrix[4]);
+    var x1  = +( 16384 * matrix[0] - 16384 * matrix[2] + matrix[4]);
+    var x2  = +(-16384 * matrix[0] + 16384 * matrix[2] + matrix[4]);
+    var y0  = +(-16384 * matrix[1] - 16384 * matrix[3] + matrix[5]);
+    var y1  = +( 16384 * matrix[1] - 16384 * matrix[3] + matrix[5]);
+    var y2  = +(-16384 * matrix[1] + 16384 * matrix[3] + matrix[5]);
+    var vx2 = +(x2 - x0);
+    var vy2 = +(y2 - y0);
+    var r1  = +this.$sqrt(vx2 * vx2 + vy2 * vy2);
+
+    switch (true) {
+        case (r1):
+            vx2 = +(vx2 / r1);
+            vy2 = +(vy2 / r1);
+            break;
+        default:
+            vx2 = 0;
+            vy2 = 0;
+            break;
+    }
+
+    var r2  = +((x1 - x0) * vx2 + (y1 - y0) * vy2);
+    return [
+        +(x0 + r2 * vx2),
+        +(y0 + r2 * vy2),
+        x1,
+        y1
+    ];
 };
 
 /**
@@ -6605,6 +6641,9 @@ var DisplayObject = function ()
     this._$parent         = null;
     this._$variables      = {};
 
+    // clip
+    // clip
+    this._$clipDepth      = 0;
 
     // draw param
     this._$matrix         = null;
@@ -6916,17 +6955,27 @@ DisplayObjectContainer.prototype._$characterBuild = function (shouldAction)
 
     while (length > id) {
 
-        // build
-        var tag       = this._$dictionary[id];
-        var character = this.stage._$characters[tag.CharacterId];
-        var obj       = character._$build(this, id, tag, shouldAction);
-
-        this._$addInstance(id, obj);
+        // attach
+        this._$createInstance(id, shouldAction);
 
         id = (id + 1)|0;
     }
 };
 
+/**
+ * @param   {number}  id
+ * @param   {boolean} shouldAction
+ * @returns void
+ */
+DisplayObjectContainer.prototype._$createInstance = function (id, shouldAction)
+{
+    // build
+    var tag       = this._$dictionary[id];
+    var character = this.stage._$characters[tag.CharacterId];
+    var obj       = character._$build(this, id, tag, shouldAction);
+
+    this._$addInstance(id, obj);
+};
 
 /**
  * @param   {number} frame
@@ -9756,8 +9805,8 @@ var MovieClip = function ()
     this._$canAction     = true;
 
     // property
-    this._$currentframe  = 1;
-    this._$totalFrames   = 0;
+    this._$currentFrame  = 1;
+    this._$totalFrames   = 1;
     this._$isPlaying     = false;
 
     // controller tags
@@ -9765,12 +9814,6 @@ var MovieClip = function ()
     this._$frameLabels   = [];
     this._$removeObjects = [];
 
-
-
-    // // clip
-    // this.isClipDepth = false;
-    // this.clipDepth   = 0;
-    //
     // // sound
     // this.sounds        = [];
     // this.soundStopFlag = false;
@@ -9793,7 +9836,7 @@ Object.defineProperties(MovieClip.prototype, {
          * @return {number}
          */
         get: function () {
-            return this._$currentframe;
+            return this._$currentFrame;
         },
         /**
          * readonly
@@ -9998,7 +10041,7 @@ MovieClip.prototype._$addSound = function (frame, sound)
 
 /**
  * @param   {MovieClip} parent
- * @param   {number }   index
+ * @param   {number}    index
  * @param   {object}    tag
  * @param   {boolean}   shouldAction
  * @returns {MovieClip}
@@ -10010,10 +10053,11 @@ MovieClip.prototype._$build = function (parent, index, tag, shouldAction)
     var mc = new MovieClip();
 
     // init
-    mc.id          = index|0;
-    mc.characterId = this.characterId;
-    mc.parent      = parent;
-    mc.stage       = parent.stage;
+    mc.id            = index|0;
+    mc.characterId   = this.characterId;
+    mc.parent        = parent;
+    mc.stage         = parent.stage;
+    mc._$totalFrames = this._$totalFrames;
 
     /**
      * set place data
@@ -10026,6 +10070,10 @@ MovieClip.prototype._$build = function (parent, index, tag, shouldAction)
     // ratio
     if (tag.PlaceFlagHasRatio === 1) {
         mc.ratio = tag.Ratio;
+    }
+
+    if (tag.PlaceFlagHasClipDepth === 1) {
+        mc._$clipDepth = tag.ClipDepth;
     }
 
     // clip actions
@@ -10150,27 +10198,39 @@ MovieClip.prototype._$build = function (parent, index, tag, shouldAction)
     return mc;
 };
 
-
-MovieClip.prototype._$draw = function (matrix, colorTransform)
+/**
+ * @param {array}   matrix
+ * @param {array}   colorTransform
+ * @param {boolean} isClip
+ * @param {boolean} visible
+ */
+MovieClip.prototype._$draw = function (matrix, colorTransform, isClip, visible)
 {
 
-    var frame = this.currentFrame;
-
-    var controller = this._$getController(this.currentFrame);
+    var frame      = this.currentFrame|0;
+    var controller = this._$getController(frame);
+    var version    = this.root.actionScriptVersion|0;
 
     // case action script3
-    if (this.stage.root.actionScriptVersion === ActionScriptVersion.ACTIONSCRIPT3) {
-
-
+    if (version === ActionScriptVersion.ACTIONSCRIPT3) {
 
         // next frame
         this._$putFrame();
 
+    }
 
+    var removeObjects = null;
+    if (frame in this._$removeObjects) {
+
+        removeObjects = this._$removeObjects[frame];
 
     }
 
+    // init clip
+    var ctx   = this.stage.player.preContext;
+    var clips = [];
 
+    // children draw
     for (var depth in controller) {
 
         if (!controller.hasOwnProperty(depth)) {
@@ -10179,29 +10239,109 @@ MovieClip.prototype._$draw = function (matrix, colorTransform)
 
         var instance = this._$getInstance(controller[depth]);
 
+        // mask end
+        var length = clips.length|0;
+        var idx    = 0;
+        while (idx < length) {
+
+            if (depth > clips[idx]) {
+
+                clips.splice(idx, 1);
+                ctx.restore();
+
+                break;
+            }
+
+            idx = (idx + 1)|0;
+        }
+
+        // mask start
+        if (instance._$clipDepth) {
+
+            ctx.save();
+            ctx.beginPath();
+
+            clips[clips.length] = instance._$clipDepth|0;
+
+            if (instance.toString() === "[object MovieClip]") {
+                isClip = true;
+            }
+        }
+
+
+        // next draw
         instance._$draw(
             this.$multiplicationMatrix(matrix, instance._$getMatrix(frame, depth)),
-            this.$multiplicationColor(colorTransform, instance._$getColorTransform(frame, depth))
+            this.$multiplicationColor(colorTransform, instance._$getColorTransform(frame, depth)),
+            isClip,
+            visible
         );
+
+
+        // MovieClip mask end
+        if (instance._$clipDepth && instance.toString() === "[object MovieClip]") {
+
+            ctx.clip();
+
+            isClip = false;
+        }
+
+
+        // case action script 1 or 2
+        if (instance.toString() === "[object MovieClip]"
+            && version === ActionScriptVersion.ACTIONSCRIPT2
+        ) {
+            instance._$putFrame();
+        }
+
+
+        // remove
+        if (removeObjects && depth in removeObjects) {
+
+            this._$createInstance(instance.id, false);
+
+        }
 
     }
 
+    // end clip
+    // if (clips.length || this.mask) {
+    if (clips.length) {
+        ctx.restore();
+    }
+
+    // case action script3
+    if (this.toString() === "[object MainTimeline]"
+        && version === ActionScriptVersion.ACTIONSCRIPT2
+    ) {
+
+        // next frame
+        this._$putFrame();
+
+    }
 };
 
-
+/**
+ * @returns void
+ */
 MovieClip.prototype._$putFrame = function ()
 {
-    console.log(this);
-    if (!this._$stopFlag && this.totalFrames >= this.currentFrame) {
 
+    if (!this._$stopFlag && this.totalFrames > 1) {
+
+        // loop or reset
         if (this.totalFrames === this.currentFrame) {
 
             // loop
             if (this.ratio === 0) {
+
                 this._$currentFrame = 1;
 
-                // action on
-                this._$canAction = true;
+            // reset
+            } else {
+
+                this.parent._$createInstance(this.id, false);
+
             }
 
         } else {
@@ -10209,12 +10349,15 @@ MovieClip.prototype._$putFrame = function ()
             // next frame
             this._$currentFrame = (this._$currentFrame + 1)|0;
 
-            // action on
-            this._$canAction = true;
         }
 
-    }
+        // action on
+        this._$canAction = true;
 
+        // set next action
+        this._$prepareActions(this._$currentFrame);
+
+    }
 };
 /**
  * @param fastCompression
@@ -10385,15 +10528,14 @@ var Shape = function ()
 
     this._$data     = null;
     this._$graphics = new Graphics();
-    this._$morphing = false;
 
     var no = this.$Number.MAX_VALUE;
-    this.setBounds({
+    this._$bounds = {
         xMin: no,
         xMax: -no,
         yMin: no,
         yMax: -no
-    });
+    };
 };
 
 /**
@@ -10412,7 +10554,7 @@ Object.defineProperties(Shape.prototype, {
          * @returns {Graphics}
          */
         get: function () {
-            return this.getGraphics();
+            return this._$graphics;
         },
         /**
          * readonly
@@ -10420,13 +10562,6 @@ Object.defineProperties(Shape.prototype, {
         set: function () {}
     }
 });
-
-/**
- * dummy
- */
-Shape.prototype.addActions  = function () {};
-Shape.prototype.initFrame   = function () {};
-Shape.prototype.setHitRange = function () {};
 
 /**
  * @returns {string}
@@ -10437,79 +10572,11 @@ Shape.prototype.toString = function ()
 };
 
 /**
- * @param   {MovieClip} parent
- * @param   {number}    index
- * @param   {object}    tag
- * @param   {boolean}   shouldAction
- * @returns {Shape}
- */
-Shape.prototype._$build = function (parent, index, tag, shouldAction)
-{
-    var shape = new Shape();
-
-    // init
-    shape.id          = index;
-    shape.characterId = this.characterId;
-    shape.parent      = parent;
-    shape.stage       = parent.stage;
-
-    // default
-    return shape
-        .setData(this.getData())
-        .setBounds(this._$bounds);
-};
-
-/**
- * @param {array} matrix
- * @param {array} colorTransform
- */
-Shape.prototype._$draw = function (matrix, colorTransform)
-{
-
-};
-
-/**
- * @param stage
- * @param clipEvent
- */
-Shape.prototype.putFrame = function (stage, clipEvent)
-{
-    this.active = true;
-    this.dispatchEvent(clipEvent, stage);
-};
-
-/**
- * @returns {Graphics}
- */
-Shape.prototype.getGraphics = function ()
-{
-    return this._$graphics;
-};
-
-/**
- * @returns {array}
- */
-Shape.prototype.getData = function ()
-{
-    return this._$data;
-};
-
-/**
- * @param   {object} data
- * @returns {Shape}
- */
-Shape.prototype.setData = function (data)
-{
-    this._$data = data;
-    return this;
-};
-
-/**
- *
- * @param   {array}  matrix
+ * TODO
+ * @param   {array|null|undefined} matrix
  * @returns {object}
  */
-Shape.prototype.getBounds = function (matrix)
+Shape.prototype._$getBounds = function (matrix)
 {
     var bounds, gBounds;
 
@@ -10550,454 +10617,380 @@ Shape.prototype.getBounds = function (matrix)
 };
 
 /**
- * @param   {object} bounds
+ * @param   {MovieClip} parent
+ * @param   {number}    index
+ * @param   {object}    tag
+ * @param   {boolean}   shouldAction
  * @returns {Shape}
  */
-Shape.prototype.setBounds = function (bounds)
+Shape.prototype._$build = function (parent, index, tag, shouldAction)
 {
-    this._$bounds = bounds;
-    return this;
-};
+    var shape = new Shape();
 
-/**
- * @returns {boolean}
- */
-Shape.prototype.isMorphing = function ()
-{
-    return this._$morphing;
-};
+    // init
+    shape.id          = index;
+    shape.characterId = this.characterId;
+    shape.parent      = parent;
+    shape.stage       = parent.stage;
+    shape._$data      = this._$data;
+    shape._$bounds    = this._$bounds;
 
-/**
- * @param ctx
- * @param matrix
- * @param colorTransform
- * @param stage
- * @param visible
- * @returns {*}
- */
-Shape.prototype.render = function (ctx, matrix, colorTransform, stage, visible)
-{
-    stage.doneTags.unshift(this);
-
-    // colorTransform
-    var rColorTransform = this.$multiplicationColor(colorTransform, this.getColorTransform());
-    var isVisible       = this.$min(this.getVisible(), visible);
-    var alpha           = +(rColorTransform[3] + (rColorTransform[7] / 255));
-    var stageClip       = stage.clipMc || stage.isClipDepth;
-    if (!stageClip && (!alpha || !isVisible)) {
-        return "";
+    // set
+    if (tag.PlaceFlagHasClipDepth === 1) {
+        shape._$clipDepth = tag.ClipDepth;
     }
 
-    // matrix
-    var m2 = this.$multiplicationMatrix(matrix, this.getMatrix());
+    return shape;
+};
 
-    // pre render
-    var obj      = this.preRender(ctx, m2, rColorTransform, stage, isVisible);
-    var cacheKey = obj.cacheKey;
-    var cache    = null;
+/**
+ * @param   {array}   matrix
+ * @param   {array}   colorTransform
+ * @param   {boolean} isClip
+ * @param   {boolean} visible
+ * @returns void
+ */
+Shape.prototype._$draw = function (matrix, colorTransform, isClip, visible)
+{
 
-    // render
-    var m3 = this.$multiplicationMatrix(stage.getMatrix(), obj.preMatrix);
-    var isClipDepth = this.isClipDepth || stageClip;
-    if (isClipDepth) {
-        if (m3[0] === 0) {
-            m3[0] = 0.00000000000001;
-        }
-        if (m3[3] === 0) {
-            m3[3] = 0.00000000000001;
-        }
+    // pre context
+    var ctx = this.parent.stage.player.preContext;
 
-        ctx.setTransform(m3[0],m3[1],m3[2],m3[3],m3[4],m3[5]);
-        this.executeRender(ctx, +this.$min(m3[0], m3[3]), rColorTransform, isClipDepth, stage);
-    } else {
-        var xScale = +(this.$sqrt(m3[0] * m3[0] + m3[1] * m3[1]));
-        var yScale = +(this.$sqrt(m3[2] * m3[2] + m3[3] * m3[3]));
+    if (isClip || this._$clipDepth) {
+
+        ctx.setTransform(matrix[0], matrix[1], matrix[2], matrix[3], matrix[4], matrix[5]);
+        this._$doDraw(ctx, this.$min(matrix[0], matrix[3]), colorTransform, isClip);
+
+        return ;
+    }
+
+    var alpha = +(colorTransform[3] + (colorTransform[7] / 255));
+    if (visible && alpha) {
+
+        var xScale = +(this.$sqrt(matrix[0] * matrix[0] + matrix[1] * matrix[1]));
+        var yScale = +(this.$sqrt(matrix[2] * matrix[2] + matrix[3] * matrix[3]));
         xScale = +(this.$pow(this.$SQRT2, this.$ceil(this.$log(xScale) / this.$LN2_2 - this.$LOG1P)));
         yScale = +(this.$pow(this.$SQRT2, this.$ceil(this.$log(yScale) / this.$LN2_2 - this.$LOG1P)));
 
-        var bounds = this.getBounds();
+        var bounds = this._$getBounds(null);
         var xMax   = +bounds.xMax;
         var xMin   = +bounds.xMin;
         var yMax   = +bounds.yMax;
         var yMin   = +bounds.yMin;
 
-        var W = this.$abs(this.$ceil((xMax - xMin) * xScale))|0;
-        var H = this.$abs(this.$ceil((yMax - yMin) * yScale))|0;
-        if (W <= 0 || H <= 0) {
-            return cacheKey;
-        }
+        var width  = this.$abs(this.$ceil((xMax - xMin) * xScale))|0;
+        var height = this.$abs(this.$ceil((yMax - yMin) * yScale))|0;
 
-        var canvas;
-        var loadStage = this.getStage();
-        var cacheId   = this.getCharacterId() + "_" + loadStage.getId();
-        if (this.isMorphing()) {
-            cacheId = cacheId + "_" + this.getRatio();
-        }
+        if (width > 0 || height > 0) {
 
-        cacheKey = this.$cacheStore.generateKey(cacheId, [xScale, yScale], rColorTransform);
-        cache    = this.$cacheStore.getCache(cacheKey);
-        if (!cache &&
-            stage.getWidth() > W &&
-            stage.getHeight() > H &&
-            this.$cacheStore.size > (W * H)
-        ) {
-            canvas        = this.$cacheStore.getCanvas();
-            canvas.width  = W;
-            canvas.height = H;
-            cache         = canvas.getContext("2d");
+            var m = null;
 
-            var cMatrix = [xScale, 0, 0, yScale, -xMin * xScale, -yMin * yScale];
-            cache.setTransform(cMatrix[0],cMatrix[1],cMatrix[2],cMatrix[3],cMatrix[4],cMatrix[5]);
-            cache = this.executeRender(
-                cache, +this.$min(xScale, yScale), rColorTransform, isClipDepth, stage
-            );
+            // get cache
+            var cacheKey = this.$cacheStore.generateKey(this.characterId, [xScale, yScale], colorTransform);
+            var cache    = this.$cacheStore.getCache(cacheKey);
 
-            this.$cacheStore.setCache(cacheKey, cache);
-        }
+            // not cache
+            if (!cache) {
 
-        var preCtx = obj.preCtx;
-        if (cache) {
-            canvas = cache.canvas;
+                var canvas    = this.$cacheStore.getCanvas();
+                canvas.width  = width;
+                canvas.height = height;
+                cache         = canvas.getContext("2d");
 
-            var sMatrix = [1 / xScale, 0, 0, 1 / yScale, xMin, yMin];
-            var m4      = this.$multiplicationMatrix(m3, sMatrix);
-            preCtx.setTransform(m4[0],m4[1],m4[2],m4[3],m4[4],m4[5]);
+                cache.setTransform(xScale, 0, 0, yScale, -xMin * xScale, -yMin * yScale);
 
-            if (this.$isAndroid4x && !this.$isChrome) {
-                preCtx.fillStyle = stage.context.createPattern(cache.canvas, "no-repeat");
-                preCtx.fillRect(0, 0, W, H);
+                this._$doDraw(cache, this.$min(xScale, yScale), colorTransform, isClip);
+
+                this.$cacheStore.setCache(cacheKey, cache);
+
+            }
+
+            if (cache) {
+
+                m = this.$multiplicationMatrix(matrix, [1 / xScale, 0, 0, 1 / yScale, xMin, yMin]);
+
+                ctx.setTransform(m[0], m[1], m[2], m[3], m[4], m[5]);
+
+                if (this.$isAndroid4x && !this.$isChrome) {
+                    ctx.fillStyle = stage.context.createPattern(cache.canvas, "no-repeat");
+                    ctx.fillRect(0, 0, width, height);
+                } else {
+                    ctx.drawImage(cache.canvas, 0, 0, width, height);
+                }
+
             } else {
-                preCtx.drawImage(canvas, 0, 0, W, H);
-            }
-        } else {
-            preCtx.setTransform(m3[0],m3[1],m3[2],m3[3],m3[4],m3[5]);
-            this.executeRender(preCtx, +this.$min(m3[0], m3[3]), rColorTransform, isClipDepth, stage);
-        }
-    }
 
-    // post render
-    cacheKey += "_" + m3[4] + "_" + m3[5];
-    if (obj.isFilter || obj.isBlend) {
-        obj.cacheKey = cacheKey;
-        this.postRender(ctx, matrix, rColorTransform, stage, obj);
-    }
+                ctx.setTransform(matrix[0], matrix[1], matrix[2], matrix[3], matrix[4], matrix[5]);
+                this._$doDraw(ctx, this.$min(matrix[0], matrix[3]), colorTransform, isClip);
 
-    return cacheKey;
-};
-
-/**
- * @param ctx
- * @param matrix
- * @param stage
- * @param x
- * @param y
- * @returns {boolean}
- */
-Shape.prototype.renderHitTest = function (ctx, matrix, stage, x, y)
-{
-    var m2 = this.$multiplicationMatrix(matrix, this.getMatrix());
-
-    var graphics = this.graphics;
-    if (graphics.isDraw) {
-        return graphics.renderHitTest(ctx, m2, stage, x, y);
-    }
-
-    if (!this.getData()) {
-        return false;
-    }
-
-    var m3 = this.$multiplicationMatrix(stage.getMatrix(), m2);
-    ctx.setTransform(m3[0],m3[1],m3[2],m3[3],m3[4],m3[5]);
-
-    var minScale = this.$min(m3[0], m3[3]);
-    var shapes   = this.getData();
-    var length   = 0 | shapes.length;
-    var hit      = false;
-
-    var idx = 0;
-    while (idx < length) {
-        var data     = shapes[idx];
-        var obj      = data.obj;
-        var isStroke = (obj.Width !== undefined);
-
-        ctx.beginPath();
-        var cmd = data.cmd;
-        cmd(ctx);
-
-        if (isStroke) {
-            ctx.lineWidth = this.$max(obj.Width, 1 / minScale);
-            ctx.lineCap   = "round";
-            ctx.lineJoin  = "round";
-        }
-
-        hit = ctx.isPointInPath(x, y);
-        if (hit) {
-            return hit;
-        }
-
-        if ("isPointInStroke" in ctx) {
-            hit = ctx.isPointInStroke(x, y);
-            if (hit) {
-                return hit;
             }
         }
 
-        idx = (idx + 1)|0;
     }
-
-    return hit;
 };
 
 /**
- * @param ctx
- * @param minScale
- * @param colorTransform
- * @param isClipDepth
- * @param stage
- * @returns {*}
+ *
+ * @param   {CanvasRenderingContext2D} ctx
+ * @param   {number}  minScale
+ * @param   {array}   colorTransform
+ * @param   {boolean} isClip
+ * @retuens void
  */
-Shape.prototype.executeRender = function (ctx, minScale, colorTransform, isClipDepth, stage)
+Shape.prototype._$doDraw = function (ctx, minScale, colorTransform, isClip)
 {
-    var shapes = this.getData();
-    if (!shapes) {
-        return ctx;
-    }
 
-    var color, css, canvas;
-    var stageClip = stage.clipMc || stage.isClipDepth;
-    var idx       = 0;
-    var length    = shapes.length|0;
-    while (idx < length) {
-        var data = shapes[idx];
-        idx = (idx + 1)|0;
+    var shapes = this._$data;
+    if (shapes) {
 
-        var obj      = data.obj;
-        var styleObj = (!obj.HasFillFlag) ? obj : obj.FillType;
-        var cmd      = data.cmd;
-        var isStroke = (obj.Width !== undefined);
+        var color, css, canvas;
 
-        if (isClipDepth) {
-            if (isStroke) {
+        var idx    = 0;
+        var length = shapes.length|0;
+        while (idx < length) {
+
+            // data set
+            var data = shapes[idx];
+            idx = (idx + 1)|0;
+
+            // params
+            var width    = 0;
+            var height   = 0;
+            var matrix   = null;
+            var obj      = data.obj;
+            var styleObj = (!obj.HasFillFlag) ? obj : obj.FillType;
+            var isStroke = (obj.Width !== undefined);
+
+            if (this._$clipDepth) {
+                if (isStroke) {
+                    continue;
+                }
+
+                data.cmd(ctx);
                 continue;
             }
 
-            cmd(ctx);
-            continue;
-        }
-
-        ctx.beginPath();
-        cmd(ctx);
-
-        var styleType = styleObj.fillStyleType|0;
-        switch (styleType) {
-            case 0x00:
-                color = styleObj.Color;
-                color = this.$generateColorTransform(color, colorTransform);
-                css = "rgba(" + color.R + "," + color.G + "," + color.B + "," + color.A + ")";
-                if (isStroke) {
-                    ctx.strokeStyle = css;
-                    ctx.lineWidth   = +this.$max(obj.Width, 1 / minScale);
-                    ctx.lineCap     = "round";
-                    ctx.lineJoin    = "round";
-                    ctx.stroke();
-                } else {
-                    ctx.fillStyle = css;
-                    ctx.fill();
-                }
-
-                break;
-
-            // gradient
-            case 0x10:
-            case 0x12:
-            case 0x13:
-                var m    = styleObj.gradientMatrix;
-                var type = styleObj.fillStyleType|0;
-                if (type !== 16) {
-                    ctx.save();
-                    ctx.transform(m[0], m[1], m[2], m[3], m[4], m[5]);
-                    css = ctx.createRadialGradient(0, 0, 0, 0, 0, 16384);
-                } else {
-                    var xy = this.linearGradientXY(m);
-                    css = ctx.createLinearGradient(xy[0], xy[1], xy[2], xy[3]);
-                }
-
-                var records = styleObj.gradient.GradientRecords;
-                var rLength = records.length|0;
-                var rIdx    = 0;
-                while (rIdx < rLength) {
-                    var record = records[rIdx];
-                    color      = record.Color;
-                    color      = this.$generateColorTransform(color, colorTransform);
-                    var rgba   = "rgba(" + color.R + "," + color.G + "," + color.B + "," + color.A + ")";
-                    css.addColorStop(record.Ratio, rgba);
-
-                    rIdx = (rIdx + 1)|0;
-                }
-
-                if (isStroke) {
-                    ctx.strokeStyle = css;
-                    ctx.lineWidth   = this.$max(obj.Width, 1 / minScale);
-                    ctx.lineCap     = "round";
-                    ctx.lineJoin    = "round";
-                    ctx.stroke();
-                } else {
-                    ctx.fillStyle = css;
-                    ctx.fill();
-                }
-
-                if (type !== 16) {
-                    ctx.restore();
-                }
-
-                break;
-
-            // bitmap
-            case 0x40:
-            case 0x41:
-            case 0x42:
-            case 0x43:
-                var width;
-                var height;
-                var loadStage      = this.getStage();
-                var bitmapId       = styleObj.bitmapId|0;
-                var bMatrix        = styleObj.bitmapMatrix;
-                var repeat         = (styleType === 0x40 || styleType === 0x42) ? "repeat" : "no-repeat";
-                var bitmapCacheKey = this.$cacheStore.generateKey(
-                    bitmapId + "_" + loadStage.getId() + "_" + repeat,
-                    undefined,
-                    colorTransform
-                );
-
-                var image = this.$cacheStore.getCache(bitmapCacheKey);
-                if (image === undefined) {
-                    image = loadStage.getCharacter(bitmapId);
-                    if (!image) {
-                        break;
-                    }
-
-                    if (colorTransform[0] !== 1 ||
-                        colorTransform[1] !== 1 ||
-                        colorTransform[2] !== 1 ||
-                        colorTransform[4] ||
-                        colorTransform[5] ||
-                        colorTransform[6]
-                    ) {
-                        var imgCanvas = image.canvas;
-                        width         = imgCanvas.width|0;
-                        height        = imgCanvas.height|0;
-                        if (width > 0 && height > 0) {
-                            canvas           = this.$cacheStore.getCanvas();
-                            canvas.width     = width;
-                            canvas.height    = height;
-
-                            var imageContext = canvas.getContext("2d");
-                            imageContext.drawImage(image.canvas, 0, 0, width, height, 0, 0, width, height);
-
-                            image = this.$generateImageTransform(imageContext, colorTransform);
-
-                            this.$cacheStore.setCache(bitmapCacheKey, image);
-                        }
-                    } else {
-                        ctx.globalAlpha = +(this.$max(0, this.$min((255 * colorTransform[3]) + colorTransform[7], 255)) / 255);
-                    }
-                }
-
-                if (image) {
-                    ctx.save();
-                    canvas = image.canvas;
-                    width  = canvas.width|0;
-                    height = canvas.height|0;
-                    if (width > 0 && height > 0) {
-                        if (styleType === 0x41 || styleType === 0x43) {
-                            ctx.clip();
-                            ctx.transform(bMatrix[0], bMatrix[1], bMatrix[2], bMatrix[3], bMatrix[4], bMatrix[5]);
-                            ctx.drawImage(canvas, 0, 0, width, height, 0, 0, width, height);
-                        } else {
-                            ctx.fillStyle = stage.context.createPattern(canvas, repeat);
-                            ctx.transform(bMatrix[0], bMatrix[1], bMatrix[2], bMatrix[3], bMatrix[4], bMatrix[5]);
-                            ctx.fill();
-                        }
-                    }
-                    ctx.restore();
-                }
-
-                break;
-        }
-    }
-
-    if (isClipDepth && !stageClip) {
-        ctx.clip();
-
-        if (this.$isAndroid && this.$isChrome) {
-            if (!canvas) {
-                canvas = ctx.canvas;
-            }
-
-            var cWidth  = canvas.width|0;
-            var cHeight = canvas.height|0;
-
-            var tmpContext   = this.$tmpContext;
-            var tmpCanvas    = tmpContext.canvas;
-            canvas           = ctx.canvas;
-            tmpCanvas.width  = cWidth;
-            tmpCanvas.height = cHeight;
-            tmpContext.drawImage(canvas, 0, 0, cWidth, cHeight, 0, 0, cWidth, cHeight);
-
-            ctx.save();
-            ctx.setTransform(1, 0, 0, 1, 0, 0);
+            // render
             ctx.beginPath();
-            ctx.clearRect(0, 0, cWidth + 1, cHeight + 1);
-            ctx.drawImage(tmpCanvas, 0, 0, cWidth, cHeight, 0, 0, cWidth, cHeight);
-            ctx.restore();
+            data.cmd(ctx);
 
-            tmpContext.setTransform(1,0,0,1,0,0);
-            tmpContext.clearRect(0, 0, cWidth + 1, cHeight + 1);
+            var styleType = styleObj.fillStyleType|0;
+            switch (styleType) {
+
+                // normal
+                case 0x00:
+
+                    color = this.$generateColorTransform(styleObj.Color, colorTransform);
+                    css   = "rgba(" + color.R + "," + color.G + "," + color.B + "," + color.A + ")";
+
+                    if (isStroke) {
+
+                        ctx.strokeStyle = css;
+                        ctx.lineWidth   = +this.$max(obj.Width, 1 / minScale);
+                        ctx.lineCap     = "round";
+                        ctx.lineJoin    = "round";
+                        ctx.stroke();
+
+                    } else {
+
+                        ctx.fillStyle = css;
+                        ctx.fill();
+
+                    }
+
+                    break;
+
+                // gradient
+                case 0x10:
+                case 0x12:
+                case 0x13:
+                    // matrix
+                    matrix = styleObj.gradientMatrix;
+
+                    var type = styleObj.fillStyleType|0;
+                    if (type !== 16) {
+
+                        ctx.save();
+                        ctx.transform(matrix[0], matrix[1], matrix[2], matrix[3], matrix[4], matrix[5]);
+
+                        css = ctx.createRadialGradient(0, 0, 0, 0, 0, 16384);
+
+                    } else {
+
+                        var xy = this.$linearGradientXY(matrix);
+                        css = ctx.createLinearGradient(xy[0], xy[1], xy[2], xy[3]);
+
+                    }
+
+                    var records = styleObj.gradient.GradientRecords;
+                    var rLength = records.length|0;
+                    var rIdx    = 0;
+                    while (rIdx < rLength) {
+
+                        var record = records[rIdx];
+
+                        color = this.$generateColorTransform(record.Color, colorTransform);
+
+                        var rgba   = "rgba(" + color.R + "," + color.G + "," + color.B + "," + color.A + ")";
+                        css.addColorStop(record.Ratio, rgba);
+
+                        rIdx = (rIdx + 1)|0;
+                    }
+
+                    if (isStroke) {
+                        ctx.strokeStyle = css;
+                        ctx.lineWidth   = this.$max(obj.Width, 1 / minScale);
+                        ctx.lineCap     = "round";
+                        ctx.lineJoin    = "round";
+                        ctx.stroke();
+                    } else {
+                        ctx.fillStyle = css;
+                        ctx.fill();
+                    }
+
+                    if (type !== 16) {
+                        ctx.restore();
+                    }
+
+                    break;
+
+                // bitmap
+                case 0x40:
+                case 0x41:
+                case 0x42:
+                case 0x43:
+
+                    // matrix
+                    matrix = styleObj.bitmapMatrix;
+
+                    var bitmapId = styleObj.bitmapId|0;
+                    var repeat   = (styleType === 0x40 || styleType === 0x42) ? "repeat" : "no-repeat";
+
+                    var cacheKey = this.$cacheStore.generateKey(
+                        bitmapId + "_" + this.characterId + "_" + repeat,
+                        undefined,
+                        colorTransform
+                    );
+
+                    var image = this.$cacheStore.getCache(cacheKey);
+                    if (image === undefined) {
+
+                        image = this.stage._$characters[bitmapId];
+                        if (!image) {
+                            break;
+                        }
+
+                        if (colorTransform[0] !== 1 ||
+                            colorTransform[1] !== 1 ||
+                            colorTransform[2] !== 1 ||
+                            colorTransform[4] ||
+                            colorTransform[5] ||
+                            colorTransform[6]
+                        ) {
+
+                            var imgCanvas = image.canvas;
+                            width         = imgCanvas.width|0;
+                            height        = imgCanvas.height|0;
+
+                            if (width > 0 && height > 0) {
+                                canvas           = this.$cacheStore.getCanvas();
+                                canvas.width     = width;
+                                canvas.height    = height;
+
+                                var imageContext = canvas.getContext("2d");
+                                imageContext.drawImage(image.canvas, 0, 0, width, height);
+
+                                image = this.$generateImageTransform(imageContext, colorTransform);
+
+                                this.$cacheStore.setCache(cacheKey, image);
+                            }
+
+                        } else {
+                            ctx.globalAlpha = +(this.$max(0, this.$min((255 * colorTransform[3]) + colorTransform[7], 255)) / 255);
+                        }
+                    }
+
+                    if (image) {
+
+                        ctx.save();
+
+                        canvas = image.canvas;
+                        width  = canvas.width|0;
+                        height = canvas.height|0;
+
+                        if (width > 0 && height > 0) {
+
+                            switch (styleType) {
+                                case 0x41:
+                                case 0x43:
+
+                                    ctx.clip();
+                                    ctx.transform(matrix[0], matrix[1], matrix[2], matrix[3], matrix[4], matrix[5]);
+                                    ctx.drawImage(canvas, 0, 0, width, height);
+
+                                    break;
+
+                                default:
+
+                                    ctx.fillStyle = this.stage.player.context.createPattern(canvas, repeat);
+                                    ctx.transform(matrix[0], matrix[1], matrix[2], matrix[3], matrix[4], matrix[5]);
+                                    ctx.fill();
+
+                                    break;
+
+                            }
+                        }
+
+                        ctx.restore();
+                    }
+
+                    break;
+
+            }
         }
+
+        // shape mask
+        if (this._$clipDepth && !isClip) {
+
+            ctx.clip();
+
+            // android bug
+            if (this.$isAndroid && this.$isChrome) {
+
+                if (!canvas) {
+                    canvas = ctx.canvas;
+                }
+
+                width  = canvas.width|0;
+                height = canvas.height|0;
+
+                var tmpCanvas    = this.$cacheStore.getCanvas();
+                var tmpContext   = tmpCanvas.getContext("2d");
+
+                canvas           = ctx.canvas;
+                tmpCanvas.width  = width;
+                tmpCanvas.height = height;
+                tmpContext.drawImage(canvas, 0, 0, width, height);
+
+                ctx.save();
+                ctx.setTransform(1, 0, 0, 1, 0, 0);
+                ctx.beginPath();
+                ctx.clearRect(0, 0, width + 1, height + 1);
+                ctx.drawImage(tmpCanvas, 0, 0, width, height);
+                ctx.restore();
+
+                tmpContext.setTransform(1, 0, 0, 1, 0, 0);
+                tmpContext.clearRect(0, 0, width + 1, height + 1);
+            }
+        }
+
+        // reset
+        var resetCSS    = "rgba(0,0,0,1)";
+        ctx.strokeStyle = resetCSS;
+        ctx.fillStyle   = resetCSS;
+        ctx.globalAlpha = 1;
+
     }
-
-    var resetCss    = "rgba(0,0,0,1)";
-    ctx.strokeStyle = resetCss;
-    ctx.fillStyle   = resetCss;
-    ctx.globalAlpha = 1;
-
-    return ctx;
-};
-
-/**
- * @param   {array} m
- * @returns {array}
- */
-Shape.prototype.linearGradientXY = function (m)
-{
-    var x0  = +(-16384 * m[0] - 16384 * m[2] + m[4]);
-    var x1  = +( 16384 * m[0] - 16384 * m[2] + m[4]);
-    var x2  = +(-16384 * m[0] + 16384 * m[2] + m[4]);
-    var y0  = +(-16384 * m[1] - 16384 * m[3] + m[5]);
-    var y1  = +( 16384 * m[1] - 16384 * m[3] + m[5]);
-    var y2  = +(-16384 * m[1] + 16384 * m[3] + m[5]);
-    var vx2 = +(x2 - x0);
-    var vy2 = +(y2 - y0);
-    var r1  = +this.$sqrt(vx2 * vx2 + vy2 * vy2);
-
-    switch (true) {
-        case (r1):
-            vx2 = +(vx2 / r1);
-            vy2 = +(vy2 / r1);
-            break;
-        default:
-            vx2 = 0;
-            vy2 = 0;
-            break;
-    }
-
-    var r2  = +((x1 - x0) * vx2 + (y1 - y0) * vy2);
-    return [
-        +(x0 + r2 * vx2),
-        +(y0 + r2 * vy2),
-        x1,
-        y1
-    ];
 };
 /**
  * @constructor
@@ -21236,7 +21229,6 @@ var Vector = function (length, fixed)
     // init
     this.length  = length;
     this.fixed   = fixed;
-
 };
 
 /**
@@ -21277,6 +21269,8 @@ Object.defineProperties(Vector.prototype, {
  */
 var BitIO = function ()
 {
+    Util.call(this);
+
     this.data        = null;
     this.bit_offset  = 0;
     this.byte_offset = 0;
@@ -21290,7 +21284,7 @@ BitIO.prototype = Object.create(Util.prototype);
 BitIO.prototype.constructor = BitIO;
 
 /**
- * @param {array} data
+ * @param   {array} data
  * @returns void
  */
 BitIO.prototype.initialize = function (data)
@@ -21313,8 +21307,8 @@ BitIO.prototype.initialize = function (data)
 };
 
 /**
- * @param str
- * @returns {XML|string|void|*}
+ * @param   {string} str
+ * @returns {string}
  */
 BitIO.prototype.decodeToShiftJis = function (str)
 {
@@ -21330,9 +21324,9 @@ BitIO.prototype.decodeToShiftJis = function (str)
 };
 
 /**
- * @param compressed
- * @param size
- * @returns {*}
+ * @param   {array}  compressed
+ * @param   {number} size
+ * @returns {array}
  */
 BitIO.prototype.unlzma = function (compressed, size)
 {
@@ -21340,7 +21334,7 @@ BitIO.prototype.unlzma = function (compressed, size)
     var self = this;
 
     /**
-     * @param buffer
+     * @param {array} buffer
      * @constructor
      */
     var InputStream = function (buffer)
@@ -21354,6 +21348,9 @@ BitIO.prototype.unlzma = function (compressed, size)
      */
     Object.defineProperties(DisplayObject.prototype, {
         available: {
+            /**
+             * @return {number}
+             */
             get: function () {
                 return (this.buffer.length - this.processed)|0;
             }
@@ -21361,7 +21358,7 @@ BitIO.prototype.unlzma = function (compressed, size)
     });
 
     /**
-     * @returns {*}
+     * @returns {number}
      */
     InputStream.prototype.readByte = function ()
     {
@@ -21373,7 +21370,7 @@ BitIO.prototype.unlzma = function (compressed, size)
     };
 
     /**
-     * @param size
+     * @param {number} size
      * @constructor
      */
     var OutputStream = function (size)
@@ -21383,7 +21380,7 @@ BitIO.prototype.unlzma = function (compressed, size)
     };
 
     /**
-     * @returns {Array}
+     * @returns {array}
      */
     OutputStream.prototype.getBuffer = function ()
     {
@@ -21391,7 +21388,7 @@ BitIO.prototype.unlzma = function (compressed, size)
     };
 
     /**
-     * @param data
+     * @param {array} data
      */
     OutputStream.prototype.add = function (data)
     {
@@ -21407,7 +21404,7 @@ BitIO.prototype.unlzma = function (compressed, size)
     };
 
     /**
-     * @param outStream
+     * @param {array} outStream
      * @constructor
      */
     var OutWindow = function (outStream)
@@ -21422,7 +21419,7 @@ BitIO.prototype.unlzma = function (compressed, size)
     };
 
     /**
-     * @param dictSize
+     * @param {number} dictSize
      */
     OutWindow.prototype.create = function (dictSize)
     {
@@ -21435,7 +21432,7 @@ BitIO.prototype.unlzma = function (compressed, size)
     };
 
     /**
-     * @param byte
+     * @param {number} byte
      */
     OutWindow.prototype.putByte = function (byte)
     {
@@ -21452,8 +21449,8 @@ BitIO.prototype.unlzma = function (compressed, size)
     };
 
     /**
-     * @param dist
-     * @returns {*}
+     * @param   {number} dist
+     * @returns {number}
      */
     OutWindow.prototype.getByte = function (dist)
     {
@@ -21461,7 +21458,7 @@ BitIO.prototype.unlzma = function (compressed, size)
     };
 
     /**
-     * flush
+     * @returns void
      */
     OutWindow.prototype.flush = function ()
     {
@@ -21484,8 +21481,9 @@ BitIO.prototype.unlzma = function (compressed, size)
     };
 
     /**
-     * @param dist
-     * @param len
+     * @param   {number} dist
+     * @param   {number} len
+     * @returns void
      */
     OutWindow.prototype.copyMatch = function (dist, len)
     {
@@ -21527,7 +21525,7 @@ BitIO.prototype.unlzma = function (compressed, size)
     };
 
     /**
-     * @param dist
+     * @param   {number}  dist
      * @returns {boolean}
      */
     OutWindow.prototype.checkDistance = function(dist)
@@ -21544,7 +21542,7 @@ BitIO.prototype.unlzma = function (compressed, size)
     };
 
     /**
-     * @param inStream
+     * @param {array} inStream
      * @constructor
      */
     var RangeDecoder = function (inStream)
@@ -21555,7 +21553,7 @@ BitIO.prototype.unlzma = function (compressed, size)
     };
 
     /**
-     * init
+     * @returns void
      */
     RangeDecoder.prototype.init = function ()
     {
@@ -21582,7 +21580,7 @@ BitIO.prototype.unlzma = function (compressed, size)
     };
 
     /**
-     * @param numBits
+     * @param   {number} numBits
      * @returns {number}
      */
     RangeDecoder.prototype.decodeDirectBits = function (numBits)
@@ -21615,9 +21613,9 @@ BitIO.prototype.unlzma = function (compressed, size)
     };
 
     /**
-     * @param prob
-     * @param index
-     * @returns {*}
+     * @param   {array} prob
+     * @param   {number} index
+     * @returns {number}
      */
     RangeDecoder.prototype.decodeBit = function (prob, index)
     {
@@ -21654,7 +21652,7 @@ BitIO.prototype.unlzma = function (compressed, size)
     };
 
     /**
-     * @param numBits
+     * @param {number} numBits
      * @constructor
      */
     var BitTreeDecoder = function (numBits)
@@ -21664,8 +21662,8 @@ BitIO.prototype.unlzma = function (compressed, size)
     };
 
     /**
-     * @param length
-     * @returns {*}
+     * @param   {number} length
+     * @returns {array}
      */
     BitTreeDecoder.prototype.createProbsArray = function (length)
     {
@@ -21679,7 +21677,7 @@ BitIO.prototype.unlzma = function (compressed, size)
     };
 
     /**
-     * @param rc
+     * @param   {object} rc
      * @returns {number}
      */
     BitTreeDecoder.prototype.decode = function (rc)
@@ -21697,8 +21695,8 @@ BitIO.prototype.unlzma = function (compressed, size)
     };
 
     /**
-     * @param rc
-     * @returns {number|*}
+     * @param   {object} rc
+     * @returns {number}
      */
     BitTreeDecoder.prototype.reverseDecode = function (rc)
     {
@@ -21706,10 +21704,10 @@ BitIO.prototype.unlzma = function (compressed, size)
     };
 
     /**
-     * @param probs
-     * @param offset
-     * @param numBits
-     * @param rc
+     * @param   {array}  probs
+     * @param   {number} offset
+     * @param   {number} numBits
+     * @param   {object} rc
      * @returns {number}
      */
     BitTreeDecoder.prototype.bitTreeReverseDecode = function (probs, offset, numBits, rc)
@@ -21729,7 +21727,6 @@ BitIO.prototype.unlzma = function (compressed, size)
     };
 
     /**
-     *
      * @constructor
      */
     var LenDecoder = function ()
@@ -21741,8 +21738,8 @@ BitIO.prototype.unlzma = function (compressed, size)
     };
 
     /**
-     * @param length
-     * @returns {*}
+     * @param   {number} length
+     * @returns {array}
      */
     LenDecoder.prototype.createProbsArray = function (length)
     {
@@ -21756,9 +21753,9 @@ BitIO.prototype.unlzma = function (compressed, size)
     };
 
     /**
-     * @param numBits
-     * @param length
-     * @returns {Array}
+     * @param   {number} numBits
+     * @param   {number} length
+     * @returns {array}
      */
     LenDecoder.prototype.createBitTreeDecoderArray = function (numBits, length)
     {
@@ -21775,9 +21772,9 @@ BitIO.prototype.unlzma = function (compressed, size)
     };
 
     /**
-     * @param rc
-     * @param posState
-     * @returns {*}
+     * @param   {object} rc
+     * @param   {number} posState
+     * @returns {number}
      */
     LenDecoder.prototype.decode = function (rc, posState)
     {
@@ -21793,8 +21790,8 @@ BitIO.prototype.unlzma = function (compressed, size)
     };
 
     /**
-     * @param data
-     * @param size
+     * @param {array}  data
+     * @param {number} size
      * @constructor
      */
     var Decoder = function (data, size)
@@ -21845,7 +21842,7 @@ BitIO.prototype.unlzma = function (compressed, size)
     };
 
     /**
-     * @param properties
+     * @param   {array}   properties
      * @returns {Decoder}
      */
     Decoder.prototype.decodeProperties = function (properties)
@@ -21894,8 +21891,8 @@ BitIO.prototype.unlzma = function (compressed, size)
     };
 
     /**
-     * @param state
-     * @param rep0
+     * @param   {number} state
+     * @param   {number} rep0
      * @returns {number}
      */
     Decoder.prototype.decodeLiteral = function (state, rep0)
@@ -21935,8 +21932,8 @@ BitIO.prototype.unlzma = function (compressed, size)
     };
 
     /**
-     * @param length
-     * @returns {*}
+     * @param   {number} length
+     * @returns {number}
      */
     Decoder.prototype.decodeDistance = function (length)
     {
@@ -21964,10 +21961,10 @@ BitIO.prototype.unlzma = function (compressed, size)
     };
 
     /**
-     * @param probs
-     * @param offset
-     * @param numBits
-     * @param rc
+     * @param   {array}  probs
+     * @param   {number} offset
+     * @param   {number} numBits
+     * @param   {object} rc
      * @returns {number}
      */
     Decoder.prototype.bitTreeReverseDecode = function (probs, offset, numBits, rc)
@@ -22009,8 +22006,9 @@ BitIO.prototype.unlzma = function (compressed, size)
     };
 
     /**
-     * @param numBits
-     * @param length
+     * @param   {number} numBits
+     * @param   {number} length
+     * @returns {array}
      */
     Decoder.prototype.createBitTreeDecoderArray = function (numBits, length)
     {
@@ -22027,8 +22025,8 @@ BitIO.prototype.unlzma = function (compressed, size)
     };
 
     /**
-     * @param length
-     * @returns {*}
+     * @param   {number} length
+     * @returns {array}
      */
     Decoder.prototype.createProbsArray = function (length)
     {
@@ -22042,7 +22040,7 @@ BitIO.prototype.unlzma = function (compressed, size)
     };
 
     /**
-     * @param state
+     * @param   {number} state
      * @returns {number}
      */
     Decoder.prototype.updateStateLiteral = function (state)
@@ -22057,7 +22055,7 @@ BitIO.prototype.unlzma = function (compressed, size)
     };
 
     /**
-     * @returns {*}
+     * @return {Decoder}
      */
     Decoder.prototype.decode = function()
     {
@@ -22155,7 +22153,7 @@ BitIO.prototype.unlzma = function (compressed, size)
     };
 
     /**
-     * @returns {Array}
+     * @returns {array}
      */
     Decoder.prototype.output = function ()
     {
@@ -22216,9 +22214,9 @@ BitIO.prototype.unlzma = function (compressed, size)
 };
 
 /**
- * @param compressed
- * @param isDeCompress
- * @returns {Array}
+ * @param   {array}   compressed
+ * @param   {boolean} isDeCompress
+ * @returns {array}
  */
 BitIO.prototype.unzip = function (compressed, isDeCompress)
 {
@@ -22416,8 +22414,8 @@ BitIO.prototype.unzip = function (compressed, isDeCompress)
 };
 
 /**
- * @param data
- * @returns {{}}
+ * @param   {array} data
+ * @returns {array}
  */
 BitIO.prototype.buildHuffTable = function (data)
 {
@@ -22477,9 +22475,9 @@ BitIO.prototype.buildHuffTable = function (data)
 };
 
 /**
- * @param bitio
- * @param table
- * @returns {*}
+ * @param   {BitIO}  bitio
+ * @param   {array}  table
+ * @returns {object}
  */
 BitIO.prototype.decodeSymbol = function (bitio, table)
 {
@@ -22501,8 +22499,8 @@ BitIO.prototype.decodeSymbol = function (bitio, table)
 };
 
 /**
- * @param length
- * @returns {Array}
+ * @param   {number} length
+ * @returns {array}
  */
 BitIO.prototype.createArray = function (length)
 {
@@ -22510,7 +22508,8 @@ BitIO.prototype.createArray = function (length)
 };
 
 /**
- * @param data
+ * @param   {array} data
+ * @returns void
  */
 BitIO.prototype.setData = function (data)
 {
@@ -22552,7 +22551,7 @@ BitIO.prototype.getVersion = function ()
 };
 
 /**
- * byteAlign
+ * @returns void
  */
 BitIO.prototype.byteAlign = function ()
 {
@@ -22565,8 +22564,8 @@ BitIO.prototype.byteAlign = function ()
 };
 
 /**
- * @param length
- * @returns {Array}
+ * @param   {number} length
+ * @returns {array}
  */
 BitIO.prototype.getData = function (length)
 {
@@ -22591,8 +22590,8 @@ BitIO.prototype.getData = function (length)
 };
 
 /**
- * @param value
- * @param isJis
+ * @param   {string|null}  value
+ * @param   {boolean} isJis
  * @returns {string}
  */
 BitIO.prototype.getDataUntil = function (value, isJis)
@@ -22666,7 +22665,7 @@ BitIO.prototype.getDataUntil = function (value, isJis)
 };
 
 /**
- * byteCarry
+ * @returns void
  */
 BitIO.prototype.byteCarry = function ()
 {
@@ -22682,7 +22681,7 @@ BitIO.prototype.byteCarry = function ()
 };
 
 /**
- * @param number
+ * @param   {number} number
  * @returns {number}
  */
 BitIO.prototype.getUIBits = function (number)
@@ -22711,7 +22710,7 @@ BitIO.prototype.getUIBit = function ()
 };
 
 /**
- * @param number
+ * @param   {number} number
  * @returns {number}
  */
 BitIO.prototype.getSIBits = function (number)
@@ -22772,7 +22771,7 @@ BitIO.prototype.getUI16BE = function ()
 };
 
 /**
- * @returns {*}
+ * @returns {number}
  */
 BitIO.prototype.getFloat16 = function ()
 {
@@ -22784,7 +22783,7 @@ BitIO.prototype.getFloat16 = function ()
 };
 
 /**
- * @returns {*}
+ * @returns {number}
  */
 BitIO.prototype.getFloat32 = function ()
 {
@@ -22874,7 +22873,7 @@ BitIO.prototype.getFloat64LittleEndian = function ()
 };
 
 /**
- * @param data
+ * @param   {array}  data
  * @returns {number}
  */
 BitIO.prototype.toUI16 = function (data)
@@ -22883,7 +22882,7 @@ BitIO.prototype.toUI16 = function (data)
 };
 
 /**
- * @param data
+ * @param   {array}  data
  * @returns {number}
  */
 BitIO.prototype.toSI16LE = function (data)
@@ -22905,7 +22904,7 @@ BitIO.prototype.getSI8 = function ()
 };
 
 /**
- * @returns {*}
+ * @returns {number}
  */
 BitIO.prototype.getSI24 = function ()
 {
@@ -22918,8 +22917,9 @@ BitIO.prototype.getSI24 = function ()
 };
 
 /**
- * @param byteInt
- * @param bitInt
+ * @param   {number} byteInt
+ * @param   {number} bitInt
+ * @returns void
  */
 BitIO.prototype.incrementOffset = function (byteInt, bitInt)
 {
@@ -22929,8 +22929,9 @@ BitIO.prototype.incrementOffset = function (byteInt, bitInt)
 };
 
 /**
- * @param byteInt
- * @param bitInt
+ * @param   {number} byteInt
+ * @param   {number} bitInt
+ * @returns void
  */
 BitIO.prototype.setOffset = function (byteInt, bitInt)
 {
@@ -22974,7 +22975,7 @@ BitIO.prototype.getS30 = function ()
 };
 
 /**
- * @param offset
+ * @param   {number} offset
  * @returns {number}
  */
 BitIO.prototype.ReadU30 = function (offset)
@@ -23035,7 +23036,7 @@ BitIO.prototype.AbcReadString = function ()
 };
 
 /**
- * @param length
+ * @param   {number} length
  * @returns {number}
  */
 BitIO.prototype.readUB = function (length)
@@ -23077,8 +23078,9 @@ BitIO.prototype.readNumber = function (n)
 };
 
 /**
- * @param size
- * @param mode
+ * @param   {number} size
+ * @param   {string} mode
+ * @returns void
  */
 BitIO.prototype.deCompress = function (size, mode)
 {
@@ -23310,11 +23312,12 @@ ReComposition.prototype.parseAndBuild = function(url)
  */
 var SwfTag = function (main, bitio)
 {
+    Util.call(this);
+
     this.main              = main;
     this.bitio             = bitio;
     this.currentPosition   = {x: 0, y: 0};
     this.jpegTables        = null;
-    this.cachePlaceObjects = [];
 };
 
 /**
@@ -23356,11 +23359,12 @@ SwfTag.prototype.parse = function (parent)
  * @param   {MovieClip} parent
  * @param   {object}    tags
  * @param   {number}    frame
+ * @param   {array}     cachePlaceObjects
  * @returns void
  */
-SwfTag.prototype.showFrame = function (parent, tags, frame)
+SwfTag.prototype.showFrame = function (parent, tags, frame, cachePlaceObjects)
 {
-    var idx, length;
+    var idx;
     var installed = [];
 
     // add total frame
@@ -23419,104 +23423,127 @@ SwfTag.prototype.showFrame = function (parent, tags, frame)
         }
     }
 
+    // new cache
+    if (!(frame in cachePlaceObjects)) {
+        cachePlaceObjects[frame] = [];
+    }
+
     // place objects
-    var placeObjects = tags.placeObjects;
-    if (placeObjects.length) {
-        length = placeObjects.length|0;
+    var prevFrame        = (frame - 1)|0;
+    var placeObjects     = tags.placeObjects;
+    var prevPlaceObjects = cachePlaceObjects[prevFrame];
+    for (idx in placeObjects) {
 
-        idx = 0;
-        while (length > idx) {
+        if (!placeObjects.hasOwnProperty(idx)) {
+            continue;
+        }
 
-            // id reset
-            var instanceId = null;
+        // id reset
+        var instanceId = null;
 
-            var placeObject = placeObjects[idx];
+        var placeObject = placeObjects[idx];
 
-            var cachePlaceObject = this.cachePlaceObjects[idx];
+        // reset
+        var prevPlaceObject = null;
+        if (prevPlaceObjects && idx in prevPlaceObjects) {
+            prevPlaceObject = prevPlaceObjects[idx];
+        }
 
-            if (placeObject.PlaceFlagHasCharacter === 0 && cachePlaceObject) {
+        // set prev characterId
+        if (placeObject.PlaceFlagHasCharacter === 0 && prevPlaceObject) {
 
-                placeObject.CharacterId = cachePlaceObject.CharacterId;
+            placeObject.CharacterId = prevPlaceObject.CharacterId;
 
-            }
+        }
 
-            var isNewCharacter = false;
-            if (placeObject.PlaceFlagMove === 0
-                || placeObject.PlaceFlagMove === 1 && placeObject.PlaceFlagHasCharacter === 1
-            ) {
+        var isNewCharacter = false;
+        if (placeObject.PlaceFlagMove === 0
+            || placeObject.PlaceFlagMove === 1 && placeObject.PlaceFlagHasCharacter === 1
+        ) {
+            isNewCharacter = true;
+        }
+
+        // character clone
+        if (prevFrame && !isNewCharacter) {
+            instanceId = parent._$getControllerAt(prevFrame, placeObject.Depth);
+            if (instanceId === null) {
                 isNewCharacter = true;
             }
-
-            // character clone
-            if (frame > 1 && !isNewCharacter) {
-                instanceId = parent._$getControllerAt(frame - 1, placeObject.Depth);
-                if (instanceId === null) {
-                    isNewCharacter = true;
-                }
-            }
-
-            // prev data set
-            if (placeObject.PlaceFlagMove === 1 && cachePlaceObject) {
-
-                if (cachePlaceObject.PlaceFlagHasMatrix === 1) {
-                    placeObject.PlaceFlagHasMatrix = 1;
-                    placeObject.Matrix             = cachePlaceObject.Matrix;
-                }
-
-                if (cachePlaceObject.PlaceFlagHasColorTransform === 1) {
-                    placeObject.PlaceFlagHasColorTransform = 1;
-                    placeObject.ColorTransform             = cachePlaceObject.ColorTransform;
-                }
-
-                if (cachePlaceObject.PlaceFlagHasClipDepth === 1) {
-                    placeObject.PlaceFlagHasClipDepth = 1;
-                    placeObject.ClipDepth             = cachePlaceObject.ClipDepth;
-                }
-
-                if (cachePlaceObject.PlaceFlagHasClipActions === 1) {
-                    placeObject.PlaceFlagHasClipActions = 1;
-                    placeObject.ClipActionRecords       = cachePlaceObject.ClipActionRecords;
-                }
-
-                if (cachePlaceObject.PlaceFlagHasRatio === 1) {
-                    placeObject.PlaceFlagHasRatio = 1;
-                    placeObject.Ratio             = cachePlaceObject.Ratio;
-                }
-
-                if (cachePlaceObject.PlaceFlagHasFilterList === 1) {
-                    placeObject.PlaceFlagHasFilterList = 1;
-                    placeObject.SurfaceFilterList      = cachePlaceObject.SurfaceFilterList;
-                }
-
-                if (cachePlaceObject.PlaceFlagHasBlendMode === 1) {
-                    placeObject.PlaceFlagHasBlendMode = 1;
-                    placeObject.BlendMode             = cachePlaceObject.BlendMode;
-                }
-            }
-
-
-            // character new build
-            if (isNewCharacter) {
-
-                instanceId = parent._$addDictionary(placeObject);
-
-            }
-
-            // start set instance
-            parent._$setController(frame,  placeObject.Depth, instanceId);
-            parent._$setPlaceObject(frame, placeObject.Depth, this.buildPlaceObject(placeObject));
-
-            // flag
-            installed[placeObject.Depth] = 1;
-
-            idx = (idx + 1)|0;
         }
+
+        // prev data set
+        if (placeObject.PlaceFlagMove === 1 && prevPlaceObject) {
+
+            if (placeObject.PlaceFlagHasMatrix === 0
+                && prevPlaceObject.PlaceFlagHasMatrix === 1
+            ) {
+                placeObject.PlaceFlagHasMatrix = 1;
+                placeObject.Matrix = prevPlaceObject.Matrix;
+            }
+
+            if (placeObject.PlaceFlagHasColorTransform === 0
+                && prevPlaceObject.PlaceFlagHasColorTransform === 1
+            ) {
+                placeObject.PlaceFlagHasColorTransform = 1;
+                placeObject.ColorTransform = prevPlaceObject.ColorTransform;
+            }
+
+            if (placeObject.PlaceFlagHasClipDepth === 0
+                && prevPlaceObject.PlaceFlagHasClipDepth === 1
+            ) {
+                placeObject.PlaceFlagHasClipDepth = 1;
+                placeObject.ClipDepth = prevPlaceObject.ClipDepth;
+            }
+
+            if (placeObject.PlaceFlagHasClipActions === 0
+                && prevPlaceObject.PlaceFlagHasClipActions === 1
+            ) {
+                placeObject.PlaceFlagHasClipActions = 1;
+                placeObject.ClipActionRecords = prevPlaceObject.ClipActionRecords;
+            }
+
+            if (placeObject.PlaceFlagHasRatio === 0
+                && prevPlaceObject.PlaceFlagHasRatio === 1
+            ) {
+                placeObject.PlaceFlagHasRatio = 1;
+                placeObject.Ratio = prevPlaceObject.Ratio;
+            }
+
+            if (placeObject.PlaceFlagHasFilterList === 0
+                && prevPlaceObject.PlaceFlagHasFilterList === 1
+            ) {
+                placeObject.PlaceFlagHasFilterList = 1;
+                placeObject.SurfaceFilterList = prevPlaceObject.SurfaceFilterList;
+            }
+
+            if (placeObject.PlaceFlagHasBlendMode === 0
+                && prevPlaceObject.PlaceFlagHasBlendMode === 1
+            ) {
+                placeObject.PlaceFlagHasBlendMode = 1;
+                placeObject.BlendMode = prevPlaceObject.BlendMode;
+            }
+        }
+
+        // character new build
+        if (isNewCharacter) {
+
+            instanceId = parent._$addDictionary(placeObject);
+
+        }
+
+        // start set instance
+        parent._$setController(frame,  placeObject.Depth, instanceId);
+        parent._$setPlaceObject(frame, placeObject.Depth, this.buildPlaceObject(placeObject));
+
+        // flag
+        installed[placeObject.Depth] = 1;
+
+        // cache
+        cachePlaceObjects[frame][placeObject.Depth] = placeObject;
     }
 
     // clone prev frame
-    if (frame > 1) {
-
-        var prevFrame = (frame - 1)|0;
+    if (prevFrame) {
 
         if (!(frame in parent._$controller)) {
             parent._$controller[frame] = [];
@@ -23532,6 +23559,8 @@ SwfTag.prototype.showFrame = function (parent, tags, frame)
                 continue;
             }
 
+            // clone
+            cachePlaceObjects[frame][idx]   = cachePlaceObjects[prevFrame][idx];
             parent._$controller[frame][idx] = controller[idx];
         }
 
@@ -23542,6 +23571,7 @@ SwfTag.prototype.showFrame = function (parent, tags, frame)
 
         var places = parent._$places[prevFrame];
         for (idx in places) {
+
             if (!places.hasOwnProperty(idx)) {
                 continue;
             }
@@ -23550,7 +23580,7 @@ SwfTag.prototype.showFrame = function (parent, tags, frame)
                 continue;
             }
 
-            parent._$places[frame][idx] = places[idx];
+            parent._$places[frame][idx]   = places[idx];
         }
     }
 };
@@ -23914,6 +23944,7 @@ SwfTag.prototype.parseTags = function (dataLength, parent)
         frameLabel:    []
     };
 
+    var cachePlaceObjects = [];
     while (bitio.byte_offset < dataLength) {
 
         tagStartOffset = bitio.byte_offset;
@@ -23936,14 +23967,14 @@ SwfTag.prototype.parseTags = function (dataLength, parent)
         }
 
         tagDataStartOffset = bitio.byte_offset|0;
-        this.parseTag(tagType, length, parent, frame, tags);
+        this.parseTag(tagType, length, parent, frame, tags, cachePlaceObjects);
 
         if (tagType === 1) {
+
+            // next frame
             frame = (frame + 1)|0;
 
-            this.cachePlaceObjects = this.$cloneArray(tags.placeObjects);
-
-            // reset
+            // tag reset
             tags = {
                 placeObjects:  [],
                 actions:       [],
@@ -23962,8 +23993,6 @@ SwfTag.prototype.parseTags = function (dataLength, parent)
 
         bitio.bit_offset = 0;
     }
-
-    this.cachePlaceObjects = [];
 };
 
 /**
@@ -23972,8 +24001,9 @@ SwfTag.prototype.parseTags = function (dataLength, parent)
  * @param {MovieClip} parent
  * @param {number}    frame
  * @param {object}    tags
+ * @param {array}     cachePlaceObjects
  */
-SwfTag.prototype.parseTag = function (tagType, length, parent, frame, tags)
+SwfTag.prototype.parseTag = function (tagType, length, parent, frame, tags, cachePlaceObjects)
 {
 
     var obj = null;
@@ -23982,7 +24012,7 @@ SwfTag.prototype.parseTag = function (tagType, length, parent, frame, tags)
         case 0: // End
             break;
         case 1: // ShowFrame
-            this.showFrame(parent, tags, frame);
+            this.showFrame(parent, tags, frame, cachePlaceObjects);
             break;
         case 2:  // DefineShape
         case 22: // DefineShape2
@@ -24017,7 +24047,8 @@ SwfTag.prototype.parseTag = function (tagType, length, parent, frame, tags)
         case 4:  // PlaceObject
         case 26: // PlaceObject2
         case 70: // PlaceObject3
-            tags.placeObjects[tags.placeObjects.length] = this.parsePlaceObject(tagType, length);
+            var placeObject = this.parsePlaceObject(tagType, length);
+            tags.placeObjects[placeObject.Depth] = placeObject;
             break;
         case 37: // DefineEditText
             this.parseDefineEditText(tagType);
@@ -24205,15 +24236,12 @@ SwfTag.prototype.parseDefineShape = function (tagType)
     }
 
     // create data
-    var data  = this.$vtc.convert(this.shapeWithStyle(tagType));
+    var data  = this.$vtc.convert(this.shapeWithStyle(tagType), false);
 
     // build shape object
-    var shape = new Shape();
-
-    shape
-        .setData(data)
-        .setBounds(bounds);
-
+    var shape         = new Shape();
+    shape._$data      = data;
+    shape._$bounds    = bounds;
     shape.characterId = characterId;
 
     // set
@@ -27094,6 +27122,8 @@ SwfTag.prototype.parseSoundStreamHead = function (tagType)
  */
 SwfTag.prototype.parseDoABC = function (tagType, length)
 {
+    this.bitio.byte_offset = this.bitio.byte_offset + length;
+    return ;
     var stage = this.main.stage;
 
     stage.abcFlag = true;
@@ -28436,11 +28466,11 @@ var VectorToCanvas = function () {};
 /**
  * Function
  */
-VectorToCanvas.prototype.$Function = Function;
+VectorToCanvas.prototype.$Function = window.Function;
 
 /**
- * @param src
- * @returns {{}}
+ * @param   {object} src
+ * @returns {object}
  */
 VectorToCanvas.prototype.clone = function (src)
 {
@@ -28471,9 +28501,9 @@ VectorToCanvas.prototype.clone = function (src)
 };
 
 /**
- * @param shapes
- * @param isMorph
- * @returns {Array}
+ * @param   {object}  shapes
+ * @param   {boolean} isMorph
+ * @returns {array}
  */
 VectorToCanvas.prototype.convert = function (shapes, isMorph)
 {
@@ -28505,8 +28535,8 @@ VectorToCanvas.prototype.convert = function (shapes, isMorph)
         i = (i + 1)|0;
 
         if (!record) {
-            stack = this.setStack(stack, this.fillMerge(fills0, fills1, isMorph));
             stack = this.setStack(stack, lines);
+            stack = this.setStack(stack, this.fillMerge(fills0, fills1, isMorph));
             break;
         }
 
@@ -28515,8 +28545,8 @@ VectorToCanvas.prototype.convert = function (shapes, isMorph)
             if (record.StateNewStyles) {
                 AnchorX = 0;
                 AnchorY = 0;
-                stack   = this.setStack(stack, this.fillMerge(fills0, fills1, isMorph));
                 stack   = this.setStack(stack, lines);
+                stack   = this.setStack(stack, this.fillMerge(fills0, fills1, isMorph));
                 fills0  = [];
                 fills1  = [];
                 lines   = [];
@@ -28640,10 +28670,10 @@ VectorToCanvas.prototype.convert = function (shapes, isMorph)
 };
 
 /**
- * @param fills0
- * @param fills1
- * @param isMorph
- * @returns {*}
+ * @param   {array}   fills0
+ * @param   {array}   fills1
+ * @param   {boolean} isMorph
+ * @returns {array}
  */
 VectorToCanvas.prototype.fillMerge = function (fills0, fills1, isMorph)
 {
@@ -28675,8 +28705,8 @@ VectorToCanvas.prototype.fillMerge = function (fills0, fills1, isMorph)
 };
 
 /**
- * @param fills0
- * @returns {*}
+ * @param   {array} fills0
+ * @returns {array}
  */
 VectorToCanvas.prototype.fillReverse = function (fills0)
 {
@@ -28740,8 +28770,9 @@ VectorToCanvas.prototype.fillReverse = function (fills0)
 };
 
 /**
- * @param fills1
- * @param isMorph
+ * @param   {array}   fills1
+ * @param   {boolean} isMorph
+ * @returns void
  */
 VectorToCanvas.prototype.coordinateAdjustment = function (fills1, isMorph)
 {
@@ -28844,9 +28875,9 @@ VectorToCanvas.prototype.coordinateAdjustment = function (fills1, isMorph)
 };
 
 /**
- * @param stack
- * @param array
- * @returns {*}
+ * @param   {array} stack
+ * @param   {array} array
+ * @returns {array}
  */
 VectorToCanvas.prototype.setStack = function (stack, array)
 {
@@ -28868,8 +28899,8 @@ VectorToCanvas.prototype.setStack = function (stack, array)
 };
 
 /**
- * @param cache
- * @returns {*}
+ * @param   {array}   cache
+ * @returns {Function}
  */
 VectorToCanvas.prototype.buildCommand = function (cache)
 {
@@ -28877,8 +28908,8 @@ VectorToCanvas.prototype.buildCommand = function (cache)
 };
 
 /**
- * @param cache
- * @returns {*}
+ * @param   {array}    cache
+ * @returns {Function}
  */
 VectorToCanvas.prototype.toCanvas2D = function (cache)
 {
@@ -28949,15 +28980,20 @@ VectorToCanvas.prototype.toCanvas2D = function (cache)
     return new this.$Function("ctx", "ct", "isClip", str);
 };
 
+/**
+ * @type {VectorToCanvas}
+ */
 Util.prototype.$vtc = new VectorToCanvas();
 /**
  * @constructor
  */
 var CacheStore = function ()
 {
-    this.pool  = [];
-    this.store = [];
-    this.size  = 73400320;
+    Util.call(this);
+
+    this._$pool  = [];
+    this._$store = [];
+    this._$size  = 73400320;
 };
 
 /**
@@ -28967,12 +29003,14 @@ CacheStore.prototype = Object.create(Util.prototype);
 CacheStore.prototype.constructor = CacheStore;
 
 /**
- * reset
+ * @returns void
  */
 CacheStore.prototype.reset = function ()
 {
-    var store = this.store;
+    var store = this._$store;
+
     for (var key in store) {
+
         if (!store.hasOwnProperty(key)) {
             continue;
         }
@@ -28985,21 +29023,21 @@ CacheStore.prototype.reset = function ()
         this.destroy(value);
     }
 
-    this.store = [];
-    this.size  = 73400320;
+    this._$store = [];
+    this._$size  = 73400320;
 };
 
 /**
- * @param ctx
+ * @param   {CanvasRenderingContext2D|WebGLRenderingContext} ctx
+ * @returns void
  */
 CacheStore.prototype.destroy = function (ctx)
 {
-    var pool   = this.pool;
     var canvas = ctx.canvas;
     var width  = canvas.width|0;
     var height = canvas.height|0;
 
-    this.size = (this.size + width * height)|0;
+    this._$size = (this._$size + width * height)|0;
 
     if (this.$canWebGL) {
         ctx.clear(ctx.STENCIL_BUFFER_BIT | ctx.COLOR_BUFFER_BIT);
@@ -29007,75 +29045,79 @@ CacheStore.prototype.destroy = function (ctx)
         ctx.clearRect(0, 0, width + 1, height + 1);
     }
 
-    // reset
+    // canvas reset
     canvas.width = canvas.height = 1;
 
     // pool
-    pool[pool.length] = canvas;
+    this._$pool[this._$pool.length] = canvas;
 };
 
 /**
- * @returns {*}
+ * @returns {CanvasRenderingContext2D|WebGLRenderingContext}
  */
 CacheStore.prototype.getCanvas = function ()
 {
-    return this.pool.pop() || this.$document.createElement("canvas");
+    return this._$pool.pop() || this.$document.createElement("canvas");
 };
 
 /**
- * @param key
- * @returns {*}
+ * @param   {string} key
+ * @returns {CanvasRenderingContext2D|WebGLRenderingContext}
  */
 CacheStore.prototype.getCache = function (key)
 {
-    return this.store[key];
+    return this._$store[key];
 };
 
 /**
- * @param key
- * @param value
+ * @param {string} key
+ * @param {CanvasRenderingContext2D|WebGLRenderingContext} value
  */
 CacheStore.prototype.setCache = function (key, value)
 {
     if (value instanceof CanvasRenderingContext2D) {
-        var canvas = value.canvas;
-        this.size  = (this.size - (canvas.width * canvas.height))|0;
+        var canvas  = value.canvas;
+        this._$size = (this._$size - (canvas.width * canvas.height))|0;
     }
-    this.store[key] = value;
+    this._$store[key] = value;
 };
 
 /**
- * @param id
- * @param matrix
- * @param cxForm
+ * @param   {string} id
+ * @param   {array}  matrix
+ * @param   {array}  cxForm
  * @returns {string}
  */
 CacheStore.prototype.generateKey = function (id, matrix, cxForm)
 {
     // matrix
-    var m = 0;
     if (matrix !== undefined) {
         var length = matrix.length|0;
+        var xScale, yScale;
         switch (length) {
             case 2:
-                m = this.$sqrt(matrix[0] * matrix[0] + matrix[1] * matrix[1]);
+                xScale = matrix[0];
+                yScale = matrix[1];
                 break;
             default:
-                var x = this.$sqrt(matrix[0] * matrix[0] + matrix[1] * matrix[1]);
-                var y = this.$sqrt(matrix[2] * matrix[2] + matrix[3] * matrix[3]);
-                m = this.$sqrt(x * x + y * y);
+                xScale = this.$sqrt(matrix[0] * matrix[0] + matrix[1] * matrix[1]);
+                yScale = this.$sqrt(matrix[2] * matrix[2] + matrix[3] * matrix[3]);
                 break;
         }
     }
 
-    var color = this.$rgbToInt(cxForm[4], cxForm[5], cxForm[6]);
-    return id + "_" + m +
-        "_" + this.$round(cxForm[0] * 32) +
-        "_" + this.$round(cxForm[1] * 32) +
-        "_" + this.$round(cxForm[2] * 32) +
-        "_" + this.$round(cxForm[3] * 32) +
-        "_" + color.toString(16) +
-        "_" + this.$round(cxForm[7] / 8);
+    var R = this.$max(0, this.$min((1 * cxForm[0]) + cxForm[4], 255))|0;
+    var G = this.$max(0, this.$min((1 * cxForm[1]) + cxForm[5], 255))|0;
+    var B = this.$max(0, this.$min((1 * cxForm[2]) + cxForm[6], 255))|0;
+    var A = +(this.$max(0, this.$min((255 * cxForm[3]) + cxForm[7], 255)) / 255);
+    var color = R +""+ G +""+ B +""+ A;
+
+    var key = id +"_"+ xScale +"_"+ yScale;
+    if (color !== "1111") {
+        key = key +"_"+ color;
+    }
+
+    return key;
 };
 
 Util.prototype.$cacheStore = new CacheStore();
@@ -29126,7 +29168,7 @@ var Player = function ()
     this._$callback        = null;
     this._$tagId           = null;
     this._$FlashVars       = {};
-    this._$quality         = this.$canWebGL ? StageQuality.HIGH : StageQuality.BEST;
+    this._$quality         = this.$canWebGL ? StageQuality.BEST : StageQuality.HIGH;
     this._$bgcolor         = "";
 
     // packages
@@ -29807,13 +29849,13 @@ Player.prototype.setRatio = function ()
     switch (this.quality) {
         case StageQuality.BEST:
         case StageQuality.HIGH:
-            this._ratio = this.$devicePixelRatio;
+            this._$ratio = this.$devicePixelRatio;
             break;
         case StageQuality.MEDIUM:
-            this._ratio = this.$devicePixelRatio * 0.8;
+            this._$ratio = this.$devicePixelRatio * 0.8;
             break;
         case StageQuality.LOW:
-            this._ratio = this.$devicePixelRatio * 0.5;
+            this._$ratio = this.$devicePixelRatio * 0.5;
             break;
     }
 };
@@ -29823,7 +29865,7 @@ Player.prototype.setRatio = function ()
  */
 Player.prototype.play = function ()
 {
-    this.stopFlag   = false;
+    this.stopFlag = false;
 
     this.intervalId = this.$setInterval.call(null,
         (function (player) {
@@ -30236,6 +30278,7 @@ Player.prototype.resize = function ()
                 var tmpContext   = this.$tmpContext;
                 var tmpCanvas    = tmpContext.canvas;
                 tmpCanvas.width  = width;
+
                 tmpCanvas.height = height;
             }
 
@@ -30398,7 +30441,7 @@ Player.prototype.draw = function ()
         }
 
         // pre draw
-        this.root._$draw(this.matrix, this.colorTransform);
+        this.root._$draw(this.matrix, this.colorTransform, false, true);
 
 
         /**

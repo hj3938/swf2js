@@ -62,4 +62,15 @@ describe("ShaderParameterType.js property test", function()
         expect(ShaderParameterType.MATRIX4X4).toBe("matrix4x4");
     });
 
+    it("length test", function () {
+        var length = 0;
+        for (var idx in ShaderParameterType) {
+            if (!ShaderParameterType.hasOwnProperty(idx)) {
+                continue;
+            }
+            length++;
+        }
+        expect(length).toBe(15);
+    });
+
 });

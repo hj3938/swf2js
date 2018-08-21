@@ -87,17 +87,27 @@ DisplayObjectContainer.prototype._$characterBuild = function (shouldAction)
 
     while (length > id) {
 
-        // build
-        var tag       = this._$dictionary[id];
-        var character = this.stage._$characters[tag.CharacterId];
-        var obj       = character._$build(this, id, tag, shouldAction);
-
-        this._$addInstance(id, obj);
+        // attach
+        this._$createInstance(id, shouldAction);
 
         id = (id + 1)|0;
     }
 };
 
+/**
+ * @param   {number}  id
+ * @param   {boolean} shouldAction
+ * @returns void
+ */
+DisplayObjectContainer.prototype._$createInstance = function (id, shouldAction)
+{
+    // build
+    var tag       = this._$dictionary[id];
+    var character = this.stage._$characters[tag.CharacterId];
+    var obj       = character._$build(this, id, tag, shouldAction);
+
+    this._$addInstance(id, obj);
+};
 
 /**
  * @param   {number} frame

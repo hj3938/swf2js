@@ -6,11 +6,11 @@ var VectorToCanvas = function () {};
 /**
  * Function
  */
-VectorToCanvas.prototype.$Function = Function;
+VectorToCanvas.prototype.$Function = window.Function;
 
 /**
- * @param src
- * @returns {{}}
+ * @param   {object} src
+ * @returns {object}
  */
 VectorToCanvas.prototype.clone = function (src)
 {
@@ -41,9 +41,9 @@ VectorToCanvas.prototype.clone = function (src)
 };
 
 /**
- * @param shapes
- * @param isMorph
- * @returns {Array}
+ * @param   {object}  shapes
+ * @param   {boolean} isMorph
+ * @returns {array}
  */
 VectorToCanvas.prototype.convert = function (shapes, isMorph)
 {
@@ -75,8 +75,8 @@ VectorToCanvas.prototype.convert = function (shapes, isMorph)
         i = (i + 1)|0;
 
         if (!record) {
-            stack = this.setStack(stack, this.fillMerge(fills0, fills1, isMorph));
             stack = this.setStack(stack, lines);
+            stack = this.setStack(stack, this.fillMerge(fills0, fills1, isMorph));
             break;
         }
 
@@ -85,8 +85,8 @@ VectorToCanvas.prototype.convert = function (shapes, isMorph)
             if (record.StateNewStyles) {
                 AnchorX = 0;
                 AnchorY = 0;
-                stack   = this.setStack(stack, this.fillMerge(fills0, fills1, isMorph));
                 stack   = this.setStack(stack, lines);
+                stack   = this.setStack(stack, this.fillMerge(fills0, fills1, isMorph));
                 fills0  = [];
                 fills1  = [];
                 lines   = [];
@@ -210,10 +210,10 @@ VectorToCanvas.prototype.convert = function (shapes, isMorph)
 };
 
 /**
- * @param fills0
- * @param fills1
- * @param isMorph
- * @returns {*}
+ * @param   {array}   fills0
+ * @param   {array}   fills1
+ * @param   {boolean} isMorph
+ * @returns {array}
  */
 VectorToCanvas.prototype.fillMerge = function (fills0, fills1, isMorph)
 {
@@ -245,8 +245,8 @@ VectorToCanvas.prototype.fillMerge = function (fills0, fills1, isMorph)
 };
 
 /**
- * @param fills0
- * @returns {*}
+ * @param   {array} fills0
+ * @returns {array}
  */
 VectorToCanvas.prototype.fillReverse = function (fills0)
 {
@@ -310,8 +310,9 @@ VectorToCanvas.prototype.fillReverse = function (fills0)
 };
 
 /**
- * @param fills1
- * @param isMorph
+ * @param   {array}   fills1
+ * @param   {boolean} isMorph
+ * @returns void
  */
 VectorToCanvas.prototype.coordinateAdjustment = function (fills1, isMorph)
 {
@@ -414,9 +415,9 @@ VectorToCanvas.prototype.coordinateAdjustment = function (fills1, isMorph)
 };
 
 /**
- * @param stack
- * @param array
- * @returns {*}
+ * @param   {array} stack
+ * @param   {array} array
+ * @returns {array}
  */
 VectorToCanvas.prototype.setStack = function (stack, array)
 {
@@ -438,8 +439,8 @@ VectorToCanvas.prototype.setStack = function (stack, array)
 };
 
 /**
- * @param cache
- * @returns {*}
+ * @param   {array}   cache
+ * @returns {Function}
  */
 VectorToCanvas.prototype.buildCommand = function (cache)
 {
@@ -447,8 +448,8 @@ VectorToCanvas.prototype.buildCommand = function (cache)
 };
 
 /**
- * @param cache
- * @returns {*}
+ * @param   {array}    cache
+ * @returns {Function}
  */
 VectorToCanvas.prototype.toCanvas2D = function (cache)
 {
@@ -519,4 +520,7 @@ VectorToCanvas.prototype.toCanvas2D = function (cache)
     return new this.$Function("ctx", "ct", "isClip", str);
 };
 
+/**
+ * @type {VectorToCanvas}
+ */
 Util.prototype.$vtc = new VectorToCanvas();

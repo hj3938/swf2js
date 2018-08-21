@@ -12,7 +12,6 @@ var Vector = function (length, fixed)
     // init
     this.length  = length;
     this.fixed   = fixed;
-
 };
 
 /**

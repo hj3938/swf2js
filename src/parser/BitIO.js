@@ -4,6 +4,8 @@
  */
 var BitIO = function ()
 {
+    Util.call(this);
+
     this.data        = null;
     this.bit_offset  = 0;
     this.byte_offset = 0;
@@ -17,7 +19,7 @@ BitIO.prototype = Object.create(Util.prototype);
 BitIO.prototype.constructor = BitIO;
 
 /**
- * @param {array} data
+ * @param   {array} data
  * @returns void
  */
 BitIO.prototype.initialize = function (data)
@@ -40,8 +42,8 @@ BitIO.prototype.initialize = function (data)
 };
 
 /**
- * @param str
- * @returns {XML|string|void|*}
+ * @param   {string} str
+ * @returns {string}
  */
 BitIO.prototype.decodeToShiftJis = function (str)
 {
@@ -57,9 +59,9 @@ BitIO.prototype.decodeToShiftJis = function (str)
 };
 
 /**
- * @param compressed
- * @param size
- * @returns {*}
+ * @param   {array}  compressed
+ * @param   {number} size
+ * @returns {array}
  */
 BitIO.prototype.unlzma = function (compressed, size)
 {
@@ -67,7 +69,7 @@ BitIO.prototype.unlzma = function (compressed, size)
     var self = this;
 
     /**
-     * @param buffer
+     * @param {array} buffer
      * @constructor
      */
     var InputStream = function (buffer)
@@ -81,6 +83,9 @@ BitIO.prototype.unlzma = function (compressed, size)
      */
     Object.defineProperties(DisplayObject.prototype, {
         available: {
+            /**
+             * @return {number}
+             */
             get: function () {
                 return (this.buffer.length - this.processed)|0;
             }
@@ -88,7 +93,7 @@ BitIO.prototype.unlzma = function (compressed, size)
     });
 
     /**
-     * @returns {*}
+     * @returns {number}
      */
     InputStream.prototype.readByte = function ()
     {
@@ -100,7 +105,7 @@ BitIO.prototype.unlzma = function (compressed, size)
     };
 
     /**
-     * @param size
+     * @param {number} size
      * @constructor
      */
     var OutputStream = function (size)
@@ -110,7 +115,7 @@ BitIO.prototype.unlzma = function (compressed, size)
     };
 
     /**
-     * @returns {Array}
+     * @returns {array}
      */
     OutputStream.prototype.getBuffer = function ()
     {
@@ -118,7 +123,7 @@ BitIO.prototype.unlzma = function (compressed, size)
     };
 
     /**
-     * @param data
+     * @param {array} data
      */
     OutputStream.prototype.add = function (data)
     {
@@ -134,7 +139,7 @@ BitIO.prototype.unlzma = function (compressed, size)
     };
 
     /**
-     * @param outStream
+     * @param {array} outStream
      * @constructor
      */
     var OutWindow = function (outStream)
@@ -149,7 +154,7 @@ BitIO.prototype.unlzma = function (compressed, size)
     };
 
     /**
-     * @param dictSize
+     * @param {number} dictSize
      */
     OutWindow.prototype.create = function (dictSize)
     {
@@ -162,7 +167,7 @@ BitIO.prototype.unlzma = function (compressed, size)
     };
 
     /**
-     * @param byte
+     * @param {number} byte
      */
     OutWindow.prototype.putByte = function (byte)
     {
@@ -179,8 +184,8 @@ BitIO.prototype.unlzma = function (compressed, size)
     };
 
     /**
-     * @param dist
-     * @returns {*}
+     * @param   {number} dist
+     * @returns {number}
      */
     OutWindow.prototype.getByte = function (dist)
     {
@@ -188,7 +193,7 @@ BitIO.prototype.unlzma = function (compressed, size)
     };
 
     /**
-     * flush
+     * @returns void
      */
     OutWindow.prototype.flush = function ()
     {
@@ -211,8 +216,9 @@ BitIO.prototype.unlzma = function (compressed, size)
     };
 
     /**
-     * @param dist
-     * @param len
+     * @param   {number} dist
+     * @param   {number} len
+     * @returns void
      */
     OutWindow.prototype.copyMatch = function (dist, len)
     {
@@ -254,7 +260,7 @@ BitIO.prototype.unlzma = function (compressed, size)
     };
 
     /**
-     * @param dist
+     * @param   {number}  dist
      * @returns {boolean}
      */
     OutWindow.prototype.checkDistance = function(dist)
@@ -271,7 +277,7 @@ BitIO.prototype.unlzma = function (compressed, size)
     };
 
     /**
-     * @param inStream
+     * @param {array} inStream
      * @constructor
      */
     var RangeDecoder = function (inStream)
@@ -282,7 +288,7 @@ BitIO.prototype.unlzma = function (compressed, size)
     };
 
     /**
-     * init
+     * @returns void
      */
     RangeDecoder.prototype.init = function ()
     {
@@ -309,7 +315,7 @@ BitIO.prototype.unlzma = function (compressed, size)
     };
 
     /**
-     * @param numBits
+     * @param   {number} numBits
      * @returns {number}
      */
     RangeDecoder.prototype.decodeDirectBits = function (numBits)
@@ -342,9 +348,9 @@ BitIO.prototype.unlzma = function (compressed, size)
     };
 
     /**
-     * @param prob
-     * @param index
-     * @returns {*}
+     * @param   {array} prob
+     * @param   {number} index
+     * @returns {number}
      */
     RangeDecoder.prototype.decodeBit = function (prob, index)
     {
@@ -381,7 +387,7 @@ BitIO.prototype.unlzma = function (compressed, size)
     };
 
     /**
-     * @param numBits
+     * @param {number} numBits
      * @constructor
      */
     var BitTreeDecoder = function (numBits)
@@ -391,8 +397,8 @@ BitIO.prototype.unlzma = function (compressed, size)
     };
 
     /**
-     * @param length
-     * @returns {*}
+     * @param   {number} length
+     * @returns {array}
      */
     BitTreeDecoder.prototype.createProbsArray = function (length)
     {
@@ -406,7 +412,7 @@ BitIO.prototype.unlzma = function (compressed, size)
     };
 
     /**
-     * @param rc
+     * @param   {object} rc
      * @returns {number}
      */
     BitTreeDecoder.prototype.decode = function (rc)
@@ -424,8 +430,8 @@ BitIO.prototype.unlzma = function (compressed, size)
     };
 
     /**
-     * @param rc
-     * @returns {number|*}
+     * @param   {object} rc
+     * @returns {number}
      */
     BitTreeDecoder.prototype.reverseDecode = function (rc)
     {
@@ -433,10 +439,10 @@ BitIO.prototype.unlzma = function (compressed, size)
     };
 
     /**
-     * @param probs
-     * @param offset
-     * @param numBits
-     * @param rc
+     * @param   {array}  probs
+     * @param   {number} offset
+     * @param   {number} numBits
+     * @param   {object} rc
      * @returns {number}
      */
     BitTreeDecoder.prototype.bitTreeReverseDecode = function (probs, offset, numBits, rc)
@@ -456,7 +462,6 @@ BitIO.prototype.unlzma = function (compressed, size)
     };
 
     /**
-     *
      * @constructor
      */
     var LenDecoder = function ()
@@ -468,8 +473,8 @@ BitIO.prototype.unlzma = function (compressed, size)
     };
 
     /**
-     * @param length
-     * @returns {*}
+     * @param   {number} length
+     * @returns {array}
      */
     LenDecoder.prototype.createProbsArray = function (length)
     {
@@ -483,9 +488,9 @@ BitIO.prototype.unlzma = function (compressed, size)
     };
 
     /**
-     * @param numBits
-     * @param length
-     * @returns {Array}
+     * @param   {number} numBits
+     * @param   {number} length
+     * @returns {array}
      */
     LenDecoder.prototype.createBitTreeDecoderArray = function (numBits, length)
     {
@@ -502,9 +507,9 @@ BitIO.prototype.unlzma = function (compressed, size)
     };
 
     /**
-     * @param rc
-     * @param posState
-     * @returns {*}
+     * @param   {object} rc
+     * @param   {number} posState
+     * @returns {number}
      */
     LenDecoder.prototype.decode = function (rc, posState)
     {
@@ -520,8 +525,8 @@ BitIO.prototype.unlzma = function (compressed, size)
     };
 
     /**
-     * @param data
-     * @param size
+     * @param {array}  data
+     * @param {number} size
      * @constructor
      */
     var Decoder = function (data, size)
@@ -572,7 +577,7 @@ BitIO.prototype.unlzma = function (compressed, size)
     };
 
     /**
-     * @param properties
+     * @param   {array}   properties
      * @returns {Decoder}
      */
     Decoder.prototype.decodeProperties = function (properties)
@@ -621,8 +626,8 @@ BitIO.prototype.unlzma = function (compressed, size)
     };
 
     /**
-     * @param state
-     * @param rep0
+     * @param   {number} state
+     * @param   {number} rep0
      * @returns {number}
      */
     Decoder.prototype.decodeLiteral = function (state, rep0)
@@ -662,8 +667,8 @@ BitIO.prototype.unlzma = function (compressed, size)
     };
 
     /**
-     * @param length
-     * @returns {*}
+     * @param   {number} length
+     * @returns {number}
      */
     Decoder.prototype.decodeDistance = function (length)
     {
@@ -691,10 +696,10 @@ BitIO.prototype.unlzma = function (compressed, size)
     };
 
     /**
-     * @param probs
-     * @param offset
-     * @param numBits
-     * @param rc
+     * @param   {array}  probs
+     * @param   {number} offset
+     * @param   {number} numBits
+     * @param   {object} rc
      * @returns {number}
      */
     Decoder.prototype.bitTreeReverseDecode = function (probs, offset, numBits, rc)
@@ -736,8 +741,9 @@ BitIO.prototype.unlzma = function (compressed, size)
     };
 
     /**
-     * @param numBits
-     * @param length
+     * @param   {number} numBits
+     * @param   {number} length
+     * @returns {array}
      */
     Decoder.prototype.createBitTreeDecoderArray = function (numBits, length)
     {
@@ -754,8 +760,8 @@ BitIO.prototype.unlzma = function (compressed, size)
     };
 
     /**
-     * @param length
-     * @returns {*}
+     * @param   {number} length
+     * @returns {array}
      */
     Decoder.prototype.createProbsArray = function (length)
     {
@@ -769,7 +775,7 @@ BitIO.prototype.unlzma = function (compressed, size)
     };
 
     /**
-     * @param state
+     * @param   {number} state
      * @returns {number}
      */
     Decoder.prototype.updateStateLiteral = function (state)
@@ -784,7 +790,7 @@ BitIO.prototype.unlzma = function (compressed, size)
     };
 
     /**
-     * @returns {*}
+     * @return {Decoder}
      */
     Decoder.prototype.decode = function()
     {
@@ -882,7 +888,7 @@ BitIO.prototype.unlzma = function (compressed, size)
     };
 
     /**
-     * @returns {Array}
+     * @returns {array}
      */
     Decoder.prototype.output = function ()
     {
@@ -943,9 +949,9 @@ BitIO.prototype.unlzma = function (compressed, size)
 };
 
 /**
- * @param compressed
- * @param isDeCompress
- * @returns {Array}
+ * @param   {array}   compressed
+ * @param   {boolean} isDeCompress
+ * @returns {array}
  */
 BitIO.prototype.unzip = function (compressed, isDeCompress)
 {
@@ -1143,8 +1149,8 @@ BitIO.prototype.unzip = function (compressed, isDeCompress)
 };
 
 /**
- * @param data
- * @returns {{}}
+ * @param   {array} data
+ * @returns {array}
  */
 BitIO.prototype.buildHuffTable = function (data)
 {
@@ -1204,9 +1210,9 @@ BitIO.prototype.buildHuffTable = function (data)
 };
 
 /**
- * @param bitio
- * @param table
- * @returns {*}
+ * @param   {BitIO}  bitio
+ * @param   {array}  table
+ * @returns {object}
  */
 BitIO.prototype.decodeSymbol = function (bitio, table)
 {
@@ -1228,8 +1234,8 @@ BitIO.prototype.decodeSymbol = function (bitio, table)
 };
 
 /**
- * @param length
- * @returns {Array}
+ * @param   {number} length
+ * @returns {array}
  */
 BitIO.prototype.createArray = function (length)
 {
@@ -1237,7 +1243,8 @@ BitIO.prototype.createArray = function (length)
 };
 
 /**
- * @param data
+ * @param   {array} data
+ * @returns void
  */
 BitIO.prototype.setData = function (data)
 {
@@ -1279,7 +1286,7 @@ BitIO.prototype.getVersion = function ()
 };
 
 /**
- * byteAlign
+ * @returns void
  */
 BitIO.prototype.byteAlign = function ()
 {
@@ -1292,8 +1299,8 @@ BitIO.prototype.byteAlign = function ()
 };
 
 /**
- * @param length
- * @returns {Array}
+ * @param   {number} length
+ * @returns {array}
  */
 BitIO.prototype.getData = function (length)
 {
@@ -1318,8 +1325,8 @@ BitIO.prototype.getData = function (length)
 };
 
 /**
- * @param value
- * @param isJis
+ * @param   {string|null}  value
+ * @param   {boolean} isJis
  * @returns {string}
  */
 BitIO.prototype.getDataUntil = function (value, isJis)
@@ -1393,7 +1400,7 @@ BitIO.prototype.getDataUntil = function (value, isJis)
 };
 
 /**
- * byteCarry
+ * @returns void
  */
 BitIO.prototype.byteCarry = function ()
 {
@@ -1409,7 +1416,7 @@ BitIO.prototype.byteCarry = function ()
 };
 
 /**
- * @param number
+ * @param   {number} number
  * @returns {number}
  */
 BitIO.prototype.getUIBits = function (number)
@@ -1438,7 +1445,7 @@ BitIO.prototype.getUIBit = function ()
 };
 
 /**
- * @param number
+ * @param   {number} number
  * @returns {number}
  */
 BitIO.prototype.getSIBits = function (number)
@@ -1499,7 +1506,7 @@ BitIO.prototype.getUI16BE = function ()
 };
 
 /**
- * @returns {*}
+ * @returns {number}
  */
 BitIO.prototype.getFloat16 = function ()
 {
@@ -1511,7 +1518,7 @@ BitIO.prototype.getFloat16 = function ()
 };
 
 /**
- * @returns {*}
+ * @returns {number}
  */
 BitIO.prototype.getFloat32 = function ()
 {
@@ -1601,7 +1608,7 @@ BitIO.prototype.getFloat64LittleEndian = function ()
 };
 
 /**
- * @param data
+ * @param   {array}  data
  * @returns {number}
  */
 BitIO.prototype.toUI16 = function (data)
@@ -1610,7 +1617,7 @@ BitIO.prototype.toUI16 = function (data)
 };
 
 /**
- * @param data
+ * @param   {array}  data
  * @returns {number}
  */
 BitIO.prototype.toSI16LE = function (data)
@@ -1632,7 +1639,7 @@ BitIO.prototype.getSI8 = function ()
 };
 
 /**
- * @returns {*}
+ * @returns {number}
  */
 BitIO.prototype.getSI24 = function ()
 {
@@ -1645,8 +1652,9 @@ BitIO.prototype.getSI24 = function ()
 };
 
 /**
- * @param byteInt
- * @param bitInt
+ * @param   {number} byteInt
+ * @param   {number} bitInt
+ * @returns void
  */
 BitIO.prototype.incrementOffset = function (byteInt, bitInt)
 {
@@ -1656,8 +1664,9 @@ BitIO.prototype.incrementOffset = function (byteInt, bitInt)
 };
 
 /**
- * @param byteInt
- * @param bitInt
+ * @param   {number} byteInt
+ * @param   {number} bitInt
+ * @returns void
  */
 BitIO.prototype.setOffset = function (byteInt, bitInt)
 {
@@ -1701,7 +1710,7 @@ BitIO.prototype.getS30 = function ()
 };
 
 /**
- * @param offset
+ * @param   {number} offset
  * @returns {number}
  */
 BitIO.prototype.ReadU30 = function (offset)
@@ -1762,7 +1771,7 @@ BitIO.prototype.AbcReadString = function ()
 };
 
 /**
- * @param length
+ * @param   {number} length
  * @returns {number}
  */
 BitIO.prototype.readUB = function (length)
@@ -1804,8 +1813,9 @@ BitIO.prototype.readNumber = function (n)
 };
 
 /**
- * @param size
- * @param mode
+ * @param   {number} size
+ * @param   {string} mode
+ * @returns void
  */
 BitIO.prototype.deCompress = function (size, mode)
 {

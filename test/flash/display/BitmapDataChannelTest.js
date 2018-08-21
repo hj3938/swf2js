@@ -18,4 +18,15 @@ describe("BitmapDataChannel.js property test", function()
         expect(BitmapDataChannel.RED).toBe(1);
     });
 
+    it("length test", function () {
+        var length = 0;
+        for (var idx in BitmapDataChannel) {
+            if (!BitmapDataChannel.hasOwnProperty(idx)) {
+                continue;
+            }
+            length++;
+        }
+        expect(length).toBe(4);
+    });
+
 });

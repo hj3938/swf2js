@@ -7,15 +7,14 @@ var Shape = function ()
 
     this._$data     = null;
     this._$graphics = new Graphics();
-    this._$morphing = false;
 
     var no = this.$Number.MAX_VALUE;
-    this.setBounds({
+    this._$bounds = {
         xMin: no,
         xMax: -no,
         yMin: no,
         yMax: -no
-    });
+    };
 };
 
 /**
@@ -34,7 +33,7 @@ Object.defineProperties(Shape.prototype, {
          * @returns {Graphics}
          */
         get: function () {
-            return this.getGraphics();
+            return this._$graphics;
         },
         /**
          * readonly
@@ -42,13 +41,6 @@ Object.defineProperties(Shape.prototype, {
         set: function () {}
     }
 });
-
-/**
- * dummy
- */
-Shape.prototype.addActions  = function () {};
-Shape.prototype.initFrame   = function () {};
-Shape.prototype.setHitRange = function () {};
 
 /**
  * @returns {string}
@@ -59,79 +51,11 @@ Shape.prototype.toString = function ()
 };
 
 /**
- * @param   {MovieClip} parent
- * @param   {number}    index
- * @param   {object}    tag
- * @param   {boolean}   shouldAction
- * @returns {Shape}
- */
-Shape.prototype._$build = function (parent, index, tag, shouldAction)
-{
-    var shape = new Shape();
-
-    // init
-    shape.id          = index;
-    shape.characterId = this.characterId;
-    shape.parent      = parent;
-    shape.stage       = parent.stage;
-
-    // default
-    return shape
-        .setData(this.getData())
-        .setBounds(this._$bounds);
-};
-
-/**
- * @param {array} matrix
- * @param {array} colorTransform
- */
-Shape.prototype._$draw = function (matrix, colorTransform)
-{
-
-};
-
-/**
- * @param stage
- * @param clipEvent
- */
-Shape.prototype.putFrame = function (stage, clipEvent)
-{
-    this.active = true;
-    this.dispatchEvent(clipEvent, stage);
-};
-
-/**
- * @returns {Graphics}
- */
-Shape.prototype.getGraphics = function ()
-{
-    return this._$graphics;
-};
-
-/**
- * @returns {array}
- */
-Shape.prototype.getData = function ()
-{
-    return this._$data;
-};
-
-/**
- * @param   {object} data
- * @returns {Shape}
- */
-Shape.prototype.setData = function (data)
-{
-    this._$data = data;
-    return this;
-};
-
-/**
- *
- * @param   {array}  matrix
+ * TODO
+ * @param   {array|null|undefined} matrix
  * @returns {object}
  */
-Shape.prototype.getBounds = function (matrix)
+Shape.prototype._$getBounds = function (matrix)
 {
     var bounds, gBounds;
 
@@ -172,452 +96,378 @@ Shape.prototype.getBounds = function (matrix)
 };
 
 /**
- * @param   {object} bounds
+ * @param   {MovieClip} parent
+ * @param   {number}    index
+ * @param   {object}    tag
+ * @param   {boolean}   shouldAction
  * @returns {Shape}
  */
-Shape.prototype.setBounds = function (bounds)
+Shape.prototype._$build = function (parent, index, tag, shouldAction)
 {
-    this._$bounds = bounds;
-    return this;
-};
+    var shape = new Shape();
 
-/**
- * @returns {boolean}
- */
-Shape.prototype.isMorphing = function ()
-{
-    return this._$morphing;
-};
+    // init
+    shape.id          = index;
+    shape.characterId = this.characterId;
+    shape.parent      = parent;
+    shape.stage       = parent.stage;
+    shape._$data      = this._$data;
+    shape._$bounds    = this._$bounds;
 
-/**
- * @param ctx
- * @param matrix
- * @param colorTransform
- * @param stage
- * @param visible
- * @returns {*}
- */
-Shape.prototype.render = function (ctx, matrix, colorTransform, stage, visible)
-{
-    stage.doneTags.unshift(this);
-
-    // colorTransform
-    var rColorTransform = this.$multiplicationColor(colorTransform, this.getColorTransform());
-    var isVisible       = this.$min(this.getVisible(), visible);
-    var alpha           = +(rColorTransform[3] + (rColorTransform[7] / 255));
-    var stageClip       = stage.clipMc || stage.isClipDepth;
-    if (!stageClip && (!alpha || !isVisible)) {
-        return "";
+    // set
+    if (tag.PlaceFlagHasClipDepth === 1) {
+        shape._$clipDepth = tag.ClipDepth;
     }
 
-    // matrix
-    var m2 = this.$multiplicationMatrix(matrix, this.getMatrix());
+    return shape;
+};
 
-    // pre render
-    var obj      = this.preRender(ctx, m2, rColorTransform, stage, isVisible);
-    var cacheKey = obj.cacheKey;
-    var cache    = null;
+/**
+ * @param   {array}   matrix
+ * @param   {array}   colorTransform
+ * @param   {boolean} isClip
+ * @param   {boolean} visible
+ * @returns void
+ */
+Shape.prototype._$draw = function (matrix, colorTransform, isClip, visible)
+{
 
-    // render
-    var m3 = this.$multiplicationMatrix(stage.getMatrix(), obj.preMatrix);
-    var isClipDepth = this.isClipDepth || stageClip;
-    if (isClipDepth) {
-        if (m3[0] === 0) {
-            m3[0] = 0.00000000000001;
-        }
-        if (m3[3] === 0) {
-            m3[3] = 0.00000000000001;
-        }
+    // pre context
+    var ctx = this.parent.stage.player.preContext;
 
-        ctx.setTransform(m3[0],m3[1],m3[2],m3[3],m3[4],m3[5]);
-        this.executeRender(ctx, +this.$min(m3[0], m3[3]), rColorTransform, isClipDepth, stage);
-    } else {
-        var xScale = +(this.$sqrt(m3[0] * m3[0] + m3[1] * m3[1]));
-        var yScale = +(this.$sqrt(m3[2] * m3[2] + m3[3] * m3[3]));
+    if (isClip || this._$clipDepth) {
+
+        ctx.setTransform(matrix[0], matrix[1], matrix[2], matrix[3], matrix[4], matrix[5]);
+        this._$doDraw(ctx, this.$min(matrix[0], matrix[3]), colorTransform, isClip);
+
+        return ;
+    }
+
+    var alpha = +(colorTransform[3] + (colorTransform[7] / 255));
+    if (visible && alpha) {
+
+        var xScale = +(this.$sqrt(matrix[0] * matrix[0] + matrix[1] * matrix[1]));
+        var yScale = +(this.$sqrt(matrix[2] * matrix[2] + matrix[3] * matrix[3]));
         xScale = +(this.$pow(this.$SQRT2, this.$ceil(this.$log(xScale) / this.$LN2_2 - this.$LOG1P)));
         yScale = +(this.$pow(this.$SQRT2, this.$ceil(this.$log(yScale) / this.$LN2_2 - this.$LOG1P)));
 
-        var bounds = this.getBounds();
+        var bounds = this._$getBounds(null);
         var xMax   = +bounds.xMax;
         var xMin   = +bounds.xMin;
         var yMax   = +bounds.yMax;
         var yMin   = +bounds.yMin;
 
-        var W = this.$abs(this.$ceil((xMax - xMin) * xScale))|0;
-        var H = this.$abs(this.$ceil((yMax - yMin) * yScale))|0;
-        if (W <= 0 || H <= 0) {
-            return cacheKey;
-        }
+        var width  = this.$abs(this.$ceil((xMax - xMin) * xScale))|0;
+        var height = this.$abs(this.$ceil((yMax - yMin) * yScale))|0;
 
-        var canvas;
-        var loadStage = this.getStage();
-        var cacheId   = this.getCharacterId() + "_" + loadStage.getId();
-        if (this.isMorphing()) {
-            cacheId = cacheId + "_" + this.getRatio();
-        }
+        if (width > 0 || height > 0) {
 
-        cacheKey = this.$cacheStore.generateKey(cacheId, [xScale, yScale], rColorTransform);
-        cache    = this.$cacheStore.getCache(cacheKey);
-        if (!cache &&
-            stage.getWidth() > W &&
-            stage.getHeight() > H &&
-            this.$cacheStore.size > (W * H)
-        ) {
-            canvas        = this.$cacheStore.getCanvas();
-            canvas.width  = W;
-            canvas.height = H;
-            cache         = canvas.getContext("2d");
+            var m = null;
 
-            var cMatrix = [xScale, 0, 0, yScale, -xMin * xScale, -yMin * yScale];
-            cache.setTransform(cMatrix[0],cMatrix[1],cMatrix[2],cMatrix[3],cMatrix[4],cMatrix[5]);
-            cache = this.executeRender(
-                cache, +this.$min(xScale, yScale), rColorTransform, isClipDepth, stage
-            );
+            // get cache
+            var cacheKey = this.$cacheStore.generateKey(this.characterId, [xScale, yScale], colorTransform);
+            var cache    = this.$cacheStore.getCache(cacheKey);
 
-            this.$cacheStore.setCache(cacheKey, cache);
-        }
+            // not cache
+            if (!cache) {
 
-        var preCtx = obj.preCtx;
-        if (cache) {
-            canvas = cache.canvas;
+                var canvas    = this.$cacheStore.getCanvas();
+                canvas.width  = width;
+                canvas.height = height;
+                cache         = canvas.getContext("2d");
 
-            var sMatrix = [1 / xScale, 0, 0, 1 / yScale, xMin, yMin];
-            var m4      = this.$multiplicationMatrix(m3, sMatrix);
-            preCtx.setTransform(m4[0],m4[1],m4[2],m4[3],m4[4],m4[5]);
+                cache.setTransform(xScale, 0, 0, yScale, -xMin * xScale, -yMin * yScale);
 
-            if (this.$isAndroid4x && !this.$isChrome) {
-                preCtx.fillStyle = stage.context.createPattern(cache.canvas, "no-repeat");
-                preCtx.fillRect(0, 0, W, H);
+                this._$doDraw(cache, this.$min(xScale, yScale), colorTransform, isClip);
+
+                this.$cacheStore.setCache(cacheKey, cache);
+
+            }
+
+            if (cache) {
+
+                m = this.$multiplicationMatrix(matrix, [1 / xScale, 0, 0, 1 / yScale, xMin, yMin]);
+
+                ctx.setTransform(m[0], m[1], m[2], m[3], m[4], m[5]);
+
+                if (this.$isAndroid4x && !this.$isChrome) {
+                    ctx.fillStyle = stage.context.createPattern(cache.canvas, "no-repeat");
+                    ctx.fillRect(0, 0, width, height);
+                } else {
+                    ctx.drawImage(cache.canvas, 0, 0, width, height);
+                }
+
             } else {
-                preCtx.drawImage(canvas, 0, 0, W, H);
-            }
-        } else {
-            preCtx.setTransform(m3[0],m3[1],m3[2],m3[3],m3[4],m3[5]);
-            this.executeRender(preCtx, +this.$min(m3[0], m3[3]), rColorTransform, isClipDepth, stage);
-        }
-    }
 
-    // post render
-    cacheKey += "_" + m3[4] + "_" + m3[5];
-    if (obj.isFilter || obj.isBlend) {
-        obj.cacheKey = cacheKey;
-        this.postRender(ctx, matrix, rColorTransform, stage, obj);
-    }
+                ctx.setTransform(matrix[0], matrix[1], matrix[2], matrix[3], matrix[4], matrix[5]);
+                this._$doDraw(ctx, this.$min(matrix[0], matrix[3]), colorTransform, isClip);
 
-    return cacheKey;
-};
-
-/**
- * @param ctx
- * @param matrix
- * @param stage
- * @param x
- * @param y
- * @returns {boolean}
- */
-Shape.prototype.renderHitTest = function (ctx, matrix, stage, x, y)
-{
-    var m2 = this.$multiplicationMatrix(matrix, this.getMatrix());
-
-    var graphics = this.graphics;
-    if (graphics.isDraw) {
-        return graphics.renderHitTest(ctx, m2, stage, x, y);
-    }
-
-    if (!this.getData()) {
-        return false;
-    }
-
-    var m3 = this.$multiplicationMatrix(stage.getMatrix(), m2);
-    ctx.setTransform(m3[0],m3[1],m3[2],m3[3],m3[4],m3[5]);
-
-    var minScale = this.$min(m3[0], m3[3]);
-    var shapes   = this.getData();
-    var length   = 0 | shapes.length;
-    var hit      = false;
-
-    var idx = 0;
-    while (idx < length) {
-        var data     = shapes[idx];
-        var obj      = data.obj;
-        var isStroke = (obj.Width !== undefined);
-
-        ctx.beginPath();
-        var cmd = data.cmd;
-        cmd(ctx);
-
-        if (isStroke) {
-            ctx.lineWidth = this.$max(obj.Width, 1 / minScale);
-            ctx.lineCap   = "round";
-            ctx.lineJoin  = "round";
-        }
-
-        hit = ctx.isPointInPath(x, y);
-        if (hit) {
-            return hit;
-        }
-
-        if ("isPointInStroke" in ctx) {
-            hit = ctx.isPointInStroke(x, y);
-            if (hit) {
-                return hit;
             }
         }
 
-        idx = (idx + 1)|0;
     }
-
-    return hit;
 };
 
 /**
- * @param ctx
- * @param minScale
- * @param colorTransform
- * @param isClipDepth
- * @param stage
- * @returns {*}
+ *
+ * @param   {CanvasRenderingContext2D} ctx
+ * @param   {number}  minScale
+ * @param   {array}   colorTransform
+ * @param   {boolean} isClip
+ * @retuens void
  */
-Shape.prototype.executeRender = function (ctx, minScale, colorTransform, isClipDepth, stage)
+Shape.prototype._$doDraw = function (ctx, minScale, colorTransform, isClip)
 {
-    var shapes = this.getData();
-    if (!shapes) {
-        return ctx;
-    }
 
-    var color, css, canvas;
-    var stageClip = stage.clipMc || stage.isClipDepth;
-    var idx       = 0;
-    var length    = shapes.length|0;
-    while (idx < length) {
-        var data = shapes[idx];
-        idx = (idx + 1)|0;
+    var shapes = this._$data;
+    if (shapes) {
 
-        var obj      = data.obj;
-        var styleObj = (!obj.HasFillFlag) ? obj : obj.FillType;
-        var cmd      = data.cmd;
-        var isStroke = (obj.Width !== undefined);
+        var color, css, canvas;
 
-        if (isClipDepth) {
-            if (isStroke) {
+        var idx    = 0;
+        var length = shapes.length|0;
+        while (idx < length) {
+
+            // data set
+            var data = shapes[idx];
+            idx = (idx + 1)|0;
+
+            // params
+            var width    = 0;
+            var height   = 0;
+            var matrix   = null;
+            var obj      = data.obj;
+            var styleObj = (!obj.HasFillFlag) ? obj : obj.FillType;
+            var isStroke = (obj.Width !== undefined);
+
+            if (this._$clipDepth) {
+                if (isStroke) {
+                    continue;
+                }
+
+                data.cmd(ctx);
                 continue;
             }
 
-            cmd(ctx);
-            continue;
-        }
-
-        ctx.beginPath();
-        cmd(ctx);
-
-        var styleType = styleObj.fillStyleType|0;
-        switch (styleType) {
-            case 0x00:
-                color = styleObj.Color;
-                color = this.$generateColorTransform(color, colorTransform);
-                css = "rgba(" + color.R + "," + color.G + "," + color.B + "," + color.A + ")";
-                if (isStroke) {
-                    ctx.strokeStyle = css;
-                    ctx.lineWidth   = +this.$max(obj.Width, 1 / minScale);
-                    ctx.lineCap     = "round";
-                    ctx.lineJoin    = "round";
-                    ctx.stroke();
-                } else {
-                    ctx.fillStyle = css;
-                    ctx.fill();
-                }
-
-                break;
-
-            // gradient
-            case 0x10:
-            case 0x12:
-            case 0x13:
-                var m    = styleObj.gradientMatrix;
-                var type = styleObj.fillStyleType|0;
-                if (type !== 16) {
-                    ctx.save();
-                    ctx.transform(m[0], m[1], m[2], m[3], m[4], m[5]);
-                    css = ctx.createRadialGradient(0, 0, 0, 0, 0, 16384);
-                } else {
-                    var xy = this.linearGradientXY(m);
-                    css = ctx.createLinearGradient(xy[0], xy[1], xy[2], xy[3]);
-                }
-
-                var records = styleObj.gradient.GradientRecords;
-                var rLength = records.length|0;
-                var rIdx    = 0;
-                while (rIdx < rLength) {
-                    var record = records[rIdx];
-                    color      = record.Color;
-                    color      = this.$generateColorTransform(color, colorTransform);
-                    var rgba   = "rgba(" + color.R + "," + color.G + "," + color.B + "," + color.A + ")";
-                    css.addColorStop(record.Ratio, rgba);
-
-                    rIdx = (rIdx + 1)|0;
-                }
-
-                if (isStroke) {
-                    ctx.strokeStyle = css;
-                    ctx.lineWidth   = this.$max(obj.Width, 1 / minScale);
-                    ctx.lineCap     = "round";
-                    ctx.lineJoin    = "round";
-                    ctx.stroke();
-                } else {
-                    ctx.fillStyle = css;
-                    ctx.fill();
-                }
-
-                if (type !== 16) {
-                    ctx.restore();
-                }
-
-                break;
-
-            // bitmap
-            case 0x40:
-            case 0x41:
-            case 0x42:
-            case 0x43:
-                var width;
-                var height;
-                var loadStage      = this.getStage();
-                var bitmapId       = styleObj.bitmapId|0;
-                var bMatrix        = styleObj.bitmapMatrix;
-                var repeat         = (styleType === 0x40 || styleType === 0x42) ? "repeat" : "no-repeat";
-                var bitmapCacheKey = this.$cacheStore.generateKey(
-                    bitmapId + "_" + loadStage.getId() + "_" + repeat,
-                    undefined,
-                    colorTransform
-                );
-
-                var image = this.$cacheStore.getCache(bitmapCacheKey);
-                if (image === undefined) {
-                    image = loadStage.getCharacter(bitmapId);
-                    if (!image) {
-                        break;
-                    }
-
-                    if (colorTransform[0] !== 1 ||
-                        colorTransform[1] !== 1 ||
-                        colorTransform[2] !== 1 ||
-                        colorTransform[4] ||
-                        colorTransform[5] ||
-                        colorTransform[6]
-                    ) {
-                        var imgCanvas = image.canvas;
-                        width         = imgCanvas.width|0;
-                        height        = imgCanvas.height|0;
-                        if (width > 0 && height > 0) {
-                            canvas           = this.$cacheStore.getCanvas();
-                            canvas.width     = width;
-                            canvas.height    = height;
-
-                            var imageContext = canvas.getContext("2d");
-                            imageContext.drawImage(image.canvas, 0, 0, width, height, 0, 0, width, height);
-
-                            image = this.$generateImageTransform(imageContext, colorTransform);
-
-                            this.$cacheStore.setCache(bitmapCacheKey, image);
-                        }
-                    } else {
-                        ctx.globalAlpha = +(this.$max(0, this.$min((255 * colorTransform[3]) + colorTransform[7], 255)) / 255);
-                    }
-                }
-
-                if (image) {
-                    ctx.save();
-                    canvas = image.canvas;
-                    width  = canvas.width|0;
-                    height = canvas.height|0;
-                    if (width > 0 && height > 0) {
-                        if (styleType === 0x41 || styleType === 0x43) {
-                            ctx.clip();
-                            ctx.transform(bMatrix[0], bMatrix[1], bMatrix[2], bMatrix[3], bMatrix[4], bMatrix[5]);
-                            ctx.drawImage(canvas, 0, 0, width, height, 0, 0, width, height);
-                        } else {
-                            ctx.fillStyle = stage.context.createPattern(canvas, repeat);
-                            ctx.transform(bMatrix[0], bMatrix[1], bMatrix[2], bMatrix[3], bMatrix[4], bMatrix[5]);
-                            ctx.fill();
-                        }
-                    }
-                    ctx.restore();
-                }
-
-                break;
-        }
-    }
-
-    if (isClipDepth && !stageClip) {
-        ctx.clip();
-
-        if (this.$isAndroid && this.$isChrome) {
-            if (!canvas) {
-                canvas = ctx.canvas;
-            }
-
-            var cWidth  = canvas.width|0;
-            var cHeight = canvas.height|0;
-
-            var tmpContext   = this.$tmpContext;
-            var tmpCanvas    = tmpContext.canvas;
-            canvas           = ctx.canvas;
-            tmpCanvas.width  = cWidth;
-            tmpCanvas.height = cHeight;
-            tmpContext.drawImage(canvas, 0, 0, cWidth, cHeight, 0, 0, cWidth, cHeight);
-
-            ctx.save();
-            ctx.setTransform(1, 0, 0, 1, 0, 0);
+            // render
             ctx.beginPath();
-            ctx.clearRect(0, 0, cWidth + 1, cHeight + 1);
-            ctx.drawImage(tmpCanvas, 0, 0, cWidth, cHeight, 0, 0, cWidth, cHeight);
-            ctx.restore();
+            data.cmd(ctx);
 
-            tmpContext.setTransform(1,0,0,1,0,0);
-            tmpContext.clearRect(0, 0, cWidth + 1, cHeight + 1);
+            var styleType = styleObj.fillStyleType|0;
+            switch (styleType) {
+
+                // normal
+                case 0x00:
+
+                    color = this.$generateColorTransform(styleObj.Color, colorTransform);
+                    css   = "rgba(" + color.R + "," + color.G + "," + color.B + "," + color.A + ")";
+
+                    if (isStroke) {
+
+                        ctx.strokeStyle = css;
+                        ctx.lineWidth   = +this.$max(obj.Width, 1 / minScale);
+                        ctx.lineCap     = "round";
+                        ctx.lineJoin    = "round";
+                        ctx.stroke();
+
+                    } else {
+
+                        ctx.fillStyle = css;
+                        ctx.fill();
+
+                    }
+
+                    break;
+
+                // gradient
+                case 0x10:
+                case 0x12:
+                case 0x13:
+                    // matrix
+                    matrix = styleObj.gradientMatrix;
+
+                    var type = styleObj.fillStyleType|0;
+                    if (type !== 16) {
+
+                        ctx.save();
+                        ctx.transform(matrix[0], matrix[1], matrix[2], matrix[3], matrix[4], matrix[5]);
+
+                        css = ctx.createRadialGradient(0, 0, 0, 0, 0, 16384);
+
+                    } else {
+
+                        var xy = this.$linearGradientXY(matrix);
+                        css = ctx.createLinearGradient(xy[0], xy[1], xy[2], xy[3]);
+
+                    }
+
+                    var records = styleObj.gradient.GradientRecords;
+                    var rLength = records.length|0;
+                    var rIdx    = 0;
+                    while (rIdx < rLength) {
+
+                        var record = records[rIdx];
+
+                        color = this.$generateColorTransform(record.Color, colorTransform);
+
+                        var rgba   = "rgba(" + color.R + "," + color.G + "," + color.B + "," + color.A + ")";
+                        css.addColorStop(record.Ratio, rgba);
+
+                        rIdx = (rIdx + 1)|0;
+                    }
+
+                    if (isStroke) {
+                        ctx.strokeStyle = css;
+                        ctx.lineWidth   = this.$max(obj.Width, 1 / minScale);
+                        ctx.lineCap     = "round";
+                        ctx.lineJoin    = "round";
+                        ctx.stroke();
+                    } else {
+                        ctx.fillStyle = css;
+                        ctx.fill();
+                    }
+
+                    if (type !== 16) {
+                        ctx.restore();
+                    }
+
+                    break;
+
+                // bitmap
+                case 0x40:
+                case 0x41:
+                case 0x42:
+                case 0x43:
+
+                    // matrix
+                    matrix = styleObj.bitmapMatrix;
+
+                    var bitmapId = styleObj.bitmapId|0;
+                    var repeat   = (styleType === 0x40 || styleType === 0x42) ? "repeat" : "no-repeat";
+
+                    var cacheKey = this.$cacheStore.generateKey(
+                        bitmapId + "_" + this.characterId + "_" + repeat,
+                        undefined,
+                        colorTransform
+                    );
+
+                    var image = this.$cacheStore.getCache(cacheKey);
+                    if (image === undefined) {
+
+                        image = this.stage._$characters[bitmapId];
+                        if (!image) {
+                            break;
+                        }
+
+                        if (colorTransform[0] !== 1 ||
+                            colorTransform[1] !== 1 ||
+                            colorTransform[2] !== 1 ||
+                            colorTransform[4] ||
+                            colorTransform[5] ||
+                            colorTransform[6]
+                        ) {
+
+                            var imgCanvas = image.canvas;
+                            width         = imgCanvas.width|0;
+                            height        = imgCanvas.height|0;
+
+                            if (width > 0 && height > 0) {
+                                canvas           = this.$cacheStore.getCanvas();
+                                canvas.width     = width;
+                                canvas.height    = height;
+
+                                var imageContext = canvas.getContext("2d");
+                                imageContext.drawImage(image.canvas, 0, 0, width, height);
+
+                                image = this.$generateImageTransform(imageContext, colorTransform);
+
+                                this.$cacheStore.setCache(cacheKey, image);
+                            }
+
+                        } else {
+                            ctx.globalAlpha = +(this.$max(0, this.$min((255 * colorTransform[3]) + colorTransform[7], 255)) / 255);
+                        }
+                    }
+
+                    if (image) {
+
+                        ctx.save();
+
+                        canvas = image.canvas;
+                        width  = canvas.width|0;
+                        height = canvas.height|0;
+
+                        if (width > 0 && height > 0) {
+
+                            switch (styleType) {
+                                case 0x41:
+                                case 0x43:
+
+                                    ctx.clip();
+                                    ctx.transform(matrix[0], matrix[1], matrix[2], matrix[3], matrix[4], matrix[5]);
+                                    ctx.drawImage(canvas, 0, 0, width, height);
+
+                                    break;
+
+                                default:
+
+                                    ctx.fillStyle = this.stage.player.context.createPattern(canvas, repeat);
+                                    ctx.transform(matrix[0], matrix[1], matrix[2], matrix[3], matrix[4], matrix[5]);
+                                    ctx.fill();
+
+                                    break;
+
+                            }
+                        }
+
+                        ctx.restore();
+                    }
+
+                    break;
+
+            }
         }
+
+        // shape mask
+        if (this._$clipDepth && !isClip) {
+
+            ctx.clip();
+
+            // android bug
+            if (this.$isAndroid && this.$isChrome) {
+
+                if (!canvas) {
+                    canvas = ctx.canvas;
+                }
+
+                width  = canvas.width|0;
+                height = canvas.height|0;
+
+                var tmpCanvas    = this.$cacheStore.getCanvas();
+                var tmpContext   = tmpCanvas.getContext("2d");
+
+                canvas           = ctx.canvas;
+                tmpCanvas.width  = width;
+                tmpCanvas.height = height;
+                tmpContext.drawImage(canvas, 0, 0, width, height);
+
+                ctx.save();
+                ctx.setTransform(1, 0, 0, 1, 0, 0);
+                ctx.beginPath();
+                ctx.clearRect(0, 0, width + 1, height + 1);
+                ctx.drawImage(tmpCanvas, 0, 0, width, height);
+                ctx.restore();
+
+                tmpContext.setTransform(1, 0, 0, 1, 0, 0);
+                tmpContext.clearRect(0, 0, width + 1, height + 1);
+            }
+        }
+
+        // reset
+        var resetCSS    = "rgba(0,0,0,1)";
+        ctx.strokeStyle = resetCSS;
+        ctx.fillStyle   = resetCSS;
+        ctx.globalAlpha = 1;
+
     }
-
-    var resetCss    = "rgba(0,0,0,1)";
-    ctx.strokeStyle = resetCss;
-    ctx.fillStyle   = resetCss;
-    ctx.globalAlpha = 1;
-
-    return ctx;
-};
-
-/**
- * @param   {array} m
- * @returns {array}
- */
-Shape.prototype.linearGradientXY = function (m)
-{
-    var x0  = +(-16384 * m[0] - 16384 * m[2] + m[4]);
-    var x1  = +( 16384 * m[0] - 16384 * m[2] + m[4]);
-    var x2  = +(-16384 * m[0] + 16384 * m[2] + m[4]);
-    var y0  = +(-16384 * m[1] - 16384 * m[3] + m[5]);
-    var y1  = +( 16384 * m[1] - 16384 * m[3] + m[5]);
-    var y2  = +(-16384 * m[1] + 16384 * m[3] + m[5]);
-    var vx2 = +(x2 - x0);
-    var vy2 = +(y2 - y0);
-    var r1  = +this.$sqrt(vx2 * vx2 + vy2 * vy2);
-
-    switch (true) {
-        case (r1):
-            vx2 = +(vx2 / r1);
-            vy2 = +(vy2 / r1);
-            break;
-        default:
-            vx2 = 0;
-            vy2 = 0;
-            break;
-    }
-
-    var r2  = +((x1 - x0) * vx2 + (y1 - y0) * vy2);
-    return [
-        +(x0 + r2 * vx2),
-        +(y0 + r2 * vy2),
-        x1,
-        y1
-    ];
 };

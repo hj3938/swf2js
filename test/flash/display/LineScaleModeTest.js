@@ -18,4 +18,15 @@ describe("LineScaleMode.js property test", function()
         expect(LineScaleMode.VERTICAL).toBe("vertical");
     });
 
+    it("length test", function () {
+        var length = 0;
+        for (var idx in LineScaleMode) {
+            if (!LineScaleMode.hasOwnProperty(idx)) {
+                continue;
+            }
+            length++;
+        }
+        expect(length).toBe(4);
+    });
+
 });

@@ -13,4 +13,16 @@ describe("ColorCorrection.js property test", function()
     it("ON test", function () {
         expect(ColorCorrection.ON).toBe("on");
     });
+
+    it("length test", function () {
+        var length = 0;
+        for (var idx in ColorCorrection) {
+            if (!ColorCorrection.hasOwnProperty(idx)) {
+                continue;
+            }
+            length++;
+        }
+        expect(length).toBe(3);
+    });
+
 });

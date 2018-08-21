@@ -14,4 +14,15 @@ describe("StageDisplayState.js property test", function()
         expect(StageDisplayState.NORMAL).toBe("normal");
     });
 
+    it("length test", function () {
+        var length = 0;
+        for (var idx in StageDisplayState) {
+            if (!StageDisplayState.hasOwnProperty(idx)) {
+                continue;
+            }
+            length++;
+        }
+        expect(length).toBe(3);
+    });
+
 });

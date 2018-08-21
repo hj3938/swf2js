@@ -30,4 +30,15 @@ describe("GraphicsPathCommand.js property test", function()
         expect(GraphicsPathCommand.CUBIC_CURVE_TO).toBe(6);
     });
 
+    it("length test", function () {
+        var length = 0;
+        for (var idx in GraphicsPathCommand) {
+            if (!GraphicsPathCommand.hasOwnProperty(idx)) {
+                continue;
+            }
+            length++;
+        }
+        expect(length).toBe(7);
+    });
+
 });

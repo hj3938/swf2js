@@ -14,4 +14,15 @@ describe("SpreadMethod.js property test", function()
         expect(SpreadMethod.REPEAT).toBe("repeat");
     });
 
+    it("length test", function () {
+        var length = 0;
+        for (var idx in SpreadMethod) {
+            if (!SpreadMethod.hasOwnProperty(idx)) {
+                continue;
+            }
+            length++;
+        }
+        expect(length).toBe(3);
+    });
+
 });

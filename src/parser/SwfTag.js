@@ -6,11 +6,12 @@
  */
 var SwfTag = function (main, bitio)
 {
+    Util.call(this);
+
     this.main              = main;
     this.bitio             = bitio;
     this.currentPosition   = {x: 0, y: 0};
     this.jpegTables        = null;
-    this.cachePlaceObjects = [];
 };
 
 /**
@@ -52,11 +53,12 @@ SwfTag.prototype.parse = function (parent)
  * @param   {MovieClip} parent
  * @param   {object}    tags
  * @param   {number}    frame
+ * @param   {array}     cachePlaceObjects
  * @returns void
  */
-SwfTag.prototype.showFrame = function (parent, tags, frame)
+SwfTag.prototype.showFrame = function (parent, tags, frame, cachePlaceObjects)
 {
-    var idx, length;
+    var idx;
     var installed = [];
 
     // add total frame
@@ -115,104 +117,127 @@ SwfTag.prototype.showFrame = function (parent, tags, frame)
         }
     }
 
+    // new cache
+    if (!(frame in cachePlaceObjects)) {
+        cachePlaceObjects[frame] = [];
+    }
+
     // place objects
-    var placeObjects = tags.placeObjects;
-    if (placeObjects.length) {
-        length = placeObjects.length|0;
+    var prevFrame        = (frame - 1)|0;
+    var placeObjects     = tags.placeObjects;
+    var prevPlaceObjects = cachePlaceObjects[prevFrame];
+    for (idx in placeObjects) {
 
-        idx = 0;
-        while (length > idx) {
+        if (!placeObjects.hasOwnProperty(idx)) {
+            continue;
+        }
 
-            // id reset
-            var instanceId = null;
+        // id reset
+        var instanceId = null;
 
-            var placeObject = placeObjects[idx];
+        var placeObject = placeObjects[idx];
 
-            var cachePlaceObject = this.cachePlaceObjects[idx];
+        // reset
+        var prevPlaceObject = null;
+        if (prevPlaceObjects && idx in prevPlaceObjects) {
+            prevPlaceObject = prevPlaceObjects[idx];
+        }
 
-            if (placeObject.PlaceFlagHasCharacter === 0 && cachePlaceObject) {
+        // set prev characterId
+        if (placeObject.PlaceFlagHasCharacter === 0 && prevPlaceObject) {
 
-                placeObject.CharacterId = cachePlaceObject.CharacterId;
+            placeObject.CharacterId = prevPlaceObject.CharacterId;
 
-            }
+        }
 
-            var isNewCharacter = false;
-            if (placeObject.PlaceFlagMove === 0
-                || placeObject.PlaceFlagMove === 1 && placeObject.PlaceFlagHasCharacter === 1
-            ) {
+        var isNewCharacter = false;
+        if (placeObject.PlaceFlagMove === 0
+            || placeObject.PlaceFlagMove === 1 && placeObject.PlaceFlagHasCharacter === 1
+        ) {
+            isNewCharacter = true;
+        }
+
+        // character clone
+        if (prevFrame && !isNewCharacter) {
+            instanceId = parent._$getControllerAt(prevFrame, placeObject.Depth);
+            if (instanceId === null) {
                 isNewCharacter = true;
             }
-
-            // character clone
-            if (frame > 1 && !isNewCharacter) {
-                instanceId = parent._$getControllerAt(frame - 1, placeObject.Depth);
-                if (instanceId === null) {
-                    isNewCharacter = true;
-                }
-            }
-
-            // prev data set
-            if (placeObject.PlaceFlagMove === 1 && cachePlaceObject) {
-
-                if (cachePlaceObject.PlaceFlagHasMatrix === 1) {
-                    placeObject.PlaceFlagHasMatrix = 1;
-                    placeObject.Matrix             = cachePlaceObject.Matrix;
-                }
-
-                if (cachePlaceObject.PlaceFlagHasColorTransform === 1) {
-                    placeObject.PlaceFlagHasColorTransform = 1;
-                    placeObject.ColorTransform             = cachePlaceObject.ColorTransform;
-                }
-
-                if (cachePlaceObject.PlaceFlagHasClipDepth === 1) {
-                    placeObject.PlaceFlagHasClipDepth = 1;
-                    placeObject.ClipDepth             = cachePlaceObject.ClipDepth;
-                }
-
-                if (cachePlaceObject.PlaceFlagHasClipActions === 1) {
-                    placeObject.PlaceFlagHasClipActions = 1;
-                    placeObject.ClipActionRecords       = cachePlaceObject.ClipActionRecords;
-                }
-
-                if (cachePlaceObject.PlaceFlagHasRatio === 1) {
-                    placeObject.PlaceFlagHasRatio = 1;
-                    placeObject.Ratio             = cachePlaceObject.Ratio;
-                }
-
-                if (cachePlaceObject.PlaceFlagHasFilterList === 1) {
-                    placeObject.PlaceFlagHasFilterList = 1;
-                    placeObject.SurfaceFilterList      = cachePlaceObject.SurfaceFilterList;
-                }
-
-                if (cachePlaceObject.PlaceFlagHasBlendMode === 1) {
-                    placeObject.PlaceFlagHasBlendMode = 1;
-                    placeObject.BlendMode             = cachePlaceObject.BlendMode;
-                }
-            }
-
-
-            // character new build
-            if (isNewCharacter) {
-
-                instanceId = parent._$addDictionary(placeObject);
-
-            }
-
-            // start set instance
-            parent._$setController(frame,  placeObject.Depth, instanceId);
-            parent._$setPlaceObject(frame, placeObject.Depth, this.buildPlaceObject(placeObject));
-
-            // flag
-            installed[placeObject.Depth] = 1;
-
-            idx = (idx + 1)|0;
         }
+
+        // prev data set
+        if (placeObject.PlaceFlagMove === 1 && prevPlaceObject) {
+
+            if (placeObject.PlaceFlagHasMatrix === 0
+                && prevPlaceObject.PlaceFlagHasMatrix === 1
+            ) {
+                placeObject.PlaceFlagHasMatrix = 1;
+                placeObject.Matrix = prevPlaceObject.Matrix;
+            }
+
+            if (placeObject.PlaceFlagHasColorTransform === 0
+                && prevPlaceObject.PlaceFlagHasColorTransform === 1
+            ) {
+                placeObject.PlaceFlagHasColorTransform = 1;
+                placeObject.ColorTransform = prevPlaceObject.ColorTransform;
+            }
+
+            if (placeObject.PlaceFlagHasClipDepth === 0
+                && prevPlaceObject.PlaceFlagHasClipDepth === 1
+            ) {
+                placeObject.PlaceFlagHasClipDepth = 1;
+                placeObject.ClipDepth = prevPlaceObject.ClipDepth;
+            }
+
+            if (placeObject.PlaceFlagHasClipActions === 0
+                && prevPlaceObject.PlaceFlagHasClipActions === 1
+            ) {
+                placeObject.PlaceFlagHasClipActions = 1;
+                placeObject.ClipActionRecords = prevPlaceObject.ClipActionRecords;
+            }
+
+            if (placeObject.PlaceFlagHasRatio === 0
+                && prevPlaceObject.PlaceFlagHasRatio === 1
+            ) {
+                placeObject.PlaceFlagHasRatio = 1;
+                placeObject.Ratio = prevPlaceObject.Ratio;
+            }
+
+            if (placeObject.PlaceFlagHasFilterList === 0
+                && prevPlaceObject.PlaceFlagHasFilterList === 1
+            ) {
+                placeObject.PlaceFlagHasFilterList = 1;
+                placeObject.SurfaceFilterList = prevPlaceObject.SurfaceFilterList;
+            }
+
+            if (placeObject.PlaceFlagHasBlendMode === 0
+                && prevPlaceObject.PlaceFlagHasBlendMode === 1
+            ) {
+                placeObject.PlaceFlagHasBlendMode = 1;
+                placeObject.BlendMode = prevPlaceObject.BlendMode;
+            }
+        }
+
+        // character new build
+        if (isNewCharacter) {
+
+            instanceId = parent._$addDictionary(placeObject);
+
+        }
+
+        // start set instance
+        parent._$setController(frame,  placeObject.Depth, instanceId);
+        parent._$setPlaceObject(frame, placeObject.Depth, this.buildPlaceObject(placeObject));
+
+        // flag
+        installed[placeObject.Depth] = 1;
+
+        // cache
+        cachePlaceObjects[frame][placeObject.Depth] = placeObject;
     }
 
     // clone prev frame
-    if (frame > 1) {
-
-        var prevFrame = (frame - 1)|0;
+    if (prevFrame) {
 
         if (!(frame in parent._$controller)) {
             parent._$controller[frame] = [];
@@ -228,6 +253,8 @@ SwfTag.prototype.showFrame = function (parent, tags, frame)
                 continue;
             }
 
+            // clone
+            cachePlaceObjects[frame][idx]   = cachePlaceObjects[prevFrame][idx];
             parent._$controller[frame][idx] = controller[idx];
         }
 
@@ -238,6 +265,7 @@ SwfTag.prototype.showFrame = function (parent, tags, frame)
 
         var places = parent._$places[prevFrame];
         for (idx in places) {
+
             if (!places.hasOwnProperty(idx)) {
                 continue;
             }
@@ -246,7 +274,7 @@ SwfTag.prototype.showFrame = function (parent, tags, frame)
                 continue;
             }
 
-            parent._$places[frame][idx] = places[idx];
+            parent._$places[frame][idx]   = places[idx];
         }
     }
 };
@@ -610,6 +638,7 @@ SwfTag.prototype.parseTags = function (dataLength, parent)
         frameLabel:    []
     };
 
+    var cachePlaceObjects = [];
     while (bitio.byte_offset < dataLength) {
 
         tagStartOffset = bitio.byte_offset;
@@ -632,14 +661,14 @@ SwfTag.prototype.parseTags = function (dataLength, parent)
         }
 
         tagDataStartOffset = bitio.byte_offset|0;
-        this.parseTag(tagType, length, parent, frame, tags);
+        this.parseTag(tagType, length, parent, frame, tags, cachePlaceObjects);
 
         if (tagType === 1) {
+
+            // next frame
             frame = (frame + 1)|0;
 
-            this.cachePlaceObjects = this.$cloneArray(tags.placeObjects);
-
-            // reset
+            // tag reset
             tags = {
                 placeObjects:  [],
                 actions:       [],
@@ -658,8 +687,6 @@ SwfTag.prototype.parseTags = function (dataLength, parent)
 
         bitio.bit_offset = 0;
     }
-
-    this.cachePlaceObjects = [];
 };
 
 /**
@@ -668,8 +695,9 @@ SwfTag.prototype.parseTags = function (dataLength, parent)
  * @param {MovieClip} parent
  * @param {number}    frame
  * @param {object}    tags
+ * @param {array}     cachePlaceObjects
  */
-SwfTag.prototype.parseTag = function (tagType, length, parent, frame, tags)
+SwfTag.prototype.parseTag = function (tagType, length, parent, frame, tags, cachePlaceObjects)
 {
 
     var obj = null;
@@ -678,7 +706,7 @@ SwfTag.prototype.parseTag = function (tagType, length, parent, frame, tags)
         case 0: // End
             break;
         case 1: // ShowFrame
-            this.showFrame(parent, tags, frame);
+            this.showFrame(parent, tags, frame, cachePlaceObjects);
             break;
         case 2:  // DefineShape
         case 22: // DefineShape2
@@ -713,7 +741,8 @@ SwfTag.prototype.parseTag = function (tagType, length, parent, frame, tags)
         case 4:  // PlaceObject
         case 26: // PlaceObject2
         case 70: // PlaceObject3
-            tags.placeObjects[tags.placeObjects.length] = this.parsePlaceObject(tagType, length);
+            var placeObject = this.parsePlaceObject(tagType, length);
+            tags.placeObjects[placeObject.Depth] = placeObject;
             break;
         case 37: // DefineEditText
             this.parseDefineEditText(tagType);
@@ -901,15 +930,12 @@ SwfTag.prototype.parseDefineShape = function (tagType)
     }
 
     // create data
-    var data  = this.$vtc.convert(this.shapeWithStyle(tagType));
+    var data  = this.$vtc.convert(this.shapeWithStyle(tagType), false);
 
     // build shape object
-    var shape = new Shape();
-
-    shape
-        .setData(data)
-        .setBounds(bounds);
-
+    var shape         = new Shape();
+    shape._$data      = data;
+    shape._$bounds    = bounds;
     shape.characterId = characterId;
 
     // set
@@ -3790,6 +3816,8 @@ SwfTag.prototype.parseSoundStreamHead = function (tagType)
  */
 SwfTag.prototype.parseDoABC = function (tagType, length)
 {
+    this.bitio.byte_offset = this.bitio.byte_offset + length;
+    return ;
     var stage = this.main.stage;
 
     stage.abcFlag = true;

@@ -10,8 +10,8 @@ var MovieClip = function ()
     this._$canAction     = true;
 
     // property
-    this._$currentframe  = 1;
-    this._$totalFrames   = 0;
+    this._$currentFrame  = 1;
+    this._$totalFrames   = 1;
     this._$isPlaying     = false;
 
     // controller tags
@@ -19,12 +19,6 @@ var MovieClip = function ()
     this._$frameLabels   = [];
     this._$removeObjects = [];
 
-
-
-    // // clip
-    // this.isClipDepth = false;
-    // this.clipDepth   = 0;
-    //
     // // sound
     // this.sounds        = [];
     // this.soundStopFlag = false;
@@ -47,7 +41,7 @@ Object.defineProperties(MovieClip.prototype, {
          * @return {number}
          */
         get: function () {
-            return this._$currentframe;
+            return this._$currentFrame;
         },
         /**
          * readonly
@@ -252,7 +246,7 @@ MovieClip.prototype._$addSound = function (frame, sound)
 
 /**
  * @param   {MovieClip} parent
- * @param   {number }   index
+ * @param   {number}    index
  * @param   {object}    tag
  * @param   {boolean}   shouldAction
  * @returns {MovieClip}
@@ -264,10 +258,11 @@ MovieClip.prototype._$build = function (parent, index, tag, shouldAction)
     var mc = new MovieClip();
 
     // init
-    mc.id          = index|0;
-    mc.characterId = this.characterId;
-    mc.parent      = parent;
-    mc.stage       = parent.stage;
+    mc.id            = index|0;
+    mc.characterId   = this.characterId;
+    mc.parent        = parent;
+    mc.stage         = parent.stage;
+    mc._$totalFrames = this._$totalFrames;
 
     /**
      * set place data
@@ -280,6 +275,10 @@ MovieClip.prototype._$build = function (parent, index, tag, shouldAction)
     // ratio
     if (tag.PlaceFlagHasRatio === 1) {
         mc.ratio = tag.Ratio;
+    }
+
+    if (tag.PlaceFlagHasClipDepth === 1) {
+        mc._$clipDepth = tag.ClipDepth;
     }
 
     // clip actions
@@ -404,27 +403,39 @@ MovieClip.prototype._$build = function (parent, index, tag, shouldAction)
     return mc;
 };
 
-
-MovieClip.prototype._$draw = function (matrix, colorTransform)
+/**
+ * @param {array}   matrix
+ * @param {array}   colorTransform
+ * @param {boolean} isClip
+ * @param {boolean} visible
+ */
+MovieClip.prototype._$draw = function (matrix, colorTransform, isClip, visible)
 {
 
-    var frame = this.currentFrame;
-
-    var controller = this._$getController(this.currentFrame);
+    var frame      = this.currentFrame|0;
+    var controller = this._$getController(frame);
+    var version    = this.root.actionScriptVersion|0;
 
     // case action script3
-    if (this.stage.root.actionScriptVersion === ActionScriptVersion.ACTIONSCRIPT3) {
-
-
+    if (version === ActionScriptVersion.ACTIONSCRIPT3) {
 
         // next frame
         this._$putFrame();
 
+    }
 
+    var removeObjects = null;
+    if (frame in this._$removeObjects) {
+
+        removeObjects = this._$removeObjects[frame];
 
     }
 
+    // init clip
+    var ctx   = this.stage.player.preContext;
+    var clips = [];
 
+    // children draw
     for (var depth in controller) {
 
         if (!controller.hasOwnProperty(depth)) {
@@ -433,29 +444,109 @@ MovieClip.prototype._$draw = function (matrix, colorTransform)
 
         var instance = this._$getInstance(controller[depth]);
 
+        // mask end
+        var length = clips.length|0;
+        var idx    = 0;
+        while (idx < length) {
+
+            if (depth > clips[idx]) {
+
+                clips.splice(idx, 1);
+                ctx.restore();
+
+                break;
+            }
+
+            idx = (idx + 1)|0;
+        }
+
+        // mask start
+        if (instance._$clipDepth) {
+
+            ctx.save();
+            ctx.beginPath();
+
+            clips[clips.length] = instance._$clipDepth|0;
+
+            if (instance.toString() === "[object MovieClip]") {
+                isClip = true;
+            }
+        }
+
+
+        // next draw
         instance._$draw(
             this.$multiplicationMatrix(matrix, instance._$getMatrix(frame, depth)),
-            this.$multiplicationColor(colorTransform, instance._$getColorTransform(frame, depth))
+            this.$multiplicationColor(colorTransform, instance._$getColorTransform(frame, depth)),
+            isClip,
+            visible
         );
+
+
+        // MovieClip mask end
+        if (instance._$clipDepth && instance.toString() === "[object MovieClip]") {
+
+            ctx.clip();
+
+            isClip = false;
+        }
+
+
+        // case action script 1 or 2
+        if (instance.toString() === "[object MovieClip]"
+            && version === ActionScriptVersion.ACTIONSCRIPT2
+        ) {
+            instance._$putFrame();
+        }
+
+
+        // remove
+        if (removeObjects && depth in removeObjects) {
+
+            this._$createInstance(instance.id, false);
+
+        }
 
     }
 
+    // end clip
+    // if (clips.length || this.mask) {
+    if (clips.length) {
+        ctx.restore();
+    }
+
+    // case action script3
+    if (this.toString() === "[object MainTimeline]"
+        && version === ActionScriptVersion.ACTIONSCRIPT2
+    ) {
+
+        // next frame
+        this._$putFrame();
+
+    }
 };
 
-
+/**
+ * @returns void
+ */
 MovieClip.prototype._$putFrame = function ()
 {
-    console.log(this);
-    if (!this._$stopFlag && this.totalFrames >= this.currentFrame) {
 
+    if (!this._$stopFlag && this.totalFrames > 1) {
+
+        // loop or reset
         if (this.totalFrames === this.currentFrame) {
 
             // loop
             if (this.ratio === 0) {
+
                 this._$currentFrame = 1;
 
-                // action on
-                this._$canAction = true;
+            // reset
+            } else {
+
+                this.parent._$createInstance(this.id, false);
+
             }
 
         } else {
@@ -463,10 +554,13 @@ MovieClip.prototype._$putFrame = function ()
             // next frame
             this._$currentFrame = (this._$currentFrame + 1)|0;
 
-            // action on
-            this._$canAction = true;
         }
 
-    }
+        // action on
+        this._$canAction = true;
 
+        // set next action
+        this._$prepareActions(this._$currentFrame);
+
+    }
 };

@@ -34,4 +34,15 @@ describe("StageAlign.js property test", function()
         expect(StageAlign.TOP_RIGHT).toBe("TR");
     });
 
+    it("length test", function () {
+        var length = 0;
+        for (var idx in StageAlign) {
+            if (!StageAlign.hasOwnProperty(idx)) {
+                continue;
+            }
+            length++;
+        }
+        expect(length).toBe(8);
+    });
+
 });

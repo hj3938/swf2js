@@ -13,6 +13,9 @@ var DisplayObject = function ()
     this._$parent         = null;
     this._$variables      = {};
 
+    // clip
+    // clip
+    this._$clipDepth      = 0;
 
     // draw param
     this._$matrix         = null;

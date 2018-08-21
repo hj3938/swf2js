@@ -154,7 +154,7 @@ Util.prototype.$startSound = function (audio, soundInfo)
 Util.prototype.$resize = function ()
 {
     this.$clearTimeout.call(null, this.$resizeId);
-    this.$resizeId = this.$setTimeout.call(null, this.$resizeExecute, 300);
+    this.$resizeId = this.$setTimeout.call(null, Util.prototype.$resizeExecute, 300);
 };
 
 /**
@@ -162,7 +162,7 @@ Util.prototype.$resize = function ()
  */
 Util.prototype.$resizeExecute = function ()
 {
-    var players = this.$players;
+    var players = Util.prototype.$players;
 
     for (var idx in players) {
 
@@ -216,7 +216,7 @@ Util.prototype.$multiplicationMatrix = function(a, b)
 };
 
 /**
- * @param   {object} color
+ * @param   {{R: number, G: number, B: number, A: number}} color
  * @param   {array} data
  * @returns {{R: number, G: number, B: number, A: number}}
  */
@@ -283,6 +283,42 @@ Util.prototype.$colorStringToInt = function(str)
     this.$cacheStore.destroy(ctx);
 
     return color|0;
+};
+
+/**
+ * @param   {array} matrix
+ * @returns {array}
+ */
+Util.prototype.$linearGradientXY = function (matrix)
+{
+    var x0  = +(-16384 * matrix[0] - 16384 * matrix[2] + matrix[4]);
+    var x1  = +( 16384 * matrix[0] - 16384 * matrix[2] + matrix[4]);
+    var x2  = +(-16384 * matrix[0] + 16384 * matrix[2] + matrix[4]);
+    var y0  = +(-16384 * matrix[1] - 16384 * matrix[3] + matrix[5]);
+    var y1  = +( 16384 * matrix[1] - 16384 * matrix[3] + matrix[5]);
+    var y2  = +(-16384 * matrix[1] + 16384 * matrix[3] + matrix[5]);
+    var vx2 = +(x2 - x0);
+    var vy2 = +(y2 - y0);
+    var r1  = +this.$sqrt(vx2 * vx2 + vy2 * vy2);
+
+    switch (true) {
+        case (r1):
+            vx2 = +(vx2 / r1);
+            vy2 = +(vy2 / r1);
+            break;
+        default:
+            vx2 = 0;
+            vy2 = 0;
+            break;
+    }
+
+    var r2  = +((x1 - x0) * vx2 + (y1 - y0) * vy2);
+    return [
+        +(x0 + r2 * vx2),
+        +(y0 + r2 * vy2),
+        x1,
+        y1
+    ];
 };
 
 /**

@@ -391,7 +391,7 @@ MovieClip.prototype._$build = function (parent, index, tag, shouldAction)
         }
     }
 
-
+    
     /**
      * clone controller
      */

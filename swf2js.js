@@ -10184,7 +10184,7 @@ MovieClip.prototype._$build = function (parent, index, tag, shouldAction)
         }
     }
 
-
+    
     /**
      * clone controller
      */
@@ -29334,14 +29334,17 @@ CacheStore.prototype.generateKey = function (uniqueKey, cxForm)
 {
     // color
     if (
-           cxForm[0] !== 1
+        this.$isArray(cxForm)
+        && cxForm.length === 8
+        &&
+        (  cxForm[0] !== 1
         || cxForm[1] !== 1
         || cxForm[2] !== 1
         || cxForm[3] !== 1
         || cxForm[4] !== 0
         || cxForm[5] !== 0
         || cxForm[6] !== 0
-        || cxForm[7] !== 0
+        || cxForm[7] !== 0)
     ) {
 
         var R =   this.$max(0, this.$min((255 * cxForm[0]) + cxForm[4], 255))|0;

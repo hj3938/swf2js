@@ -3,7 +3,8 @@ describe("MovieClip.js toString test", function()
 {
 
     // toString
-    it("toString test success", function () {
+    it("toString test success", function () 
+    {
         var mc = new MovieClip();
         expect(mc.toString()).toBe("[object MovieClip]");
     });
@@ -14,7 +15,8 @@ describe("MovieClip.js toString test", function()
 describe("MovieClip.js _$addFrameLabel test", function()
 {
 
-    it("_$addFrameLabel test success", function () {
+    it("_$addFrameLabel test success", function () 
+    {
         var mc = new MovieClip();
         mc._$addFrameLabel(new FrameLabel("test", 1));
 
@@ -22,7 +24,8 @@ describe("MovieClip.js _$addFrameLabel test", function()
         expect(fl instanceof FrameLabel).toBe(true);
     });
 
-    it("_$addFrameLabel test valid1", function () {
+    it("_$addFrameLabel test valid1", function () 
+    {
         var mc = new MovieClip();
         mc._$addFrameLabel({
             "name": 10,
@@ -39,7 +42,8 @@ describe("MovieClip.js _$addFrameLabel test", function()
 describe("MovieClip.js _$addAction test", function()
 {
 
-    it("_$addAction test success", function () {
+    it("_$addAction test success", function () 
+    {
         var mc = new MovieClip();
         mc._$addAction(1, new ActionScript([]));
 
@@ -47,13 +51,15 @@ describe("MovieClip.js _$addAction test", function()
         expect(as instanceof Function).toBe(true);
     });
 
-    it("_$addAction test valid", function () {
+    it("_$addAction test valid", function () 
+    {
         var mc = new MovieClip();
         mc._$addAction(1, {});
         expect(mc._$actions[1] === undefined).toBe(true);
     });
 
-    it("_$addAction test valid2", function () {
+    it("_$addAction test valid2", function () 
+    {
         var mc = new MovieClip();
         mc._$addAction("aaa", new ActionScript([]));
         expect(mc._$actions[1] === undefined).toBe(true);
@@ -65,7 +71,8 @@ describe("MovieClip.js _$addAction test", function()
 describe("MovieClip.js _$createActionScript test", function()
 {
 
-    it("_$createActionScript test success", function () {
+    it("_$createActionScript test success", function () 
+    {
         var mc = new MovieClip();
         var f  = mc._$createActionScript(new ActionScript([]));
         expect(f instanceof Function).toBe(true);
@@ -77,7 +84,8 @@ describe("MovieClip.js _$createActionScript test", function()
 describe("MovieClip.js play test", function()
 {
 
-    it("play test success", function () {
+    it("play test success", function () 
+    {
         var mc = new MovieClip();
         mc._$stopFlag = true;
         mc.play();
@@ -90,7 +98,8 @@ describe("MovieClip.js play test", function()
 describe("MovieClip.js stop test", function()
 {
 
-    it("stop test success", function () {
+    it("stop test success", function () 
+    {
         var mc = new MovieClip();
         mc._$stopFlag = false;
         mc.stop();
@@ -103,7 +112,8 @@ describe("MovieClip.js stop test", function()
 describe("MovieClip.js gotoAndPlay test", function()
 {
 
-    it("gotoAndPlay test success", function () {
+    it("gotoAndPlay test success case number", function ()
+    {
         var mc = new MovieClip();
         mc._$totalFrames = 3;
         expect(mc.currentFrame).toBe(1);
@@ -112,7 +122,24 @@ describe("MovieClip.js gotoAndPlay test", function()
         expect(mc.currentFrame).toBe(2);
     });
 
-    it("gotoAndPlay test valid case1", function () {
+
+    it("gotoAndPlay test success case string", function ()
+    {
+        var mc = new MovieClip();
+        mc._$totalFrames = 3;
+        expect(mc.currentFrame).toBe(1);
+
+        mc._$addFrameLabel(new FrameLabel("f1", 1));
+        mc._$addFrameLabel(new FrameLabel("f2", 2));
+        mc._$addFrameLabel(new FrameLabel("f3", 3));
+
+        mc.gotoAndPlay("f2");
+        expect(mc.currentFrame).toBe(2);
+    });
+
+
+    it("gotoAndPlay test valid case1", function () 
+    {
         var mc = new MovieClip();
         mc._$totalFrames = 3;
 
@@ -120,7 +147,9 @@ describe("MovieClip.js gotoAndPlay test", function()
         expect(mc.currentFrame).toBe(1);
     });
 
-    it("gotoAndPlay test valid case2", function () {
+
+    it("gotoAndPlay test valid case2", function () 
+    {
         var mc = new MovieClip();
         mc._$totalFrames = 3;
 
@@ -128,17 +157,7 @@ describe("MovieClip.js gotoAndPlay test", function()
         expect(mc.currentFrame).toBe(1);
     });
 
-    it("gotoAndPlay test valid case3", function () {
-        var mc = new MovieClip();
-        mc._$totalFrames = 3;
 
-        mc.gotoAndPlay(2);
-        mc.gotoAndPlay(2);
-        expect(mc.currentFrame).toBe(2);
-    });
-
-
-    
 });
 
 

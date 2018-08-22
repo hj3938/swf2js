@@ -2,7 +2,8 @@
 describe("Point.js property valid test and clone test", function()
 {
 
-    it("valid and clone test", function () {
+    it("valid and clone test", function () 
+    {
 
         // valid
         var p1 = new Point("a", "b");

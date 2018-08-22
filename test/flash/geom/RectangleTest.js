@@ -1,7 +1,8 @@
 
 describe("Rectangle.js property test", function()
 {
-    it("top test", function () {
+    it("top test", function () 
+    {
 
         var r = new Rectangle(50, 50, 100, 100);
         expect(r.top).toBe(50);
@@ -20,7 +21,8 @@ describe("Rectangle.js property test", function()
     });
 
 
-    it("right test", function () {
+    it("right test", function () 
+    {
 
         var r = new Rectangle(50, 100, 100, 100);
         expect(r.right).toBe(150);
@@ -35,7 +37,8 @@ describe("Rectangle.js property test", function()
     });
 
 
-    it("bottom test", function () {
+    it("bottom test", function () 
+    {
 
         var r = new Rectangle(0, 100, 100, 100);
         expect(r.bottom).toBe(200);
@@ -50,7 +53,8 @@ describe("Rectangle.js property test", function()
     });
 
 
-    it("left test", function () {
+    it("left test", function () 
+    {
 
         var r = new Rectangle(50, 50, 100, 100);
         expect(r.left).toBe(50);
@@ -69,7 +73,8 @@ describe("Rectangle.js property test", function()
     });
 
 
-    it("bottomRight test", function () {
+    it("bottomRight test", function () 
+    {
 
         var r = new Rectangle(30, 50, 80, 100);
         var p = r.bottomRight;
@@ -80,7 +85,8 @@ describe("Rectangle.js property test", function()
     });
 
 
-    it("topLeft test", function () {
+    it("topLeft test", function () 
+    {
 
         var r = new Rectangle(30, 50, 80, 100);
         var p = r.topLeft;
@@ -91,7 +97,8 @@ describe("Rectangle.js property test", function()
     });
 
 
-    it("size test", function () {
+    it("size test", function () 
+    {
 
         var r = new Rectangle(30, 50, 80, 100);
         var p = r.size;
@@ -105,7 +112,8 @@ describe("Rectangle.js property test", function()
 
 describe("Rectangle.js clone test", function()
 {
-    it("clone test", function () {
+    it("clone test", function () 
+    {
         var r1 = new Rectangle(30, 50, 80, 100);
         var r2 = r1.clone();
         r2.x   = 100;
@@ -118,7 +126,8 @@ describe("Rectangle.js clone test", function()
 
 describe("Rectangle.js contains test", function()
 {
-    it("contains test", function () {
+    it("contains test", function () 
+    {
         var r = new Rectangle(30, 50, 80, 100);
         expect(r.contains(30, 50)).toBe(true);
         expect(r.contains(110, 150)).toBe(false);
@@ -130,7 +139,8 @@ describe("Rectangle.js contains test", function()
 
 describe("Rectangle.js containsPoint test", function()
 {
-    it("containsPoint test", function () {
+    it("containsPoint test", function () 
+    {
         var r = new Rectangle(30, 50, 80, 100);
 
         var p1 = new Point(30, 50);
@@ -150,7 +160,8 @@ describe("Rectangle.js containsPoint test", function()
 
 describe("Rectangle.js containsRect test", function()
 {
-    it("containsRect test", function () {
+    it("containsRect test", function () 
+    {
         var r1 = new Rectangle(10, 10, 20, 20);
         var r2 = new Rectangle(15, 15, 5, 5);
         expect(r1.containsRect(r2)).toBe(true);
@@ -172,7 +183,8 @@ describe("Rectangle.js containsRect test", function()
 
 describe("Rectangle.js copyFrom test", function()
 {
-    it("copyFrom test", function () {
+    it("copyFrom test", function () 
+    {
         var r1 = new Rectangle(10, 10, 20, 20);
         var r2 = new Rectangle(15, 15, 5, 5);
 
@@ -192,7 +204,8 @@ describe("Rectangle.js copyFrom test", function()
 
 describe("Rectangle.js equals test", function()
 {
-    it("equals test", function () {
+    it("equals test", function () 
+    {
         var r1 = new Rectangle(10, 10, 20, 20);
         var r2 = new Rectangle(10, 10, 20, 20);
         expect(r1.equals(r2)).toBe(true);
@@ -206,7 +219,8 @@ describe("Rectangle.js equals test", function()
 
 describe("Rectangle.js inflate test", function()
 {
-    it("inflate test", function () {
+    it("inflate test", function () 
+    {
         var r1 = new Rectangle(10, 10, 20, 20);
         r1.inflate(10, 10);
         expect(r1.toString()).toBe("(x=0, y=0, w=40, h=40)");
@@ -220,7 +234,8 @@ describe("Rectangle.js inflate test", function()
 
 describe("Rectangle.js inflatePoint test", function()
 {
-    it("inflatePoint test", function () {
+    it("inflatePoint test", function () 
+    {
         var r1 = new Rectangle(10, 10, 20, 20);
         var p1 = new Point(10, 10);
         r1.inflatePoint(p1);
@@ -236,7 +251,8 @@ describe("Rectangle.js inflatePoint test", function()
 
 describe("Rectangle.js intersection test", function()
 {
-    it("intersection test", function () {
+    it("intersection test", function () 
+    {
         var r1 = new Rectangle(10, 10, 20, 20);
         var r2 = new Rectangle(5, 5, 5, 5);
         var r3 = r1.intersection(r2);
@@ -257,7 +273,8 @@ describe("Rectangle.js intersection test", function()
 
 describe("Rectangle.js intersects test", function()
 {
-    it("intersects test", function () {
+    it("intersects test", function () 
+    {
         var r1 = new Rectangle(10, 10, 20, 20);
         var r2 = new Rectangle(5, 5, 5, 5);
         expect(r1.intersects(r2)).toBe(false);
@@ -271,7 +288,8 @@ describe("Rectangle.js intersects test", function()
 
 describe("Rectangle.js isEmpty test", function()
 {
-    it("isEmpty test", function () {
+    it("isEmpty test", function () 
+    {
         var r1 = new Rectangle(10, 10, 20, 20);
         var r2 = new Rectangle(-55, -55, 0, 0);
         expect(r1.isEmpty()).toBe(false);
@@ -282,7 +300,8 @@ describe("Rectangle.js isEmpty test", function()
 
 describe("Rectangle.js offset test", function()
 {
-    it("offset test", function () {
+    it("offset test", function () 
+    {
         var r1 = new Rectangle(10, 10, 20, 20);
         var r2 = new Rectangle(-55, -55, 0, 0);
 
@@ -297,7 +316,8 @@ describe("Rectangle.js offset test", function()
 
 describe("Rectangle.js offsetPoint test", function()
 {
-    it("offsetPoint test", function () {
+    it("offsetPoint test", function () 
+    {
         var r1 = new Rectangle(10, 10, 20, 20);
         var r2 = new Rectangle(-55, -55, 0, 0);
 
@@ -311,7 +331,8 @@ describe("Rectangle.js offsetPoint test", function()
 
 describe("Rectangle.js setEmpty test", function()
 {
-    it("setEmpty test", function () {
+    it("setEmpty test", function () 
+    {
         var r1 = new Rectangle(10, 10, 20, 20);
         var r2 = new Rectangle(-55, -55, 0, 0);
 
@@ -326,7 +347,8 @@ describe("Rectangle.js setEmpty test", function()
 
 describe("Rectangle.js setTo test", function()
 {
-    it("setTo test", function () {
+    it("setTo test", function () 
+    {
         var r1 = new Rectangle(10, 10, 20, 20);
         var r2 = new Rectangle(-55, -55, 0, 0);
 
@@ -341,7 +363,8 @@ describe("Rectangle.js setTo test", function()
 
 describe("Rectangle.js union test", function()
 {
-    it("union test", function () {
+    it("union test", function () 
+    {
         var r1 = new Rectangle(10, 10, 0, 10);
         var r2 = new Rectangle(-55, -25, 0, 20);
         var r3 = r1.union(r2);

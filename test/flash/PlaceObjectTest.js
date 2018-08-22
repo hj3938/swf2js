@@ -2,7 +2,8 @@ describe("PlaceObject.js property test", function()
 {
 
     // matrix
-    it("matrix test success", function () {
+    it("matrix test success", function () 
+    {
         var obj = new PlaceObject();
 
         var matrix = [2, 1, 1, 2, 10, 10];

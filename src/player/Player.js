@@ -3,6 +3,8 @@
  */
 var Player = function ()
 {
+    Util.call(this);
+
     this.id = this.$players.length;
     this.$players[this.id] = this;
 
@@ -68,6 +70,7 @@ var Player = function ()
 
 /**
  * extends
+ * @type {Util}
  */
 Player.prototype = Object.create(Util.prototype);
 Player.prototype.constructor = Player;
@@ -87,7 +90,9 @@ Object.defineProperties(Player.prototype, {
          * @param {number} id
          */
         set: function (id) {
-            this._$id = id;
+            if (typeof id === "number") {
+                this._$id = id|0;
+            }
         }
     },
     name: {
@@ -119,7 +124,7 @@ Object.defineProperties(Player.prototype, {
          */
         set: function (ratio) {
             if (typeof ratio === "number") {
-                this._$ratio = ratio;
+                this._$ratio = ratio|0;
             }
         }
     },
@@ -132,18 +137,20 @@ Object.defineProperties(Player.prototype, {
         },
         /**
          * readonly
+         * @return void
          */
         set: function () {}
     },
     root: {
         /**
-         * @return {DisplayObject|MovieClip}
+         * @return {MainTimeline|MovieClip}
          */
         get: function () {
-            return this.stage.getChildAt(0);
+            return this.stage._root;
         },
         /**
          * readonly
+         * @return void
          */
         set: function () {}
     },
@@ -159,7 +166,7 @@ Object.defineProperties(Player.prototype, {
          */
         set: function (width) {
             if (typeof width === "number") {
-                this._$width = width;
+                this._$width = width|0;
             }
         }
     },
@@ -175,7 +182,7 @@ Object.defineProperties(Player.prototype, {
          */
         set: function (height) {
             if (typeof height === "number") {
-                this._$height = height;
+                this._$height = height|0;
             }
         }
     },
@@ -191,7 +198,7 @@ Object.defineProperties(Player.prototype, {
          */
         set: function (baseWidth) {
             if (typeof baseWidth === "number") {
-                this._$baseWidth = baseWidth;
+                this._$baseWidth = baseWidth|0;
             }
         }
     },
@@ -207,7 +214,7 @@ Object.defineProperties(Player.prototype, {
          */
         set: function (baseHeight) {
             if (typeof baseHeight === "number") {
-                this._$baseHeight = baseHeight;
+                this._$baseHeight = baseHeight|0;
             }
         }
     },
@@ -223,7 +230,7 @@ Object.defineProperties(Player.prototype, {
          */
         set: function (scale) {
             if (typeof scale === "number") {
-                this._scale = scale;
+                this._scale = +scale;
             }
         }
     },
@@ -287,7 +294,7 @@ Object.defineProperties(Player.prototype, {
          */
         set: function (intervalId) {
             if (typeof intervalId === "number") {
-                this._$intervalId = intervalId;
+                this._$intervalId = intervalId|0;
             }
         }
     },
@@ -335,7 +342,7 @@ Object.defineProperties(Player.prototype, {
          */
         set: function (loadStatus) {
             if (typeof loadStatus === "number") {
-                this._$loadStatus = loadStatus;
+                this._$loadStatus = loadStatus|0;
             }
         }
     },
@@ -351,7 +358,7 @@ Object.defineProperties(Player.prototype, {
          */
         set: function (optionWidth) {
             if (typeof optionWidth === "number") {
-                this._$optionWidth = optionWidth;
+                this._$optionWidth = optionWidth|0;
             }
         }
     },
@@ -367,7 +374,7 @@ Object.defineProperties(Player.prototype, {
          */
         set: function (optionHeight) {
             if (typeof optionHeight === "number") {
-                this._$optionHeight = optionHeight;
+                this._$optionHeight = optionHeight|0;
             }
         }
     },
@@ -399,6 +406,10 @@ Object.defineProperties(Player.prototype, {
          * @param {string} tagId
          */
         set: function (tagId) {
+            if (typeof tagId === "number") {
+                tagId = tagId + "";
+            }
+
             if (typeof tagId === "string") {
                 this._$tagId = tagId;
             }
@@ -461,6 +472,7 @@ Object.defineProperties(Player.prototype, {
         },
         /**
          * readonly
+         * @returns void
          */
         set: function () {}
     },
@@ -473,6 +485,7 @@ Object.defineProperties(Player.prototype, {
         },
         /**
          * readonly
+         * @returns void
          */
         set: function () {}
     },
@@ -543,7 +556,9 @@ Object.defineProperties(Player.prototype, {
          * @param {array} actions
          */
         set: function (actions) {
-            this._$actions = actions;
+            if (this.$isArray(actions)) {
+                this._$actions = actions;
+            }
         }
     },
     buttonHits: {
@@ -557,7 +572,10 @@ Object.defineProperties(Player.prototype, {
          * @param {array} buttonHits
          */
         set: function (buttonHits) {
-            this._$buttonHits = buttonHits;
+            if (this.$isArray(buttonHits)) {
+                this._$buttonHits = buttonHits;
+            }
+
         }
     },
     downEventHits: {
@@ -571,7 +589,9 @@ Object.defineProperties(Player.prototype, {
          * @param {array} downEventHits
          */
         set: function (downEventHits) {
-            this._$downEventHits = downEventHits;
+            if (this.$isArray(downEventHits)) {
+                this._$downEventHits = downEventHits;
+            }
         }
     },
     moveEventHits: {
@@ -585,7 +605,9 @@ Object.defineProperties(Player.prototype, {
          * @param {array} moveEventHits
          */
         set: function (moveEventHits) {
-            this._$moveEventHits = moveEventHits;
+            if (this.$isArray(moveEventHits)) {
+                this._$moveEventHits = moveEventHits;
+            }
         }
     },
     upEventHits: {
@@ -599,7 +621,9 @@ Object.defineProperties(Player.prototype, {
          * @param {array} upEventHits
          */
         set: function (upEventHits) {
-            this._$upEventHits = upEventHits;
+            if (this.$isArray(upEventHits)) {
+                this._$upEventHits = upEventHits;
+            }
         }
     },
     keyDownEventHits: {
@@ -613,7 +637,9 @@ Object.defineProperties(Player.prototype, {
          * @param {array} keyDownEventHits
          */
         set: function (keyDownEventHits) {
-            this._$keyDownEventHits = keyDownEventHits;
+            if (this.$isArray(keyDownEventHits)) {
+                this._$keyDownEventHits = keyDownEventHits;
+            }
         }
     },
     keyUpEventHits: {
@@ -627,7 +653,9 @@ Object.defineProperties(Player.prototype, {
          * @param {array} keyUpEventHits
          */
         set: function (keyUpEventHits) {
-            this._$keyUpEventHits = keyUpEventHits;
+            if (this.$isArray(keyUpEventHits)) {
+                this._$keyUpEventHits = keyUpEventHits;
+            }
         }
     }
 });
@@ -807,6 +835,7 @@ Player.prototype.initialize = function ()
     var div;
     var doc = this.$document;
     if (this.tagId) {
+
         if (doc.readyState === "loading") {
             var self = this;
             var initialize = function ()
@@ -941,12 +970,12 @@ Player.prototype.loaded = function ()
         this.deleteNode();
 
         // reset
-        // this.buttonHits       = [];
-        // this.downEventHits    = [];
-        // this.moveEventHits    = [];
-        // this.upEventHits      = [];
-        // this.keyDownEventHits = [];
-        // this.keyUpEventHits   = [];
+        this.buttonHits       = [];
+        this.downEventHits    = [];
+        this.moveEventHits    = [];
+        this.upEventHits      = [];
+        this.keyDownEventHits = [];
+        this.keyUpEventHits   = [];
 
         // action start
         this.doAction();
@@ -963,6 +992,7 @@ Player.prototype.loaded = function ()
             this.backgroundColor = this.bgcolor;
         }
 
+        // TODO
         // load sound
         // if (this.$isTouch) {
         //     var loadSounds = this.loadSounds;
@@ -985,23 +1015,23 @@ Player.prototype.loaded = function ()
         //     }
         // }
 
-        this.canvas.addEventListener(this.$startEvent, function (event)
-        {
-            self.$event = event;
-            self.touchStart(event);
-        });
-
-        this.canvas.addEventListener(this.$moveEvent, function (event)
-        {
-            self.$event = event;
-            self.touchMove(event);
-        });
-
-        this.canvas.addEventListener(this.$endEvent, function (event)
-        {
-            self.$event = event;
-            self.touchEnd(event);
-        });
+        // this.canvas.addEventListener(this.$startEvent, function (event)
+        // {
+        //     self.$event = event;
+        //     self.touchStart(event);
+        // });
+        //
+        // this.canvas.addEventListener(this.$moveEvent, function (event)
+        // {
+        //     self.$event = event;
+        //     self.touchMove(event);
+        // });
+        //
+        // this.canvas.addEventListener(this.$endEvent, function (event)
+        // {
+        //     self.$event = event;
+        //     self.touchEnd(event);
+        // });
 
         // render start
         this.draw();
@@ -1009,6 +1039,7 @@ Player.prototype.loaded = function ()
         // append canvas
         div.appendChild(this.canvas);
 
+        // player start
         this.play();
     }
 };
@@ -1055,23 +1086,6 @@ Player.prototype.initializeCanvas = function ()
     style["-webkit-tap-highlight-color"] = "rgba(0,0,0,0)";
     style.MozTransformOrigin             = "0 0";
     style.MozTransform                   = "scale(" + 1 / self.ratio + ")";
-
-    if (self.$isAndroid) {
-        canvas.addEventListener("touchcancel", function ()
-        {
-            self.touchEnd(self.$event);
-        });
-    }
-
-    if (!self.$isTouch) {
-        window.addEventListener("keydown", self.$keyDownAction);
-        window.addEventListener("keyup",   self.$keyUpAction);
-        window.addEventListener("keyup",   function (event)
-        {
-            Util.prototype.$keyEvent = event;
-            self.touchEnd(event);
-        });
-    }
 
     // main canvas
     self.context = canvas.getContext("2d");
@@ -1161,6 +1175,9 @@ Player.prototype.resize = function ()
 
             var mScale  = scale * this.ratio / 20;
             this.matrix = [mScale, 0, 0, mScale, 0, 0];
+
+            // cache reset
+            this.$cacheStore.reset();
         }
     }
 };
@@ -1197,36 +1214,18 @@ Player.prototype.run = function ()
     stats.begin(); // 計測
 
     // hits reset
-    // this.buttonHits       = [];
-    // this.downEventHits    = [];
-    // this.moveEventHits    = [];
-    // this.upEventHits      = [];
-    // this.keyDownEventHits = [];
-    // this.keyUpEventHits   = [];
+    this.buttonHits       = [];
+    this.downEventHits    = [];
+    this.moveEventHits    = [];
+    this.upEventHits      = [];
+    this.keyDownEventHits = [];
+    this.keyUpEventHits   = [];
 
     // execute
-    // this.putFrame();
-    // this.addActions();
     this.doAction();
     this.draw();
 
     stats.end(); // 計測
-};
-
-/**
- * @returns void
- */
-Player.prototype.putFrame = function ()
-{
-
-};
-
-/**
- * @returns void
- */
-Player.prototype.addActions = function ()
-{
-
 };
 
 /**
@@ -1238,19 +1237,18 @@ Player.prototype.doAction = function ()
 
         var i = 0;
         while (i < this.actions.length) {
+
             var obj = this.actions[i];
             i = (i + 1)|0;
 
-            var mc = obj.caller;
-            if (!mc.active) {
-                continue;
-            }
-
+            var mc      = obj.caller;
             var args    = obj.args || [];
             var actions = obj.actions;
+
             switch (typeof actions) {
+
                 case "function":
-                    actions.apply(mc, args);
+                    actions.apply(mc, [mc, args]);
                     break;
 
                 default:
@@ -1260,13 +1258,11 @@ Player.prototype.doAction = function ()
                         var action = actions[idx];
                         idx = (idx + 1)|0;
 
-                        switch (typeof action) {
-                            case "function":
-                                action.apply(mc, args);
-                                break;
-                            default:
-                                break;
+                        if (typeof action !== "function") {
+                            continue;
                         }
+
+                        action.apply(mc, [mc, args]);
                     }
 
                     break;

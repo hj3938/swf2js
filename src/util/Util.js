@@ -534,6 +534,17 @@ Util.prototype.$keyDownAction = function (event)
  */
 window.addEventListener("resize", function () { Util.prototype.$resize(); });
 
+// TODO key event
+if (!isTouch) {
+//     window.addEventListener("keydown", Util.prototype.$keyDownAction);
+//     window.addEventListener("keyup",   Util.prototype.$keyUpAction);
+//     window.addEventListener("keyup",   function (event)
+//     {
+//         Util.prototype.$keyEvent = event;
+//         self.touchEnd(event);
+//     });
+}
+
 /**
  * @param {object} option
  */

@@ -1,13 +1,14 @@
 /**
  * @param {Player} player
+ * @param {MovieClip} player
  * @constructor
  */
-var ReComposition = function (player)
+var ReComposition = function (player, root)
 {
     Util.call(this);
 
     this.player = player;
-    this.main   = player.stage._root;
+    this.main   = root;
     this.bitio  = new BitIO();
     this.swftag = new SwfTag(this.main, this.bitio);
 };

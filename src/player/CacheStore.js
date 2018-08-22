@@ -76,11 +76,15 @@ CacheStore.prototype.getCanvas = function ()
 
 /**
  * @param   {string} key
- * @returns {CanvasRenderingContext2D|WebGLRenderingContext}
+ * @returns {CanvasRenderingContext2D|WebGLRenderingContext|null}
  */
 CacheStore.prototype.getCache = function (key)
 {
-    return this._$store[key];
+    if (typeof key !== "string") {
+        key = key + "";
+    }
+
+    return (key in this._$store) ? this._$store[key] : null;
 };
 
 /**
@@ -89,49 +93,48 @@ CacheStore.prototype.getCache = function (key)
  */
 CacheStore.prototype.setCache = function (key, value)
 {
-    if (value instanceof CanvasRenderingContext2D) {
-        var canvas  = value.canvas;
-        this._$size = (this._$size - (canvas.width * canvas.height))|0;
+    if (this._$size > 0) {
+        if (value instanceof CanvasRenderingContext2D) {
+            var canvas  = value.canvas;
+            this._$size = (this._$size - (canvas.width * canvas.height))|0;
+        }
+
+        if (typeof key !== "string") {
+            key = key + "";
+        }
+
+        this._$store[key] = value;
     }
-    this._$store[key] = value;
 };
 
 /**
- * @param   {string} id
- * @param   {array}  matrix
+ * @param   {string} uniqueKey
  * @param   {array}  cxForm
  * @returns {string}
  */
-CacheStore.prototype.generateKey = function (id, matrix, cxForm)
+CacheStore.prototype.generateKey = function (uniqueKey, cxForm)
 {
-    // matrix
-    if (matrix !== undefined) {
-        var length = matrix.length|0;
-        var xScale, yScale;
-        switch (length) {
-            case 2:
-                xScale = matrix[0];
-                yScale = matrix[1];
-                break;
-            default:
-                xScale = this.$sqrt(matrix[0] * matrix[0] + matrix[1] * matrix[1]);
-                yScale = this.$sqrt(matrix[2] * matrix[2] + matrix[3] * matrix[3]);
-                break;
-        }
+    // color
+    if (
+           cxForm[0] !== 1
+        || cxForm[1] !== 1
+        || cxForm[2] !== 1
+        || cxForm[3] !== 1
+        || cxForm[4] !== 0
+        || cxForm[5] !== 0
+        || cxForm[6] !== 0
+        || cxForm[7] !== 0
+    ) {
+
+        var R =   this.$max(0, this.$min((255 * cxForm[0]) + cxForm[4], 255))|0;
+        var G =   this.$max(0, this.$min((255 * cxForm[1]) + cxForm[5], 255))|0;
+        var B =   this.$max(0, this.$min((255 * cxForm[2]) + cxForm[6], 255))|0;
+        var A = +(this.$max(0, this.$min((255 * cxForm[3]) + cxForm[7], 255)) / 255);
+
+        uniqueKey = uniqueKey +"_"+ R +"_"+ G +"_"+ B +"_"+ A;
     }
 
-    var R = this.$max(0, this.$min((1 * cxForm[0]) + cxForm[4], 255))|0;
-    var G = this.$max(0, this.$min((1 * cxForm[1]) + cxForm[5], 255))|0;
-    var B = this.$max(0, this.$min((1 * cxForm[2]) + cxForm[6], 255))|0;
-    var A = +(this.$max(0, this.$min((255 * cxForm[3]) + cxForm[7], 255)) / 255);
-    var color = R +""+ G +""+ B +""+ A;
-
-    var key = id +"_"+ xScale +"_"+ yScale;
-    if (color !== "1111") {
-        key = key +"_"+ color;
-    }
-
-    return key;
+    return uniqueKey + "";
 };
 
 Util.prototype.$cacheStore = new CacheStore();

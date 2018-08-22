@@ -3,6 +3,8 @@
  */
 var Swf2js = function ()
 {
+    Util.call(this);
+
     // create player
     var player = new Player();
     this.currentPlayerId = player.id;
@@ -15,21 +17,20 @@ Swf2js.prototype = Object.create(Util.prototype);
 Swf2js.prototype.constructor = Swf2js;
 
 /**
- * @param url
- * @param options
+ * @param {string} url
+ * @param {object|null|undefined} options
  */
 Swf2js.prototype.load = function (url, options)
 {
     // develop only
     if (url === "develop") {
-        url = location.search.substr(1).split("&")[0];
+        url = window.location.search.substr(1).split("&")[0];
     }
 
     if (url) {
-        var self = this;
 
-        // stage setup
-        var player = self.getCurrentPlayer();
+        // player setup
+        var player = this.$players[this.currentPlayerId];
 
         // start
         player.setOptions(options);
@@ -47,9 +48,7 @@ Swf2js.prototype.load = function (url, options)
 
                             var data = (this.response) ? this.response : this.responseText;
 
-                            (new ReComposition(player)).run(data, url);
-
-                            self.$cacheStore.reset();
+                            (new ReComposition(player, player.root)).run(data, url);
 
                             break;
                         default :
@@ -57,6 +56,7 @@ Swf2js.prototype.load = function (url, options)
                             break;
                     }
                 }
+                // TODO
                 // "progress": function (event)
                 // {
                 //     var id   = player.getName() + "_loading_span";
@@ -66,57 +66,63 @@ Swf2js.prototype.load = function (url, options)
                 // }
             }
         });
+
     } else {
+
         alert("please set swf url.");
+
     }
 };
 
-// /**
-//  * @param width
-//  * @param height
-//  * @param fps
-//  * @param options
-//  * @returns {MovieClip}
-//  */
-// Swf2js.prototype.createRootMovieClip = function (width, height, fps, options)
-// {
-//     var stage = new Stage();
-//     width     = width  || 240;
-//     height    = height || 240;
-//     fps       = fps    || 60;
-//
-//     // set
-//     stage.setBaseWidth(width);
-//     stage.setBaseHeight(height);
-//     stage.setFrameRate(fps);
-//     stage.setOptions(options);
-//     this.$stages[stage.getId()] = stage;
-//
-//     // init
-//     stage.init();
-//     stage.isLoad = true;
-//
-//     if (this.$document.readyState === "loading") {
-//         var reTry = function()
-//         {
-//             window.removeEventListener("DOMContentLoaded", reTry, false);
-//             stage.resize();
-//             stage.loaded();
-//         };
-//         window.addEventListener("DOMContentLoaded", reTry, false);
-//     }
-//
-//     return stage.getParent();
-// };
-
 /**
- * @returns {Player|null}
+ * @param   {number} width
+ * @param   {number} height
+ * @param   {number} fps
+ * @param   {object} options
+ * @returns {MainTimeline}
  */
-Swf2js.prototype.getCurrentPlayer = function ()
+Swf2js.prototype.createRootMovieClip = function (width, height, fps, options)
 {
-    if (!(this.currentPlayerId in this.$players)) {
-        return null;
+    // init player
+    var player = new Player();
+    player.setOptions(options);
+    player.initialize();
+
+    // default params
+    width  = width  || 240;
+    height = height || 240;
+    fps    = fps    || 60;
+
+    // set params
+    player.baseWidth  = width|0;
+    player.baseHeight = height|0;
+    player.frameRate  = fps|0;
+
+    // readyState
+    switch (this.$document.readyState) {
+
+        // retry
+        case "loading":
+
+            var reTry = function () {
+                this.removeEventListener("DOMContentLoaded", reTry, false);
+                player.loadStatus = 2;
+                player.isLoad = true;
+            };
+
+            // DOMContentLoaded
+            window.addEventListener("DOMContentLoaded", reTry, false);
+
+            break;
+
+        // player start
+        case "complete":
+
+            player.loadStatus = 2;
+            player.isLoad = true;
+
+            break;
     }
 
-    return this.$players[this.currentPlayerId];
+    return player.root;
 };

@@ -842,6 +842,17 @@ Util.prototype.$keyDownAction = function (event)
  */
 window.addEventListener("resize", function () { Util.prototype.$resize(); });
 
+// TODO key event
+if (!isTouch) {
+//     window.addEventListener("keydown", Util.prototype.$keyDownAction);
+//     window.addEventListener("keyup",   Util.prototype.$keyUpAction);
+//     window.addEventListener("keyup",   function (event)
+//     {
+//         Util.prototype.$keyEvent = event;
+//         self.touchEnd(event);
+//     });
+}
+
 /**
  * @param {object} option
  */
@@ -1709,11 +1720,12 @@ OriginalObject.prototype.constructor = OriginalObject;
  */
 var PlaceObject = function ()
 {
+    Util.call(this);
+
     this._$matrix         = [1, 0, 0, 1, 0, 0];
     this._$colorTransform = [1, 1, 1, 1, 0, 0, 0, 0];
     this._$filters        = null;
     this._$blendMode      = "normal";
-    this._$clipDepth      = 0;
 };
 
 /**
@@ -1735,7 +1747,8 @@ Object.defineProperties(PlaceObject.prototype, {
             return this._$matrix;
         },
         /**
-         * @param {array} matrix
+         * @param   {array} matrix
+         * @returns void
          */
         set: function (matrix) {
             this._$matrix = this.$cloneArray(matrix);
@@ -1749,7 +1762,8 @@ Object.defineProperties(PlaceObject.prototype, {
             return this._$colorTransform;
         },
         /**
-         * @param {array} colorTransform
+         * @param   {array} colorTransform
+         * @returns void
          */
         set: function (colorTransform) {
             this._$colorTransform = this.$cloneArray(colorTransform);
@@ -1763,7 +1777,8 @@ Object.defineProperties(PlaceObject.prototype, {
             return this._$filters;
         },
         /**
-         * @param {array} filters
+         * @param   {array} filters
+         * @returns void
          */
         set: function (filters) {
             this._$filters = filters;
@@ -1777,27 +1792,13 @@ Object.defineProperties(PlaceObject.prototype, {
             return this._$blendMode;
         },
         /**
-         * @param {string|number} blendMode
+         * @param   {string|number} blendMode
+         * @returns void
          */
         set: function (blendMode) {
             this._$blendMode = this.getBlendName(blendMode);
         }
-    },
-    clipDepth: {
-        /**
-         * @returns {number}
-         */
-        get: function () {
-            return this._$clipDepth;
-        },
-        /**
-         * @param {number} clipDepth
-         */
-        set: function (clipDepth) {
-            this._$clipDepth = clipDepth|0;
-        }
     }
-
 });
 
 /**
@@ -2352,11 +2353,6 @@ var Event = {
     "VIDEO_FRAME"                 : "videoFrame",
     "WORKER_STATE"                : "workerState"
 };
-
-
-
-
-
 /**
  * @constructor
  */
@@ -8648,10 +8644,12 @@ var Graphics = function ()
 
     // properties
     this.$cache = false;
+
 };
 
 /**
  * extends
+ * @type {OriginalObject}
  */
 Graphics.prototype = Object.create(OriginalObject.prototype);
 Graphics.prototype.constructor = Graphics;
@@ -9808,13 +9806,15 @@ var MovieClip = function ()
     this._$currentFrame  = 1;
     this._$totalFrames   = 1;
     this._$isPlaying     = false;
+    this._$enabled       = true;
+    this._$trackAsMenu   = true;
 
     // controller tags
     this._$actions       = [];
     this._$frameLabels   = [];
     this._$removeObjects = [];
 
-    // // sound
+    // sound
     // this.sounds        = [];
     // this.soundStopFlag = false;
 };
@@ -9849,37 +9849,70 @@ Object.defineProperties(MovieClip.prototype, {
         get: function () {
             return this._$id;
         },
+        /**
+         * readonly
+         * @return void
+         */
         set: function () {}
     },
     currentLabel: {
         get: function () {
             return this._$id;
         },
+        /**
+         * readonly
+         * @return void
+         */
         set: function () {}
     },
     currentLabels: {
+        /**
+         * @return {array}
+         */
         get: function () {
-            return this._$id;
+            return this._$frameLabels;
         },
+        /**
+         * readonly
+         * @return void
+         */
         set: function () {}
     },
     currentScene: {
         get: function () {
             return this._$id;
         },
-        set: function (id) {}
+        /**
+         * readonly
+         * @return void
+         */
+        set: function () {}
     },
     enabled: {
+        /**
+         * @return {boolean}
+         */
         get: function () {
-            return this._$id;
+            return this._$enabled;
         },
-        set: function (id) {}
+        /**
+         * @param {boolean} enabled
+         */
+        set: function (enabled) {
+            if (typeof enabled === "boolean") {
+                this._$enabled = enabled;
+            }
+        }
     },
     framesLoaded: {
         get: function () {
             return this._$id;
         },
-        set: function (id) {}
+        /**
+         * readonly
+         * @return void
+         */
+        set: function () {}
     },
     isPlaying: {
         /**
@@ -9889,19 +9922,20 @@ Object.defineProperties(MovieClip.prototype, {
             return this._$isPlaying;
         },
         /**
-         * @param {boolean} isPlaying
+         * readonly
+         * @returns void
          */
-        set: function (isPlaying) {
-            if (typeof isPlaying === "boolean") {
-                this._$isPlaying = isPlaying;
-            }
-        }
+        set: function () {}
     },
     scenes: {
         get: function () {
             return this._$id;
         },
-        set: function (id) {}
+        /**
+         * readonly
+         * @returns void
+         */
+        set: function () {}
     },
     totalFrames: {
         /**
@@ -9917,10 +9951,20 @@ Object.defineProperties(MovieClip.prototype, {
         set: function () {}
     },
     trackAsMenu: {
+        /**
+         * @return {boolean}
+         */
         get: function () {
-            return this._$id;
+            return this._$trackAsMenu;
         },
-        set: function (id) {}
+        /**
+         * @param {boolean} trackAsMenu
+         */
+        set: function (trackAsMenu) {
+            if (typeof trackAsMenu === "boolean") {
+                this._$trackAsMenu= trackAsMenu;
+            }
+        }
     }
 });
 
@@ -9942,6 +9986,37 @@ MovieClip.prototype._$addFrameLabel = function (frameLabel)
         this._$frameLabels[this._$frameLabels.length] = frameLabel;
     }
 };
+
+/**
+ * @param  {string} name
+ * @return {FrameLabel|null}
+ */
+MovieClip.prototype._$getFrameLabel = function (name)
+{
+    var frameLabels = this.currentLabels;
+
+    var length = frameLabels.length;
+    var idx    = 0;
+
+    if (typeof name !== "string") {
+        name = name + "";
+    }
+
+    name = name.toLowerCase();
+    while (length > idx) {
+
+        var frameLabel = frameLabels[idx];
+        if (frameLabel.name === name) {
+            return frameLabel;
+            break;
+        }
+
+        idx = (idx + 1)|0;
+    }
+
+    return null;
+};
+
 
 /**
  * @param {number}       frame
@@ -9976,7 +10051,7 @@ MovieClip.prototype._$prepareActions = function (frame)
             frame = this.currentFrame|0;
         }
 
-        if (frame in this._$actions) {
+        if (frame in this._$actions && this._$actions[frame].length) {
 
             var actions = this.stage.player.actions;
 
@@ -10006,10 +10081,10 @@ MovieClip.prototype._$createActionScript = function (script)
             as.cache = origin.cache;
             as.scope = clip;
 
-            return function () {
+            return function (mc) {
                 as.reset();
-                as.variables["this"] = this;
-                return as.execute(clip);
+                as.variables["this"] = mc;
+                return as.execute(mc);
             };
         })(this, script);
 
@@ -10072,6 +10147,7 @@ MovieClip.prototype._$build = function (parent, index, tag, shouldAction)
         mc.ratio = tag.Ratio;
     }
 
+    // mask
     if (tag.PlaceFlagHasClipDepth === 1) {
         mc._$clipDepth = tag.ClipDepth;
     }
@@ -10100,7 +10176,7 @@ MovieClip.prototype._$build = function (parent, index, tag, shouldAction)
                 }
 
                 // TODO
-                var action = mc.createActionScript(actionRecord.Actions);
+                var action = mc._$createActionScript(actionRecord.Actions);
                 mc.addEventListener(eventName, action);
             }
 
@@ -10164,6 +10240,7 @@ MovieClip.prototype._$build = function (parent, index, tag, shouldAction)
         frame = (frame + 1)|0;
     }
 
+
     /**
      * clone dictionary
      */
@@ -10192,8 +10269,10 @@ MovieClip.prototype._$build = function (parent, index, tag, shouldAction)
         }
     }
 
+
     // build dictionary
     mc._$characterBuild(nextAction);
+
 
     return mc;
 };
@@ -10304,13 +10383,13 @@ MovieClip.prototype._$draw = function (matrix, colorTransform, isClip, visible)
 
     }
 
-    // end clip
+    // end mask
     // if (clips.length || this.mask) {
     if (clips.length) {
         ctx.restore();
     }
 
-    // case action script3
+    // case action script2
     if (this.toString() === "[object MainTimeline]"
         && version === ActionScriptVersion.ACTIONSCRIPT2
     ) {
@@ -10326,7 +10405,6 @@ MovieClip.prototype._$draw = function (matrix, colorTransform, isClip, visible)
  */
 MovieClip.prototype._$putFrame = function ()
 {
-
     if (!this._$stopFlag && this.totalFrames > 1) {
 
         // loop or reset
@@ -10354,11 +10432,149 @@ MovieClip.prototype._$putFrame = function ()
         // action on
         this._$canAction = true;
 
-        // set next action
-        this._$prepareActions(this._$currentFrame);
+    }
+
+    // set next action
+    this._$prepareActions(this._$currentFrame);
+};
+
+/**
+ * Action Script 3
+ */
+
+/**
+ * @returns void
+ */
+MovieClip.prototype.play = function ()
+{
+    this._$stopFlag = false;
+};
+
+/**
+ * @returns void
+ */
+MovieClip.prototype.stop = function ()
+{
+    this._$stopFlag = true;
+};
+
+/**
+ * @param   {number|string} frame
+ * @returns void
+ */
+MovieClip.prototype.gotoAndPlay = function (frame)
+{
+    this._$gotoFrame(frame);
+    this.play();
+};
+
+/**
+ * @param   {number|string} frame
+ * @returns void
+ */
+MovieClip.prototype.gotoAndStop = function (frame)
+{
+    this._$gotoFrame(frame);
+    this.stop();
+};
+
+/**
+ * @returns void
+ */
+MovieClip.prototype.nextFrame = function ()
+{
+    this._$gotoFrame(this.currentFrame + 1);
+};
+
+/**
+ * @returns void
+ */
+MovieClip.prototype.prevFrame = function ()
+{
+    this._$gotoFrame(this.currentFrame - 1);
+};
+
+/**
+ * @param   {number|string} frame
+ * @returns void
+ */
+MovieClip.prototype._$gotoFrame = function (frame)
+{
+
+    if (typeof frame === "string") {
+
+        var frameLabel = this._$getFrameLabel(frame);
+
+        if (frameLabel instanceof FrameLabel) {
+            frame = frameLabel.frame|0;
+        }
 
     }
+
+    frame = frame|0;
+    if (frame > 0 && frame !== this.currentFrame) {
+
+        if (frame > this.totalFrames) {
+            frame = 1;
+        }
+
+        this._$canAction = true;
+
+        var maxFrame = (this.$max(frame, this.currentFrame) + 1)|0;
+        var minFrame = this.$min(frame,  this.currentFrame)|0;
+
+        var completed = [];
+        while (maxFrame > minFrame) {
+
+            var controller = this._$controller[minFrame];
+            for (var depth in controller) {
+
+                if (!controller.hasOwnProperty(depth)) {
+                    continue;
+                }
+
+                var instance = this._$getInstance(controller[depth]);
+                if (instance.id in completed) {
+                    continue;
+                }
+
+                // flag set
+                completed[instance.id] = 1;
+
+                switch (instance.toString()) {
+
+                    // MovieClip
+                    case "[object MovieClip]":
+
+                        // rebuild
+                        if (frame < instance.ratio || frame > instance.totalFrames) {
+
+                            this._$createInstance(instance.id, false);
+
+                        }
+
+                        break;
+
+
+                }
+
+            }
+
+            minFrame = (minFrame + 1)|0;
+        }
+
+        this._$currentFrame = frame|0;
+    }
 };
+
+/**
+ * Action Script 1 or 2
+ */
+
+
+
+
+
 /**
  * @param fastCompression
  * @constructor
@@ -10594,6 +10810,7 @@ Shape.prototype._$getBounds = function (matrix)
         }
 
         for (var name in bounds) {
+
             if (!bounds.hasOwnProperty(name)) {
                 continue;
             }
@@ -10603,6 +10820,7 @@ Shape.prototype._$getBounds = function (matrix)
         }
 
     } else {
+
         bounds = this._$bounds;
         if (isDraw) {
             gBounds = graphics.getBounds();
@@ -10635,7 +10853,7 @@ Shape.prototype._$build = function (parent, index, tag, shouldAction)
     shape._$data      = this._$data;
     shape._$bounds    = this._$bounds;
 
-    // set
+    // mask
     if (tag.PlaceFlagHasClipDepth === 1) {
         shape._$clipDepth = tag.ClipDepth;
     }
@@ -10683,13 +10901,19 @@ Shape.prototype._$draw = function (matrix, colorTransform, isClip, visible)
 
         if (width > 0 || height > 0) {
 
+            // matrix
             var m = null;
 
             // get cache
-            var cacheKey = this.$cacheStore.generateKey(this.characterId, [xScale, yScale], colorTransform);
+            var cacheKey = this.$cacheStore.generateKey(this.characterId, colorTransform);
             var cache    = this.$cacheStore.getCache(cacheKey);
 
-            // not cache
+            // cache is small
+            if (cache && (width > cache.canvas.width || height > cache.canvas.height)) {
+                cache = null;
+            }
+
+            // cache is not
             if (!cache) {
 
                 var canvas    = this.$cacheStore.getCanvas();
@@ -10838,18 +11062,24 @@ Shape.prototype._$doDraw = function (ctx, minScale, colorTransform, isClip)
                     }
 
                     if (isStroke) {
+
                         ctx.strokeStyle = css;
                         ctx.lineWidth   = this.$max(obj.Width, 1 / minScale);
                         ctx.lineCap     = "round";
                         ctx.lineJoin    = "round";
                         ctx.stroke();
+
                     } else {
+
                         ctx.fillStyle = css;
                         ctx.fill();
+
                     }
 
                     if (type !== 16) {
+
                         ctx.restore();
+
                     }
 
                     break;
@@ -15010,6 +15240,8 @@ var XMLNodeType = {
  */
 var ActionScript = function (data, constantPool, register, initAction)
 {
+    Util.call(this);
+
     this.cache        = [];
     this.params       = [];
     this.constantPool = constantPool || [];
@@ -15686,19 +15918,19 @@ ActionScript.prototype.operationValue = function (stack)
  */
 ActionScript.prototype.execute = function (mc)
 {
-    var scope = this.scope;
-    var movieClip = (scope instanceof MovieClip) ? scope : mc;
+    this.scope = mc;
+    var movieClip = mc;
     if (!movieClip.active) {
-        return undefined;
+        //return undefined;
     }
-    var stage = movieClip.getStage();
+    var stage = movieClip.stage;
     if (stage) {
-        this.version = stage.getVersion();
+        this.version = movieClip.root.version;
     }
 
     var stack   = [];
     var cache   = this.cache;
-    var cLength = 0 | cache.length;
+    var cLength = cache.length|0;
     var cIdx    = 0;
 
     while(cIdx < cLength) {
@@ -15708,7 +15940,7 @@ ActionScript.prototype.execute = function (mc)
         // }
 
         var aScript    = cache[cIdx];
-        var actionCode = 0 | aScript.actionCode;
+        var actionCode = aScript.actionCode|0;
         if (actionCode === 0) {
             break;
         }
@@ -16027,7 +16259,7 @@ ActionScript.prototype.execute = function (mc)
                 break;
         }
 
-        cIdx = 0 | cIdx + 1;
+        cIdx = (cIdx + 1)|0;
     }
 };
 
@@ -16113,7 +16345,7 @@ ActionScript.prototype.ActionGotoFrame = function (mc, frame)
 {
     if (mc !== undefined) {
         mc.stop();
-        mc.setNextFrame(frame);
+        // mc.setNextFrame(frame);
     }
 };
 
@@ -23129,14 +23361,15 @@ BitIO.prototype.deCompress = function (size, mode)
 };
 /**
  * @param {Player} player
+ * @param {MovieClip} player
  * @constructor
  */
-var ReComposition = function (player)
+var ReComposition = function (player, root)
 {
     Util.call(this);
 
     this.player = player;
-    this.main   = player.stage._root;
+    this.main   = root;
     this.bitio  = new BitIO();
     this.swftag = new SwfTag(this.main, this.bitio);
 };
@@ -23304,7 +23537,6 @@ ReComposition.prototype.parseAndBuild = function(url)
     return main;
 };
 
-/*jshint bitwise: false*/
 /**
  * @param {MainTimeline|MovieClip} main
  * @param {BitIO} bitio
@@ -29062,11 +29294,15 @@ CacheStore.prototype.getCanvas = function ()
 
 /**
  * @param   {string} key
- * @returns {CanvasRenderingContext2D|WebGLRenderingContext}
+ * @returns {CanvasRenderingContext2D|WebGLRenderingContext|null}
  */
 CacheStore.prototype.getCache = function (key)
 {
-    return this._$store[key];
+    if (typeof key !== "string") {
+        key = key + "";
+    }
+
+    return (key in this._$store) ? this._$store[key] : null;
 };
 
 /**
@@ -29075,49 +29311,48 @@ CacheStore.prototype.getCache = function (key)
  */
 CacheStore.prototype.setCache = function (key, value)
 {
-    if (value instanceof CanvasRenderingContext2D) {
-        var canvas  = value.canvas;
-        this._$size = (this._$size - (canvas.width * canvas.height))|0;
+    if (this._$size > 0) {
+        if (value instanceof CanvasRenderingContext2D) {
+            var canvas  = value.canvas;
+            this._$size = (this._$size - (canvas.width * canvas.height))|0;
+        }
+
+        if (typeof key !== "string") {
+            key = key + "";
+        }
+
+        this._$store[key] = value;
     }
-    this._$store[key] = value;
 };
 
 /**
- * @param   {string} id
- * @param   {array}  matrix
+ * @param   {string} uniqueKey
  * @param   {array}  cxForm
  * @returns {string}
  */
-CacheStore.prototype.generateKey = function (id, matrix, cxForm)
+CacheStore.prototype.generateKey = function (uniqueKey, cxForm)
 {
-    // matrix
-    if (matrix !== undefined) {
-        var length = matrix.length|0;
-        var xScale, yScale;
-        switch (length) {
-            case 2:
-                xScale = matrix[0];
-                yScale = matrix[1];
-                break;
-            default:
-                xScale = this.$sqrt(matrix[0] * matrix[0] + matrix[1] * matrix[1]);
-                yScale = this.$sqrt(matrix[2] * matrix[2] + matrix[3] * matrix[3]);
-                break;
-        }
+    // color
+    if (
+           cxForm[0] !== 1
+        || cxForm[1] !== 1
+        || cxForm[2] !== 1
+        || cxForm[3] !== 1
+        || cxForm[4] !== 0
+        || cxForm[5] !== 0
+        || cxForm[6] !== 0
+        || cxForm[7] !== 0
+    ) {
+
+        var R =   this.$max(0, this.$min((255 * cxForm[0]) + cxForm[4], 255))|0;
+        var G =   this.$max(0, this.$min((255 * cxForm[1]) + cxForm[5], 255))|0;
+        var B =   this.$max(0, this.$min((255 * cxForm[2]) + cxForm[6], 255))|0;
+        var A = +(this.$max(0, this.$min((255 * cxForm[3]) + cxForm[7], 255)) / 255);
+
+        uniqueKey = uniqueKey +"_"+ R +"_"+ G +"_"+ B +"_"+ A;
     }
 
-    var R = this.$max(0, this.$min((1 * cxForm[0]) + cxForm[4], 255))|0;
-    var G = this.$max(0, this.$min((1 * cxForm[1]) + cxForm[5], 255))|0;
-    var B = this.$max(0, this.$min((1 * cxForm[2]) + cxForm[6], 255))|0;
-    var A = +(this.$max(0, this.$min((255 * cxForm[3]) + cxForm[7], 255)) / 255);
-    var color = R +""+ G +""+ B +""+ A;
-
-    var key = id +"_"+ xScale +"_"+ yScale;
-    if (color !== "1111") {
-        key = key +"_"+ color;
-    }
-
-    return key;
+    return uniqueKey + "";
 };
 
 Util.prototype.$cacheStore = new CacheStore();
@@ -29126,6 +29361,8 @@ Util.prototype.$cacheStore = new CacheStore();
  */
 var Player = function ()
 {
+    Util.call(this);
+
     this.id = this.$players.length;
     this.$players[this.id] = this;
 
@@ -29191,6 +29428,7 @@ var Player = function ()
 
 /**
  * extends
+ * @type {Util}
  */
 Player.prototype = Object.create(Util.prototype);
 Player.prototype.constructor = Player;
@@ -29210,7 +29448,9 @@ Object.defineProperties(Player.prototype, {
          * @param {number} id
          */
         set: function (id) {
-            this._$id = id;
+            if (typeof id === "number") {
+                this._$id = id|0;
+            }
         }
     },
     name: {
@@ -29242,7 +29482,7 @@ Object.defineProperties(Player.prototype, {
          */
         set: function (ratio) {
             if (typeof ratio === "number") {
-                this._$ratio = ratio;
+                this._$ratio = ratio|0;
             }
         }
     },
@@ -29255,18 +29495,20 @@ Object.defineProperties(Player.prototype, {
         },
         /**
          * readonly
+         * @return void
          */
         set: function () {}
     },
     root: {
         /**
-         * @return {DisplayObject|MovieClip}
+         * @return {MainTimeline|MovieClip}
          */
         get: function () {
-            return this.stage.getChildAt(0);
+            return this.stage._root;
         },
         /**
          * readonly
+         * @return void
          */
         set: function () {}
     },
@@ -29282,7 +29524,7 @@ Object.defineProperties(Player.prototype, {
          */
         set: function (width) {
             if (typeof width === "number") {
-                this._$width = width;
+                this._$width = width|0;
             }
         }
     },
@@ -29298,7 +29540,7 @@ Object.defineProperties(Player.prototype, {
          */
         set: function (height) {
             if (typeof height === "number") {
-                this._$height = height;
+                this._$height = height|0;
             }
         }
     },
@@ -29314,7 +29556,7 @@ Object.defineProperties(Player.prototype, {
          */
         set: function (baseWidth) {
             if (typeof baseWidth === "number") {
-                this._$baseWidth = baseWidth;
+                this._$baseWidth = baseWidth|0;
             }
         }
     },
@@ -29330,7 +29572,7 @@ Object.defineProperties(Player.prototype, {
          */
         set: function (baseHeight) {
             if (typeof baseHeight === "number") {
-                this._$baseHeight = baseHeight;
+                this._$baseHeight = baseHeight|0;
             }
         }
     },
@@ -29346,7 +29588,7 @@ Object.defineProperties(Player.prototype, {
          */
         set: function (scale) {
             if (typeof scale === "number") {
-                this._scale = scale;
+                this._scale = +scale;
             }
         }
     },
@@ -29410,7 +29652,7 @@ Object.defineProperties(Player.prototype, {
          */
         set: function (intervalId) {
             if (typeof intervalId === "number") {
-                this._$intervalId = intervalId;
+                this._$intervalId = intervalId|0;
             }
         }
     },
@@ -29458,7 +29700,7 @@ Object.defineProperties(Player.prototype, {
          */
         set: function (loadStatus) {
             if (typeof loadStatus === "number") {
-                this._$loadStatus = loadStatus;
+                this._$loadStatus = loadStatus|0;
             }
         }
     },
@@ -29474,7 +29716,7 @@ Object.defineProperties(Player.prototype, {
          */
         set: function (optionWidth) {
             if (typeof optionWidth === "number") {
-                this._$optionWidth = optionWidth;
+                this._$optionWidth = optionWidth|0;
             }
         }
     },
@@ -29490,7 +29732,7 @@ Object.defineProperties(Player.prototype, {
          */
         set: function (optionHeight) {
             if (typeof optionHeight === "number") {
-                this._$optionHeight = optionHeight;
+                this._$optionHeight = optionHeight|0;
             }
         }
     },
@@ -29522,6 +29764,10 @@ Object.defineProperties(Player.prototype, {
          * @param {string} tagId
          */
         set: function (tagId) {
+            if (typeof tagId === "number") {
+                tagId = tagId + "";
+            }
+
             if (typeof tagId === "string") {
                 this._$tagId = tagId;
             }
@@ -29584,6 +29830,7 @@ Object.defineProperties(Player.prototype, {
         },
         /**
          * readonly
+         * @returns void
          */
         set: function () {}
     },
@@ -29596,6 +29843,7 @@ Object.defineProperties(Player.prototype, {
         },
         /**
          * readonly
+         * @returns void
          */
         set: function () {}
     },
@@ -29666,7 +29914,9 @@ Object.defineProperties(Player.prototype, {
          * @param {array} actions
          */
         set: function (actions) {
-            this._$actions = actions;
+            if (this.$isArray(actions)) {
+                this._$actions = actions;
+            }
         }
     },
     buttonHits: {
@@ -29680,7 +29930,10 @@ Object.defineProperties(Player.prototype, {
          * @param {array} buttonHits
          */
         set: function (buttonHits) {
-            this._$buttonHits = buttonHits;
+            if (this.$isArray(buttonHits)) {
+                this._$buttonHits = buttonHits;
+            }
+
         }
     },
     downEventHits: {
@@ -29694,7 +29947,9 @@ Object.defineProperties(Player.prototype, {
          * @param {array} downEventHits
          */
         set: function (downEventHits) {
-            this._$downEventHits = downEventHits;
+            if (this.$isArray(downEventHits)) {
+                this._$downEventHits = downEventHits;
+            }
         }
     },
     moveEventHits: {
@@ -29708,7 +29963,9 @@ Object.defineProperties(Player.prototype, {
          * @param {array} moveEventHits
          */
         set: function (moveEventHits) {
-            this._$moveEventHits = moveEventHits;
+            if (this.$isArray(moveEventHits)) {
+                this._$moveEventHits = moveEventHits;
+            }
         }
     },
     upEventHits: {
@@ -29722,7 +29979,9 @@ Object.defineProperties(Player.prototype, {
          * @param {array} upEventHits
          */
         set: function (upEventHits) {
-            this._$upEventHits = upEventHits;
+            if (this.$isArray(upEventHits)) {
+                this._$upEventHits = upEventHits;
+            }
         }
     },
     keyDownEventHits: {
@@ -29736,7 +29995,9 @@ Object.defineProperties(Player.prototype, {
          * @param {array} keyDownEventHits
          */
         set: function (keyDownEventHits) {
-            this._$keyDownEventHits = keyDownEventHits;
+            if (this.$isArray(keyDownEventHits)) {
+                this._$keyDownEventHits = keyDownEventHits;
+            }
         }
     },
     keyUpEventHits: {
@@ -29750,7 +30011,9 @@ Object.defineProperties(Player.prototype, {
          * @param {array} keyUpEventHits
          */
         set: function (keyUpEventHits) {
-            this._$keyUpEventHits = keyUpEventHits;
+            if (this.$isArray(keyUpEventHits)) {
+                this._$keyUpEventHits = keyUpEventHits;
+            }
         }
     }
 });
@@ -29930,6 +30193,7 @@ Player.prototype.initialize = function ()
     var div;
     var doc = this.$document;
     if (this.tagId) {
+
         if (doc.readyState === "loading") {
             var self = this;
             var initialize = function ()
@@ -30064,12 +30328,12 @@ Player.prototype.loaded = function ()
         this.deleteNode();
 
         // reset
-        // this.buttonHits       = [];
-        // this.downEventHits    = [];
-        // this.moveEventHits    = [];
-        // this.upEventHits      = [];
-        // this.keyDownEventHits = [];
-        // this.keyUpEventHits   = [];
+        this.buttonHits       = [];
+        this.downEventHits    = [];
+        this.moveEventHits    = [];
+        this.upEventHits      = [];
+        this.keyDownEventHits = [];
+        this.keyUpEventHits   = [];
 
         // action start
         this.doAction();
@@ -30086,6 +30350,7 @@ Player.prototype.loaded = function ()
             this.backgroundColor = this.bgcolor;
         }
 
+        // TODO
         // load sound
         // if (this.$isTouch) {
         //     var loadSounds = this.loadSounds;
@@ -30108,23 +30373,23 @@ Player.prototype.loaded = function ()
         //     }
         // }
 
-        this.canvas.addEventListener(this.$startEvent, function (event)
-        {
-            self.$event = event;
-            self.touchStart(event);
-        });
-
-        this.canvas.addEventListener(this.$moveEvent, function (event)
-        {
-            self.$event = event;
-            self.touchMove(event);
-        });
-
-        this.canvas.addEventListener(this.$endEvent, function (event)
-        {
-            self.$event = event;
-            self.touchEnd(event);
-        });
+        // this.canvas.addEventListener(this.$startEvent, function (event)
+        // {
+        //     self.$event = event;
+        //     self.touchStart(event);
+        // });
+        //
+        // this.canvas.addEventListener(this.$moveEvent, function (event)
+        // {
+        //     self.$event = event;
+        //     self.touchMove(event);
+        // });
+        //
+        // this.canvas.addEventListener(this.$endEvent, function (event)
+        // {
+        //     self.$event = event;
+        //     self.touchEnd(event);
+        // });
 
         // render start
         this.draw();
@@ -30132,6 +30397,7 @@ Player.prototype.loaded = function ()
         // append canvas
         div.appendChild(this.canvas);
 
+        // player start
         this.play();
     }
 };
@@ -30178,23 +30444,6 @@ Player.prototype.initializeCanvas = function ()
     style["-webkit-tap-highlight-color"] = "rgba(0,0,0,0)";
     style.MozTransformOrigin             = "0 0";
     style.MozTransform                   = "scale(" + 1 / self.ratio + ")";
-
-    if (self.$isAndroid) {
-        canvas.addEventListener("touchcancel", function ()
-        {
-            self.touchEnd(self.$event);
-        });
-    }
-
-    if (!self.$isTouch) {
-        window.addEventListener("keydown", self.$keyDownAction);
-        window.addEventListener("keyup",   self.$keyUpAction);
-        window.addEventListener("keyup",   function (event)
-        {
-            Util.prototype.$keyEvent = event;
-            self.touchEnd(event);
-        });
-    }
 
     // main canvas
     self.context = canvas.getContext("2d");
@@ -30284,6 +30533,9 @@ Player.prototype.resize = function ()
 
             var mScale  = scale * this.ratio / 20;
             this.matrix = [mScale, 0, 0, mScale, 0, 0];
+
+            // cache reset
+            this.$cacheStore.reset();
         }
     }
 };
@@ -30320,36 +30572,18 @@ Player.prototype.run = function ()
     stats.begin(); // 計測
 
     // hits reset
-    // this.buttonHits       = [];
-    // this.downEventHits    = [];
-    // this.moveEventHits    = [];
-    // this.upEventHits      = [];
-    // this.keyDownEventHits = [];
-    // this.keyUpEventHits   = [];
+    this.buttonHits       = [];
+    this.downEventHits    = [];
+    this.moveEventHits    = [];
+    this.upEventHits      = [];
+    this.keyDownEventHits = [];
+    this.keyUpEventHits   = [];
 
     // execute
-    // this.putFrame();
-    // this.addActions();
     this.doAction();
     this.draw();
 
     stats.end(); // 計測
-};
-
-/**
- * @returns void
- */
-Player.prototype.putFrame = function ()
-{
-
-};
-
-/**
- * @returns void
- */
-Player.prototype.addActions = function ()
-{
-
 };
 
 /**
@@ -30361,19 +30595,18 @@ Player.prototype.doAction = function ()
 
         var i = 0;
         while (i < this.actions.length) {
+
             var obj = this.actions[i];
             i = (i + 1)|0;
 
-            var mc = obj.caller;
-            if (!mc.active) {
-                continue;
-            }
-
+            var mc      = obj.caller;
             var args    = obj.args || [];
             var actions = obj.actions;
+
             switch (typeof actions) {
+
                 case "function":
-                    actions.apply(mc, args);
+                    actions.apply(mc, [mc, args]);
                     break;
 
                 default:
@@ -30383,13 +30616,11 @@ Player.prototype.doAction = function ()
                         var action = actions[idx];
                         idx = (idx + 1)|0;
 
-                        switch (typeof action) {
-                            case "function":
-                                action.apply(mc, args);
-                                break;
-                            default:
-                                break;
+                        if (typeof action !== "function") {
+                            continue;
                         }
+
+                        action.apply(mc, [mc, args]);
                     }
 
                     break;
@@ -30462,6 +30693,8 @@ Player.prototype.draw = function ()
  */
 var Swf2js = function ()
 {
+    Util.call(this);
+
     // create player
     var player = new Player();
     this.currentPlayerId = player.id;
@@ -30474,21 +30707,20 @@ Swf2js.prototype = Object.create(Util.prototype);
 Swf2js.prototype.constructor = Swf2js;
 
 /**
- * @param url
- * @param options
+ * @param {string} url
+ * @param {object|null|undefined} options
  */
 Swf2js.prototype.load = function (url, options)
 {
     // develop only
     if (url === "develop") {
-        url = location.search.substr(1).split("&")[0];
+        url = window.location.search.substr(1).split("&")[0];
     }
 
     if (url) {
-        var self = this;
 
-        // stage setup
-        var player = self.getCurrentPlayer();
+        // player setup
+        var player = this.$players[this.currentPlayerId];
 
         // start
         player.setOptions(options);
@@ -30506,9 +30738,7 @@ Swf2js.prototype.load = function (url, options)
 
                             var data = (this.response) ? this.response : this.responseText;
 
-                            (new ReComposition(player)).run(data, url);
-
-                            self.$cacheStore.reset();
+                            (new ReComposition(player, player.root)).run(data, url);
 
                             break;
                         default :
@@ -30516,6 +30746,7 @@ Swf2js.prototype.load = function (url, options)
                             break;
                     }
                 }
+                // TODO
                 // "progress": function (event)
                 // {
                 //     var id   = player.getName() + "_loading_span";
@@ -30525,59 +30756,65 @@ Swf2js.prototype.load = function (url, options)
                 // }
             }
         });
+
     } else {
+
         alert("please set swf url.");
+
     }
 };
 
-// /**
-//  * @param width
-//  * @param height
-//  * @param fps
-//  * @param options
-//  * @returns {MovieClip}
-//  */
-// Swf2js.prototype.createRootMovieClip = function (width, height, fps, options)
-// {
-//     var stage = new Stage();
-//     width     = width  || 240;
-//     height    = height || 240;
-//     fps       = fps    || 60;
-//
-//     // set
-//     stage.setBaseWidth(width);
-//     stage.setBaseHeight(height);
-//     stage.setFrameRate(fps);
-//     stage.setOptions(options);
-//     this.$stages[stage.getId()] = stage;
-//
-//     // init
-//     stage.init();
-//     stage.isLoad = true;
-//
-//     if (this.$document.readyState === "loading") {
-//         var reTry = function()
-//         {
-//             window.removeEventListener("DOMContentLoaded", reTry, false);
-//             stage.resize();
-//             stage.loaded();
-//         };
-//         window.addEventListener("DOMContentLoaded", reTry, false);
-//     }
-//
-//     return stage.getParent();
-// };
-
 /**
- * @returns {Player|null}
+ * @param   {number} width
+ * @param   {number} height
+ * @param   {number} fps
+ * @param   {object} options
+ * @returns {MainTimeline}
  */
-Swf2js.prototype.getCurrentPlayer = function ()
+Swf2js.prototype.createRootMovieClip = function (width, height, fps, options)
 {
-    if (!(this.currentPlayerId in this.$players)) {
-        return null;
+    // init player
+    var player = new Player();
+    player.setOptions(options);
+    player.initialize();
+
+    // default params
+    width  = width  || 240;
+    height = height || 240;
+    fps    = fps    || 60;
+
+    // set params
+    player.baseWidth  = width|0;
+    player.baseHeight = height|0;
+    player.frameRate  = fps|0;
+
+    // readyState
+    switch (this.$document.readyState) {
+
+        // retry
+        case "loading":
+
+            var reTry = function () {
+                this.removeEventListener("DOMContentLoaded", reTry, false);
+                player.loadStatus = 2;
+                player.isLoad = true;
+            };
+
+            // DOMContentLoaded
+            window.addEventListener("DOMContentLoaded", reTry, false);
+
+            break;
+
+        // player start
+        case "complete":
+
+            player.loadStatus = 2;
+            player.isLoad = true;
+
+            break;
     }
 
-    return this.$players[this.currentPlayerId];
+    return player.root;
 };
 
         window.swf2js = new Swf2js();

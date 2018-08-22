@@ -1,3 +1,4 @@
+
 describe("MovieClip.js toString test", function()
 {
 
@@ -70,6 +71,74 @@ describe("MovieClip.js _$createActionScript test", function()
         expect(f instanceof Function).toBe(true);
     });
 
+});
+
+
+describe("MovieClip.js play test", function()
+{
+
+    it("play test success", function () {
+        var mc = new MovieClip();
+        mc._$stopFlag = true;
+        mc.play();
+        expect(mc._$stopFlag).toBe(false);
+    });
+
+});
+
+
+describe("MovieClip.js stop test", function()
+{
+
+    it("stop test success", function () {
+        var mc = new MovieClip();
+        mc._$stopFlag = false;
+        mc.stop();
+        expect(mc._$stopFlag).toBe(true);
+    });
+
+});
+
+
+describe("MovieClip.js gotoAndPlay test", function()
+{
+
+    it("gotoAndPlay test success", function () {
+        var mc = new MovieClip();
+        mc._$totalFrames = 3;
+        expect(mc.currentFrame).toBe(1);
+
+        mc.gotoAndPlay(2);
+        expect(mc.currentFrame).toBe(2);
+    });
+
+    it("gotoAndPlay test valid case1", function () {
+        var mc = new MovieClip();
+        mc._$totalFrames = 3;
+
+        mc.gotoAndPlay(0);
+        expect(mc.currentFrame).toBe(1);
+    });
+
+    it("gotoAndPlay test valid case2", function () {
+        var mc = new MovieClip();
+        mc._$totalFrames = 3;
+
+        mc.gotoAndPlay(4);
+        expect(mc.currentFrame).toBe(1);
+    });
+
+    it("gotoAndPlay test valid case3", function () {
+        var mc = new MovieClip();
+        mc._$totalFrames = 3;
+
+        mc.gotoAndPlay(2);
+        mc.gotoAndPlay(2);
+        expect(mc.currentFrame).toBe(2);
+    });
+
+
+    
 });
 
 

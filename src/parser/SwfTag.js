@@ -1,4 +1,3 @@
-/*jshint bitwise: false*/
 /**
  * @param {MainTimeline|MovieClip} main
  * @param {BitIO} bitio

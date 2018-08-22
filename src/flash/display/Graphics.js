@@ -8,10 +8,12 @@ var Graphics = function ()
 
     // properties
     this.$cache = false;
+
 };
 
 /**
  * extends
+ * @type {OriginalObject}
  */
 Graphics.prototype = Object.create(OriginalObject.prototype);
 Graphics.prototype.constructor = Graphics;

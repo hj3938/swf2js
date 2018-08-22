@@ -5,7 +5,7 @@ describe("Stage.js toString test", function()
     // toString
     it("toString test success", function()
     {
-        var player = window.swf2js.getCurrentPlayer();
+        var player = new Player();
         expect(player.stage.toString()).toBe("[object Stage]");
     });
 
@@ -16,7 +16,7 @@ describe("Stage.js initialSetting test", function()
 {
     it("initialSetting test success", function()
     {
-        var player = window.swf2js.getCurrentPlayer();
+        var player = new Player();
         expect(player.stage.player instanceof Player).toBe(true);
     });
 });
@@ -29,7 +29,7 @@ describe("Stage.js property test", function()
     // align
     it("align test success case1", function()
     {
-        var player = window.swf2js.getCurrentPlayer();
+        var player = new Player();
 
         // reset
         player.stage._align = "";
@@ -41,7 +41,7 @@ describe("Stage.js property test", function()
 
     it("align test success case2", function()
     {
-        var player = window.swf2js.getCurrentPlayer();
+        var player = new Player();
 
         // reset
         player.stage._align = "";
@@ -53,7 +53,7 @@ describe("Stage.js property test", function()
 
     it("align test valid", function()
     {
-        var player = window.swf2js.getCurrentPlayer();
+        var player = new Player();
 
         // reset
         player.stage._align = "";
@@ -66,7 +66,7 @@ describe("Stage.js property test", function()
     // allowsFullScreen
     it("allowsFullScreen test success", function()
     {
-        var player = window.swf2js.getCurrentPlayer();
+        var player = new Player();
 
         // reset
         player.stage._allowsFullScreen = false;
@@ -79,7 +79,7 @@ describe("Stage.js property test", function()
     // allowsFullScreenInteractive
     it("allowsFullScreenInteractive test success", function()
     {
-        var player = window.swf2js.getCurrentPlayer();
+        var player = new Player();
 
         // reset
         player.stage._allowsFullScreenInteractive = false;
@@ -92,7 +92,7 @@ describe("Stage.js property test", function()
     // browserZoomFactor
     it("browserZoomFactor test success", function()
     {
-        var player = window.swf2js.getCurrentPlayer();
+        var player = new Player();
         player.stage.browserZoomFactor = 10;
 
         expect(player.stage.browserZoomFactor).toBe(1);
@@ -101,7 +101,7 @@ describe("Stage.js property test", function()
     // color
     it("color test success case1", function()
     {
-        var player = window.swf2js.getCurrentPlayer();
+        var player = new Player();
 
         // reset
         player.stage._color = "transparent";
@@ -113,7 +113,7 @@ describe("Stage.js property test", function()
 
     it("color test success case2", function()
     {
-        var player = window.swf2js.getCurrentPlayer();
+        var player = new Player();
 
         // reset
         player.stage._color = "transparent";
@@ -126,7 +126,7 @@ describe("Stage.js property test", function()
     // colorCorrection
     it("colorCorrection test success", function()
     {
-        var player = window.swf2js.getCurrentPlayer();
+        var player = new Player();
 
         // reset
         player.stage._colorCorrection = ColorCorrection.DEFAULT;
@@ -138,7 +138,7 @@ describe("Stage.js property test", function()
 
     it("colorCorrection test valid case1", function()
     {
-        var player = window.swf2js.getCurrentPlayer();
+        var player = new Player();
 
         // reset
         player.stage._colorCorrection = ColorCorrection.DEFAULT;
@@ -150,7 +150,7 @@ describe("Stage.js property test", function()
 
     it("colorCorrection test valid case2", function()
     {
-        var player = window.swf2js.getCurrentPlayer();
+        var player = new Player();
 
         // reset
         player.stage._colorCorrection = ColorCorrection.DEFAULT;
@@ -164,7 +164,7 @@ describe("Stage.js property test", function()
     // colorCorrectionSupport
     it("colorCorrectionSupport test success", function()
     {
-        var player = window.swf2js.getCurrentPlayer();
+        var player = new Player();
 
         // reset
         player.stage._colorCorrectionSupport = ColorCorrectionSupport.DEFAULT_OFF;
@@ -175,7 +175,7 @@ describe("Stage.js property test", function()
 
     it("colorCorrectionSupport test valid", function()
     {
-        var player = window.swf2js.getCurrentPlayer();
+        var player = new Player();
 
         // reset
         player.stage._colorCorrectionSupport = ColorCorrectionSupport.DEFAULT_OFF;
@@ -189,13 +189,13 @@ describe("Stage.js property test", function()
     // contentsScaleFactor
     it("contentsScaleFactor test success", function()
     {
-        var player = window.swf2js.getCurrentPlayer();
+        var player = new Player();
         expect(player.stage.contentsScaleFactor).toBe(1);
     });
 
     it("contentsScaleFactor test valid", function()
     {
-        var player = window.swf2js.getCurrentPlayer();
+        var player = new Player();
         player.stage.contentsScaleFactor = 3;
 
         expect(player.stage.contentsScaleFactor).toBe(1);
@@ -205,7 +205,7 @@ describe("Stage.js property test", function()
     // displayState
     it("displayState test success", function()
     {
-        var player = window.swf2js.getCurrentPlayer();
+        var player = new Player();
 
         // reset
         player.stage._displayState = null;
@@ -217,7 +217,7 @@ describe("Stage.js property test", function()
 
     it("displayState test valid case1", function()
     {
-        var player = window.swf2js.getCurrentPlayer();
+        var player = new Player();
 
         // reset
         player.stage._displayState = null;
@@ -229,7 +229,7 @@ describe("Stage.js property test", function()
 
     it("displayState test valid case2", function()
     {
-        var player = window.swf2js.getCurrentPlayer();
+        var player = new Player();
 
         // reset
         player.stage._displayState = null;
@@ -243,7 +243,7 @@ describe("Stage.js property test", function()
     // focus
     it("focus test success", function()
     {
-        var player = window.swf2js.getCurrentPlayer();
+        var player = new Player();
 
         // reset
         player.stage._focus = null;
@@ -255,7 +255,7 @@ describe("Stage.js property test", function()
 
     it("focus test valid case1", function()
     {
-        var player = window.swf2js.getCurrentPlayer();
+        var player = new Player();
 
         // reset
         player.stage._focus = null;
@@ -267,7 +267,7 @@ describe("Stage.js property test", function()
 
     it("focus test valid case2", function()
     {
-        var player = window.swf2js.getCurrentPlayer();
+        var player = new Player();
 
         // reset
         player.stage._focus = null;
@@ -281,7 +281,7 @@ describe("Stage.js property test", function()
     // frameRate
     it("frameRate test success case1", function()
     {
-        var player = window.swf2js.getCurrentPlayer();
+        var player = new Player();
 
         // reset
         player.stage._frameRate = 60;
@@ -293,7 +293,7 @@ describe("Stage.js property test", function()
 
     it("frameRate test success case2", function()
     {
-        var player = window.swf2js.getCurrentPlayer();
+        var player = new Player();
 
         // reset
         player.stage._frameRate = 60;
@@ -305,7 +305,7 @@ describe("Stage.js property test", function()
 
     it("frameRate test valid case1", function()
     {
-        var player = window.swf2js.getCurrentPlayer();
+        var player = new Player();
 
         // reset
         player.stage._frameRate = 60;
@@ -317,7 +317,7 @@ describe("Stage.js property test", function()
 
     it("frameRate test valid case2", function()
     {
-        var player = window.swf2js.getCurrentPlayer();
+        var player = new Player();
 
         // reset
         player.stage._frameRate = 60;
@@ -329,7 +329,7 @@ describe("Stage.js property test", function()
 
     it("frameRate test valid case3", function()
     {
-        var player = window.swf2js.getCurrentPlayer();
+        var player = new Player();
 
         // reset
         player.stage._frameRate = 60;
@@ -343,13 +343,13 @@ describe("Stage.js property test", function()
     // fullScreenHeight
     it("fullScreenHeight test success", function()
     {
-        var player = window.swf2js.getCurrentPlayer();
+        var player = new Player();
         expect(player.stage.fullScreenHeight).toBe(0);
     });
 
     it("fullScreenHeight test valid", function()
     {
-        var player = window.swf2js.getCurrentPlayer();
+        var player = new Player();
         player.stage.fullScreenHeight = 100;
         expect(player.stage.fullScreenHeight).toBe(0);
     });
@@ -358,7 +358,7 @@ describe("Stage.js property test", function()
     // fullScreenSourceRect
     it("fullScreenSourceRect test success", function()
     {
-        var player = window.swf2js.getCurrentPlayer();
+        var player = new Player();
 
         // reset
         player.stage._fullScreenSourceRect = null;
@@ -370,7 +370,7 @@ describe("Stage.js property test", function()
 
     it("fullScreenSourceRect test valid case1", function()
     {
-        var player = window.swf2js.getCurrentPlayer();
+        var player = new Player();
 
         // reset
         player.stage._fullScreenSourceRect = null;
@@ -382,7 +382,7 @@ describe("Stage.js property test", function()
 
     it("fullScreenSourceRect test valid case2", function()
     {
-        var player = window.swf2js.getCurrentPlayer();
+        var player = new Player();
 
         // reset
         player.stage._fullScreenSourceRect = null;
@@ -394,7 +394,7 @@ describe("Stage.js property test", function()
 
     it("fullScreenSourceRect test valid case3", function()
     {
-        var player = window.swf2js.getCurrentPlayer();
+        var player = new Player();
 
         // reset
         player.stage._fullScreenSourceRect = null;
@@ -409,13 +409,13 @@ describe("Stage.js property test", function()
     // fullScreenWidth
     it("fullScreenWidth test success", function()
     {
-        var player = window.swf2js.getCurrentPlayer();
+        var player = new Player();
         expect(player.stage.fullScreenWidth).toBe(0);
     });
 
     it("fullScreenWidth test valid", function()
     {
-        var player = window.swf2js.getCurrentPlayer();
+        var player = new Player();
         player.stage.fullScreenWidth = 100;
         expect(player.stage.fullScreenWidth).toBe(0);
     });
@@ -424,7 +424,7 @@ describe("Stage.js property test", function()
     // mouseLock
     it("mouseLock test success", function()
     {
-        var player = window.swf2js.getCurrentPlayer();
+        var player = new Player();
 
         // reset
         player.stage._mouseLock = false;
@@ -436,7 +436,7 @@ describe("Stage.js property test", function()
 
     it("mouseLock test valid", function()
     {
-        var player = window.swf2js.getCurrentPlayer();
+        var player = new Player();
 
         // reset
         player.stage._mouseLock = false;
@@ -450,13 +450,13 @@ describe("Stage.js property test", function()
     // nativeWindow
     it("nativeWindow test success", function()
     {
-        var player = window.swf2js.getCurrentPlayer();
+        var player = new Player();
         expect(player.stage.nativeWindow).toBe(null);
     });
 
     it("nativeWindow test valid", function()
     {
-        var player = window.swf2js.getCurrentPlayer();
+        var player = new Player();
         player.stage.nativeWindow = 100;
         expect(player.stage.nativeWindow).toBe(null);
     });
@@ -465,7 +465,7 @@ describe("Stage.js property test", function()
     // quality
     it("quality test success", function()
     {
-        var player = window.swf2js.getCurrentPlayer();
+        var player = new Player();
 
         // reset
         player.stage._quality = StageQuality.HIGH;
@@ -477,7 +477,7 @@ describe("Stage.js property test", function()
 
     it("quality test valid case1", function()
     {
-        var player = window.swf2js.getCurrentPlayer();
+        var player = new Player();
 
         // reset
         player.stage._quality = StageQuality.HIGH;
@@ -489,7 +489,7 @@ describe("Stage.js property test", function()
 
     it("quality test valid case2", function()
     {
-        var player = window.swf2js.getCurrentPlayer();
+        var player = new Player();
 
         // reset
         player.stage._quality = StageQuality.HIGH;
@@ -501,7 +501,7 @@ describe("Stage.js property test", function()
 
     it("quality test valid case3", function()
     {
-        var player = window.swf2js.getCurrentPlayer();
+        var player = new Player();
 
         // reset
         player.stage._quality = StageQuality.HIGH;
@@ -515,7 +515,7 @@ describe("Stage.js property test", function()
     // scaleMode
     it("scaleMode test success", function()
     {
-        var player = window.swf2js.getCurrentPlayer();
+        var player = new Player();
 
         // reset
         player.stage._scaleMode = StageScaleMode.SHOW_ALL;
@@ -527,7 +527,7 @@ describe("Stage.js property test", function()
 
     it("scaleMode test valid case1", function()
     {
-        var player = window.swf2js.getCurrentPlayer();
+        var player = new Player();
 
         // reset
         player.stage._scaleMode = StageScaleMode.SHOW_ALL;
@@ -539,7 +539,7 @@ describe("Stage.js property test", function()
 
     it("scaleMode test valid case2", function()
     {
-        var player = window.swf2js.getCurrentPlayer();
+        var player = new Player();
 
         // reset
         player.stage._scaleMode = StageScaleMode.SHOW_ALL;
@@ -551,7 +551,7 @@ describe("Stage.js property test", function()
 
     it("scaleMode test valid case3", function()
     {
-        var player = window.swf2js.getCurrentPlayer();
+        var player = new Player();
 
         // reset
         player.stage._scaleMode = StageScaleMode.SHOW_ALL;
@@ -565,7 +565,7 @@ describe("Stage.js property test", function()
     // showDefaultContextMenu
     it("showDefaultContextMenu test success", function()
     {
-        var player = window.swf2js.getCurrentPlayer();
+        var player = new Player();
 
         // reset
         player.stage._showDefaultContextMenu = true;
@@ -577,7 +577,7 @@ describe("Stage.js property test", function()
 
     it("showDefaultContextMenu test valid case1", function()
     {
-        var player = window.swf2js.getCurrentPlayer();
+        var player = new Player();
 
         // reset
         player.stage._showDefaultContextMenu = true;
@@ -589,7 +589,7 @@ describe("Stage.js property test", function()
 
     it("showDefaultContextMenu test valid case2", function()
     {
-        var player = window.swf2js.getCurrentPlayer();
+        var player = new Player();
 
         // reset
         player.stage._showDefaultContextMenu = true;
@@ -603,13 +603,13 @@ describe("Stage.js property test", function()
     // softKeyboardRect
     it("softKeyboardRect test success", function()
     {
-        var player = window.swf2js.getCurrentPlayer();
+        var player = new Player();
         expect(player.stage.softKeyboardRect instanceof Rectangle).toBe(true);
     });
 
     it("softKeyboardRect test valid case1", function()
     {
-        var player = window.swf2js.getCurrentPlayer();
+        var player = new Player();
         player.stage.softKeyboardRect = "abc";
         expect(player.stage.softKeyboardRect instanceof Rectangle).toBe(true);
     });
@@ -618,13 +618,13 @@ describe("Stage.js property test", function()
     // stage3Ds
     it("stage3Ds test success", function()
     {
-        var player = window.swf2js.getCurrentPlayer();
+        var player = new Player();
         expect(player.stage.stage3Ds instanceof Stage3D).toBe(true);
     });
 
     it("stage3Ds test valid case1", function()
     {
-        var player = window.swf2js.getCurrentPlayer();
+        var player = new Player();
         player.stage.stage3Ds = "abc";
         expect(player.stage.stage3Ds instanceof Stage3D).toBe(true);
     });
@@ -633,7 +633,7 @@ describe("Stage.js property test", function()
     // stageFocusRect
     it("stageFocusRect test success", function()
     {
-        var player = window.swf2js.getCurrentPlayer();
+        var player = new Player();
 
         // reset
         player.stage._stageFocusRect = true;
@@ -645,7 +645,7 @@ describe("Stage.js property test", function()
 
     it("stageFocusRect test valid case1", function()
     {
-        var player = window.swf2js.getCurrentPlayer();
+        var player = new Player();
 
         // reset
         player.stage._stageFocusRect = true;
@@ -657,7 +657,7 @@ describe("Stage.js property test", function()
 
     it("stageFocusRect test valid case2", function()
     {
-        var player = window.swf2js.getCurrentPlayer();
+        var player = new Player();
 
         // reset
         player.stage._stageFocusRect = true;

@@ -73,6 +73,7 @@ Shape.prototype._$getBounds = function (matrix)
         }
 
         for (var name in bounds) {
+
             if (!bounds.hasOwnProperty(name)) {
                 continue;
             }
@@ -82,6 +83,7 @@ Shape.prototype._$getBounds = function (matrix)
         }
 
     } else {
+
         bounds = this._$bounds;
         if (isDraw) {
             gBounds = graphics.getBounds();
@@ -114,7 +116,7 @@ Shape.prototype._$build = function (parent, index, tag, shouldAction)
     shape._$data      = this._$data;
     shape._$bounds    = this._$bounds;
 
-    // set
+    // mask
     if (tag.PlaceFlagHasClipDepth === 1) {
         shape._$clipDepth = tag.ClipDepth;
     }
@@ -162,13 +164,19 @@ Shape.prototype._$draw = function (matrix, colorTransform, isClip, visible)
 
         if (width > 0 || height > 0) {
 
+            // matrix
             var m = null;
 
             // get cache
-            var cacheKey = this.$cacheStore.generateKey(this.characterId, [xScale, yScale], colorTransform);
+            var cacheKey = this.$cacheStore.generateKey(this.characterId, colorTransform);
             var cache    = this.$cacheStore.getCache(cacheKey);
 
-            // not cache
+            // cache is small
+            if (cache && (width > cache.canvas.width || height > cache.canvas.height)) {
+                cache = null;
+            }
+
+            // cache is not
             if (!cache) {
 
                 var canvas    = this.$cacheStore.getCanvas();
@@ -317,18 +325,24 @@ Shape.prototype._$doDraw = function (ctx, minScale, colorTransform, isClip)
                     }
 
                     if (isStroke) {
+
                         ctx.strokeStyle = css;
                         ctx.lineWidth   = this.$max(obj.Width, 1 / minScale);
                         ctx.lineCap     = "round";
                         ctx.lineJoin    = "round";
                         ctx.stroke();
+
                     } else {
+
                         ctx.fillStyle = css;
                         ctx.fill();
+
                     }
 
                     if (type !== 16) {
+
                         ctx.restore();
+
                     }
 
                     break;

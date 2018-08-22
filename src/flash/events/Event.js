@@ -57,7 +57,3 @@ var Event = {
     "VIDEO_FRAME"                 : "videoFrame",
     "WORKER_STATE"                : "workerState"
 };
-
-
-
-

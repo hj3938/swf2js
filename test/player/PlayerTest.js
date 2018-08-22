@@ -6,7 +6,7 @@ describe("Player.js packages test", function()
     // packages
     it("packages test", function()
     {
-        var player = window.swf2js.getCurrentPlayer();
+        var player = new Player();
 
         var SWFVersion = player.getPackage("flash.display.SWFVersion");
         expect(SWFVersion.FLASH12).toBe(12);

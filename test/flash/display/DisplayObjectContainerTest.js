@@ -3,7 +3,7 @@ describe("DisplayObjectContainer.js property test", function()
     // mouseChildren
     it("mouseChildren test success", function()
     {
-        var player = window.swf2js.getCurrentPlayer();
+        var player = new Player();
 
         // reset
         player.stage._$mouseChildren = true;
@@ -15,7 +15,7 @@ describe("DisplayObjectContainer.js property test", function()
 
     it("mouseChildren test valid case1", function()
     {
-        var player = window.swf2js.getCurrentPlayer();
+        var player = new Player();
 
         // reset
         player.stage._$mouseChildren = true;
@@ -27,7 +27,7 @@ describe("DisplayObjectContainer.js property test", function()
 
     it("mouseChildren test valid case2", function()
     {
-        var player = window.swf2js.getCurrentPlayer();
+        var player = new Player();
 
         // reset
         player.stage._$mouseChildren = true;
@@ -41,7 +41,7 @@ describe("DisplayObjectContainer.js property test", function()
     // numChildren
     it("numChildren test success", function()
     {
-        var player = window.swf2js.getCurrentPlayer();
+        var player = new Player();
 
         // reset
         player.stage._$numChildren = 0;
@@ -55,7 +55,7 @@ describe("DisplayObjectContainer.js property test", function()
     // tabChildren
     it("tabChildren test success", function()
     {
-        var player = window.swf2js.getCurrentPlayer();
+        var player = new Player();
 
         // reset
         player.stage._$tabChildren = true;
@@ -67,7 +67,7 @@ describe("DisplayObjectContainer.js property test", function()
 
     it("tabChildren test valid case1", function()
     {
-        var player = window.swf2js.getCurrentPlayer();
+        var player = new Player();
 
         // reset
         player.stage._$tabChildren = true;
@@ -79,7 +79,7 @@ describe("DisplayObjectContainer.js property test", function()
 
     it("tabChildren test valid case2", function()
     {
-        var player = window.swf2js.getCurrentPlayer();
+        var player = new Player();
 
         // reset
         player.stage._$tabChildren = true;
@@ -93,13 +93,13 @@ describe("DisplayObjectContainer.js property test", function()
     // textSnapshot
     it("textSnapshot test success", function()
     {
-        var player = window.swf2js.getCurrentPlayer();
+        var player = new Player();
         expect(player.stage.textSnapshot instanceof TextSnapshot).toBe(true);
     });
 
     it("textSnapshot test valid", function()
     {
-        var player = window.swf2js.getCurrentPlayer();
+        var player = new Player();
 
         // start
         player.stage.textSnapshot = 10;

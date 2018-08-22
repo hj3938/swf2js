@@ -7,6 +7,8 @@
  */
 var ActionScript = function (data, constantPool, register, initAction)
 {
+    Util.call(this);
+
     this.cache        = [];
     this.params       = [];
     this.constantPool = constantPool || [];
@@ -683,19 +685,19 @@ ActionScript.prototype.operationValue = function (stack)
  */
 ActionScript.prototype.execute = function (mc)
 {
-    var scope = this.scope;
-    var movieClip = (scope instanceof MovieClip) ? scope : mc;
+    this.scope = mc;
+    var movieClip = mc;
     if (!movieClip.active) {
-        return undefined;
+        //return undefined;
     }
-    var stage = movieClip.getStage();
+    var stage = movieClip.stage;
     if (stage) {
-        this.version = stage.getVersion();
+        this.version = movieClip.root.version;
     }
 
     var stack   = [];
     var cache   = this.cache;
-    var cLength = 0 | cache.length;
+    var cLength = cache.length|0;
     var cIdx    = 0;
 
     while(cIdx < cLength) {
@@ -705,7 +707,7 @@ ActionScript.prototype.execute = function (mc)
         // }
 
         var aScript    = cache[cIdx];
-        var actionCode = 0 | aScript.actionCode;
+        var actionCode = aScript.actionCode|0;
         if (actionCode === 0) {
             break;
         }
@@ -1024,7 +1026,7 @@ ActionScript.prototype.execute = function (mc)
                 break;
         }
 
-        cIdx = 0 | cIdx + 1;
+        cIdx = (cIdx + 1)|0;
     }
 };
 
@@ -1110,7 +1112,7 @@ ActionScript.prototype.ActionGotoFrame = function (mc, frame)
 {
     if (mc !== undefined) {
         mc.stop();
-        mc.setNextFrame(frame);
+        // mc.setNextFrame(frame);
     }
 };
 

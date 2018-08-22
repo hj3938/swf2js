@@ -13,13 +13,15 @@ var MovieClip = function ()
     this._$currentFrame  = 1;
     this._$totalFrames   = 1;
     this._$isPlaying     = false;
+    this._$enabled       = true;
+    this._$trackAsMenu   = true;
 
     // controller tags
     this._$actions       = [];
     this._$frameLabels   = [];
     this._$removeObjects = [];
 
-    // // sound
+    // sound
     // this.sounds        = [];
     // this.soundStopFlag = false;
 };
@@ -54,37 +56,70 @@ Object.defineProperties(MovieClip.prototype, {
         get: function () {
             return this._$id;
         },
+        /**
+         * readonly
+         * @return void
+         */
         set: function () {}
     },
     currentLabel: {
         get: function () {
             return this._$id;
         },
+        /**
+         * readonly
+         * @return void
+         */
         set: function () {}
     },
     currentLabels: {
+        /**
+         * @return {array}
+         */
         get: function () {
-            return this._$id;
+            return this._$frameLabels;
         },
+        /**
+         * readonly
+         * @return void
+         */
         set: function () {}
     },
     currentScene: {
         get: function () {
             return this._$id;
         },
-        set: function (id) {}
+        /**
+         * readonly
+         * @return void
+         */
+        set: function () {}
     },
     enabled: {
+        /**
+         * @return {boolean}
+         */
         get: function () {
-            return this._$id;
+            return this._$enabled;
         },
-        set: function (id) {}
+        /**
+         * @param {boolean} enabled
+         */
+        set: function (enabled) {
+            if (typeof enabled === "boolean") {
+                this._$enabled = enabled;
+            }
+        }
     },
     framesLoaded: {
         get: function () {
             return this._$id;
         },
-        set: function (id) {}
+        /**
+         * readonly
+         * @return void
+         */
+        set: function () {}
     },
     isPlaying: {
         /**
@@ -94,19 +129,20 @@ Object.defineProperties(MovieClip.prototype, {
             return this._$isPlaying;
         },
         /**
-         * @param {boolean} isPlaying
+         * readonly
+         * @returns void
          */
-        set: function (isPlaying) {
-            if (typeof isPlaying === "boolean") {
-                this._$isPlaying = isPlaying;
-            }
-        }
+        set: function () {}
     },
     scenes: {
         get: function () {
             return this._$id;
         },
-        set: function (id) {}
+        /**
+         * readonly
+         * @returns void
+         */
+        set: function () {}
     },
     totalFrames: {
         /**
@@ -122,10 +158,20 @@ Object.defineProperties(MovieClip.prototype, {
         set: function () {}
     },
     trackAsMenu: {
+        /**
+         * @return {boolean}
+         */
         get: function () {
-            return this._$id;
+            return this._$trackAsMenu;
         },
-        set: function (id) {}
+        /**
+         * @param {boolean} trackAsMenu
+         */
+        set: function (trackAsMenu) {
+            if (typeof trackAsMenu === "boolean") {
+                this._$trackAsMenu= trackAsMenu;
+            }
+        }
     }
 });
 
@@ -147,6 +193,37 @@ MovieClip.prototype._$addFrameLabel = function (frameLabel)
         this._$frameLabels[this._$frameLabels.length] = frameLabel;
     }
 };
+
+/**
+ * @param  {string} name
+ * @return {FrameLabel|null}
+ */
+MovieClip.prototype._$getFrameLabel = function (name)
+{
+    var frameLabels = this.currentLabels;
+
+    var length = frameLabels.length;
+    var idx    = 0;
+
+    if (typeof name !== "string") {
+        name = name + "";
+    }
+
+    name = name.toLowerCase();
+    while (length > idx) {
+
+        var frameLabel = frameLabels[idx];
+        if (frameLabel.name === name) {
+            return frameLabel;
+            break;
+        }
+
+        idx = (idx + 1)|0;
+    }
+
+    return null;
+};
+
 
 /**
  * @param {number}       frame
@@ -181,7 +258,7 @@ MovieClip.prototype._$prepareActions = function (frame)
             frame = this.currentFrame|0;
         }
 
-        if (frame in this._$actions) {
+        if (frame in this._$actions && this._$actions[frame].length) {
 
             var actions = this.stage.player.actions;
 
@@ -211,10 +288,10 @@ MovieClip.prototype._$createActionScript = function (script)
             as.cache = origin.cache;
             as.scope = clip;
 
-            return function () {
+            return function (mc) {
                 as.reset();
-                as.variables["this"] = this;
-                return as.execute(clip);
+                as.variables["this"] = mc;
+                return as.execute(mc);
             };
         })(this, script);
 
@@ -277,6 +354,7 @@ MovieClip.prototype._$build = function (parent, index, tag, shouldAction)
         mc.ratio = tag.Ratio;
     }
 
+    // mask
     if (tag.PlaceFlagHasClipDepth === 1) {
         mc._$clipDepth = tag.ClipDepth;
     }
@@ -305,7 +383,7 @@ MovieClip.prototype._$build = function (parent, index, tag, shouldAction)
                 }
 
                 // TODO
-                var action = mc.createActionScript(actionRecord.Actions);
+                var action = mc._$createActionScript(actionRecord.Actions);
                 mc.addEventListener(eventName, action);
             }
 
@@ -369,6 +447,7 @@ MovieClip.prototype._$build = function (parent, index, tag, shouldAction)
         frame = (frame + 1)|0;
     }
 
+
     /**
      * clone dictionary
      */
@@ -397,8 +476,10 @@ MovieClip.prototype._$build = function (parent, index, tag, shouldAction)
         }
     }
 
+
     // build dictionary
     mc._$characterBuild(nextAction);
+
 
     return mc;
 };
@@ -509,13 +590,13 @@ MovieClip.prototype._$draw = function (matrix, colorTransform, isClip, visible)
 
     }
 
-    // end clip
+    // end mask
     // if (clips.length || this.mask) {
     if (clips.length) {
         ctx.restore();
     }
 
-    // case action script3
+    // case action script2
     if (this.toString() === "[object MainTimeline]"
         && version === ActionScriptVersion.ACTIONSCRIPT2
     ) {
@@ -531,7 +612,6 @@ MovieClip.prototype._$draw = function (matrix, colorTransform, isClip, visible)
  */
 MovieClip.prototype._$putFrame = function ()
 {
-
     if (!this._$stopFlag && this.totalFrames > 1) {
 
         // loop or reset
@@ -559,8 +639,145 @@ MovieClip.prototype._$putFrame = function ()
         // action on
         this._$canAction = true;
 
-        // set next action
-        this._$prepareActions(this._$currentFrame);
+    }
+
+    // set next action
+    this._$prepareActions(this._$currentFrame);
+};
+
+/**
+ * Action Script 3
+ */
+
+/**
+ * @returns void
+ */
+MovieClip.prototype.play = function ()
+{
+    this._$stopFlag = false;
+};
+
+/**
+ * @returns void
+ */
+MovieClip.prototype.stop = function ()
+{
+    this._$stopFlag = true;
+};
+
+/**
+ * @param   {number|string} frame
+ * @returns void
+ */
+MovieClip.prototype.gotoAndPlay = function (frame)
+{
+    this._$gotoFrame(frame);
+    this.play();
+};
+
+/**
+ * @param   {number|string} frame
+ * @returns void
+ */
+MovieClip.prototype.gotoAndStop = function (frame)
+{
+    this._$gotoFrame(frame);
+    this.stop();
+};
+
+/**
+ * @returns void
+ */
+MovieClip.prototype.nextFrame = function ()
+{
+    this._$gotoFrame(this.currentFrame + 1);
+};
+
+/**
+ * @returns void
+ */
+MovieClip.prototype.prevFrame = function ()
+{
+    this._$gotoFrame(this.currentFrame - 1);
+};
+
+/**
+ * @param   {number|string} frame
+ * @returns void
+ */
+MovieClip.prototype._$gotoFrame = function (frame)
+{
+
+    if (typeof frame === "string") {
+
+        var frameLabel = this._$getFrameLabel(frame);
+
+        if (frameLabel instanceof FrameLabel) {
+            frame = frameLabel.frame|0;
+        }
 
     }
+
+    frame = frame|0;
+    if (frame > 0 && frame !== this.currentFrame) {
+
+        if (frame > this.totalFrames) {
+            frame = 1;
+        }
+
+        this._$canAction = true;
+
+        var maxFrame = (this.$max(frame, this.currentFrame) + 1)|0;
+        var minFrame = this.$min(frame,  this.currentFrame)|0;
+
+        var completed = [];
+        while (maxFrame > minFrame) {
+
+            var controller = this._$controller[minFrame];
+            for (var depth in controller) {
+
+                if (!controller.hasOwnProperty(depth)) {
+                    continue;
+                }
+
+                var instance = this._$getInstance(controller[depth]);
+                if (instance.id in completed) {
+                    continue;
+                }
+
+                // flag set
+                completed[instance.id] = 1;
+
+                switch (instance.toString()) {
+
+                    // MovieClip
+                    case "[object MovieClip]":
+
+                        // rebuild
+                        if (frame < instance.ratio || frame > instance.totalFrames) {
+
+                            this._$createInstance(instance.id, false);
+
+                        }
+
+                        break;
+
+
+                }
+
+            }
+
+            minFrame = (minFrame + 1)|0;
+        }
+
+        this._$currentFrame = frame|0;
+    }
 };
+
+/**
+ * Action Script 1 or 2
+ */
+
+
+
+

@@ -3,11 +3,12 @@
  */
 var PlaceObject = function ()
 {
+    Util.call(this);
+
     this._$matrix         = [1, 0, 0, 1, 0, 0];
     this._$colorTransform = [1, 1, 1, 1, 0, 0, 0, 0];
     this._$filters        = null;
     this._$blendMode      = "normal";
-    this._$clipDepth      = 0;
 };
 
 /**
@@ -29,7 +30,8 @@ Object.defineProperties(PlaceObject.prototype, {
             return this._$matrix;
         },
         /**
-         * @param {array} matrix
+         * @param   {array} matrix
+         * @returns void
          */
         set: function (matrix) {
             this._$matrix = this.$cloneArray(matrix);
@@ -43,7 +45,8 @@ Object.defineProperties(PlaceObject.prototype, {
             return this._$colorTransform;
         },
         /**
-         * @param {array} colorTransform
+         * @param   {array} colorTransform
+         * @returns void
          */
         set: function (colorTransform) {
             this._$colorTransform = this.$cloneArray(colorTransform);
@@ -57,7 +60,8 @@ Object.defineProperties(PlaceObject.prototype, {
             return this._$filters;
         },
         /**
-         * @param {array} filters
+         * @param   {array} filters
+         * @returns void
          */
         set: function (filters) {
             this._$filters = filters;
@@ -71,27 +75,13 @@ Object.defineProperties(PlaceObject.prototype, {
             return this._$blendMode;
         },
         /**
-         * @param {string|number} blendMode
+         * @param   {string|number} blendMode
+         * @returns void
          */
         set: function (blendMode) {
             this._$blendMode = this.getBlendName(blendMode);
         }
-    },
-    clipDepth: {
-        /**
-         * @returns {number}
-         */
-        get: function () {
-            return this._$clipDepth;
-        },
-        /**
-         * @param {number} clipDepth
-         */
-        set: function (clipDepth) {
-            this._$clipDepth = clipDepth|0;
-        }
     }
-
 });
 
 /**

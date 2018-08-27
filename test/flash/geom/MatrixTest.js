@@ -13,7 +13,7 @@ describe("Matrix.js property valid test and clone test", function()
         m1.ty  = "ty";
 
         // clone matrix
-        var m2 = m1.clone();
+        var m2 = m1._$clone();
         m2.a   = 1.2;
         m2.b   = 0.765;
         m2.c   = -0.872;

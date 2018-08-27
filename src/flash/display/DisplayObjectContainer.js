@@ -110,37 +110,27 @@ DisplayObjectContainer.prototype._$createInstance = function (id, shouldAction)
 };
 
 /**
- * @param   {number} frame
- * @param   {number} depth
- * @returns PlaceObject
- */
-DisplayObjectContainer.prototype._$getPlaceObject = function (frame, depth)
-{
-    if (frame in this._$places &&
-        depth in this._$places[frame]
-    ) {
-        return this._$placeObjects[this._$places[frame][depth]];
-    }
-
-    console.log("[error]: PlaceObject");
-    return new PlaceObject();
-};
-
-/**
  * @param {number}      frame
  * @param {number}      depth
- * @param {PlaceObject} placeObject
+ * @param {PlaceObject} place_object
  */
-DisplayObjectContainer.prototype._$setPlaceObject = function (frame, depth, placeObject)
+DisplayObjectContainer.prototype._$setPlaceObject = function (frame, depth, place_object)
 {
+    if (!this._$places) {
+        this._$places = [];
+    }
+
     if (!(frame in this._$places)) {
         this._$places[frame] = [];
     }
 
     // set id
+    if (!this._$placeObjects) {
+        this._$placeObjects = [];
+    }
     var id = this._$placeObjects.length;
 
-    this._$placeObjects[id]     = placeObject;
+    this._$placeObjects[id]     = place_object;
     this._$places[frame][depth] = id;
 };
 
@@ -182,6 +172,10 @@ DisplayObjectContainer.prototype._$getController = function(frame)
  */
 DisplayObjectContainer.prototype._$setController = function (frame, depth, instance_id)
 {
+    if (!this._$controller) {
+        this._$controller = [];
+    }
+
     if (!(frame in this._$controller)) {
         this._$controller[frame] = [];
     }

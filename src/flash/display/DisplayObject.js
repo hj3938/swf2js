@@ -6,25 +6,34 @@ var DisplayObject = function ()
     EventDispatcher.call(this);
 
     // origin param
-    this._$id             = null;
-    this._$characterId    = null;
-    this._$stageId        = null;
-    this._$containerId    = null;
-    this._$parent         = null;
-    this._$variables      = {};
+    this._$id          = null;
+    this._$characterId = null;
+    this._$stageId     = null;
+    this._$containerId = null;
+    this._$parent      = null;
+    this._$variables   = {};
+
+
+    // controller
+    this._$index           = 0;
+    this._$startFrame      = 1;
+    this._$endFrame        = 0;
+
+
+    // PlaceObjects
+    this._$matrix          = null;
+    this._$colorTransform  = null;
+    this._$filters         = null;
+    this._$blendMode       = null;
+
 
     // clip
-    // clip
-    this._$clipDepth      = 0;
-
-    // draw param
-    this._$matrix         = null;
-    this._$colorTransform = null;
-
+    this._$clipDepth = 0;
 
     // property
     this._$accessibilityProperties = new AccessibilityProperties();
     this._$name                    = "";
+    this._$transform               = new Transform(this);
 
 };
 
@@ -154,74 +163,80 @@ Object.defineProperties(DisplayObject.prototype, {
             return this._$name + "";
         },
         /**
-         * @param {*} name
+         * @param {string} name
          */
         set: function (name) {
             this._$name = name + "";
         }
     },
-    matrix: {
+    transform: {
         /**
-         * @return {array|null}
+         * @returns {Transform}
          */
         get: function () {
-            return this._$matrix;
+            return this._$transform;
         },
         /**
-         * @param {array} matrix
+         * @param   {Transform} transform
+         * @returns void
          */
-        set: function (matrix) {
-            if (this.$isArray(matrix)) {
-                this._$matrix = this.$cloneArray(matrix);
-            }
-        }
-    },
-    colorTransform: {
-        /**
-         * @return {array|null}
-         */
-        get: function () {
-            return this._$colorTransform;
-        },
-        /**
-         * @param {array} colorTransform
-         */
-        set: function (colorTransform) {
-            if (this.$isArray(colorTransform)) {
-                this._$colorTransform = this.$cloneArray(colorTransform);
+        set: function (transform) {
+            if (transform instanceof Transform) {
+                this._$transform = transform._$clone();
             }
         }
     }
 });
 
+
 /**
- * @param  {number} frame
- * @param  {number} depth
- * @return {array}
+ * @return {PlaceObject}
  */
-DisplayObject.prototype._$getMatrix = function (frame, depth)
+DisplayObject.prototype._$getPlaceObject = function ()
 {
-    if (this.matrix !== null) {
-        return this.matrix;
-    }
+    var parent = this.parent;
+    var frame  = parent.currentFrame|0;
+    var id     = parent._$places[frame][this._$index];
 
-    var placeObject = this.parent._$getPlaceObject(frame, depth);
-
-    return placeObject.matrix;
+    return parent._$placeObjects[id];
 };
 
 /**
- * @param  {number} frame
- * @param  {number} depth
- * @return {array}
+ * @returns void
  */
-DisplayObject.prototype._$getColorTransform = function (frame, depth)
+DisplayObject.prototype._$buildPlaceObject = function (parent, tag)
 {
-    if (this.colorTransform !== null) {
-        return this.colorTransform;
+    // set place object
+    var depth         = tag.Depth|0;
+    var frame         = tag.StartFrame|0;
+    var totalFrame    = (parent.totalFrames + 1)|0;
+    var removeObjects = parent._$removeObjects;
+
+    // set param
+    this._$index      = depth|0;
+    this._$startFrame = frame|0;
+
+    // var controllers = parent._$controller;
+    while (totalFrame > frame) {
+
+        // if (frame in controllers
+        //     && depth in controllers[frame]
+        //     && this.id === controllers[frame][depth]
+        // ) {
+        //
+        //     var id = parent._$places[frame][depth];
+        //     this._$placeController[frame] = id;
+        //     this._$placeStore[id]         = parent._$placeObjects[id];
+        //
+        // }
+
+        var nextFrame = (frame + 1)|0;
+        if (nextFrame in removeObjects && depth in removeObjects[nextFrame]) {
+
+            this._$endFrame = frame;
+            break;
+        }
+
+        frame = (frame + 1)|0;
     }
-
-    var placeObject = this.parent._$getPlaceObject(frame, depth);
-
-    return placeObject.colorTransform;
 };

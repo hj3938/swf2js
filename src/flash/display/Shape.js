@@ -121,6 +121,9 @@ Shape.prototype._$build = function (parent, index, tag, shouldAction)
         shape._$clipDepth = tag.ClipDepth;
     }
 
+    // build PlaceObject
+    shape._$buildPlaceObject(parent, tag);
+
     return shape;
 };
 

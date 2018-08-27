@@ -1,17 +1,25 @@
 /**
+ * @param {DisplayObject} src
  * @constructor
  */
-var Transform = function ()
+var Transform = function (src)
 {
-    this._colorTransform        = null;
-    this._matrix                = null;
-    this._matrix3D              = new Matrix3D();
-    this._perspectiveProjection = new PerspectiveProjection();
-    this._pixelBounds           = new Rectangle();
+    OriginalObject.call(this);
+
+    // properties
+    this._$colorTransform        = null;
+    this._$matrix                = null;
+    this._$matrix3D              = null;
+    this._$perspectiveProjection = null;
+    this._$pixelBounds           = null;
+
+    // origin param
+    this._$displayObject         = src;
 };
 
 /**
- * util
+ * extends
+ * @type {OriginalObject}
  */
 Transform.prototype = Object.create(OriginalObject.prototype);
 Transform.prototype.constructor = Transform;
@@ -22,48 +30,66 @@ Transform.prototype.constructor = Transform;
  */
 Object.defineProperties(Transform.prototype, {
     colorTransform: {
+        /**
+         * @return {ColorTransform}
+         */
         get: function () {
-            return (this._colorTransform === null) ? [1, 1, 1, 1, 0, 0, 0, 0] : this._colorTransform;
+            return (this._$colorTransform === null)
+                ? this._$displayObject._$getPlaceObject().colorTransform
+                : this._$colorTransform;
         },
+        /**
+         * @param  {ColorTransform} colorTransform
+         * @return void
+         */
         set: function (colorTransform) {
             if (colorTransform instanceof ColorTransform) {
-                this._colorTransform = colorTransform.clone();
+                this._$colorTransform = colorTransform._$clone();
             }
         }
     },
     matrix: {
+        /**
+         * @return {Matrix}
+         */
         get: function () {
-            return (this._matrix === null) ? [1, 0, 0, 1, 0, 0] : this._matrix;
+            return (this._$matrix === null)
+                ? this._$displayObject._$getPlaceObject().matrix
+                : this._$matrix;
         },
+        /**
+         * @param  {Matrix} matrix
+         * @return void
+         */
         set: function (matrix) {
             if (matrix instanceof Matrix) {
-                this._matrix = matrix.clone();
+                this._$matrix = matrix._$clone();
             }
         }
     },
     matrix3D: {
         get: function () {
-            return this._matrix3D;
+            return this._$matrix3D;
         },
         set: function (matrix3D) {
             if (matrix3D instanceof Matrix3D) {
-                this._matrix3D = matrix3D;
+                this._$matrix3D = matrix3D;
             }
         }
     },
     perspectiveProjection: {
         get: function () {
-            return this._perspectiveProjection;
+            return this._$perspectiveProjection;
         },
         set: function (perspectiveProjection) {
             if (perspectiveProjection instanceof PerspectiveProjection) {
-                this._perspectiveProjection = perspectiveProjection;
+                this._$perspectiveProjection = perspectiveProjection;
             }
         }
     },
     pixelBounds: {
         get: function () {
-            return this._pixelBounds;
+            return this._$pixelBounds;
         },
         set: function () {} // readonly
     },
@@ -82,6 +108,14 @@ Object.defineProperties(Transform.prototype, {
 });
 
 /**
+ * @returns {string}
+ */
+Transform.prototype.toString = function ()
+{
+    return "[object Transform]";
+};
+
+/**
  * @param {DisplayObject} relativeTo
  * @returns {Matrix3D}
  */
@@ -90,5 +124,3 @@ Transform.prototype.getRelativeMatrix3D = function (relativeTo)
     // todo
     return new Matrix3D();
 };
-
-

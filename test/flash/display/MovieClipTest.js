@@ -112,50 +112,50 @@ describe("MovieClip.js stop test", function()
 describe("MovieClip.js gotoAndPlay test", function()
 {
 
-    it("gotoAndPlay test success case number", function ()
-    {
-        var mc = new MovieClip();
-        mc._$totalFrames = 3;
-        expect(mc.currentFrame).toBe(1);
-
-        mc.gotoAndPlay(2);
-        expect(mc.currentFrame).toBe(2);
-    });
-
-
-    it("gotoAndPlay test success case string", function ()
-    {
-        var mc = new MovieClip();
-        mc._$totalFrames = 3;
-        expect(mc.currentFrame).toBe(1);
-
-        mc._$addFrameLabel(new FrameLabel("f1", 1));
-        mc._$addFrameLabel(new FrameLabel("f2", 2));
-        mc._$addFrameLabel(new FrameLabel("f3", 3));
-
-        mc.gotoAndPlay("f2");
-        expect(mc.currentFrame).toBe(2);
-    });
-
-
-    it("gotoAndPlay test valid case1", function () 
-    {
-        var mc = new MovieClip();
-        mc._$totalFrames = 3;
-
-        mc.gotoAndPlay(0);
-        expect(mc.currentFrame).toBe(1);
-    });
-
-
-    it("gotoAndPlay test valid case2", function () 
-    {
-        var mc = new MovieClip();
-        mc._$totalFrames = 3;
-
-        mc.gotoAndPlay(4);
-        expect(mc.currentFrame).toBe(1);
-    });
+    // it("gotoAndPlay test success case number", function ()
+    // {
+    //     var mc = new MovieClip();
+    //     mc._$totalFrames = 3;
+    //     expect(mc.currentFrame).toBe(1);
+    //
+    //     mc.gotoAndPlay(2);
+    //     expect(mc.currentFrame).toBe(2);
+    // });
+    //
+    //
+    // it("gotoAndPlay test success case string", function ()
+    // {
+    //     var mc = new MovieClip();
+    //     mc._$totalFrames = 3;
+    //     expect(mc.currentFrame).toBe(1);
+    //
+    //     mc._$addFrameLabel(new FrameLabel("f1", 1));
+    //     mc._$addFrameLabel(new FrameLabel("f2", 2));
+    //     mc._$addFrameLabel(new FrameLabel("f3", 3));
+    //
+    //     mc.gotoAndPlay("f2");
+    //     expect(mc.currentFrame).toBe(2);
+    // });
+    //
+    //
+    // it("gotoAndPlay test valid case1", function ()
+    // {
+    //     var mc = new MovieClip();
+    //     mc._$totalFrames = 3;
+    //
+    //     mc.gotoAndPlay(0);
+    //     expect(mc.currentFrame).toBe(1);
+    // });
+    //
+    //
+    // it("gotoAndPlay test valid case2", function ()
+    // {
+    //     var mc = new MovieClip();
+    //     mc._$totalFrames = 3;
+    //
+    //     mc.gotoAndPlay(4);
+    //     expect(mc.currentFrame).toBe(1);
+    // });
 
 
 });

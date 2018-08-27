@@ -5,14 +5,15 @@ var PlaceObject = function ()
 {
     Util.call(this);
 
-    this._$matrix         = [1, 0, 0, 1, 0, 0];
-    this._$colorTransform = [1, 1, 1, 1, 0, 0, 0, 0];
+    this._$matrix         = new Matrix();
+    this._$colorTransform = new ColorTransform();
     this._$filters        = null;
     this._$blendMode      = "normal";
 };
 
 /**
  * extends
+ * @type {Util}
  */
 PlaceObject.prototype = Object.create(Util.prototype);
 PlaceObject.prototype.constructor = PlaceObject;
@@ -24,32 +25,32 @@ PlaceObject.prototype.constructor = PlaceObject;
 Object.defineProperties(PlaceObject.prototype, {
     matrix: {
         /**
-         * @returns {array}
+         * @returns {Matrix}
          */
         get: function () {
             return this._$matrix;
         },
         /**
-         * @param   {array} matrix
+         * @param   {Matrix} matrix
          * @returns void
          */
         set: function (matrix) {
-            this._$matrix = this.$cloneArray(matrix);
+            this._$matrix = matrix;
         }
     },
     colorTransform: {
         /**
-         * @returns {array}
+         * @returns {ColorTransform}
          */
         get: function () {
             return this._$colorTransform;
         },
         /**
-         * @param   {array} colorTransform
+         * @param   {ColorTransform} colorTransform
          * @returns void
          */
         set: function (colorTransform) {
-            this._$colorTransform = this.$cloneArray(colorTransform);
+            this._$colorTransform = colorTransform;
         }
     },
     filters: {
@@ -84,20 +85,6 @@ Object.defineProperties(PlaceObject.prototype, {
     }
 });
 
-/**
- * @returns {PlaceObject}
- */
-PlaceObject.prototype.clone = function ()
-{
-    var placeObject            = new PlaceObject();
-    placeObject.matrix         = this.matrix;
-    placeObject.colorTransform = this.colorTransform;
-    placeObject.filters        = this.filters;
-    placeObject.blendMode      = this.blendMode;
-    placeObject.ratio          = this.ratio;
-    placeObject.clipDepth      = this.clipDepth;
-    return placeObject;
-};
 
 /**
  * @param   {number|string} blendMode

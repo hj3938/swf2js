@@ -1722,14 +1722,15 @@ var PlaceObject = function ()
 {
     Util.call(this);
 
-    this._$matrix         = [1, 0, 0, 1, 0, 0];
-    this._$colorTransform = [1, 1, 1, 1, 0, 0, 0, 0];
+    this._$matrix         = new Matrix();
+    this._$colorTransform = new ColorTransform();
     this._$filters        = null;
     this._$blendMode      = "normal";
 };
 
 /**
  * extends
+ * @type {Util}
  */
 PlaceObject.prototype = Object.create(Util.prototype);
 PlaceObject.prototype.constructor = PlaceObject;
@@ -1741,32 +1742,32 @@ PlaceObject.prototype.constructor = PlaceObject;
 Object.defineProperties(PlaceObject.prototype, {
     matrix: {
         /**
-         * @returns {array}
+         * @returns {Matrix}
          */
         get: function () {
             return this._$matrix;
         },
         /**
-         * @param   {array} matrix
+         * @param   {Matrix} matrix
          * @returns void
          */
         set: function (matrix) {
-            this._$matrix = this.$cloneArray(matrix);
+            this._$matrix = matrix;
         }
     },
     colorTransform: {
         /**
-         * @returns {array}
+         * @returns {ColorTransform}
          */
         get: function () {
             return this._$colorTransform;
         },
         /**
-         * @param   {array} colorTransform
+         * @param   {ColorTransform} colorTransform
          * @returns void
          */
         set: function (colorTransform) {
-            this._$colorTransform = this.$cloneArray(colorTransform);
+            this._$colorTransform = colorTransform;
         }
     },
     filters: {
@@ -1801,20 +1802,6 @@ Object.defineProperties(PlaceObject.prototype, {
     }
 });
 
-/**
- * @returns {PlaceObject}
- */
-PlaceObject.prototype.clone = function ()
-{
-    var placeObject            = new PlaceObject();
-    placeObject.matrix         = this.matrix;
-    placeObject.colorTransform = this.colorTransform;
-    placeObject.filters        = this.filters;
-    placeObject.blendMode      = this.blendMode;
-    placeObject.ratio          = this.ratio;
-    placeObject.clipDepth      = this.clipDepth;
-    return placeObject;
-};
 
 /**
  * @param   {number|string} blendMode
@@ -2614,22 +2601,25 @@ EventDispatcher.prototype.setActionQueue = function (as, stage, args)
 };
 
 /**
- * @param redMultiplier
- * @param greenMultiplier
- * @param blueMultiplier
- * @param alphaMultiplier
- * @param redOffset
- * @param greenOffset
- * @param blueOffset
- * @param alphaOffset
+ * @param {number|undefined} redMultiplier
+ * @param {number|undefined} greenMultiplier
+ * @param {number|undefined} blueMultiplier
+ * @param {number|undefined} alphaMultiplier
+ * @param {number|undefined} redOffset
+ * @param {number|undefined} greenOffset
+ * @param {number|undefined} blueOffset
+ * @param {number|undefined} alphaOffset
  * @constructor
  */
 var ColorTransform = function (
     redMultiplier, greenMultiplier, blueMultiplier, alphaMultiplier,
     redOffset, greenOffset, blueOffset, alphaOffset
 ) {
+
+    OriginalObject.call(this);
+
     // default
-    this._colorTransform  = [1.0, 1.0, 1.0, 1.0, 0, 0, 0, 0];
+    this._$colorTransform  = [1, 1, 1, 1, 0, 0, 0, 0];
 
     // init
     this.redMultiplier    = redMultiplier;
@@ -2640,189 +2630,204 @@ var ColorTransform = function (
     this.greenOffset      = greenOffset;
     this.blueOffset       = blueOffset;
     this.alphaOffset      = alphaOffset;
-
 };
 
 
 /**
  * extends
+ * @type {OriginalObject}
  */
 ColorTransform.prototype = Object.create(OriginalObject.prototype);
 ColorTransform.prototype.constructor = ColorTransform;
+
 
 /**
  * properties
  */
 Object.defineProperties(ColorTransform.prototype, {
     redMultiplier: {
+        /**
+         * @return {number}
+         */
         get: function () {
-            return this._colorTransform[0];
+            return this._$colorTransform[0];
         },
+        /**
+         * @param {number} redMultiplier
+         */
         set: function (redMultiplier) {
             if (!this.$isNaN(redMultiplier) &&
                 -1 <= redMultiplier && 1 >= redMultiplier
             ) {
-                this._colorTransform[0] = redMultiplier;
+                this._$colorTransform[0] = redMultiplier;
             }
         }
     },
     greenMultiplier: {
+        /**
+         * @return {number}
+         */
         get: function () {
-            return this._colorTransform[1];
+            return this._$colorTransform[1];
         },
+        /**
+         * @param  {number} greenMultiplier
+         * @return void
+         */
         set: function (greenMultiplier) {
             if (!this.$isNaN(greenMultiplier) &&
                 -1 <= greenMultiplier && 1 >= greenMultiplier
             ) {
-                this._colorTransform[1] = greenMultiplier;
+                this._$colorTransform[1] = greenMultiplier;
             }
         }
     },
     blueMultiplier: {
+        /**
+         * @return {number}
+         */
         get: function () {
-            return this._colorTransform[2];
+            return this._$colorTransform[2];
         },
+        /**
+         * @param  {number} blueMultiplier
+         * @return void
+         */
         set: function (blueMultiplier) {
             if (!this.$isNaN(blueMultiplier) &&
                 -1 <= blueMultiplier && 1 >= blueMultiplier
             ) {
-                this._colorTransform[2] = blueMultiplier;
+                this._$colorTransform[2] = blueMultiplier;
             }
         }
     },
     alphaMultiplier: {
+        /**
+         * @return {number}
+         */
         get: function () {
-            return this._colorTransform[3];
+            return this._$colorTransform[3];
         },
+        /**
+         * @param  {number} alphaMultiplier
+         * @return void
+         */
         set: function (alphaMultiplier) {
             if (!this.$isNaN(alphaMultiplier) &&
                 -1 <= alphaMultiplier && 1 >= alphaMultiplier
             ) {
-                this._colorTransform[3] = alphaMultiplier;
+                this._$colorTransform[3] = alphaMultiplier;
             }
         }
     },
     redOffset: {
+        /**
+         * @return {number}
+         */
         get: function () {
-            return this._colorTransform[4];
+            return this._$colorTransform[4];
         },
+        /**
+         * @param  {number} redOffset
+         * @return void
+         */
         set: function (redOffset) {
             if (!this.$isNaN(redOffset) &&
                 -256 < redOffset && 256 > redOffset
             ) {
-                this._colorTransform[4] = redOffset|0;
+                this._$colorTransform[4] = redOffset|0;
             }
         }
     },
     greenOffset: {
+        /**
+         * @return {number}
+         */
         get: function () {
-            return this._colorTransform[5];
+            return this._$colorTransform[5];
         },
+        /**
+         * @param  {number} greenOffset
+         * @return void
+         */
         set: function (greenOffset) {
             if (!this.$isNaN(greenOffset) &&
                 -256 < greenOffset && 256 > greenOffset
             ) {
-                this._colorTransform[5] = greenOffset|0;
+                this._$colorTransform[5] = greenOffset|0;
             }
         }
     },
     blueOffset: {
+        /**
+         * @return {number}
+         */
         get: function () {
-            return this._colorTransform[6];
+            return this._$colorTransform[6];
         },
+        /**
+         * @param  {number} blueOffset
+         * @return void
+         */
         set: function (blueOffset) {
             if (!this.$isNaN(blueOffset) &&
                 -256 < blueOffset && 256 > blueOffset
             ) {
-                this._colorTransform[6] = blueOffset|0;
+                this._$colorTransform[6] = blueOffset|0;
             }
         }
     },
     alphaOffset: {
+        /**
+         * @return {number}
+         */
         get: function () {
-            return this._colorTransform[7];
+            return this._$colorTransform[7];
         },
+        /**
+         * @param  {number} alphaOffset
+         * @return void
+         */
         set: function (alphaOffset) {
             if (!this.$isNaN(alphaOffset) &&
                 -256 < alphaOffset && 256 > alphaOffset
             ) {
-                this._colorTransform[7] = alphaOffset|0;
+                this._$colorTransform[7] = alphaOffset|0;
             }
         }
     },
     color: {
+        /**
+         * @return {number}
+         */
         get: function () {
-            return this.getColor();
+            return this._$getColor();
         },
+        /**
+         * @param  {string|number} value
+         * @return void
+         */
         set: function (value) {
-            this.setColor(value);
+            this._$setColor(value);
         }
     },
-    rgb: {
+    rgb: { // AS2
+        /**
+         * @return {number}
+         */
         get: function () {
-            return this.getColor();
+            return this._$getColor();
         },
+        /**
+         * @param  {string|number} value
+         * @return void
+         */
         set: function (value) {
-            this.setColor(value);
+            this._$setColor(value);
         }
     }
 });
 
-/**
- * @returns {Number}
- */
-ColorTransform.prototype.getColor = function ()
-{
-    return this.$rgbToInt(this.redOffset, this.greenOffset, this.blueOffset);
-};
-
-/**
- *
- * @param value
- * @returns void
- */
-ColorTransform.prototype.setColor = function (value)
-{
-    var obj = (typeof value === "number") ?
-        this.$intToRGBA(value) : this.$intToRGBA(this.$colorStringToInt(value));
-
-    this.redOffset       = obj.R;
-    this.greenOffset     = obj.G;
-    this.blueOffset      = obj.B;
-
-    this.redMultiplier   = 0;
-    this.greenMultiplier = 0;
-    this.blueMultiplier  = 0;
-};
-
-/**
- * @returns {ColorTransform}
- */
-ColorTransform.prototype.clone = function ()
-{
-    return new ColorTransform(
-        this.redMultiplier,
-        this.greenMultiplier,
-        this.blueMultiplier,
-        this.alphaMultiplier,
-        this.redOffset,
-        this.greenOffset,
-        this.blueOffset,
-        this.alphaOffset
-    );
-};
-
-/**
- * @param {ColorTransform} second
- * @returns void
- */
-ColorTransform.prototype.concat = function (second)
-{
-    this._colorTransform = this.$multiplicationColor(
-        this._colorTransform,
-        second._colorTransform
-    );
-};
 
 /**
  * @returns {string}
@@ -2839,17 +2844,75 @@ ColorTransform.prototype.toString = function ()
         "blueOffset="      + this.blueOffset      + ", " +
         "alphaOffset="     + this.alphaOffset     + ")";
 };
+
 /**
- * @param a
- * @param b
- * @param c
- * @param d
- * @param tx
- * @param ty
+ * @param   {ColorTransform} second
+ * @returns void
+ */
+ColorTransform.prototype.concat = function (second)
+{
+    this._$colorTransform = this.$multiplicationColor(
+        this._$colorTransform,
+        second._$colorTransform
+    );
+};
+
+/**
+ * @returns {number}
+ */
+ColorTransform.prototype._$getColor = function ()
+{
+    return this.$rgbToInt(this.redOffset, this.greenOffset, this.blueOffset);
+};
+
+/**
+ * @param   {string|number} value
+ * @returns void
+ */
+ColorTransform.prototype._$setColor = function (value)
+{
+    var obj = (typeof value === "number")
+        ? this.$intToRGBA(value)
+        : this.$intToRGBA(this.$colorStringToInt(value));
+
+    this.redOffset       = obj.R;
+    this.greenOffset     = obj.G;
+    this.blueOffset      = obj.B;
+
+    this.redMultiplier   = 0;
+    this.greenMultiplier = 0;
+    this.blueMultiplier  = 0;
+};
+
+/**
+ * @returns {ColorTransform}
+ */
+ColorTransform.prototype._$clone = function ()
+{
+    return new ColorTransform(
+        this.redMultiplier,
+        this.greenMultiplier,
+        this.blueMultiplier,
+        this.alphaMultiplier,
+        this.redOffset,
+        this.greenOffset,
+        this.blueOffset,
+        this.alphaOffset
+    );
+};
+/**
+ * @param {number|undefined} a
+ * @param {number|undefined} b
+ * @param {number|undefined} c
+ * @param {number|undefined} d
+ * @param {number|undefined} tx
+ * @param {number|undefined} ty
  * @constructor
  */
 var Matrix = function (a, b, c, d, tx, ty)
 {
+    OriginalObject.call(this);
+    
     // default
     this.identity();
 
@@ -2864,6 +2927,7 @@ var Matrix = function (a, b, c, d, tx, ty)
 
 /**
  * extends
+ * @type {OriginalObject}
  */
 Matrix.prototype = Object.create(OriginalObject.prototype);
 Matrix.prototype.constructor = Matrix;
@@ -2874,61 +2938,61 @@ Matrix.prototype.constructor = Matrix;
 Object.defineProperties(Matrix.prototype, {
     a: {
         get: function () {
-            return this._matrix[0];
+            return this._$matrix[0];
         },
         set: function (a) {
             if (!this.$isNaN(a)) {
-                this._matrix[0] = a;
+                this._$matrix[0] = a;
             }
         }
     },
     b: {
         get: function () {
-            return this._matrix[1];
+            return this._$matrix[1];
         },
         set: function (b) {
             if (!this.$isNaN(b)) {
-                this._matrix[1] = b;
+                this._$matrix[1] = b;
             }
         }
     },
     c: {
         get: function () {
-            return this._matrix[2];
+            return this._$matrix[2];
         },
         set: function (c) {
             if (!this.$isNaN(c)) {
-                this._matrix[2] = c;
+                this._$matrix[2] = c;
             }
         }
     },
     d: {
         get: function () {
-            return this._matrix[3];
+            return this._$matrix[3];
         },
         set: function (d) {
             if (!this.$isNaN(d)) {
-                this._matrix[3] = d;
+                this._$matrix[3] = d;
             }
         }
     },
     tx: {
         get: function () {
-            return this._matrix[4] / 20;
+            return this._$matrix[4] / 20;
         },
         set: function (tx) {
             if (!this.$isNaN(tx)) {
-                this._matrix[4] = tx * 20;
+                this._$matrix[4] = tx * 20;
             }
         }
     },
     ty: {
         get: function () {
-            return this._matrix[5] / 20;
+            return this._$matrix[5] / 20;
         },
         set: function (ty) {
             if (!this.$isNaN(ty)) {
-                this._matrix[5] = ty * 20;
+                this._$matrix[5] = ty * 20;
             }
         }
     }
@@ -2937,23 +3001,23 @@ Object.defineProperties(Matrix.prototype, {
 /**
  * @returns {Matrix}
  */
-Matrix.prototype.clone = function ()
+Matrix.prototype._$clone = function ()
 {
     return new Matrix(this.a, this.b, this.c, this.d, this.tx, this.ty);
 };
 
 /**
- * @param {Matrix} m
+ * @param   {Matrix} m
  * @returns void
  */
 Matrix.prototype.concat = function (m)
 {
-    this._matrix = this.$multiplicationMatrix(m._matrix, this._matrix);
+    this._$matrix = this.$multiplicationMatrix(m._$matrix, this._$matrix);
 };
 
 /**
- * @param {number} column
- * @param {Vector3D} vector3D
+ * @param   {number}   column
+ * @param   {Vector3D} vector3D
  * @returns void
  */
 Matrix.prototype.copyColumnFrom = function (column, vector3D)
@@ -2962,8 +3026,8 @@ Matrix.prototype.copyColumnFrom = function (column, vector3D)
 };
 
 /**
- * @param {number} column
- * @param {Vector3D} vector3D
+ * @param   {number}   column
+ * @param   {Vector3D} vector3D
  * @returns void
  */
 Matrix.prototype.copyColumnTo = function (column, vector3D)
@@ -2972,7 +3036,7 @@ Matrix.prototype.copyColumnTo = function (column, vector3D)
 };
 
 /**
- * @param {Matrix} sourceMatrix
+ * @param   {Matrix} sourceMatrix
  * @returns void
  */
 Matrix.prototype.copyFrom = function (sourceMatrix)
@@ -2981,8 +3045,8 @@ Matrix.prototype.copyFrom = function (sourceMatrix)
 };
 
 /**
- * @param {number} row
- * @param {Vector3D} vector3D
+ * @param   {number}   row
+ * @param   {Vector3D} vector3D
  * @returns void
  */
 Matrix.prototype.copyRowFrom = function (row, vector3D)
@@ -2991,8 +3055,8 @@ Matrix.prototype.copyRowFrom = function (row, vector3D)
 };
 
 /**
- * @param {number} row
- * @param {Vector3D} vector3D
+ * @param   {number}   row
+ * @param   {Vector3D} vector3D
  * @returns void
  */
 Matrix.prototype.copyRowTo = function (row, vector3D)
@@ -3001,11 +3065,11 @@ Matrix.prototype.copyRowTo = function (row, vector3D)
 };
 
 /**
- * @param {number} scaleX
- * @param {number} scaleY
- * @param {number} rotation
- * @param {number} tx
- * @param {number} ty
+ * @param   {number} scaleX
+ * @param   {number} scaleY
+ * @param   {number} rotation
+ * @param   {number} tx
+ * @param   {number} ty
  * @returns void
  */
 Matrix.prototype.createBox = function (scaleX, scaleY, rotation, tx, ty)
@@ -3017,11 +3081,11 @@ Matrix.prototype.createBox = function (scaleX, scaleY, rotation, tx, ty)
 };
 
 /**
- * @param {number} width
- * @param {number} height
- * @param {number} rotation
- * @param {number} tx
- * @param {number} ty
+ * @param   {number} width
+ * @param   {number} height
+ * @param   {number} rotation
+ * @param   {number} tx
+ * @param   {number} ty
  * @returns void
  */
 Matrix.prototype.createGradientBox = function (width, height, rotation, tx, ty)
@@ -3034,7 +3098,7 @@ Matrix.prototype.createGradientBox = function (width, height, rotation, tx, ty)
 
 
 /**
- * @param {Point} point
+ * @param   {Point} point
  * @returns {Point}
  */
 Matrix.prototype.deltaTransformPoint = function (point)
@@ -3042,7 +3106,7 @@ Matrix.prototype.deltaTransformPoint = function (point)
     var m = new Matrix();
     m.translate(point.x, point.y);
 
-    var clone = this.clone();
+    var clone = this._$clone();
     clone.tx = 0;
     clone.ty = 0;
 
@@ -3056,7 +3120,7 @@ Matrix.prototype.deltaTransformPoint = function (point)
  */
 Matrix.prototype.identity = function ()
 {
-    this._matrix = [1, 0, 0, 1, 0, 0];
+    this._$matrix = [1, 0, 0, 1, 0, 0];
 };
 
 /**
@@ -3102,7 +3166,7 @@ Matrix.prototype.invert = function ()
 };
 
 /**
- * @param {number} rotation
+ * @param   {number} rotation
  * @returns void
  */
 Matrix.prototype.rotate = function (rotation)
@@ -3128,8 +3192,8 @@ Matrix.prototype.rotate = function (rotation)
 };
 
 /**
- * @param {number} sx
- * @param {number} sy
+ * @param   {number} sx
+ * @param   {number} sy
  * @returns void
  */
 Matrix.prototype.scale = function (sx, sy)
@@ -3144,12 +3208,12 @@ Matrix.prototype.scale = function (sx, sy)
 };
 
 /**
- * @param {number} aa
- * @param {number} ba
- * @param {number} ca
- * @param {number} da
- * @param {number} txa
- * @param {number} tya
+ * @param   {number} aa
+ * @param   {number} ba
+ * @param   {number} ca
+ * @param   {number} da
+ * @param   {number} txa
+ * @param   {number} tya
  * @returns void
  */
 Matrix.prototype.setTo = function (aa, ba, ca, da, txa, tya)
@@ -3171,7 +3235,7 @@ Matrix.prototype.toString = function ()
 };
 
 /**
- * @param {Point} point
+ * @param   {Point} point
  * @returns {Point}
  */
 Matrix.prototype.transformPoint = function (point)
@@ -3183,8 +3247,8 @@ Matrix.prototype.transformPoint = function (point)
 };
 
 /**
- * @param {number} dx
- * @param {number} dy
+ * @param   {number} dx
+ * @param   {number} dy
  * @returns void
  */
 Matrix.prototype.translate = function (dx, dy)
@@ -3734,19 +3798,27 @@ Rectangle.prototype.union = function (toUnion)
 };
 
 /**
+ * @param {DisplayObject} src
  * @constructor
  */
-var Transform = function ()
+var Transform = function (src)
 {
-    this._colorTransform        = null;
-    this._matrix                = null;
-    this._matrix3D              = new Matrix3D();
-    this._perspectiveProjection = new PerspectiveProjection();
-    this._pixelBounds           = new Rectangle();
+    OriginalObject.call(this);
+
+    // properties
+    this._$colorTransform        = null;
+    this._$matrix                = null;
+    this._$matrix3D              = null;
+    this._$perspectiveProjection = null;
+    this._$pixelBounds           = null;
+
+    // origin param
+    this._$displayObject         = src;
 };
 
 /**
- * util
+ * extends
+ * @type {OriginalObject}
  */
 Transform.prototype = Object.create(OriginalObject.prototype);
 Transform.prototype.constructor = Transform;
@@ -3757,48 +3829,66 @@ Transform.prototype.constructor = Transform;
  */
 Object.defineProperties(Transform.prototype, {
     colorTransform: {
+        /**
+         * @return {ColorTransform}
+         */
         get: function () {
-            return (this._colorTransform === null) ? [1, 1, 1, 1, 0, 0, 0, 0] : this._colorTransform;
+            return (this._$colorTransform === null)
+                ? this._$displayObject._$getPlaceObject().colorTransform
+                : this._$colorTransform;
         },
+        /**
+         * @param  {ColorTransform} colorTransform
+         * @return void
+         */
         set: function (colorTransform) {
             if (colorTransform instanceof ColorTransform) {
-                this._colorTransform = colorTransform.clone();
+                this._$colorTransform = colorTransform._$clone();
             }
         }
     },
     matrix: {
+        /**
+         * @return {Matrix}
+         */
         get: function () {
-            return (this._matrix === null) ? [1, 0, 0, 1, 0, 0] : this._matrix;
+            return (this._$matrix === null)
+                ? this._$displayObject._$getPlaceObject().matrix
+                : this._$matrix;
         },
+        /**
+         * @param  {Matrix} matrix
+         * @return void
+         */
         set: function (matrix) {
             if (matrix instanceof Matrix) {
-                this._matrix = matrix.clone();
+                this._$matrix = matrix._$clone();
             }
         }
     },
     matrix3D: {
         get: function () {
-            return this._matrix3D;
+            return this._$matrix3D;
         },
         set: function (matrix3D) {
             if (matrix3D instanceof Matrix3D) {
-                this._matrix3D = matrix3D;
+                this._$matrix3D = matrix3D;
             }
         }
     },
     perspectiveProjection: {
         get: function () {
-            return this._perspectiveProjection;
+            return this._$perspectiveProjection;
         },
         set: function (perspectiveProjection) {
             if (perspectiveProjection instanceof PerspectiveProjection) {
-                this._perspectiveProjection = perspectiveProjection;
+                this._$perspectiveProjection = perspectiveProjection;
             }
         }
     },
     pixelBounds: {
         get: function () {
-            return this._pixelBounds;
+            return this._$pixelBounds;
         },
         set: function () {} // readonly
     },
@@ -3817,6 +3907,14 @@ Object.defineProperties(Transform.prototype, {
 });
 
 /**
+ * @returns {string}
+ */
+Transform.prototype.toString = function ()
+{
+    return "[object Transform]";
+};
+
+/**
  * @param {DisplayObject} relativeTo
  * @returns {Matrix3D}
  */
@@ -3825,9 +3923,6 @@ Transform.prototype.getRelativeMatrix3D = function (relativeTo)
     // todo
     return new Matrix3D();
 };
-
-
-
 /**
  * @param percent
  * @param mat
@@ -6630,25 +6725,34 @@ var DisplayObject = function ()
     EventDispatcher.call(this);
 
     // origin param
-    this._$id             = null;
-    this._$characterId    = null;
-    this._$stageId        = null;
-    this._$containerId    = null;
-    this._$parent         = null;
-    this._$variables      = {};
+    this._$id          = null;
+    this._$characterId = null;
+    this._$stageId     = null;
+    this._$containerId = null;
+    this._$parent      = null;
+    this._$variables   = {};
+
+
+    // controller
+    this._$index           = 0;
+    this._$startFrame      = 1;
+    this._$endFrame        = 0;
+
+
+    // PlaceObjects
+    this._$matrix          = null;
+    this._$colorTransform  = null;
+    this._$filters         = null;
+    this._$blendMode       = null;
+
 
     // clip
-    // clip
-    this._$clipDepth      = 0;
-
-    // draw param
-    this._$matrix         = null;
-    this._$colorTransform = null;
-
+    this._$clipDepth = 0;
 
     // property
     this._$accessibilityProperties = new AccessibilityProperties();
     this._$name                    = "";
+    this._$transform               = new Transform(this);
 
 };
 
@@ -6778,76 +6882,82 @@ Object.defineProperties(DisplayObject.prototype, {
             return this._$name + "";
         },
         /**
-         * @param {*} name
+         * @param {string} name
          */
         set: function (name) {
             this._$name = name + "";
         }
     },
-    matrix: {
+    transform: {
         /**
-         * @return {array|null}
+         * @returns {Transform}
          */
         get: function () {
-            return this._$matrix;
+            return this._$transform;
         },
         /**
-         * @param {array} matrix
+         * @param   {Transform} transform
+         * @returns void
          */
-        set: function (matrix) {
-            if (this.$isArray(matrix)) {
-                this._$matrix = this.$cloneArray(matrix);
-            }
-        }
-    },
-    colorTransform: {
-        /**
-         * @return {array|null}
-         */
-        get: function () {
-            return this._$colorTransform;
-        },
-        /**
-         * @param {array} colorTransform
-         */
-        set: function (colorTransform) {
-            if (this.$isArray(colorTransform)) {
-                this._$colorTransform = this.$cloneArray(colorTransform);
+        set: function (transform) {
+            if (transform instanceof Transform) {
+                this._$transform = transform._$clone();
             }
         }
     }
 });
 
+
 /**
- * @param  {number} frame
- * @param  {number} depth
- * @return {array}
+ * @return {PlaceObject}
  */
-DisplayObject.prototype._$getMatrix = function (frame, depth)
+DisplayObject.prototype._$getPlaceObject = function ()
 {
-    if (this.matrix !== null) {
-        return this.matrix;
-    }
+    var parent = this.parent;
+    var frame  = parent.currentFrame|0;
+    var id     = parent._$places[frame][this._$index];
 
-    var placeObject = this.parent._$getPlaceObject(frame, depth);
-
-    return placeObject.matrix;
+    return parent._$placeObjects[id];
 };
 
 /**
- * @param  {number} frame
- * @param  {number} depth
- * @return {array}
+ * @returns void
  */
-DisplayObject.prototype._$getColorTransform = function (frame, depth)
+DisplayObject.prototype._$buildPlaceObject = function (parent, tag)
 {
-    if (this.colorTransform !== null) {
-        return this.colorTransform;
+    // set place object
+    var depth         = tag.Depth|0;
+    var frame         = tag.StartFrame|0;
+    var totalFrame    = (parent.totalFrames + 1)|0;
+    var removeObjects = parent._$removeObjects;
+
+    // set param
+    this._$index      = depth|0;
+    this._$startFrame = frame|0;
+
+    // var controllers = parent._$controller;
+    while (totalFrame > frame) {
+
+        // if (frame in controllers
+        //     && depth in controllers[frame]
+        //     && this.id === controllers[frame][depth]
+        // ) {
+        //
+        //     var id = parent._$places[frame][depth];
+        //     this._$placeController[frame] = id;
+        //     this._$placeStore[id]         = parent._$placeObjects[id];
+        //
+        // }
+
+        var nextFrame = (frame + 1)|0;
+        if (nextFrame in removeObjects && depth in removeObjects[nextFrame]) {
+
+            this._$endFrame = frame;
+            break;
+        }
+
+        frame = (frame + 1)|0;
     }
-
-    var placeObject = this.parent._$getPlaceObject(frame, depth);
-
-    return placeObject.colorTransform;
 };
 /**
  * @constructor
@@ -6974,37 +7084,27 @@ DisplayObjectContainer.prototype._$createInstance = function (id, shouldAction)
 };
 
 /**
- * @param   {number} frame
- * @param   {number} depth
- * @returns PlaceObject
- */
-DisplayObjectContainer.prototype._$getPlaceObject = function (frame, depth)
-{
-    if (frame in this._$places &&
-        depth in this._$places[frame]
-    ) {
-        return this._$placeObjects[this._$places[frame][depth]];
-    }
-
-    console.log("[error]: PlaceObject");
-    return new PlaceObject();
-};
-
-/**
  * @param {number}      frame
  * @param {number}      depth
- * @param {PlaceObject} placeObject
+ * @param {PlaceObject} place_object
  */
-DisplayObjectContainer.prototype._$setPlaceObject = function (frame, depth, placeObject)
+DisplayObjectContainer.prototype._$setPlaceObject = function (frame, depth, place_object)
 {
+    if (!this._$places) {
+        this._$places = [];
+    }
+
     if (!(frame in this._$places)) {
         this._$places[frame] = [];
     }
 
     // set id
+    if (!this._$placeObjects) {
+        this._$placeObjects = [];
+    }
     var id = this._$placeObjects.length;
 
-    this._$placeObjects[id]     = placeObject;
+    this._$placeObjects[id]     = place_object;
     this._$places[frame][depth] = id;
 };
 
@@ -7046,6 +7146,10 @@ DisplayObjectContainer.prototype._$getController = function(frame)
  */
 DisplayObjectContainer.prototype._$setController = function (frame, depth, instance_id)
 {
+    if (!this._$controller) {
+        this._$controller = [];
+    }
+
     if (!(frame in this._$controller)) {
         this._$controller[frame] = [];
     }
@@ -10008,7 +10112,6 @@ MovieClip.prototype._$getFrameLabel = function (name)
         var frameLabel = frameLabels[idx];
         if (frameLabel.name === name) {
             return frameLabel;
-            break;
         }
 
         idx = (idx + 1)|0;
@@ -10134,6 +10237,7 @@ MovieClip.prototype._$build = function (parent, index, tag, shouldAction)
     mc.stage         = parent.stage;
     mc._$totalFrames = this._$totalFrames;
 
+
     /**
      * set place data
      */
@@ -10184,7 +10288,7 @@ MovieClip.prototype._$build = function (parent, index, tag, shouldAction)
         }
     }
 
-    
+
     /**
      * clone controller
      */
@@ -10255,6 +10359,9 @@ MovieClip.prototype._$build = function (parent, index, tag, shouldAction)
     // todo sounds
 
 
+    // set place object
+    mc._$buildPlaceObject(parent, tag);
+
 
     var nextAction = false;
     if (shouldAction && mc.ratio === 0) {
@@ -10286,24 +10393,41 @@ MovieClip.prototype._$build = function (parent, index, tag, shouldAction)
 MovieClip.prototype._$draw = function (matrix, colorTransform, isClip, visible)
 {
 
+    var instance, length, idx;
+
+
     var frame      = this.currentFrame|0;
-    var controller = this._$getController(frame);
     var version    = this.root.actionScriptVersion|0;
 
+    var controller = [];
+    var instances  = this._$instances;
+
+    length = instances.length;
+    idx    = 0;
+    while (length > idx) {
+
+        instance = instances[idx];
+
+        if (instance._$startFrame <= frame && (!instance._$endFrame || instance._$endFrame >= frame)) {
+
+            controller[instance._$index] = instance;
+
+        }
+
+        idx = (idx + 1)|0;
+    }
+
+
     // case action script3
-    if (version === ActionScriptVersion.ACTIONSCRIPT3) {
+    if (version === ActionScriptVersion.ACTIONSCRIPT3
+        && (this._$endFrame === 0 || this._$endFrame !== this.parent.currentFrame)
+    ) {
 
         // next frame
         this._$putFrame();
 
     }
 
-    var removeObjects = null;
-    if (frame in this._$removeObjects) {
-
-        removeObjects = this._$removeObjects[frame];
-
-    }
 
     // init clip
     var ctx   = this.stage.player.preContext;
@@ -10316,11 +10440,11 @@ MovieClip.prototype._$draw = function (matrix, colorTransform, isClip, visible)
             continue;
         }
 
-        var instance = this._$getInstance(controller[depth]);
+        instance = controller[depth];
 
         // mask end
-        var length = clips.length|0;
-        var idx    = 0;
+        length = clips.length|0;
+        idx    = 0;
         while (idx < length) {
 
             if (depth > clips[idx]) {
@@ -10347,11 +10471,13 @@ MovieClip.prototype._$draw = function (matrix, colorTransform, isClip, visible)
             }
         }
 
+        // matrix and colorTransform
+        var transform = instance.transform;
 
         // next draw
         instance._$draw(
-            this.$multiplicationMatrix(matrix, instance._$getMatrix(frame, depth)),
-            this.$multiplicationColor(colorTransform, instance._$getColorTransform(frame, depth)),
+            this.$multiplicationMatrix(matrix, transform.matrix._$matrix),
+            this.$multiplicationColor(colorTransform, transform.colorTransform._$colorTransform),
             isClip,
             visible
         );
@@ -10369,15 +10495,22 @@ MovieClip.prototype._$draw = function (matrix, colorTransform, isClip, visible)
         // case action script 1 or 2
         if (instance.toString() === "[object MovieClip]"
             && version === ActionScriptVersion.ACTIONSCRIPT2
+            && (instance._$endFrame === 0 || instance._$endFrame !== frame)
         ) {
+
             instance._$putFrame();
+
         }
 
 
         // remove
-        if (removeObjects && depth in removeObjects) {
+        if (instance._$endFrame > 0 && instance._$endFrame === frame) {
 
-            this._$createInstance(instance.id, false);
+            switch (instance.toString()) {
+                case "[object MovieClip]":
+                    this._$createInstance(instance.id, false);
+                    break;
+            }
 
         }
 
@@ -10392,6 +10525,7 @@ MovieClip.prototype._$draw = function (matrix, colorTransform, isClip, visible)
     // case action script2
     if (this.toString() === "[object MainTimeline]"
         && version === ActionScriptVersion.ACTIONSCRIPT2
+        && (this._$endFrame === 0 || this._$endFrame !== this.parent.currentFrame)
     ) {
 
         // next frame
@@ -10857,6 +10991,9 @@ Shape.prototype._$build = function (parent, index, tag, shouldAction)
     if (tag.PlaceFlagHasClipDepth === 1) {
         shape._$clipDepth = tag.ClipDepth;
     }
+
+    // build PlaceObject
+    shape._$buildPlaceObject(parent, tag);
 
     return shape;
 };
@@ -23628,6 +23765,7 @@ SwfTag.prototype.showFrame = function (parent, tags, frame, cachePlaceObjects)
         }
     }
 
+
     // TODO sound
     var sounds = tags.sounds;
     if (sounds.length) {
@@ -23639,6 +23777,7 @@ SwfTag.prototype.showFrame = function (parent, tags, frame, cachePlaceObjects)
             parent._$addSound(frame, sounds[idx]);
         }
     }
+
 
     // remove objects
     var removeObjects = tags.removeObjects;
@@ -23654,6 +23793,7 @@ SwfTag.prototype.showFrame = function (parent, tags, frame, cachePlaceObjects)
             installed[removeObject.Depth] = 1;
         }
     }
+
 
     // new cache
     if (!(frame in cachePlaceObjects)) {
@@ -23759,6 +23899,8 @@ SwfTag.prototype.showFrame = function (parent, tags, frame, cachePlaceObjects)
         // character new build
         if (isNewCharacter) {
 
+            placeObject.StartFrame = frame|0;
+
             instanceId = parent._$addDictionary(placeObject);
 
         }
@@ -23776,24 +23918,25 @@ SwfTag.prototype.showFrame = function (parent, tags, frame, cachePlaceObjects)
 
     // clone prev frame
     if (prevFrame) {
+        var depth;
 
         if (!(frame in parent._$controller)) {
             parent._$controller[frame] = [];
         }
 
         var controller = parent._$controller[prevFrame];
-        for (idx in controller) {
-            if (!controller.hasOwnProperty(idx)) {
+        for (depth in controller) {
+            if (!controller.hasOwnProperty(depth)) {
                 continue;
             }
 
-            if (idx in installed) {
+            if (depth in installed) {
                 continue;
             }
 
             // clone
-            cachePlaceObjects[frame][idx]   = cachePlaceObjects[prevFrame][idx];
-            parent._$controller[frame][idx] = controller[idx];
+            cachePlaceObjects[frame][depth]   = cachePlaceObjects[prevFrame][depth];
+            parent._$controller[frame][depth] = controller[depth];
         }
 
 
@@ -23802,17 +23945,18 @@ SwfTag.prototype.showFrame = function (parent, tags, frame, cachePlaceObjects)
         }
 
         var places = parent._$places[prevFrame];
-        for (idx in places) {
+        for (depth in places) {
 
-            if (!places.hasOwnProperty(idx)) {
+            if (!places.hasOwnProperty(depth)) {
                 continue;
             }
 
-            if (idx in parent._$places[frame]) {
+            if (depth in parent._$places[frame]) {
                 continue;
             }
 
-            parent._$places[frame][idx]   = places[idx];
+            parent._$places[frame][depth] = places[depth];
+
         }
     }
 };
@@ -23827,12 +23971,16 @@ SwfTag.prototype.buildPlaceObject = function (tag)
 
     // Matrix
     if (tag.PlaceFlagHasMatrix) {
-        placeObject.matrix = tag.Matrix;
+        var matrix         = new Matrix();
+        matrix._$matrix    = tag.Matrix;
+        placeObject.matrix = matrix;
     }
 
     // ColorTransform
     if (tag.PlaceFlagHasColorTransform) {
-        placeObject.colorTransform = tag.ColorTransform;
+        var colorTransform              = new ColorTransform();
+        colorTransform._$colorTransform = tag.ColorTransform;
+        placeObject.colorTransform      = colorTransform;
     }
 
     // Filter

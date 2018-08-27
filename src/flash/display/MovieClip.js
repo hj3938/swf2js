@@ -215,7 +215,6 @@ MovieClip.prototype._$getFrameLabel = function (name)
         var frameLabel = frameLabels[idx];
         if (frameLabel.name === name) {
             return frameLabel;
-            break;
         }
 
         idx = (idx + 1)|0;
@@ -341,6 +340,7 @@ MovieClip.prototype._$build = function (parent, index, tag, shouldAction)
     mc.stage         = parent.stage;
     mc._$totalFrames = this._$totalFrames;
 
+
     /**
      * set place data
      */
@@ -391,7 +391,7 @@ MovieClip.prototype._$build = function (parent, index, tag, shouldAction)
         }
     }
 
-    
+
     /**
      * clone controller
      */
@@ -462,6 +462,9 @@ MovieClip.prototype._$build = function (parent, index, tag, shouldAction)
     // todo sounds
 
 
+    // set place object
+    mc._$buildPlaceObject(parent, tag);
+
 
     var nextAction = false;
     if (shouldAction && mc.ratio === 0) {
@@ -493,24 +496,41 @@ MovieClip.prototype._$build = function (parent, index, tag, shouldAction)
 MovieClip.prototype._$draw = function (matrix, colorTransform, isClip, visible)
 {
 
+    var instance, length, idx;
+
+
     var frame      = this.currentFrame|0;
-    var controller = this._$getController(frame);
     var version    = this.root.actionScriptVersion|0;
 
+    var controller = [];
+    var instances  = this._$instances;
+
+    length = instances.length;
+    idx    = 0;
+    while (length > idx) {
+
+        instance = instances[idx];
+
+        if (instance._$startFrame <= frame && (!instance._$endFrame || instance._$endFrame >= frame)) {
+
+            controller[instance._$index] = instance;
+
+        }
+
+        idx = (idx + 1)|0;
+    }
+
+
     // case action script3
-    if (version === ActionScriptVersion.ACTIONSCRIPT3) {
+    if (version === ActionScriptVersion.ACTIONSCRIPT3
+        && (this._$endFrame === 0 || this._$endFrame !== this.parent.currentFrame)
+    ) {
 
         // next frame
         this._$putFrame();
 
     }
 
-    var removeObjects = null;
-    if (frame in this._$removeObjects) {
-
-        removeObjects = this._$removeObjects[frame];
-
-    }
 
     // init clip
     var ctx   = this.stage.player.preContext;
@@ -523,11 +543,11 @@ MovieClip.prototype._$draw = function (matrix, colorTransform, isClip, visible)
             continue;
         }
 
-        var instance = this._$getInstance(controller[depth]);
+        instance = controller[depth];
 
         // mask end
-        var length = clips.length|0;
-        var idx    = 0;
+        length = clips.length|0;
+        idx    = 0;
         while (idx < length) {
 
             if (depth > clips[idx]) {
@@ -554,11 +574,13 @@ MovieClip.prototype._$draw = function (matrix, colorTransform, isClip, visible)
             }
         }
 
+        // matrix and colorTransform
+        var transform = instance.transform;
 
         // next draw
         instance._$draw(
-            this.$multiplicationMatrix(matrix, instance._$getMatrix(frame, depth)),
-            this.$multiplicationColor(colorTransform, instance._$getColorTransform(frame, depth)),
+            this.$multiplicationMatrix(matrix, transform.matrix._$matrix),
+            this.$multiplicationColor(colorTransform, transform.colorTransform._$colorTransform),
             isClip,
             visible
         );
@@ -576,15 +598,22 @@ MovieClip.prototype._$draw = function (matrix, colorTransform, isClip, visible)
         // case action script 1 or 2
         if (instance.toString() === "[object MovieClip]"
             && version === ActionScriptVersion.ACTIONSCRIPT2
+            && (instance._$endFrame === 0 || instance._$endFrame !== frame)
         ) {
+
             instance._$putFrame();
+
         }
 
 
         // remove
-        if (removeObjects && depth in removeObjects) {
+        if (instance._$endFrame > 0 && instance._$endFrame === frame) {
 
-            this._$createInstance(instance.id, false);
+            switch (instance.toString()) {
+                case "[object MovieClip]":
+                    this._$createInstance(instance.id, false);
+                    break;
+            }
 
         }
 
@@ -599,6 +628,7 @@ MovieClip.prototype._$draw = function (matrix, colorTransform, isClip, visible)
     // case action script2
     if (this.toString() === "[object MainTimeline]"
         && version === ActionScriptVersion.ACTIONSCRIPT2
+        && (this._$endFrame === 0 || this._$endFrame !== this.parent.currentFrame)
     ) {
 
         // next frame

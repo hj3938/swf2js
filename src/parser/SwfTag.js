@@ -89,6 +89,7 @@ SwfTag.prototype.showFrame = function (parent, tags, frame, cachePlaceObjects)
         }
     }
 
+
     // TODO sound
     var sounds = tags.sounds;
     if (sounds.length) {
@@ -100,6 +101,7 @@ SwfTag.prototype.showFrame = function (parent, tags, frame, cachePlaceObjects)
             parent._$addSound(frame, sounds[idx]);
         }
     }
+
 
     // remove objects
     var removeObjects = tags.removeObjects;
@@ -115,6 +117,7 @@ SwfTag.prototype.showFrame = function (parent, tags, frame, cachePlaceObjects)
             installed[removeObject.Depth] = 1;
         }
     }
+
 
     // new cache
     if (!(frame in cachePlaceObjects)) {
@@ -220,6 +223,8 @@ SwfTag.prototype.showFrame = function (parent, tags, frame, cachePlaceObjects)
         // character new build
         if (isNewCharacter) {
 
+            placeObject.StartFrame = frame|0;
+
             instanceId = parent._$addDictionary(placeObject);
 
         }
@@ -237,24 +242,25 @@ SwfTag.prototype.showFrame = function (parent, tags, frame, cachePlaceObjects)
 
     // clone prev frame
     if (prevFrame) {
+        var depth;
 
         if (!(frame in parent._$controller)) {
             parent._$controller[frame] = [];
         }
 
         var controller = parent._$controller[prevFrame];
-        for (idx in controller) {
-            if (!controller.hasOwnProperty(idx)) {
+        for (depth in controller) {
+            if (!controller.hasOwnProperty(depth)) {
                 continue;
             }
 
-            if (idx in installed) {
+            if (depth in installed) {
                 continue;
             }
 
             // clone
-            cachePlaceObjects[frame][idx]   = cachePlaceObjects[prevFrame][idx];
-            parent._$controller[frame][idx] = controller[idx];
+            cachePlaceObjects[frame][depth]   = cachePlaceObjects[prevFrame][depth];
+            parent._$controller[frame][depth] = controller[depth];
         }
 
 
@@ -263,17 +269,18 @@ SwfTag.prototype.showFrame = function (parent, tags, frame, cachePlaceObjects)
         }
 
         var places = parent._$places[prevFrame];
-        for (idx in places) {
+        for (depth in places) {
 
-            if (!places.hasOwnProperty(idx)) {
+            if (!places.hasOwnProperty(depth)) {
                 continue;
             }
 
-            if (idx in parent._$places[frame]) {
+            if (depth in parent._$places[frame]) {
                 continue;
             }
 
-            parent._$places[frame][idx]   = places[idx];
+            parent._$places[frame][depth] = places[depth];
+
         }
     }
 };
@@ -288,12 +295,16 @@ SwfTag.prototype.buildPlaceObject = function (tag)
 
     // Matrix
     if (tag.PlaceFlagHasMatrix) {
-        placeObject.matrix = tag.Matrix;
+        var matrix         = new Matrix();
+        matrix._$matrix    = tag.Matrix;
+        placeObject.matrix = matrix;
     }
 
     // ColorTransform
     if (tag.PlaceFlagHasColorTransform) {
-        placeObject.colorTransform = tag.ColorTransform;
+        var colorTransform              = new ColorTransform();
+        colorTransform._$colorTransform = tag.ColorTransform;
+        placeObject.colorTransform      = colorTransform;
     }
 
     // Filter

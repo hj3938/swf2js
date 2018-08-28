@@ -24,3 +24,15 @@ describe("FrameLabel.js property test", function()
     });
 
 });
+
+describe("FrameLabel.js toString test", function()
+{
+
+    // toString
+    it("toString test success", function ()
+    {
+        var fl = new FrameLabel();
+        expect(fl.toString()).toBe("[object FrameLabel]");
+    });
+
+});

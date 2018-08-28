@@ -11,15 +11,15 @@ var Scene = function (name, labels, numFrames)
 
     this._$name = "";
     if (typeof name === "string") {
-        this._$name = name;
+        this._$name = name + "";
     }
 
-    this._$labels = null;
+    this._$labels = [];
     if (this.$isArray(labels)) {
         this._$labels = labels;
     }
 
-    this._$numFrames = null;
+    this._$numFrames = 0;
     if (typeof numFrames === "number") {
         this._$numFrames = numFrames|0;
     }
@@ -43,11 +43,7 @@ Object.defineProperties(Scene.prototype, {
          * @return {array}
          */
         get: function () {
-            if (this._$labels !== null) {
-                return this._$labels;
-            }
-
-
+            return this._$labels;
         },
         /**
          * readonly

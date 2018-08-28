@@ -10312,7 +10312,17 @@ MovieClip.prototype._$build = function (parent, index, tag, shouldAction)
     /**
      * clone labels
      */
-    mc._$labels = this.$cloneArray(this._$labels);
+    var labels  = this.$cloneArray(this._$labels);
+    mc._$labels = labels;
+
+
+    /**
+     * create scenes
+     */
+    var scene = new Scene();
+    scene._$numFrames = this._$totalFrames;
+    scene._$labels    = labels;
+    mc._$scenes = [scene];
 
 
     /**
@@ -10325,14 +10335,6 @@ MovieClip.prototype._$build = function (parent, index, tag, shouldAction)
 
         id = (id + 1)|0;
     }
-
-
-    /**
-     * scenes
-     */
-    var scene = new Scene();
-    scene._$movieClip = mc;
-    mc._$scenes = [scene];
 
 
     // todo sounds
@@ -10765,15 +10767,15 @@ var Scene = function (name, labels, numFrames)
 
     this._$name = "";
     if (typeof name === "string") {
-        this._$name = name;
+        this._$name = name + "";
     }
 
-    this._$labels = null;
+    this._$labels = [];
     if (this.$isArray(labels)) {
         this._$labels = labels;
     }
 
-    this._$numFrames = null;
+    this._$numFrames = 0;
     if (typeof numFrames === "number") {
         this._$numFrames = numFrames|0;
     }
@@ -10797,11 +10799,7 @@ Object.defineProperties(Scene.prototype, {
          * @return {array}
          */
         get: function () {
-            if (this._$labels !== null) {
-                return this._$labels;
-            }
-
-
+            return this._$labels;
         },
         /**
          * readonly
@@ -10844,7 +10842,6 @@ Scene.prototype.toString = function ()
 {
     return "[object Scene]";
 };
-
 /**
  * @param code
  * @constructor

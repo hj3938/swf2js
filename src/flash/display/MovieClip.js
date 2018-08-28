@@ -462,7 +462,17 @@ MovieClip.prototype._$build = function (parent, index, tag, shouldAction)
     /**
      * clone labels
      */
-    mc._$labels = this.$cloneArray(this._$labels);
+    var labels  = this.$cloneArray(this._$labels);
+    mc._$labels = labels;
+
+
+    /**
+     * create scenes
+     */
+    var scene = new Scene();
+    scene._$numFrames = this._$totalFrames;
+    scene._$labels    = labels;
+    mc._$scenes = [scene];
 
 
     /**
@@ -475,14 +485,6 @@ MovieClip.prototype._$build = function (parent, index, tag, shouldAction)
 
         id = (id + 1)|0;
     }
-
-
-    /**
-     * scenes
-     */
-    var scene = new Scene();
-    scene._$movieClip = mc;
-    mc._$scenes = [scene];
 
 
     // todo sounds

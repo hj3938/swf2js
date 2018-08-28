@@ -6,7 +6,6 @@
  */
 var Scene = function (name, labels, numFrames)
 {
-
     OriginalObject.call(this);
 
     this._$name = "";
@@ -24,6 +23,7 @@ var Scene = function (name, labels, numFrames)
         this._$numFrames = numFrames|0;
     }
 
+    // origin param
     this._$offset = 0;
 };
 

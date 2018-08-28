@@ -119,20 +119,146 @@ describe("MovieClip.js property test", function()
     });
 
 
+    // currentScene
+    it("currentScene test success", function ()
+    {
+        var mc = new MovieClip();
+        mc._$totalFrames  = 4;
+        mc._$currentFrame = 1;
+
+        var sceneA = new Scene("a", [], 1);
+        sceneA._$offset = 0;
+
+        var sceneB = new Scene("b", [], 2);
+        sceneB._$offset = 1;
+
+        var sceneC = new Scene("c", [], 1);
+        sceneC._$offset = 3;
+
+        mc._$scenes = [sceneA, sceneB, sceneC];
+
+        var scene;
+
+        scene = mc.currentScene;
+        expect(scene.name).toBe("a");
+
+        mc._$currentFrame = 2;
+        scene = mc.currentScene;
+        expect(scene.name).toBe("b");
+
+        mc._$currentFrame = 3;
+        scene = mc.currentScene;
+        expect(scene.name).toBe("b");
+
+        mc._$currentFrame = 4;
+        scene = mc.currentScene;
+        expect(scene.name).toBe("c");
+    });
+
+    it("currentScene test readonly", function ()
+    {
+        var mc = new MovieClip();
+        mc._$scenes = [new Scene("a", [], 1)];
+
+        mc.currentScene = new Scene("b", [], 2);
+
+        expect(mc.currentScene.name).toBe("a");
+    });
 
 
+    // enabled
+    it("enabled test success case1", function ()
+    {
+        var mc = new MovieClip();
+        expect(mc.enabled).toBe(true);
+    });
+
+    it("enabled test success case2", function ()
+    {
+        var mc = new MovieClip();
+        mc.enabled = false;
+        expect(mc.enabled).toBe(false);
+    });
+
+    it("enabled test valid case1", function ()
+    {
+        var mc = new MovieClip();
+        mc.enabled = 0;
+        expect(mc.enabled).toBe(true);
+
+        mc.enabled = "test";
+        expect(mc.enabled).toBe(true);
+    });
 
 
+    // isPlaying
+    it("isPlaying test success", function ()
+    {
+        var mc = new MovieClip();
+        expect(mc.isPlaying).toBe(false);
+    });
+
+    it("isPlaying test readonly", function ()
+    {
+        var mc = new MovieClip();
+        mc.isPlaying = true;
+        expect(mc.isPlaying).toBe(false);
+    });
 
 
+    // scenes
+    it("scenes test success", function ()
+    {
+        var mc = new MovieClip();
+        expect(mc.scenes.length).toBe(1);
+    });
+
+    it("scenes test readonly", function ()
+    {
+        var mc = new MovieClip();
+        mc.scenes = [1,2,3];
+        expect(mc.scenes.length).toBe(1);
+    });
 
 
+    // totalFrames
+    it("totalFrames test success", function ()
+    {
+        var mc = new MovieClip();
+        expect(mc.totalFrames).toBe(1);
+    });
+
+    it("totalFrames test readonly", function ()
+    {
+        var mc = new MovieClip();
+        mc.totalFrames = 10;
+        expect(mc.totalFrames).toBe(1);
+    });
 
 
+    // trackAsMenu
+    it("trackAsMenu test success case1", function ()
+    {
+        var mc = new MovieClip();
+        expect(mc.trackAsMenu).toBe(true);
+    });
 
+    it("trackAsMenu test success case2", function ()
+    {
+        var mc = new MovieClip();
+        mc.trackAsMenu = false;
+        expect(mc.trackAsMenu).toBe(false);
+    });
 
+    it("trackAsMenu test valid", function ()
+    {
+        var mc = new MovieClip();
+        mc.trackAsMenu = 0;
+        expect(mc.enabled).toBe(true);
 
-
+        mc.trackAsMenu = "test";
+        expect(mc.trackAsMenu).toBe(true);
+    });
 
 
 });

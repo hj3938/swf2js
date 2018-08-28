@@ -12,7 +12,7 @@ var MovieClip = function ()
     // property
     this._$currentFrame  = 1;
     this._$totalFrames   = 1;
-    this._$scenes        = [];
+    this._$scenes        = [new Scene()];
     this._$isPlaying     = false;
     this._$enabled       = true;
     this._$trackAsMenu   = true;
@@ -129,14 +129,34 @@ Object.defineProperties(MovieClip.prototype, {
          */
         set: function () {}
     },
-    // TODO
     currentScene: {
         get: function () {
-            var scene = this.scenes[0];
-            if (this.scenes.length > 1) {
+
+            var scene;
+            var scenes = this.scenes;
+            var length = scenes.length|0;
+
+            if (length > 1) {
+
+                var frame = this.currentFrame|0;
+                var idx   = 0;
+
+                while (length > idx) {
+
+                    // set
+                    scene = scenes[idx];
+
+                    var total = (scene.numFrames + scene._$offset)|0;
+                    if (frame > scene._$offset && frame <= total) {
+                        return scene;
+                    }
+
+                    idx = (idx + 1)|0;
+                }
 
             }
-            return scene;
+
+            return scenes[0];
         },
         /**
          * readonly
@@ -160,6 +180,7 @@ Object.defineProperties(MovieClip.prototype, {
             }
         }
     },
+    // TODO
     framesLoaded: {
         get: function () {
             return this._$id;
@@ -247,6 +268,7 @@ MovieClip.prototype._$addFrameLabel = function (frameLabel)
 };
 
 /**
+ * TODO test
  * @param  {string} name
  * @return {FrameLabel|null}
  */
@@ -298,6 +320,7 @@ MovieClip.prototype._$addAction = function (frame, actionScript)
 };
 
 /**
+ * TODO test
  * @param   {number|null|undefined} frame
  * @returns void
  */
@@ -326,6 +349,7 @@ MovieClip.prototype._$prepareActions = function (frame)
 };
 
 /**
+ * TODO
  * @param   {ActionScript} script
  * @returns {Function}
  */
@@ -360,6 +384,7 @@ MovieClip.prototype._$addSound = function (frame, sound)
 };
 
 /**
+ * TODO test
  * @param   {MovieClip} parent
  * @param   {number}    index
  * @param   {object}    tag
@@ -472,7 +497,7 @@ MovieClip.prototype._$build = function (parent, index, tag, shouldAction)
     var scene = new Scene();
     scene._$numFrames = this._$totalFrames;
     scene._$labels    = labels;
-    mc._$scenes = [scene];
+    mc._$scenes       = [scene];
 
 
     /**
@@ -512,6 +537,7 @@ MovieClip.prototype._$build = function (parent, index, tag, shouldAction)
 };
 
 /**
+ * TODO test
  * @param {array}   matrix
  * @param {array}   colorTransform
  * @param {boolean} isClip
@@ -666,6 +692,7 @@ MovieClip.prototype._$draw = function (matrix, colorTransform, isClip, visible)
 };
 
 /**
+ * TODO test
  * @returns void
  */
 MovieClip.prototype._$putFrame = function ()
@@ -724,6 +751,7 @@ MovieClip.prototype.stop = function ()
 };
 
 /**
+ * TODO test
  * @param   {number|string} frame
  * @param   {null|string}   scene
  * @returns void
@@ -743,6 +771,7 @@ MovieClip.prototype.gotoAndPlay = function (frame, scene)
 };
 
 /**
+ * TODO test
  * @param   {number|string} frame
  * @param   {null|string} scene
  * @returns void
@@ -769,6 +798,17 @@ MovieClip.prototype.nextFrame = function ()
     this._$goToFrame(this.currentFrame + 1);
 };
 
+
+/**
+ * TODO
+ * @returns void
+ */
+MovieClip.prototype.nextScene = function ()
+{
+
+};
+
+
 /**
  * @returns void
  */
@@ -777,8 +817,17 @@ MovieClip.prototype.prevFrame = function ()
     this._$goToFrame(this.currentFrame - 1);
 };
 
+/**
+ * TODO
+ * @returns void
+ */
+MovieClip.prototype.prevScene = function ()
+{
+
+};
 
 /**
+ * TODO test
  * @param  {string} name
  * @return {Scene|null}
  */
@@ -806,6 +855,7 @@ MovieClip.prototype._$getScene = function (name)
 };
 
 /**
+ * TODO test
  * @param   {number|string} frame
  * @returns void
  */

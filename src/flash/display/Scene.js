@@ -18,7 +18,7 @@ var Scene = function (name, labels, numFrames)
         this._$labels = labels;
     }
 
-    this._$numFrames = 0;
+    this._$numFrames = 1;
     if (typeof numFrames === "number") {
         this._$numFrames = numFrames|0;
     }

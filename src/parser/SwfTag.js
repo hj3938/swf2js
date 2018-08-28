@@ -59,7 +59,7 @@ SwfTag.prototype.parse = function (parent)
     // swf parse
     this.parseTags(this.bitio.data.length, parent);
 
-    // init scenes¥
+    // init scenes
     var length = this.sceneInfo.length;
     if (length) {
 
@@ -73,7 +73,6 @@ SwfTag.prototype.parse = function (parent)
             // create Scene
             var scene         = new Scene(sceneInfo.name);
             scene._$offset    = sceneInfo.offset;
-            scene._$movieClip = parent;
 
 
             // set numFrames

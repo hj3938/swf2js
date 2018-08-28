@@ -54,7 +54,7 @@ describe("Scene.js property test", function()
     it("numFrames test valid case1", function ()
     {
         var scene = new Scene("test", [1,2,3], "abc");
-        expect(scene.numFrames).toBe(0);
+        expect(scene.numFrames).toBe(1);
     });
 
     it("numFrames test readonly", function ()

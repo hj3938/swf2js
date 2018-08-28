@@ -131,32 +131,7 @@ Object.defineProperties(MovieClip.prototype, {
     },
     currentScene: {
         get: function () {
-
-            var scene;
-            var scenes = this.scenes;
-            var length = scenes.length|0;
-
-            if (length > 1) {
-
-                var frame = this.currentFrame|0;
-                var idx   = 0;
-
-                while (length > idx) {
-
-                    // set
-                    scene = scenes[idx];
-
-                    var total = (scene.numFrames + scene._$offset)|0;
-                    if (frame > scene._$offset && frame <= total) {
-                        return scene;
-                    }
-
-                    idx = (idx + 1)|0;
-                }
-
-            }
-
-            return scenes[0];
+            return this._$getCurrentScene("current");
         },
         /**
          * readonly
@@ -759,7 +734,7 @@ MovieClip.prototype.stop = function ()
 MovieClip.prototype.gotoAndPlay = function (frame, scene)
 {
     // scene
-    if (scene !== undefined) {
+    if (scene !== undefined && typeof frame === "number") {
         var target = this._$getScene(scene);
         if (target) {
             frame = (frame + target._$offset)|0;
@@ -773,13 +748,13 @@ MovieClip.prototype.gotoAndPlay = function (frame, scene)
 /**
  * TODO test
  * @param   {number|string} frame
- * @param   {null|string} scene
+ * @param   {null|string}   scene
  * @returns void
  */
 MovieClip.prototype.gotoAndStop = function (frame, scene)
 {
     // scene
-    if (scene !== undefined) {
+    if (scene !== undefined && typeof frame === "number") {
         var target = this._$getScene(scene);
         if (target) {
             frame = (frame + target._$offset)|0;
@@ -798,16 +773,17 @@ MovieClip.prototype.nextFrame = function ()
     this._$goToFrame(this.currentFrame + 1);
 };
 
-
 /**
- * TODO
  * @returns void
  */
 MovieClip.prototype.nextScene = function ()
 {
-
+    var scene = this._$getCurrentScene("next");
+    if (scene) {
+        this._$goToFrame(scene._$offset + 1);
+    }
+    this.play();
 };
-
 
 /**
  * @returns void
@@ -818,12 +794,58 @@ MovieClip.prototype.prevFrame = function ()
 };
 
 /**
- * TODO
  * @returns void
  */
 MovieClip.prototype.prevScene = function ()
 {
+    var scene = this._$getCurrentScene("prev");
+    if (scene) {
+        this._$goToFrame(scene._$offset + 1);
+    }
+    this.play();
+};
 
+/**
+ * TODO test
+ * @param  {string} type
+ * @return {Scene|null}
+ */
+MovieClip.prototype._$getCurrentScene = function (type)
+{
+    var scene;
+    var scenes = this.scenes;
+    var length = scenes.length|0;
+
+    if (length > 1) {
+
+        var frame = this.currentFrame|0;
+        var idx   = 0;
+
+        while (length > idx) {
+
+            // set
+            scene = scenes[idx];
+
+            var total = (scene.numFrames + scene._$offset)|0;
+            if (frame > scene._$offset && frame <= total) {
+                switch (type) {
+                    case "current":
+                        return scene;
+                    case "next":
+                        var next = (idx + 1)|0;
+                        return (next in scenes) ? scenes[next] : null;
+                    case "prev":
+                        var prev = (idx - 1)|0;
+                        return (prev in scenes) ? scenes[prev] : null;
+                }
+            }
+
+            idx = (idx + 1)|0;
+        }
+
+    }
+
+    return scenes[0];
 };
 
 /**

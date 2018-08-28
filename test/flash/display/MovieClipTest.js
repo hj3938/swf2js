@@ -410,6 +410,91 @@ describe("MovieClip.js gotoAndPlay test", function()
     });
 
 
+    it("gotoAndPlay scene test success", function ()
+    {
+        var mc = new MovieClip();
+        mc._$totalFrames = 4;
+
+        var sceneA = new Scene("A", [], 2);
+        sceneA._$offset = 0;
+
+        var sceneB = new Scene("B", [], 2);
+        sceneB._$offset = 2;
+
+        mc._$scenes = [sceneA, sceneB];
+
+        expect(mc.currentFrame).toBe(1);
+
+        mc.gotoAndPlay(1, "B");
+        expect(mc.currentFrame).toBe(3);
+    });
+
+
+    it("gotoAndPlay scene test valid case1", function ()
+    {
+        var mc = new MovieClip();
+        mc._$totalFrames = 4;
+
+        var sceneA = new Scene("A", [], 2);
+        sceneA._$offset = 0;
+
+        var sceneB = new Scene("B", [], 2);
+        sceneB._$offset = 2;
+
+        mc._$scenes = [sceneA, sceneB];
+
+        expect(mc.currentFrame).toBe(1);
+
+        mc.gotoAndPlay(1, "C");
+        expect(mc.currentFrame).toBe(1);
+    });
+
+
+    it("gotoAndPlay scene test valid case2", function ()
+    {
+        var mc = new MovieClip();
+        mc._$totalFrames = 4;
+
+        var sceneA = new Scene("A", [], 2);
+        sceneA._$offset = 0;
+
+        var sceneB = new Scene("B", [], 2);
+        sceneB._$offset = 2;
+
+        mc._$scenes = [sceneA, sceneB];
+
+        expect(mc.currentFrame).toBe(1);
+
+        mc.gotoAndPlay(3, "A");
+        expect(mc.currentFrame).toBe(3);
+    });
+
+
+    it("gotoAndPlay scene test valid case3", function ()
+    {
+        var mc = new MovieClip();
+        mc._$totalFrames = 4;
+
+        mc._$addFrameLabel(new FrameLabel("f1", 1));
+        mc._$addFrameLabel(new FrameLabel("f2", 2));
+        mc._$addFrameLabel(new FrameLabel("f3", 3));
+
+        var sceneA = new Scene("A", [], 2);
+        sceneA._$offset = 0;
+
+        var sceneB = new Scene("B", [], 2);
+        sceneB._$offset = 2;
+
+        mc._$scenes = [sceneA, sceneB];
+
+        expect(mc.currentFrame).toBe(1);
+
+        mc.gotoAndPlay("f3", "B");
+        expect(mc.currentFrame).toBe(3);
+
+    });
+
+
 });
 
 

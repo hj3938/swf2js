@@ -81,9 +81,9 @@ Object.defineProperties(Transform.prototype, {
         get: function () {
             return this._$perspectiveProjection;
         },
-        set: function (perspectiveProjection) {
-            if (perspectiveProjection instanceof PerspectiveProjection) {
-                this._$perspectiveProjection = perspectiveProjection;
+        set: function (perspective_projection) {
+            if (perspective_projection instanceof PerspectiveProjection) {
+                this._$perspectiveProjection = perspective_projection;
             }
         }
     },

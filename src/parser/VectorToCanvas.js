@@ -42,10 +42,10 @@ VectorToCanvas.prototype.clone = function (src)
 
 /**
  * @param   {object}  shapes
- * @param   {boolean} isMorph
+ * @param   {boolean} is_morph
  * @returns {array}
  */
-VectorToCanvas.prototype.convert = function (shapes, isMorph)
+VectorToCanvas.prototype.convert = function (shapes, is_morph)
 {
     var lineStyles = shapes.lineStyles.lineStyles;
     var fillStyles = shapes.fillStyles.fillStyles;
@@ -76,7 +76,7 @@ VectorToCanvas.prototype.convert = function (shapes, isMorph)
 
         if (!record) {
             stack = this.setStack(stack, lines);
-            stack = this.setStack(stack, this.fillMerge(fills0, fills1, isMorph));
+            stack = this.setStack(stack, this.fillMerge(fills0, fills1, is_morph));
             break;
         }
 
@@ -86,7 +86,7 @@ VectorToCanvas.prototype.convert = function (shapes, isMorph)
                 AnchorX = 0;
                 AnchorY = 0;
                 stack   = this.setStack(stack, lines);
-                stack   = this.setStack(stack, this.fillMerge(fills0, fills1, isMorph));
+                stack   = this.setStack(stack, this.fillMerge(fills0, fills1, is_morph));
                 fills0  = [];
                 fills1  = [];
                 lines   = [];
@@ -212,10 +212,10 @@ VectorToCanvas.prototype.convert = function (shapes, isMorph)
 /**
  * @param   {array}   fills0
  * @param   {array}   fills1
- * @param   {boolean} isMorph
+ * @param   {boolean} is_morph
  * @returns {array}
  */
-VectorToCanvas.prototype.fillMerge = function (fills0, fills1, isMorph)
+VectorToCanvas.prototype.fillMerge = function (fills0, fills1, is_morph)
 {
     fills0 = this.fillReverse(fills0);
 
@@ -241,7 +241,7 @@ VectorToCanvas.prototype.fillMerge = function (fills0, fills1, isMorph)
         }
     }
 
-    return this.coordinateAdjustment(fills1, isMorph);
+    return this.coordinateAdjustment(fills1, is_morph);
 };
 
 /**
@@ -311,10 +311,10 @@ VectorToCanvas.prototype.fillReverse = function (fills0)
 
 /**
  * @param   {array}   fills1
- * @param   {boolean} isMorph
+ * @param   {boolean} is_morph
  * @returns void
  */
-VectorToCanvas.prototype.coordinateAdjustment = function (fills1, isMorph)
+VectorToCanvas.prototype.coordinateAdjustment = function (fills1, is_morph)
 {
     for (var i in fills1) {
         if (!fills1.hasOwnProperty(i)) {
@@ -333,7 +333,7 @@ VectorToCanvas.prototype.coordinateAdjustment = function (fills1, isMorph)
         }
 
         var adjustment = [];
-        if (array.length > 1 && !isMorph) {
+        if (array.length > 1 && !is_morph) {
             while (true) {
                 if (!array.length) {
                     break;

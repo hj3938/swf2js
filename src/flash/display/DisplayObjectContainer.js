@@ -11,14 +11,14 @@ var DisplayObjectContainer = function ()
     this._$tabChildren   = true;
     this._$textSnapshot  = new TextSnapshot();
     this._$ratio         = 0;
+    this._$children      = [];
 
     // origin param
-    this._$children      = [];
-    this._$places        = [];
-    this._$placeObjects  = [];
-    this._$controller    = [];
-    this._$dictionary    = [];
-    this._$instances     = [];
+    this._$placeController = [];
+    this._$placeObjects    = [];
+    this._$controller      = [];
+    this._$dictionary      = [];
+    this._$instances       = [];
 };
 
 /**
@@ -114,24 +114,16 @@ DisplayObjectContainer.prototype._$createInstance = function (id, shouldAction)
  * @param {number}      depth
  * @param {PlaceObject} place_object
  */
-DisplayObjectContainer.prototype._$setPlaceObject = function (frame, depth, place_object)
+DisplayObjectContainer.prototype._$addPlaceObject = function (frame, depth, place_object)
 {
-    if (!this._$places) {
-        this._$places = [];
+    if (!(frame in this._$placeController)) {
+        this._$placeController[frame] = [];
     }
 
-    if (!(frame in this._$places)) {
-        this._$places[frame] = [];
-    }
-
-    // set id
-    if (!this._$placeObjects) {
-        this._$placeObjects = [];
-    }
     var id = this._$placeObjects.length;
 
-    this._$placeObjects[id]     = place_object;
-    this._$places[frame][depth] = id;
+    this._$placeObjects[id] = place_object;
+    this._$placeController[frame][depth] = id;
 };
 
 /**
@@ -172,10 +164,6 @@ DisplayObjectContainer.prototype._$getController = function(frame)
  */
 DisplayObjectContainer.prototype._$setController = function (frame, depth, instance_id)
 {
-    if (!this._$controller) {
-        this._$controller = [];
-    }
-
     if (!(frame in this._$controller)) {
         this._$controller[frame] = [];
     }

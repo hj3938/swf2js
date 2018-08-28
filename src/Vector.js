@@ -1,6 +1,6 @@
 /**
- * @param length
- * @param fixed
+ * @param {number}  length
+ * @param {boolean} fixed
  * @constructor
  */
 var Vector = function (length, fixed)

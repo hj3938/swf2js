@@ -46,11 +46,11 @@ Object.defineProperties(PlaceObject.prototype, {
             return this._$colorTransform;
         },
         /**
-         * @param   {ColorTransform} colorTransform
+         * @param   {ColorTransform} color_transform
          * @returns void
          */
-        set: function (colorTransform) {
-            this._$colorTransform = colorTransform;
+        set: function (color_transform) {
+            this._$colorTransform = color_transform;
         }
     },
     filters: {
@@ -76,24 +76,24 @@ Object.defineProperties(PlaceObject.prototype, {
             return this._$blendMode;
         },
         /**
-         * @param   {string|number} blendMode
+         * @param   {string|number} blend_mode
          * @returns void
          */
-        set: function (blendMode) {
-            this._$blendMode = this.getBlendName(blendMode);
+        set: function (blend_mode) {
+            this._$blendMode = this.getBlendName(blend_mode);
         }
     }
 });
 
 
 /**
- * @param   {number|string} blendMode
+ * @param   {number|string} blend_mode
  * @returns {string}
  */
-PlaceObject.prototype.getBlendName = function (blendMode)
+PlaceObject.prototype.getBlendName = function (blend_mode)
 {
     var mode = null;
-    switch (blendMode) {
+    switch (blend_mode) {
         case 1:
         case "normal":
             mode = "normal";

@@ -7,7 +7,8 @@ var OriginalObject = function ()
 };
 
 /**
- * util
+ * extends
+ * @type {Util}
  */
 OriginalObject.prototype = Object.create(Util.prototype);
 OriginalObject.prototype.constructor = OriginalObject;

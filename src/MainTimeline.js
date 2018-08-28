@@ -8,11 +8,11 @@ var MainTimeline = function ()
     // origin params
     this._$version             = 10;
     this._$actionScriptVersion = ActionScriptVersion.ACTIONSCRIPT2;
-
 };
 
 /**
  * extends
+ * @type {MovieClip}
  */
 MainTimeline.prototype = Object.create(MovieClip.prototype);
 MainTimeline.prototype.constructor = MainTimeline;
@@ -46,13 +46,13 @@ Object.defineProperties(MainTimeline.prototype, {
             return this._$actionScriptVersion;
         },
         /**
-         * @param {number} actionScriptVersion
+         * @param {number} action_script_version
          */
-        set: function (actionScriptVersion) {
+        set: function (action_script_version) {
             if (typeof actionScriptVersion !== "number") {
-                actionScriptVersion = ActionScriptVersion.ACTIONSCRIPT2;
+                action_script_version = ActionScriptVersion.ACTIONSCRIPT2;
             }
-            this._$actionScriptVersion = actionScriptVersion;
+            this._$actionScriptVersion = action_script_version;
         }
     }
 });

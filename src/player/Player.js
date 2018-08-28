@@ -194,11 +194,11 @@ Object.defineProperties(Player.prototype, {
             return this._$baseWidth;
         },
         /**
-         * @param {number} baseWidth
+         * @param {number} base_width
          */
-        set: function (baseWidth) {
-            if (typeof baseWidth === "number") {
-                this._$baseWidth = baseWidth|0;
+        set: function (base_width) {
+            if (typeof base_width === "number") {
+                this._$baseWidth = base_width|0;
             }
         }
     },
@@ -210,11 +210,11 @@ Object.defineProperties(Player.prototype, {
             return this._$baseHeight;
         },
         /**
-         * @param {number} baseHeight
+         * @param {number} base_height
          */
-        set: function (baseHeight) {
-            if (typeof baseHeight === "number") {
-                this._$baseHeight = baseHeight|0;
+        set: function (base_height) {
+            if (typeof base_height === "number") {
+                this._$baseHeight = base_height|0;
             }
         }
     },
@@ -258,11 +258,11 @@ Object.defineProperties(Player.prototype, {
             return this._$colorTransform;
         },
         /**
-         * @param {array} colorTransform
+         * @param {array} color_transform
          */
-        set: function (colorTransform) {
-            if (this.$isArray(colorTransform)) {
-                this._$colorTransform = this.$cloneArray(colorTransform);
+        set: function (color_transform) {
+            if (this.$isArray(color_transform)) {
+                this._$colorTransform = this.$cloneArray(color_transform);
             }
         }
     },
@@ -274,11 +274,11 @@ Object.defineProperties(Player.prototype, {
             return this._$backgroundColor;
         },
         /**
-         * @param {string} backgroundColor
+         * @param {string} background_color
          */
-        set: function (backgroundColor) {
-            if (typeof backgroundColor === "string") {
-                this._$backgroundColor = backgroundColor;
+        set: function (background_color) {
+            if (typeof background_color === "string") {
+                this._$backgroundColor = background_color;
             }
         }
     },
@@ -290,11 +290,11 @@ Object.defineProperties(Player.prototype, {
             return this._$intervalId;
         },
         /**
-         * @param {number} intervalId
+         * @param {number} interval_id
          */
-        set: function (intervalId) {
-            if (typeof intervalId === "number") {
-                this._$intervalId = intervalId|0;
+        set: function (interval_id) {
+            if (typeof interval_id === "number") {
+                this._$intervalId = interval_id|0;
             }
         }
     },
@@ -306,11 +306,11 @@ Object.defineProperties(Player.prototype, {
             return this._$stopFlag;
         },
         /**
-         * @param {boolean} stopFlag
+         * @param {boolean} stop_flag
          */
-        set: function (stopFlag) {
-            if (typeof stopFlag === "boolean") {
-                this._$stopFlag = stopFlag;
+        set: function (stop_flag) {
+            if (typeof stop_flag === "boolean") {
+                this._$stopFlag = stop_flag;
             }
         }
     },
@@ -322,11 +322,11 @@ Object.defineProperties(Player.prototype, {
             return this._$isLoad;
         },
         /**
-         * @param {boolean} isLoad
+         * @param {boolean} is_load
          */
-        set: function (isLoad) {
-            if (typeof isLoad === "boolean") {
-                this._$isLoad = isLoad;
+        set: function (is_load) {
+            if (typeof is_load === "boolean") {
+                this._$isLoad = is_load;
             }
         }
     },
@@ -338,11 +338,11 @@ Object.defineProperties(Player.prototype, {
             return this._$loadStatus;
         },
         /**
-         * @param {number} loadStatus
+         * @param {number} load_status
          */
-        set: function (loadStatus) {
-            if (typeof loadStatus === "number") {
-                this._$loadStatus = loadStatus|0;
+        set: function (load_status) {
+            if (typeof load_status === "number") {
+                this._$loadStatus = load_status|0;
             }
         }
     },
@@ -354,11 +354,11 @@ Object.defineProperties(Player.prototype, {
             return this._$optionWidth;
         },
         /**
-         * @param {number} optionWidth
+         * @param {number} option_width
          */
-        set: function (optionWidth) {
-            if (typeof optionWidth === "number") {
-                this._$optionWidth = optionWidth|0;
+        set: function (option_width) {
+            if (typeof option_width === "number") {
+                this._$optionWidth = option_width|0;
             }
         }
     },
@@ -370,11 +370,11 @@ Object.defineProperties(Player.prototype, {
             return this._$optionHeight;
         },
         /**
-         * @param {number} optionHeight
+         * @param {number} option_height
          */
-        set: function (optionHeight) {
-            if (typeof optionHeight === "number") {
-                this._$optionHeight = optionHeight|0;
+        set: function (option_height) {
+            if (typeof option_height === "number") {
+                this._$optionHeight = option_height|0;
             }
         }
     },
@@ -403,15 +403,15 @@ Object.defineProperties(Player.prototype, {
             return this._$tagId;
         },
         /**
-         * @param {string} tagId
+         * @param {string} tag_id
          */
-        set: function (tagId) {
-            if (typeof tagId === "number") {
-                tagId = tagId + "";
+        set: function (tag_id) {
+            if (typeof tag_id === "number") {
+                tag_id = tag_id + "";
             }
 
-            if (typeof tagId === "string") {
-                this._$tagId = tagId;
+            if (typeof tag_id === "string") {
+                this._$tagId = tag_id;
             }
         }
     },
@@ -423,11 +423,11 @@ Object.defineProperties(Player.prototype, {
             return this._$FlashVars;
         },
         /**
-         * @param {object} FlashVars
+         * @param {object} flash_vars
          */
-        set: function (FlashVars) {
-            if (typeof FlashVars === "object") {
-                this._$FlashVars = FlashVars;
+        set: function (flash_vars) {
+            if (typeof flash_vars === "object") {
+                this._$FlashVars = flash_vars;
             }
         }
     },
@@ -525,10 +525,10 @@ Object.defineProperties(Player.prototype, {
             return this._$preContext;
         },
         /**
-         * @param {CanvasRenderingContext2D} preContext
+         * @param {CanvasRenderingContext2D} pre_context
          */
-        set: function (preContext) {
-            this._$preContext = preContext;
+        set: function (pre_context) {
+            this._$preContext = pre_context;
         }
     },
     hitContext: {
@@ -539,10 +539,10 @@ Object.defineProperties(Player.prototype, {
             return this._$hitContext;
         },
         /**
-         * @param {CanvasRenderingContext2D} hitContext
+         * @param {CanvasRenderingContext2D} hit_context
          */
-        set: function (hitContext) {
-            this._$hitContext = hitContext;
+        set: function (hit_context) {
+            this._$hitContext = hit_context;
         }
     },
     actions: {
@@ -569,11 +569,11 @@ Object.defineProperties(Player.prototype, {
             return this._$buttonHits;
         },
         /**
-         * @param {array} buttonHits
+         * @param {array} button_hits
          */
-        set: function (buttonHits) {
-            if (this.$isArray(buttonHits)) {
-                this._$buttonHits = buttonHits;
+        set: function (button_hits) {
+            if (this.$isArray(button_hits)) {
+                this._$buttonHits = button_hits;
             }
 
         }
@@ -586,11 +586,11 @@ Object.defineProperties(Player.prototype, {
             return this._$downEventHits;
         },
         /**
-         * @param {array} downEventHits
+         * @param {array} down_event_hits
          */
-        set: function (downEventHits) {
-            if (this.$isArray(downEventHits)) {
-                this._$downEventHits = downEventHits;
+        set: function (down_event_hits) {
+            if (this.$isArray(down_event_hits)) {
+                this._$downEventHits = down_event_hits;
             }
         }
     },
@@ -602,11 +602,11 @@ Object.defineProperties(Player.prototype, {
             return this._$moveEventHits;
         },
         /**
-         * @param {array} moveEventHits
+         * @param {array} move_event_hits
          */
-        set: function (moveEventHits) {
-            if (this.$isArray(moveEventHits)) {
-                this._$moveEventHits = moveEventHits;
+        set: function (move_event_hits) {
+            if (this.$isArray(move_event_hits)) {
+                this._$moveEventHits = move_event_hits;
             }
         }
     },
@@ -618,11 +618,11 @@ Object.defineProperties(Player.prototype, {
             return this._$upEventHits;
         },
         /**
-         * @param {array} upEventHits
+         * @param {array} up_event_hits
          */
-        set: function (upEventHits) {
-            if (this.$isArray(upEventHits)) {
-                this._$upEventHits = upEventHits;
+        set: function (up_event_hits) {
+            if (this.$isArray(up_event_hits)) {
+                this._$upEventHits = up_event_hits;
             }
         }
     },
@@ -634,11 +634,11 @@ Object.defineProperties(Player.prototype, {
             return this._$keyDownEventHits;
         },
         /**
-         * @param {array} keyDownEventHits
+         * @param {array} key_down_event_hits
          */
-        set: function (keyDownEventHits) {
-            if (this.$isArray(keyDownEventHits)) {
-                this._$keyDownEventHits = keyDownEventHits;
+        set: function (key_down_event_hits) {
+            if (this.$isArray(key_down_event_hits)) {
+                this._$keyDownEventHits = key_down_event_hits;
             }
         }
     },
@@ -650,11 +650,11 @@ Object.defineProperties(Player.prototype, {
             return this._$keyUpEventHits;
         },
         /**
-         * @param {array} keyUpEventHits
+         * @param {array} key_up_event_hits
          */
-        set: function (keyUpEventHits) {
-            if (this.$isArray(keyUpEventHits)) {
-                this._$keyUpEventHits = keyUpEventHits;
+        set: function (key_up_event_hits) {
+            if (this.$isArray(key_up_event_hits)) {
+                this._$keyUpEventHits = key_up_event_hits;
             }
         }
     }
@@ -683,13 +683,13 @@ Player.prototype.setBackgroundColor = function (r, g, b)
 };
 
 /**
- * @param   {number} stageId
+ * @param   {number} stage_id
  * @returns {Stage|null}
  */
-Player.prototype.getStageAt = function (stageId)
+Player.prototype.getStageAt = function (stage_id)
 {
-    if (stageId in this.$stages) {
-        return this.$stages[stageId];
+    if (stage_id in this.$stages) {
+        return this.$stages[stage_id];
     }
     return null;
 };

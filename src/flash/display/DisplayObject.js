@@ -20,13 +20,6 @@ var DisplayObject = function ()
     this._$endFrame        = 0;
 
 
-    // PlaceObjects
-    this._$matrix          = null;
-    this._$colorTransform  = null;
-    this._$filters         = null;
-    this._$blendMode       = null;
-
-
     // clip
     this._$clipDepth = 0;
 
@@ -39,6 +32,7 @@ var DisplayObject = function ()
 
 /**
  * extends
+ * @type {EventDispatcher}
  */
 DisplayObject.prototype = Object.create(EventDispatcher.prototype);
 DisplayObject.prototype.constructor = DisplayObject;
@@ -147,11 +141,11 @@ Object.defineProperties(DisplayObject.prototype, {
             return this._$accessibilityProperties;
         },
         /**
-         * @param {AccessibilityProperties} accessibilityProperties
+         * @param {AccessibilityProperties} accessibility_properties
          */
-        set: function (accessibilityProperties) {
-            if (accessibilityProperties instanceof AccessibilityProperties) {
-                this._$accessibilityProperties = accessibilityProperties;
+        set: function (accessibility_properties) {
+            if (accessibility_properties instanceof AccessibilityProperties) {
+                this._$accessibilityProperties = accessibility_properties;
             }
         }
     },
@@ -182,7 +176,7 @@ Object.defineProperties(DisplayObject.prototype, {
          */
         set: function (transform) {
             if (transform instanceof Transform) {
-                this._$transform = transform._$clone();
+                this._$transform = transform;
             }
         }
     }
@@ -196,47 +190,20 @@ DisplayObject.prototype._$getPlaceObject = function ()
 {
     var parent = this.parent;
     var frame  = parent.currentFrame|0;
-    var id     = parent._$places[frame][this._$index];
+    var id     = parent._$placeController[frame][this._$index];
 
     return parent._$placeObjects[id];
 };
 
 /**
+ * @param   {MovieClip} parent
+ * @param   {object}    tag
  * @returns void
  */
-DisplayObject.prototype._$buildPlaceObject = function (parent, tag)
+DisplayObject.prototype._$commonBuild = function (parent, tag)
 {
-    // set place object
-    var depth         = tag.Depth|0;
-    var frame         = tag.StartFrame|0;
-    var totalFrame    = (parent.totalFrames + 1)|0;
-    var removeObjects = parent._$removeObjects;
-
     // set param
-    this._$index      = depth|0;
-    this._$startFrame = frame|0;
-
-    // var controllers = parent._$controller;
-    while (totalFrame > frame) {
-
-        // if (frame in controllers
-        //     && depth in controllers[frame]
-        //     && this.id === controllers[frame][depth]
-        // ) {
-        //
-        //     var id = parent._$places[frame][depth];
-        //     this._$placeController[frame] = id;
-        //     this._$placeStore[id]         = parent._$placeObjects[id];
-        //
-        // }
-
-        var nextFrame = (frame + 1)|0;
-        if (nextFrame in removeObjects && depth in removeObjects[nextFrame]) {
-
-            this._$endFrame = frame;
-            break;
-        }
-
-        frame = (frame + 1)|0;
-    }
+    this._$index      = tag.Depth|0;
+    this._$startFrame = tag.StartFrame|0;
+    this._$endFrame   = tag.EndFrame|0;
 };

@@ -1,6 +1,6 @@
 /**
- * @constructor
  * @param {Player} player
+ * @constructor
  */
 var Packages = function (player)
 {

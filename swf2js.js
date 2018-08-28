@@ -57,10 +57,7 @@ if (typeof Object.setPrototypeOf !== "function") {
 /**
  * @constructor
  */
-var CanvasToWebGL = function ()
-{
-
-};
+var CanvasToWebGL = function () {};
 
 /**
  * enable
@@ -1710,7 +1707,8 @@ var OriginalObject = function ()
 };
 
 /**
- * util
+ * extends
+ * @type {Util}
  */
 OriginalObject.prototype = Object.create(Util.prototype);
 OriginalObject.prototype.constructor = OriginalObject;
@@ -1763,11 +1761,11 @@ Object.defineProperties(PlaceObject.prototype, {
             return this._$colorTransform;
         },
         /**
-         * @param   {ColorTransform} colorTransform
+         * @param   {ColorTransform} color_transform
          * @returns void
          */
-        set: function (colorTransform) {
-            this._$colorTransform = colorTransform;
+        set: function (color_transform) {
+            this._$colorTransform = color_transform;
         }
     },
     filters: {
@@ -1793,24 +1791,24 @@ Object.defineProperties(PlaceObject.prototype, {
             return this._$blendMode;
         },
         /**
-         * @param   {string|number} blendMode
+         * @param   {string|number} blend_mode
          * @returns void
          */
-        set: function (blendMode) {
-            this._$blendMode = this.getBlendName(blendMode);
+        set: function (blend_mode) {
+            this._$blendMode = this.getBlendName(blend_mode);
         }
     }
 });
 
 
 /**
- * @param   {number|string} blendMode
+ * @param   {number|string} blend_mode
  * @returns {string}
  */
-PlaceObject.prototype.getBlendName = function (blendMode)
+PlaceObject.prototype.getBlendName = function (blend_mode)
 {
     var mode = null;
-    switch (blendMode) {
+    switch (blend_mode) {
         case 1:
         case "normal":
             mode = "normal";
@@ -3880,9 +3878,9 @@ Object.defineProperties(Transform.prototype, {
         get: function () {
             return this._$perspectiveProjection;
         },
-        set: function (perspectiveProjection) {
-            if (perspectiveProjection instanceof PerspectiveProjection) {
-                this._$perspectiveProjection = perspectiveProjection;
+        set: function (perspective_projection) {
+            if (perspective_projection instanceof PerspectiveProjection) {
+                this._$perspectiveProjection = perspective_projection;
             }
         }
     },
@@ -6739,13 +6737,6 @@ var DisplayObject = function ()
     this._$endFrame        = 0;
 
 
-    // PlaceObjects
-    this._$matrix          = null;
-    this._$colorTransform  = null;
-    this._$filters         = null;
-    this._$blendMode       = null;
-
-
     // clip
     this._$clipDepth = 0;
 
@@ -6758,6 +6749,7 @@ var DisplayObject = function ()
 
 /**
  * extends
+ * @type {EventDispatcher}
  */
 DisplayObject.prototype = Object.create(EventDispatcher.prototype);
 DisplayObject.prototype.constructor = DisplayObject;
@@ -6866,11 +6858,11 @@ Object.defineProperties(DisplayObject.prototype, {
             return this._$accessibilityProperties;
         },
         /**
-         * @param {AccessibilityProperties} accessibilityProperties
+         * @param {AccessibilityProperties} accessibility_properties
          */
-        set: function (accessibilityProperties) {
-            if (accessibilityProperties instanceof AccessibilityProperties) {
-                this._$accessibilityProperties = accessibilityProperties;
+        set: function (accessibility_properties) {
+            if (accessibility_properties instanceof AccessibilityProperties) {
+                this._$accessibilityProperties = accessibility_properties;
             }
         }
     },
@@ -6901,7 +6893,7 @@ Object.defineProperties(DisplayObject.prototype, {
          */
         set: function (transform) {
             if (transform instanceof Transform) {
-                this._$transform = transform._$clone();
+                this._$transform = transform;
             }
         }
     }
@@ -6915,49 +6907,22 @@ DisplayObject.prototype._$getPlaceObject = function ()
 {
     var parent = this.parent;
     var frame  = parent.currentFrame|0;
-    var id     = parent._$places[frame][this._$index];
+    var id     = parent._$placeController[frame][this._$index];
 
     return parent._$placeObjects[id];
 };
 
 /**
+ * @param   {MovieClip} parent
+ * @param   {object}    tag
  * @returns void
  */
-DisplayObject.prototype._$buildPlaceObject = function (parent, tag)
+DisplayObject.prototype._$commonBuild = function (parent, tag)
 {
-    // set place object
-    var depth         = tag.Depth|0;
-    var frame         = tag.StartFrame|0;
-    var totalFrame    = (parent.totalFrames + 1)|0;
-    var removeObjects = parent._$removeObjects;
-
     // set param
-    this._$index      = depth|0;
-    this._$startFrame = frame|0;
-
-    // var controllers = parent._$controller;
-    while (totalFrame > frame) {
-
-        // if (frame in controllers
-        //     && depth in controllers[frame]
-        //     && this.id === controllers[frame][depth]
-        // ) {
-        //
-        //     var id = parent._$places[frame][depth];
-        //     this._$placeController[frame] = id;
-        //     this._$placeStore[id]         = parent._$placeObjects[id];
-        //
-        // }
-
-        var nextFrame = (frame + 1)|0;
-        if (nextFrame in removeObjects && depth in removeObjects[nextFrame]) {
-
-            this._$endFrame = frame;
-            break;
-        }
-
-        frame = (frame + 1)|0;
-    }
+    this._$index      = tag.Depth|0;
+    this._$startFrame = tag.StartFrame|0;
+    this._$endFrame   = tag.EndFrame|0;
 };
 /**
  * @constructor
@@ -6985,14 +6950,14 @@ var DisplayObjectContainer = function ()
     this._$tabChildren   = true;
     this._$textSnapshot  = new TextSnapshot();
     this._$ratio         = 0;
+    this._$children      = [];
 
     // origin param
-    this._$children      = [];
-    this._$places        = [];
-    this._$placeObjects  = [];
-    this._$controller    = [];
-    this._$dictionary    = [];
-    this._$instances     = [];
+    this._$placeController = [];
+    this._$placeObjects    = [];
+    this._$controller      = [];
+    this._$dictionary      = [];
+    this._$instances       = [];
 };
 
 /**
@@ -7088,24 +7053,16 @@ DisplayObjectContainer.prototype._$createInstance = function (id, shouldAction)
  * @param {number}      depth
  * @param {PlaceObject} place_object
  */
-DisplayObjectContainer.prototype._$setPlaceObject = function (frame, depth, place_object)
+DisplayObjectContainer.prototype._$addPlaceObject = function (frame, depth, place_object)
 {
-    if (!this._$places) {
-        this._$places = [];
+    if (!(frame in this._$placeController)) {
+        this._$placeController[frame] = [];
     }
 
-    if (!(frame in this._$places)) {
-        this._$places[frame] = [];
-    }
-
-    // set id
-    if (!this._$placeObjects) {
-        this._$placeObjects = [];
-    }
     var id = this._$placeObjects.length;
 
-    this._$placeObjects[id]     = place_object;
-    this._$places[frame][depth] = id;
+    this._$placeObjects[id] = place_object;
+    this._$placeController[frame][depth] = id;
 };
 
 /**
@@ -7146,10 +7103,6 @@ DisplayObjectContainer.prototype._$getController = function(frame)
  */
 DisplayObjectContainer.prototype._$setController = function (frame, depth, instance_id)
 {
-    if (!this._$controller) {
-        this._$controller = [];
-    }
-
     if (!(frame in this._$controller)) {
         this._$controller[frame] = [];
     }
@@ -9909,6 +9862,7 @@ var MovieClip = function ()
     // property
     this._$currentFrame  = 1;
     this._$totalFrames   = 1;
+    this._$scenes        = [];
     this._$isPlaying     = false;
     this._$enabled       = true;
     this._$trackAsMenu   = true;
@@ -9916,7 +9870,6 @@ var MovieClip = function ()
     // controller tags
     this._$actions       = [];
     this._$frameLabels   = [];
-    this._$removeObjects = [];
 
     // sound
     // this.sounds        = [];
@@ -9948,10 +9901,31 @@ Object.defineProperties(MovieClip.prototype, {
          */
         set: function () {}
     },
-    // TODO
     currentFrameLabel: {
+        /**
+         * @return {string|null}
+         */
         get: function () {
-            return this._$id;
+
+            var frame       = this.currentFrame|0;
+            var frameLabels = this.currentLabels;
+
+            var idx = (frameLabels.length - 1)|0;
+            while (idx > 0) {
+
+                if (idx in frameLabels) {
+
+                    var frameLabel = frameLabels[idx];
+                    if (frameLabel.frame === frame) {
+                        return frameLabel.name;
+                    }
+
+                }
+
+                idx = (idx - 1)|0;
+            }
+
+            return null;
         },
         /**
          * readonly
@@ -9960,8 +9934,31 @@ Object.defineProperties(MovieClip.prototype, {
         set: function () {}
     },
     currentLabel: {
+        /**
+         * @return {string|null}
+         */
         get: function () {
-            return this._$id;
+
+            var frame       = this.currentFrame|0;
+            var frameLabels = this.currentLabels;
+
+            var length = frameLabels.length|0;
+            var idx    = 0;
+            while (length > idx) {
+
+                if (idx in frameLabels) {
+
+                    var frameLabel = frameLabels[idx];
+                    if (frameLabel.frame === frame) {
+                        return frameLabel.name;
+                    }
+
+                }
+
+                idx = (idx + 1)|0;
+            }
+
+            return null;
         },
         /**
          * readonly
@@ -9982,9 +9979,14 @@ Object.defineProperties(MovieClip.prototype, {
          */
         set: function () {}
     },
+    // TODO
     currentScene: {
         get: function () {
-            return this._$id;
+            var scene = this.scenes[0];
+            if (this.scenes.length > 1) {
+
+            }
+            return scene;
         },
         /**
          * readonly
@@ -10032,8 +10034,11 @@ Object.defineProperties(MovieClip.prototype, {
         set: function () {}
     },
     scenes: {
+        /**
+         * @return {array}
+         */
         get: function () {
-            return this._$id;
+            return this._$scenes;
         },
         /**
          * readonly
@@ -10062,11 +10067,11 @@ Object.defineProperties(MovieClip.prototype, {
             return this._$trackAsMenu;
         },
         /**
-         * @param {boolean} trackAsMenu
+         * @param {boolean} track_as_menu
          */
-        set: function (trackAsMenu) {
-            if (typeof trackAsMenu === "boolean") {
-                this._$trackAsMenu= trackAsMenu;
+        set: function (track_as_menu) {
+            if (typeof track_as_menu === "boolean") {
+                this._$trackAsMenu = track_as_menu;
             }
         }
     }
@@ -10086,7 +10091,7 @@ MovieClip.prototype.toString = function ()
  */
 MovieClip.prototype._$addFrameLabel = function (frameLabel)
 {
-    if (frameLabel instanceof  FrameLabel) {
+    if (frameLabel instanceof FrameLabel) {
         this._$frameLabels[this._$frameLabels.length] = frameLabel;
     }
 };
@@ -10195,19 +10200,6 @@ MovieClip.prototype._$createActionScript = function (script)
 };
 
 /**
- * @param {number} frame
- * @param {number} depth
- */
-MovieClip.prototype._$addRemoveObject = function (frame, depth)
-{
-    if (!(frame in this._$removeObjects)) {
-        this._$removeObjects[frame] = [];
-    }
-
-    this._$removeObjects[frame][depth] = 1;
-};
-
-/**
  * TODO Sound
  * @param {number} frame
  * @param sound
@@ -10237,6 +10229,8 @@ MovieClip.prototype._$build = function (parent, index, tag, shouldAction)
     mc.stage         = parent.stage;
     mc._$totalFrames = this._$totalFrames;
 
+    // common build
+    mc._$commonBuild(parent, tag);
 
     /**
      * set place data
@@ -10290,26 +10284,14 @@ MovieClip.prototype._$build = function (parent, index, tag, shouldAction)
 
 
     /**
-     * clone controller
-     */
-    frame  = 1;
-    length = this._$controller.length|0;
-    while (length > frame) {
-        mc._$controller[frame] = this.$cloneArray(this._$controller[frame]);
-
-        frame = (frame + 1)|0;
-    }
-
-
-    /**
      * clone PlaceObjects
      */
     mc._$placeObjects = this.$cloneArray(this._$placeObjects);
 
     frame  = 1;
-    length = this._$places.length|0;
+    length = this._$placeController.length|0;
     while (length > frame) {
-        mc._$places[frame] = this.$cloneArray(this._$places[frame]);
+        mc._$placeController[frame] = this.$cloneArray(this._$placeController[frame]);
 
         frame = (frame + 1)|0;
     }
@@ -10334,18 +10316,6 @@ MovieClip.prototype._$build = function (parent, index, tag, shouldAction)
 
 
     /**
-     * clone remove objects
-     */
-    frame  = 1;
-    length = this._$removeObjects.length|0;
-    while (length > frame) {
-        mc._$removeObjects[frame] = this.$cloneArray(this._$removeObjects[frame]);
-
-        frame = (frame + 1)|0;
-    }
-
-
-    /**
      * clone dictionary
      */
     var id  = 0;
@@ -10356,11 +10326,16 @@ MovieClip.prototype._$build = function (parent, index, tag, shouldAction)
         id = (id + 1)|0;
     }
 
+
+    /**
+     * scenes
+     */
+    var scene = new Scene();
+    scene._$movieClip = mc;
+    mc._$scenes = [scene];
+
+
     // todo sounds
-
-
-    // set place object
-    mc._$buildPlaceObject(parent, tag);
 
 
     var nextAction = false;
@@ -10394,6 +10369,9 @@ MovieClip.prototype._$draw = function (matrix, colorTransform, isClip, visible)
 {
 
     var instance, length, idx;
+
+    // play flag
+    this._$isPlaying = true;
 
 
     var frame      = this.currentFrame|0;
@@ -10508,6 +10486,7 @@ MovieClip.prototype._$draw = function (matrix, colorTransform, isClip, visible)
 
             switch (instance.toString()) {
                 case "[object MovieClip]":
+
                     this._$createInstance(instance.id, false);
                     break;
             }
@@ -10594,21 +10573,39 @@ MovieClip.prototype.stop = function ()
 
 /**
  * @param   {number|string} frame
+ * @param   {null|string}   scene
  * @returns void
  */
-MovieClip.prototype.gotoAndPlay = function (frame)
+MovieClip.prototype.gotoAndPlay = function (frame, scene)
 {
-    this._$gotoFrame(frame);
+    // scene
+    if (scene !== undefined) {
+        var target = this._$getScene(scene);
+        if (target) {
+            frame = (frame + target._$offset)|0;
+        }
+    }
+
+    this._$goToFrame(frame);
     this.play();
 };
 
 /**
  * @param   {number|string} frame
+ * @param   {null|string} scene
  * @returns void
  */
-MovieClip.prototype.gotoAndStop = function (frame)
+MovieClip.prototype.gotoAndStop = function (frame, scene)
 {
-    this._$gotoFrame(frame);
+    // scene
+    if (scene !== undefined) {
+        var target = this._$getScene(scene);
+        if (target) {
+            frame = (frame + target._$offset)|0;
+        }
+    }
+
+    this._$goToFrame(frame);
     this.stop();
 };
 
@@ -10617,7 +10614,7 @@ MovieClip.prototype.gotoAndStop = function (frame)
  */
 MovieClip.prototype.nextFrame = function ()
 {
-    this._$gotoFrame(this.currentFrame + 1);
+    this._$goToFrame(this.currentFrame + 1);
 };
 
 /**
@@ -10625,14 +10622,42 @@ MovieClip.prototype.nextFrame = function ()
  */
 MovieClip.prototype.prevFrame = function ()
 {
-    this._$gotoFrame(this.currentFrame - 1);
+    this._$goToFrame(this.currentFrame - 1);
+};
+
+
+/**
+ * @param  {string} name
+ * @return {Scene|null}
+ */
+MovieClip.prototype._$getScene = function (name)
+{
+    var length = this.scenes.length;
+    var idx    = 0;
+
+    if (typeof name !== "string") {
+        name = name + "";
+    }
+
+    while (length > idx) {
+
+        var scene = this.scenes[idx];
+
+        if (scene.name === name) {
+            return scene;
+        }
+
+        idx = (idx + 1)|0;
+    }
+
+    return null;
 };
 
 /**
  * @param   {number|string} frame
  * @returns void
  */
-MovieClip.prototype._$gotoFrame = function (frame)
+MovieClip.prototype._$goToFrame = function (frame)
 {
 
     if (typeof frame === "string") {
@@ -10654,47 +10679,32 @@ MovieClip.prototype._$gotoFrame = function (frame)
 
         this._$canAction = true;
 
-        var maxFrame = (this.$max(frame, this.currentFrame) + 1)|0;
-        var minFrame = this.$min(frame,  this.currentFrame)|0;
+        // reset
+        var instances = this._$instances;
+        var length    = instances.length|0;
+        var idx       = 0;
+        while (length > idx) {
 
-        var completed = [];
-        while (maxFrame > minFrame) {
+            var instance = instances[idx];
 
-            var controller = this._$controller[minFrame];
-            for (var depth in controller) {
+            idx = (idx + 1)|0;
 
-                if (!controller.hasOwnProperty(depth)) {
-                    continue;
-                }
+            switch (instance.toString()) {
 
-                var instance = this._$getInstance(controller[depth]);
-                if (instance.id in completed) {
-                    continue;
-                }
+                case "[object MovieClip]":
 
-                // flag set
-                completed[instance.id] = 1;
+                    if (instance._$startFrame === 1 && instance._$endFrame === 0) {
+                        continue;
+                    }
 
-                switch (instance.toString()) {
+                    if (instance._$startFrame > frame || instance._$endFrame < frame) {
+                        this._$createInstance(instance.id, false);
+                    }
 
-                    // MovieClip
-                    case "[object MovieClip]":
-
-                        // rebuild
-                        if (frame < instance.ratio || frame > instance.totalFrames) {
-
-                            this._$createInstance(instance.id, false);
-
-                        }
-
-                        break;
-
-
-                }
+                    break;
 
             }
 
-            minFrame = (minFrame + 1)|0;
         }
 
         this._$currentFrame = frame|0;
@@ -10743,21 +10753,37 @@ var SWFVersion = {
     "FLASH9" : 9
 };
 /**
- * @param name
- * @param labels
- * @param numFrames
+ * @param {string} name
+ * @param {array}  labels
+ * @param {number} numFrames
  * @constructor
  */
 var Scene = function (name, labels, numFrames)
 {
-    // default
-    this._name      = name;
-    this._labels    = labels;
-    this._numFrames = numFrames;
+
+    OriginalObject.call(this);
+
+    this._$name = "";
+    if (typeof name === "string") {
+        this._$name = name;
+    }
+
+    this._$labels = null;
+    if (this.$isArray(labels)) {
+        this._$labels = labels;
+    }
+
+    this._$numFrames = null;
+    if (typeof numFrames === "number") {
+        this._$numFrames = numFrames|0;
+    }
+
+    this._$offset = 0;
 };
 
 /**
  * extends
+ * @type {OriginalObject}
  */
 Scene.prototype = Object.create(OriginalObject.prototype);
 Scene.prototype.constructor = Scene;
@@ -10767,21 +10793,46 @@ Scene.prototype.constructor = Scene;
  */
 Object.defineProperties(Scene.prototype, {
     labels: {
+        /**
+         * @return {array}
+         */
         get: function () {
-            return this._labels;
+            if (this._$labels !== null) {
+                return this._$labels;
+            }
+
+
         },
+        /**
+         * readonly
+         * @return void
+         */
         set: function () {}
     },
     name: {
+        /**
+         * @return {string}
+         */
         get: function () {
-            return this._name;
+            return this._$name;
         },
+        /**
+         * readonly
+         * @return void
+         */
         set: function () {}
     },
     numFrames: {
+        /**
+         * @return {number}
+         */
         get: function () {
-            return this._numFrames;
+            return this._$numFrames;
         },
+        /**
+         * readonly
+         * @return void
+         */
         set: function () {}
     }
 });
@@ -10794,15 +10845,6 @@ Scene.prototype.toString = function ()
     return "[object Scene]";
 };
 
-/**
- * @param {string} name
- * @param {number} frame
- * @returns void
- */
-Scene.prototype.$addLabel = function (name, frame)
-{
-    this._labels[this._labels.length] = new FrameLabel(name, frame);
-};
 /**
  * @param code
  * @constructor
@@ -10972,10 +11014,10 @@ Shape.prototype._$getBounds = function (matrix)
  * @param   {MovieClip} parent
  * @param   {number}    index
  * @param   {object}    tag
- * @param   {boolean}   shouldAction
+ * @param   {boolean}   should_action
  * @returns {Shape}
  */
-Shape.prototype._$build = function (parent, index, tag, shouldAction)
+Shape.prototype._$build = function (parent, index, tag, should_action)
 {
     var shape = new Shape();
 
@@ -10992,34 +11034,34 @@ Shape.prototype._$build = function (parent, index, tag, shouldAction)
         shape._$clipDepth = tag.ClipDepth;
     }
 
-    // build PlaceObject
-    shape._$buildPlaceObject(parent, tag);
+    // common build
+    shape._$commonBuild(parent, tag);
 
     return shape;
 };
 
 /**
  * @param   {array}   matrix
- * @param   {array}   colorTransform
- * @param   {boolean} isClip
+ * @param   {array}   color_transform
+ * @param   {boolean} is_clip
  * @param   {boolean} visible
  * @returns void
  */
-Shape.prototype._$draw = function (matrix, colorTransform, isClip, visible)
+Shape.prototype._$draw = function (matrix, color_transform, is_clip, visible)
 {
 
     // pre context
     var ctx = this.parent.stage.player.preContext;
 
-    if (isClip || this._$clipDepth) {
+    if (is_clip || this._$clipDepth) {
 
         ctx.setTransform(matrix[0], matrix[1], matrix[2], matrix[3], matrix[4], matrix[5]);
-        this._$doDraw(ctx, this.$min(matrix[0], matrix[3]), colorTransform, isClip);
+        this._$doDraw(ctx, this.$min(matrix[0], matrix[3]), color_transform, is_clip);
 
         return ;
     }
 
-    var alpha = +(colorTransform[3] + (colorTransform[7] / 255));
+    var alpha = +(color_transform[3] + (color_transform[7] / 255));
     if (visible && alpha) {
 
         var xScale = +(this.$sqrt(matrix[0] * matrix[0] + matrix[1] * matrix[1]));
@@ -11042,7 +11084,7 @@ Shape.prototype._$draw = function (matrix, colorTransform, isClip, visible)
             var m = null;
 
             // get cache
-            var cacheKey = this.$cacheStore.generateKey(this.characterId, colorTransform);
+            var cacheKey = this.$cacheStore.generateKey(this.characterId, color_transform);
             var cache    = this.$cacheStore.getCache(cacheKey);
 
             // cache is small
@@ -11060,7 +11102,7 @@ Shape.prototype._$draw = function (matrix, colorTransform, isClip, visible)
 
                 cache.setTransform(xScale, 0, 0, yScale, -xMin * xScale, -yMin * yScale);
 
-                this._$doDraw(cache, this.$min(xScale, yScale), colorTransform, isClip);
+                this._$doDraw(cache, this.$min(xScale, yScale), color_transform, false);
 
                 this.$cacheStore.setCache(cacheKey, cache);
 
@@ -11082,23 +11124,21 @@ Shape.prototype._$draw = function (matrix, colorTransform, isClip, visible)
             } else {
 
                 ctx.setTransform(matrix[0], matrix[1], matrix[2], matrix[3], matrix[4], matrix[5]);
-                this._$doDraw(ctx, this.$min(matrix[0], matrix[3]), colorTransform, isClip);
+                this._$doDraw(ctx, this.$min(matrix[0], matrix[3]), color_transform, s);
 
             }
         }
-
     }
 };
 
 /**
- *
  * @param   {CanvasRenderingContext2D} ctx
- * @param   {number}  minScale
- * @param   {array}   colorTransform
- * @param   {boolean} isClip
- * @retuens void
+ * @param   {number}  min_scale
+ * @param   {array}   color_transform
+ * @param   {boolean} is_clip
+ * @returns void
  */
-Shape.prototype._$doDraw = function (ctx, minScale, colorTransform, isClip)
+Shape.prototype._$doDraw = function (ctx, min_scale, color_transform, is_clip)
 {
 
     var shapes = this._$data;
@@ -11141,13 +11181,13 @@ Shape.prototype._$doDraw = function (ctx, minScale, colorTransform, isClip)
                 // normal
                 case 0x00:
 
-                    color = this.$generateColorTransform(styleObj.Color, colorTransform);
+                    color = this.$generateColorTransform(styleObj.Color, color_transform);
                     css   = "rgba(" + color.R + "," + color.G + "," + color.B + "," + color.A + ")";
 
                     if (isStroke) {
 
                         ctx.strokeStyle = css;
-                        ctx.lineWidth   = +this.$max(obj.Width, 1 / minScale);
+                        ctx.lineWidth   = +this.$max(obj.Width, 1 / min_scale);
                         ctx.lineCap     = "round";
                         ctx.lineJoin    = "round";
                         ctx.stroke();
@@ -11190,7 +11230,7 @@ Shape.prototype._$doDraw = function (ctx, minScale, colorTransform, isClip)
 
                         var record = records[rIdx];
 
-                        color = this.$generateColorTransform(record.Color, colorTransform);
+                        color = this.$generateColorTransform(record.Color, color_transform);
 
                         var rgba   = "rgba(" + color.R + "," + color.G + "," + color.B + "," + color.A + ")";
                         css.addColorStop(record.Ratio, rgba);
@@ -11201,7 +11241,7 @@ Shape.prototype._$doDraw = function (ctx, minScale, colorTransform, isClip)
                     if (isStroke) {
 
                         ctx.strokeStyle = css;
-                        ctx.lineWidth   = this.$max(obj.Width, 1 / minScale);
+                        ctx.lineWidth   = this.$max(obj.Width, 1 / min_scale);
                         ctx.lineCap     = "round";
                         ctx.lineJoin    = "round";
                         ctx.stroke();
@@ -11236,7 +11276,7 @@ Shape.prototype._$doDraw = function (ctx, minScale, colorTransform, isClip)
                     var cacheKey = this.$cacheStore.generateKey(
                         bitmapId + "_" + this.characterId + "_" + repeat,
                         undefined,
-                        colorTransform
+                        color_transform
                     );
 
                     var image = this.$cacheStore.getCache(cacheKey);
@@ -11247,12 +11287,12 @@ Shape.prototype._$doDraw = function (ctx, minScale, colorTransform, isClip)
                             break;
                         }
 
-                        if (colorTransform[0] !== 1 ||
-                            colorTransform[1] !== 1 ||
-                            colorTransform[2] !== 1 ||
-                            colorTransform[4] ||
-                            colorTransform[5] ||
-                            colorTransform[6]
+                        if (color_transform[0] !== 1 ||
+                            color_transform[1] !== 1 ||
+                            color_transform[2] !== 1 ||
+                            color_transform[4] ||
+                            color_transform[5] ||
+                            color_transform[6]
                         ) {
 
                             var imgCanvas = image.canvas;
@@ -11267,13 +11307,13 @@ Shape.prototype._$doDraw = function (ctx, minScale, colorTransform, isClip)
                                 var imageContext = canvas.getContext("2d");
                                 imageContext.drawImage(image.canvas, 0, 0, width, height);
 
-                                image = this.$generateImageTransform(imageContext, colorTransform);
+                                image = this.$generateImageTransform(imageContext, color_transform);
 
                                 this.$cacheStore.setCache(cacheKey, image);
                             }
 
                         } else {
-                            ctx.globalAlpha = +(this.$max(0, this.$min((255 * colorTransform[3]) + colorTransform[7], 255)) / 255);
+                            ctx.globalAlpha = +(this.$max(0, this.$min((255 * color_transform[3]) + color_transform[7], 255)) / 255);
                         }
                     }
 
@@ -11317,7 +11357,7 @@ Shape.prototype._$doDraw = function (ctx, minScale, colorTransform, isClip)
         }
 
         // shape mask
-        if (this._$clipDepth && !isClip) {
+        if (this._$clipDepth && !is_clip) {
 
             ctx.clip();
 
@@ -21142,11 +21182,11 @@ var MainTimeline = function ()
     // origin params
     this._$version             = 10;
     this._$actionScriptVersion = ActionScriptVersion.ACTIONSCRIPT2;
-
 };
 
 /**
  * extends
+ * @type {MovieClip}
  */
 MainTimeline.prototype = Object.create(MovieClip.prototype);
 MainTimeline.prototype.constructor = MainTimeline;
@@ -21180,13 +21220,13 @@ Object.defineProperties(MainTimeline.prototype, {
             return this._$actionScriptVersion;
         },
         /**
-         * @param {number} actionScriptVersion
+         * @param {number} action_script_version
          */
-        set: function (actionScriptVersion) {
+        set: function (action_script_version) {
             if (typeof actionScriptVersion !== "number") {
-                actionScriptVersion = ActionScriptVersion.ACTIONSCRIPT2;
+                action_script_version = ActionScriptVersion.ACTIONSCRIPT2;
             }
-            this._$actionScriptVersion = actionScriptVersion;
+            this._$actionScriptVersion = action_script_version;
         }
     }
 });
@@ -21201,8 +21241,8 @@ MainTimeline.prototype.toString = function ()
 
 
 /**
- * @constructor
  * @param {Player} player
+ * @constructor
  */
 var Packages = function (player)
 {
@@ -21585,8 +21625,8 @@ Packages.prototype = {
     }
 };
 /**
- * @param length
- * @param fixed
+ * @param {number}  length
+ * @param {boolean} fixed
  * @constructor
  */
 var Vector = function (length, fixed)
@@ -21773,12 +21813,12 @@ BitIO.prototype.unlzma = function (compressed, size)
     };
 
     /**
-     * @param {array} outStream
+     * @param {array} out_stream
      * @constructor
      */
-    var OutWindow = function (outStream)
+    var OutWindow = function (out_stream)
     {
-        this.outStream = outStream;
+        this.outStream = out_stream;
         this.buf       = null;
         this.pos       = 0;
         this.size      = 0;
@@ -21788,13 +21828,13 @@ BitIO.prototype.unlzma = function (compressed, size)
     };
 
     /**
-     * @param {number} dictSize
+     * @param {number} dict_size
      */
-    OutWindow.prototype.create = function (dictSize)
+    OutWindow.prototype.create = function (dict_size)
     {
-        this.buf      = (self.$canArrayBuffer) ? new Uint8Array(dictSize) : [];
+        this.buf      = (self.$canArrayBuffer) ? new Uint8Array(dict_size) : [];
         this.pos      = 0;
-        this.size     = dictSize;
+        this.size     = dict_size;
         this.isFull   = false;
         this.writePos = 0;
         this.totalPos = 0;
@@ -21911,12 +21951,12 @@ BitIO.prototype.unlzma = function (compressed, size)
     };
 
     /**
-     * @param {array} inStream
+     * @param {array} in_stream
      * @constructor
      */
-    var RangeDecoder = function (inStream)
+    var RangeDecoder = function (in_stream)
     {
-        this.inStream = inStream;
+        this.inStream = in_stream;
         this.range    = 0;
         this.code     = 0;
     };
@@ -21949,16 +21989,16 @@ BitIO.prototype.unlzma = function (compressed, size)
     };
 
     /**
-     * @param   {number} numBits
+     * @param   {number} num_bits
      * @returns {number}
      */
-    RangeDecoder.prototype.decodeDirectBits = function (numBits)
+    RangeDecoder.prototype.decodeDirectBits = function (num_bits)
     {
         var res   = 0;
         var range = this.range;
         var code  = this.code;
 
-        while (numBits) {
+        while (num_bits) {
             range = (range >>> 1) | 0;
             code = (code - range) | 0;
 
@@ -21972,7 +22012,7 @@ BitIO.prototype.unlzma = function (compressed, size)
 
             res = ((res << 1) + t + 1) | 0;
 
-            numBits = (numBits - 1)|0;
+            num_bits = (num_bits - 1)|0;
         }
 
         this.range = range;
@@ -22021,13 +22061,13 @@ BitIO.prototype.unlzma = function (compressed, size)
     };
 
     /**
-     * @param {number} numBits
+     * @param {number} num_bits
      * @constructor
      */
-    var BitTreeDecoder = function (numBits)
+    var BitTreeDecoder = function (num_bits)
     {
-        this.numBits = numBits;
-        this.probs   = this.createProbsArray(1 << numBits);
+        this.numBits = num_bits;
+        this.probs   = this.createProbsArray(1 << num_bits);
     };
 
     /**
@@ -22075,16 +22115,16 @@ BitIO.prototype.unlzma = function (compressed, size)
     /**
      * @param   {array}  probs
      * @param   {number} offset
-     * @param   {number} numBits
+     * @param   {number} num_bits
      * @param   {object} rc
      * @returns {number}
      */
-    BitTreeDecoder.prototype.bitTreeReverseDecode = function (probs, offset, numBits, rc)
+    BitTreeDecoder.prototype.bitTreeReverseDecode = function (probs, offset, num_bits, rc)
     {
         var m = 1;
         var symbol = 0;
         var i = 0;
-        while (i < numBits) {
+        while (i < num_bits) {
             var bit = rc.decodeBit(probs, m + offset);
             m = (m << 1) + bit;
             symbol |= bit << i;
@@ -22122,18 +22162,18 @@ BitIO.prototype.unlzma = function (compressed, size)
     };
 
     /**
-     * @param   {number} numBits
+     * @param   {number} num_bits
      * @param   {number} length
      * @returns {array}
      */
-    LenDecoder.prototype.createBitTreeDecoderArray = function (numBits, length)
+    LenDecoder.prototype.createBitTreeDecoderArray = function (num_bits, length)
     {
         var p = [];
         p.length = length;
 
         var i = 0;
         while (i < length) {
-            p[i] = new BitTreeDecoder(numBits);
+            p[i] = new BitTreeDecoder(num_bits);
             i = (i + 1)|0;
         }
 
@@ -22142,17 +22182,17 @@ BitIO.prototype.unlzma = function (compressed, size)
 
     /**
      * @param   {object} rc
-     * @param   {number} posState
+     * @param   {number} pos
      * @returns {number}
      */
-    LenDecoder.prototype.decode = function (rc, posState)
+    LenDecoder.prototype.decode = function (rc, pos)
     {
         if (rc.decodeBit(this.choice, 0) === 0) {
-            return this.lowCoder[posState].decode(rc);
+            return this.lowCoder[pos].decode(rc);
         }
 
         if (rc.decodeBit(this.choice, 1) === 0) {
-            return 8 + this.midCoder[posState].decode(rc);
+            return 8 + this.midCoder[pos].decode(rc);
         }
 
         return 16 + this.highCoder.decode(rc);
@@ -22332,16 +22372,16 @@ BitIO.prototype.unlzma = function (compressed, size)
     /**
      * @param   {array}  probs
      * @param   {number} offset
-     * @param   {number} numBits
+     * @param   {number} num_bits
      * @param   {object} rc
      * @returns {number}
      */
-    Decoder.prototype.bitTreeReverseDecode = function (probs, offset, numBits, rc)
+    Decoder.prototype.bitTreeReverseDecode = function (probs, offset, num_bits, rc)
     {
         var m = 1;
         var symbol = 0;
         var i = 0;
-        while (i < numBits) {
+        while (i < num_bits) {
             var bit = rc.decodeBit(probs, m + offset);
             m = (m << 1) + bit;
             symbol |= bit << i;
@@ -22375,18 +22415,21 @@ BitIO.prototype.unlzma = function (compressed, size)
     };
 
     /**
-     * @param   {number} numBits
+     * @param   {number} num_bits
      * @param   {number} length
      * @returns {array}
      */
-    Decoder.prototype.createBitTreeDecoderArray = function (numBits, length)
+    Decoder.prototype.createBitTreeDecoderArray = function (num_bits, length)
     {
         var p = [];
+
         p.length = length;
 
         var i = 0;
         while (i < length) {
-            p[i] = new BitTreeDecoder(numBits);
+
+            p[i] = new BitTreeDecoder(num_bits);
+
             i = (i + 1)|0;
         }
 
@@ -22403,6 +22446,7 @@ BitIO.prototype.unlzma = function (compressed, size)
         var i = 0;
         while (i < length) {
             p[i] = 1024;
+
             i = (i + 1)|0;
         }
         return p;
@@ -22417,9 +22461,9 @@ BitIO.prototype.unlzma = function (compressed, size)
         if (state < 4) {
             return 0;
         } else if (state < 10) {
-            return state - 3;
+            return (state - 3)|0;
         } else {
-            return state - 6;
+            return (state - 6)|0;
         }
     };
 
@@ -22584,10 +22628,10 @@ BitIO.prototype.unlzma = function (compressed, size)
 
 /**
  * @param   {array}   compressed
- * @param   {boolean} isDeCompress
+ * @param   {boolean} is_de_compress
  * @returns {array}
  */
-BitIO.prototype.unzip = function (compressed, isDeCompress)
+BitIO.prototype.unzip = function (compressed, is_de_compress)
 {
     var sym        = 0;
     var i          = 0;
@@ -22631,7 +22675,7 @@ BitIO.prototype.unzip = function (compressed, isDeCompress)
     }
 
     var startOffset = 2;
-    if (isDeCompress) {
+    if (is_de_compress) {
         startOffset = 10;
     }
     bitio.setOffset(startOffset, 8);
@@ -22960,10 +23004,10 @@ BitIO.prototype.getData = function (length)
 
 /**
  * @param   {string|null}  value
- * @param   {boolean} isJis
+ * @param   {boolean} is_jis
  * @returns {string}
  */
-BitIO.prototype.getDataUntil = function (value, isJis)
+BitIO.prototype.getDataUntil = function (value, is_jis)
 {
     this.byteAlign();
 
@@ -23010,7 +23054,7 @@ BitIO.prototype.getDataUntil = function (value, isJis)
                 str = str.slice(0, -5);
             }
 
-            if (isJis) {
+            if (is_jis) {
                 ret = this.decodeToShiftJis(str);
             } else {
                 try {
@@ -23286,26 +23330,26 @@ BitIO.prototype.getSI24 = function ()
 };
 
 /**
- * @param   {number} byteInt
- * @param   {number} bitInt
+ * @param   {number} byte_int
+ * @param   {number} bit_int
  * @returns void
  */
-BitIO.prototype.incrementOffset = function (byteInt, bitInt)
+BitIO.prototype.incrementOffset = function (byte_int, bit_int)
 {
-    this.byte_offset = (this.byte_offset + byteInt)|0;
-    this.bit_offset  = (this.bit_offset  + bitInt)|0;
+    this.byte_offset = (this.byte_offset + byte_int)|0;
+    this.bit_offset  = (this.bit_offset  + bit_int)|0;
     this.byteCarry();
 };
 
 /**
- * @param   {number} byteInt
- * @param   {number} bitInt
+ * @param   {number} byte_int
+ * @param   {number} bit_int
  * @returns void
  */
-BitIO.prototype.setOffset = function (byteInt, bitInt)
+BitIO.prototype.setOffset = function (byte_int, bit_int)
 {
-    this.byte_offset = byteInt;
-    this.bit_offset  = bitInt;
+    this.byte_offset = byte_int;
+    this.bit_offset  = bit_int;
 };
 
 /**
@@ -23687,13 +23731,24 @@ var SwfTag = function (main, bitio)
     this.bitio             = bitio;
     this.currentPosition   = {x: 0, y: 0};
     this.jpegTables        = null;
+    this.sceneInfo         = [];
+    this.frameInfo         = [];
 };
 
 /**
- * util
+ * extends
+ * @type {Util}
  */
 SwfTag.prototype = Object.create(Util.prototype);
 SwfTag.prototype.constructor = SwfTag;
+
+/**
+ * @returns {Stage}
+ */
+SwfTag.prototype.getStage = function()
+{
+    return this.main.stage;
+};
 
 /**
  *
@@ -23702,7 +23757,7 @@ SwfTag.prototype.constructor = SwfTag;
  */
 SwfTag.prototype.getCharacter = function(character_id)
 {
-    return this.main.stage._$characters[character_id];
+    return this.getStage()._$characters[character_id];
 };
 
 /**
@@ -23712,7 +23767,7 @@ SwfTag.prototype.getCharacter = function(character_id)
  */
 SwfTag.prototype.setCharacter = function(character_id, instance)
 {
-    this.main.stage._$characters[character_id] = instance;
+    this.getStage()._$characters[character_id] = instance;
 };
 
 /**
@@ -23721,23 +23776,79 @@ SwfTag.prototype.setCharacter = function(character_id, instance)
  */
 SwfTag.prototype.parse = function (parent)
 {
+    // swf parse
     this.parseTags(this.bitio.data.length, parent);
+
+    // init scenes¥
+    var length = this.sceneInfo.length;
+    if (length) {
+
+        var idx    = 0;
+        var scenes = [];
+        while (length > idx) {
+
+            var sceneInfo = this.sceneInfo[idx];
+
+
+            // create Scene
+            var scene         = new Scene(sceneInfo.name);
+            scene._$offset    = sceneInfo.offset;
+            scene._$movieClip = parent;
+
+
+            // set numFrames
+            var next   = (idx + 1)|0;
+            var offset = parent.totalFrames;
+            if (next in  this.sceneInfo) {
+                offset = this.sceneInfo[next].offset|0;
+            }
+            scene._$numFrames = (offset - scene._$offset)|0;
+
+
+            // set labels
+            var labels = parent.currentLabels;
+            var total  = labels.length|0;
+
+            var i = 0;
+            var sceneLabels = [];
+            while (total > i) {
+
+                var label = labels[i];
+
+                if (label.frame > sceneInfo.offset && label.frame <= offset) {
+                    sceneLabels[sceneLabels.length] = label;
+                }
+
+                i = (i + 1)|0;
+            }
+            scene._$labels = sceneLabels;
+
+
+            // set array
+            scenes[scenes.length] = scene;
+
+            idx = (idx + 1)|0;
+        }
+    }
+
+    parent._$scenes = scenes;
 };
 
 /**
  * @param   {MovieClip} parent
  * @param   {object}    tags
  * @param   {number}    frame
- * @param   {array}     cachePlaceObjects
+ * @param   {array}     cache_place_objects
  * @returns void
  */
-SwfTag.prototype.showFrame = function (parent, tags, frame, cachePlaceObjects)
+SwfTag.prototype.showFrame = function (parent, tags, frame, cache_place_objects)
 {
     var idx;
     var installed = [];
 
     // add total frame
     parent._$totalFrames = frame;
+
 
     // action script
     var actions = tags.actions;
@@ -23761,6 +23872,12 @@ SwfTag.prototype.showFrame = function (parent, tags, frame, cachePlaceObjects)
             }
 
             var label = labels[idx];
+
+            // if frameInfo match case
+            if (label.name in this.frameInfo) {
+                label.frame = this.frameInfo[label.name]|0;
+            }
+
             parent._$addFrameLabel(new FrameLabel(label.name, label.frame));
         }
     }
@@ -23783,12 +23900,18 @@ SwfTag.prototype.showFrame = function (parent, tags, frame, cachePlaceObjects)
     var removeObjects = tags.removeObjects;
     if (removeObjects.length) {
         for (idx in removeObjects) {
+
             if (!removeObjects.hasOwnProperty(idx)) {
                 continue;
             }
 
             var removeObject = removeObjects[idx];
-            parent._$addRemoveObject(frame, removeObject.Depth);
+
+            var id  = parent._$getControllerAt(frame - 1, removeObject.Depth);
+            var tag = parent._$dictionary[id];
+
+            tag.EndFrame = (frame - 1)|0;
+            parent._$dictionary[id] = tag;
 
             installed[removeObject.Depth] = 1;
         }
@@ -23796,14 +23919,14 @@ SwfTag.prototype.showFrame = function (parent, tags, frame, cachePlaceObjects)
 
 
     // new cache
-    if (!(frame in cachePlaceObjects)) {
-        cachePlaceObjects[frame] = [];
+    if (!(frame in cache_place_objects)) {
+        cache_place_objects[frame] = [];
     }
 
     // place objects
     var prevFrame        = (frame - 1)|0;
     var placeObjects     = tags.placeObjects;
-    var prevPlaceObjects = cachePlaceObjects[prevFrame];
+    var prevPlaceObjects = cache_place_objects[prevFrame];
     for (idx in placeObjects) {
 
         if (!placeObjects.hasOwnProperty(idx)) {
@@ -23900,6 +24023,7 @@ SwfTag.prototype.showFrame = function (parent, tags, frame, cachePlaceObjects)
         if (isNewCharacter) {
 
             placeObject.StartFrame = frame|0;
+            placeObject.EndFrame   = 0;
 
             instanceId = parent._$addDictionary(placeObject);
 
@@ -23907,17 +24031,18 @@ SwfTag.prototype.showFrame = function (parent, tags, frame, cachePlaceObjects)
 
         // start set instance
         parent._$setController(frame,  placeObject.Depth, instanceId);
-        parent._$setPlaceObject(frame, placeObject.Depth, this.buildPlaceObject(placeObject));
+        parent._$addPlaceObject(frame, placeObject.Depth, this.buildPlaceObject(placeObject));
 
         // flag
         installed[placeObject.Depth] = 1;
 
         // cache
-        cachePlaceObjects[frame][placeObject.Depth] = placeObject;
+        cache_place_objects[frame][placeObject.Depth] = placeObject;
     }
 
     // clone prev frame
     if (prevFrame) {
+
         var depth;
 
         if (!(frame in parent._$controller)) {
@@ -23935,27 +24060,27 @@ SwfTag.prototype.showFrame = function (parent, tags, frame, cachePlaceObjects)
             }
 
             // clone
-            cachePlaceObjects[frame][depth]   = cachePlaceObjects[prevFrame][depth];
+            cache_place_objects[frame][depth] = cache_place_objects[prevFrame][depth];
             parent._$controller[frame][depth] = controller[depth];
         }
 
 
-        if (!(frame in parent._$places)) {
-            parent._$places[frame] = [];
+        if (!(frame in parent._$placeController)) {
+            parent._$placeController[frame] = [];
         }
 
-        var places = parent._$places[prevFrame];
+        var places = parent._$placeController[prevFrame];
         for (depth in places) {
 
             if (!places.hasOwnProperty(depth)) {
                 continue;
             }
 
-            if (depth in parent._$places[frame]) {
+            if (depth in parent._$placeController[frame]) {
                 continue;
             }
 
-            parent._$places[frame][depth] = places[depth];
+            parent._$placeController[frame][depth] = places[depth];
 
         }
     }
@@ -24300,11 +24425,11 @@ SwfTag.prototype.buildButton = function (character, tag, parent)
 };
 
 /**
- * @param   {number}    dataLength
+ * @param   {number}    data_length
  * @param   {MovieClip} parent
  * @returns void
  */
-SwfTag.prototype.parseTags = function (dataLength, parent)
+SwfTag.prototype.parseTags = function (data_length, parent)
 {
     var frame   = 1;
     var tagType = 0;
@@ -24325,10 +24450,10 @@ SwfTag.prototype.parseTags = function (dataLength, parent)
     };
 
     var cachePlaceObjects = [];
-    while (bitio.byte_offset < dataLength) {
+    while (bitio.byte_offset < data_length) {
 
         tagStartOffset = bitio.byte_offset;
-        if (tagStartOffset + 2 > dataLength) {
+        if (tagStartOffset + 2 > data_length) {
             break;
         }
 
@@ -24338,7 +24463,7 @@ SwfTag.prototype.parseTags = function (dataLength, parent)
         // long
         length = tagLength & 0x3f;
         if (length === 0x3f) {
-            if (tagStartOffset + 6 > dataLength) {
+            if (tagStartOffset + 6 > data_length) {
                 bitio.byte_offset = tagStartOffset;
                 bitio.bit_offset  = 0;
                 break;
@@ -24376,23 +24501,23 @@ SwfTag.prototype.parseTags = function (dataLength, parent)
 };
 
 /**
- * @param {number}    tagType
+ * @param {number}    tag_type
  * @param {number}    length
  * @param {MovieClip} parent
  * @param {number}    frame
  * @param {object}    tags
- * @param {array}     cachePlaceObjects
+ * @param {array}     cache_place_objects
  */
-SwfTag.prototype.parseTag = function (tagType, length, parent, frame, tags, cachePlaceObjects)
+SwfTag.prototype.parseTag = function (tag_type, length, parent, frame, tags, cache_place_objects)
 {
 
     var obj = null;
 
-    switch (tagType) {
+    switch (tag_type) {
         case 0: // End
             break;
         case 1: // ShowFrame
-            this.showFrame(parent, tags, frame, cachePlaceObjects);
+            this.showFrame(parent, tags, frame, cache_place_objects);
             break;
         case 2:  // DefineShape
         case 22: // DefineShape2
@@ -24401,11 +24526,11 @@ SwfTag.prototype.parseTag = function (tagType, length, parent, frame, tags, cach
             if (length < 10) {
                 this.bitio.byte_offset += length;
             } else {
-                this.parseDefineShape(tagType);
+                this.parseDefineShape(tag_type);
             }
             break;
         case 9: // BackgroundColor
-            this.main.stage.player.setBackgroundColor(
+            this.getStage().player.setBackgroundColor(
                 this.bitio.getUI8(),
                 this.bitio.getUI8(),
                 this.bitio.getUI8()
@@ -24414,24 +24539,24 @@ SwfTag.prototype.parseTag = function (tagType, length, parent, frame, tags, cach
         case 10: // DefineFont
         case 48: // DefineFont2
         case 75: // DefineFont3
-            this.parseDefineFont(tagType, length);
+            this.parseDefineFont(tag_type, length);
             break;
         case 13: // DefineFontInfo
         case 62: // DefineFontInfo2
-            this.parseDefineFontInfo(tagType, length);
+            this.parseDefineFontInfo(tag_type, length);
             break;
         case 11: // DefineText
         case 33: // DefineText2
-            this.parseDefineText(tagType);
+            this.parseDefineText(tag_type);
             break;
         case 4:  // PlaceObject
         case 26: // PlaceObject2
         case 70: // PlaceObject3
-            var placeObject = this.parsePlaceObject(tagType, length);
+            var placeObject = this.parsePlaceObject(tag_type, length);
             tags.placeObjects[placeObject.Depth] = placeObject;
             break;
         case 37: // DefineEditText
-            this.parseDefineEditText(tagType);
+            this.parseDefineEditText(tag_type);
             break;
         case 39: // DefineSprite
             this.parseDefineSprite(this.bitio.byte_offset + length, parent);
@@ -24444,11 +24569,11 @@ SwfTag.prototype.parseTag = function (tagType, length, parent, frame, tags, cach
             break;
         case 5:  // RemoveObject
         case 28: // RemoveObject2
-            tags.removeObjects[tags.removeObjects.length] = this.parseRemoveObject(tagType);
+            tags.removeObjects[tags.removeObjects.length] = this.parseRemoveObject(tag_type);
             break;
         case 7:  // DefineButton
         case 34: // DefineButton2
-            obj = this.parseDefineButton(tagType, length);
+            obj = this.parseDefineButton(tag_type, length);
             break;
         case 43: // FrameLabel
             tags.frameLabel[tags.frameLabel.length] = this.parseFrameLabel();
@@ -24458,13 +24583,13 @@ SwfTag.prototype.parseTag = function (tagType, length, parent, frame, tags, cach
             break;
         case 20: // DefineBitsLossless
         case 36: // DefineBitsLossless2
-            this.parseDefineBitsLossLess(tagType, length);
+            this.parseDefineBitsLossLess(tag_type, length);
             break;
         case 6:  // DefineBits
         case 21: // DefineBitsJPEG2
         case 35: // DefineBitsJPEG3
         case 90: // DefineBitsJPEG4
-            this.parseDefineBits(tagType, length, this.jpegTables);
+            this.parseDefineBits(tag_type, length, this.jpegTables);
             break;
         case 8:  // JPEGTables
             this.jpegTables = this.parseJPEGTables(length);
@@ -24474,7 +24599,7 @@ SwfTag.prototype.parseTag = function (tagType, length, parent, frame, tags, cach
             break;
         case 46: // DefineMorphShape
         case 84: // DefineMorphShape2
-            this.parseDefineMorphShape(tagType);
+            this.parseDefineMorphShape(tag_type);
             break;
         case 40: // NameCharacter
             this.bitio.getDataUntil("\0"); // NameCharacter
@@ -24504,21 +24629,21 @@ SwfTag.prototype.parseTag = function (tagType, length, parent, frame, tags, cach
             break;
         case 18: // SoundStreamHead
         case 45: // SoundStreamHead2
-            obj = this.parseSoundStreamHead(tagType);
+            obj = this.parseSoundStreamHead(tag_type);
             break;
         case 72: // DoABC
         case 82: // DoABC2
-            this.parseDoABC(tagType, length);
+            this.parseDoABC(tag_type, length);
             break;
         case 76: // SymbolClass
             this.parseSymbolClass();
             break;
         case 14: // DefineSound
-            this.parseDefineSound(tagType, length);
+            this.parseDefineSound(tag_type, length);
             break;
         case 15: // StartSound
         case 89: // StartSound2
-            obj = this.parseStartSound(tagType);
+            obj = this.parseStartSound(tag_type);
             break;
         case 17: // DefineButtonSound
             this.parseDefineButtonSound();
@@ -24527,16 +24652,16 @@ SwfTag.prototype.parseTag = function (tagType, length, parent, frame, tags, cach
             this.parseDefineFontAlignZones();
             break;
         case 74: // CSMTextSettings
-            this.parseCSMTextSettings(tagType);
+            this.parseCSMTextSettings(tag_type);
             break;
         case 19: // SoundStreamBlock
-            this.parseSoundStreamBlock(tagType, length);
+            this.parseSoundStreamBlock(tag_type, length);
             break;
         case 60: // DefineVideoStream
-            this.parseDefineVideoStream(tagType);
+            this.parseDefineVideoStream(tag_type);
             break;
         case 61: // VideoFrame
-            this.parseVideoFrame(tagType, length);
+            this.parseVideoFrame(tag_type, length);
             break;
         case 78: // DefineScalingGrid
             this.parseDefineScalingGrid();
@@ -24574,7 +24699,7 @@ SwfTag.prototype.parseTag = function (tagType, length, parent, frame, tags, cach
         case 87: // DefineBinaryData
         case 91: // DefineFont4
         case 93: // EnableTelemetry
-            console.log("[base] tagType -> " + tagType);
+            console.log("[base] tagType -> " + tag_type);
             break;
         case 27: // 27 (invalid)
         case 30: // 30 (invalid)
@@ -24594,15 +24719,15 @@ SwfTag.prototype.parseTag = function (tagType, length, parent, frame, tags, cach
 };
 
 /**
- * @param   {number} tagType
+ * @param   {number} tag_type
  * @returns void
  */
-SwfTag.prototype.parseDefineShape = function (tagType)
+SwfTag.prototype.parseDefineShape = function (tag_type)
 {
     var characterId = this.bitio.getUI16()|0;
     var bounds      = this.rect();
 
-    if (tagType === 83) {
+    if (tag_type === 83) {
         var obj = {};
 
         obj.EdgeBounds = this.rect();
@@ -24616,7 +24741,7 @@ SwfTag.prototype.parseDefineShape = function (tagType)
     }
 
     // create data
-    var data  = this.$vtc.convert(this.shapeWithStyle(tagType), false);
+    var data  = this.$vtc.convert(this.shapeWithStyle(tag_type), false);
 
     // build shape object
     var shape         = new Shape();
@@ -24646,28 +24771,28 @@ SwfTag.prototype.rect = function ()
 };
 
 /**
- * @param   {number} tagType
+ * @param   {number} tag_type
  * @returns {object}
  */
-SwfTag.prototype.shapeWithStyle = function (tagType)
+SwfTag.prototype.shapeWithStyle = function (tag_type)
 {
     var fillStyles, lineStyles;
-    switch (tagType) {
+    switch (tag_type) {
         case 46:
         case 84:
             fillStyles = {fillStyleCount: 0, fillStyles: []};
             lineStyles = {lineStyleCount: 0, lineStyles: []};
             break;
         default:
-            fillStyles = this.fillStyleArray(tagType);
-            lineStyles = this.lineStyleArray(tagType);
+            fillStyles = this.fillStyleArray(tag_type);
+            lineStyles = this.lineStyleArray(tag_type);
             break;
     }
 
     var numBits      = this.bitio.getUI8();
     var NumFillBits  = numBits >> 4;
     var NumLineBits  = numBits & 0x0f;
-    var ShapeRecords = this.shapeRecords(tagType, {
+    var ShapeRecords = this.shapeRecords(tag_type, {
         FillBits: NumFillBits,
         LineBits: NumLineBits
     });
@@ -24680,14 +24805,14 @@ SwfTag.prototype.shapeWithStyle = function (tagType)
 };
 
 /**
- * @param   {number} tagType
+ * @param   {number} tag_type
  * @returns {{fillStyleCount: number, fillStyles: array}}
  */
-SwfTag.prototype.fillStyleArray = function (tagType)
+SwfTag.prototype.fillStyleArray = function (tag_type)
 {
 
     var fillStyleCount = this.bitio.getUI8()|0;
-    if (tagType > 2 && fillStyleCount === 0xff) {
+    if (tag_type > 2 && fillStyleCount === 0xff) {
         fillStyleCount = this.bitio.getUI16();
     }
 
@@ -24695,7 +24820,7 @@ SwfTag.prototype.fillStyleArray = function (tagType)
 
     var i = 0;
     while (i < fillStyleCount) {
-        fillStyles[fillStyles.length] = this.fillStyle(tagType);
+        fillStyles[fillStyles.length] = this.fillStyle(tag_type);
         i = (i + 1)|0;
     }
 
@@ -24706,10 +24831,10 @@ SwfTag.prototype.fillStyleArray = function (tagType)
 };
 
 /**
- * @param   {number} tagType
+ * @param   {number} tag_type
  * @returns {object}
  */
-SwfTag.prototype.fillStyle = function (tagType)
+SwfTag.prototype.fillStyle = function (tag_type)
 {
     var bitType = this.bitio.getUI8();
 
@@ -24718,7 +24843,7 @@ SwfTag.prototype.fillStyle = function (tagType)
 
     switch (bitType) {
         case 0x00:
-            switch (tagType) {
+            switch (tag_type) {
                 case 32:
                 case 83:
                     obj.Color = this.rgba();
@@ -24735,29 +24860,29 @@ SwfTag.prototype.fillStyle = function (tagType)
             break;
         case 0x10:
         case 0x12:
-            switch (tagType) {
+            switch (tag_type) {
                 case 46:
                 case 84:
                     obj.startGradientMatrix = this.matrix();
                     obj.endGradientMatrix   = this.matrix();
-                    obj.gradient            = this.gradient(tagType);
+                    obj.gradient            = this.gradient(tag_type);
                     break;
                 default:
                     obj.gradientMatrix = this.matrix();
-                    obj.gradient       = this.gradient(tagType);
+                    obj.gradient       = this.gradient(tag_type);
                     break;
             }
             break;
         case 0x13:
             obj.gradientMatrix = this.matrix();
-            obj.gradient       = this.focalGradient(tagType);
+            obj.gradient       = this.focalGradient(tag_type);
             break;
         case 0x40:
         case 0x41:
         case 0x42:
         case 0x43:
             obj.bitmapId = this.bitio.getUI16()|0;
-            switch (tagType) {
+            switch (tag_type) {
                 case 46:
                 case 84:
                     obj.startBitmapMatrix = this.matrix();
@@ -24829,10 +24954,10 @@ SwfTag.prototype.matrix = function ()
 };
 
 /**
- * @param   {number} tagType
+ * @param   {number} tag_type
  * @returns {{SpreadMode: number, InterpolationMode: number, GradientRecords: Array}}
  */
-SwfTag.prototype.gradient = function (tagType)
+SwfTag.prototype.gradient = function (tag_type)
 {
     var NumGradients;
 
@@ -24843,7 +24968,7 @@ SwfTag.prototype.gradient = function (tagType)
     // init
     this.bitio.byteAlign();
 
-    switch (tagType) {
+    switch (tag_type) {
         case 46:
         case 84:
             NumGradients = this.bitio.getUI8();
@@ -24857,7 +24982,7 @@ SwfTag.prototype.gradient = function (tagType)
 
     var i = 0;
     while (i < NumGradients) {
-        GradientRecords[GradientRecords.length] = this.gradientRecord(tagType);
+        GradientRecords[GradientRecords.length] = this.gradientRecord(tag_type);
         i = (i + 1)|0;
     }
 
@@ -24869,12 +24994,12 @@ SwfTag.prototype.gradient = function (tagType)
 };
 
 /**
- * @param  {number} tagType
+ * @param  {number} tag_type
  * @return {object}
  */
-SwfTag.prototype.gradientRecord = function (tagType)
+SwfTag.prototype.gradientRecord = function (tag_type)
 {
-    switch (tagType) {
+    switch (tag_type) {
         case 46:
         case 84:
 
@@ -24887,7 +25012,7 @@ SwfTag.prototype.gradientRecord = function (tagType)
 
         default:
             var Ratio = this.bitio.getUI8();
-            var Color = (tagType < 32) ? this.rgb() : this.rgba();
+            var Color = (tag_type < 32) ? this.rgb() : this.rgba();
 
             return {
                 Ratio: Ratio / 255,
@@ -24898,10 +25023,10 @@ SwfTag.prototype.gradientRecord = function (tagType)
 };
 
 /**
- * @param  {number} tagType
+ * @param  {number} tag_type
  * @return {{SpreadMode: number, InterpolationMode: number, GradientRecords: Array, FocalPoint: number}}
  */
-SwfTag.prototype.focalGradient = function (tagType)
+SwfTag.prototype.focalGradient = function (tag_type)
 {
     // init
     this.bitio.byteAlign();
@@ -24913,7 +25038,7 @@ SwfTag.prototype.focalGradient = function (tagType)
 
     var i = 0;
     while (i < numGradients) {
-        GradientRecords[GradientRecords.length] = this.gradientRecord(tagType);
+        GradientRecords[GradientRecords.length] = this.gradientRecord(tag_type);
         i = (i + 1)|0;
     }
 
@@ -24928,20 +25053,20 @@ SwfTag.prototype.focalGradient = function (tagType)
 };
 
 /**
- * @param  {number} tagType
+ * @param  {number} tag_type
  * @return {{lineStyleCount: number, lineStyles: Array}}
  */
-SwfTag.prototype.lineStyleArray = function (tagType)
+SwfTag.prototype.lineStyleArray = function (tag_type)
 {
     var lineStyleCount = this.bitio.getUI8()|0;
-    if (tagType > 2 && lineStyleCount === 0xff) {
+    if (tag_type > 2 && lineStyleCount === 0xff) {
         lineStyleCount = this.bitio.getUI16();
     }
 
     var lineStyles = [];
     var i = 0;
     while (i < lineStyleCount) {
-        lineStyles[lineStyles.length] = this.lineStyles(tagType);
+        lineStyles[lineStyles.length] = this.lineStyles(tag_type);
         i = (i + 1)|0;
     }
 
@@ -24953,15 +25078,15 @@ SwfTag.prototype.lineStyleArray = function (tagType)
 
 /**
  *
- * @param  {number} tagType
+ * @param  {number} tag_type
  * @return {object}
  */
-SwfTag.prototype.lineStyles = function (tagType)
+SwfTag.prototype.lineStyles = function (tag_type)
 {
     var obj = {};
     obj.fillStyleType = 0;
 
-    switch (tagType) {
+    switch (tag_type) {
         case 46:
             obj = {
                 StartWidth: this.bitio.getUI16(),
@@ -24991,7 +25116,7 @@ SwfTag.prototype.lineStyles = function (tagType)
             }
 
             if (obj.HasFillFlag) {
-                obj.FillType = this.fillStyle(tagType);
+                obj.FillType = this.fillStyle(tag_type);
             } else {
                 obj.StartColor = this.rgba();
                 obj.EndColor   = this.rgba();
@@ -25017,7 +25142,7 @@ SwfTag.prototype.lineStyles = function (tagType)
             }
 
             if (obj.HasFillFlag) {
-                obj.FillType = this.fillStyle(tagType);
+                obj.FillType = this.fillStyle(tag_type);
             } else {
                 obj.Color = this.rgba();
             }
@@ -25037,11 +25162,11 @@ SwfTag.prototype.lineStyles = function (tagType)
 };
 
 /**
- * @param  {number} tagType
- * @param  {object} currentNumBits
+ * @param  {number} tag_type
+ * @param  {object} current_num_bits
  * @return {array}
  */
-SwfTag.prototype.shapeRecords = function (tagType, currentNumBits)
+SwfTag.prototype.shapeRecords = function (tag_type, current_num_bits)
 {
     // reset
     this.currentPosition = {x: 0, y: 0};
@@ -25056,12 +25181,12 @@ SwfTag.prototype.shapeRecords = function (tagType, currentNumBits)
         if (first6Bits & 0x20) {
             var numBits = first6Bits & 0x0f;
             if (first6Bits & 0x10) {
-                shape = this.straightEdgeRecord(tagType, numBits);
+                shape = this.straightEdgeRecord(tag_type, numBits);
             } else {
-                shape = this.curvedEdgeRecord(tagType, numBits);
+                shape = this.curvedEdgeRecord(tag_type, numBits);
             }
         } else if (first6Bits) {
-            shape = this.styleChangeRecord(tagType, first6Bits, currentNumBits);
+            shape = this.styleChangeRecord(tag_type, first6Bits, current_num_bits);
         }
 
         shapeRecords[shapeRecords.length] = shape;
@@ -25077,26 +25202,26 @@ SwfTag.prototype.shapeRecords = function (tagType, currentNumBits)
 };
 
 /**
- * @param  {number} tagType
- * @param  {number} numBits
+ * @param  {number} tag_type
+ * @param  {number} num_bits
  * @return {{ControlX: number, ControlY: number, AnchorX: number, AnchorY: number, isCurved: boolean, isChange: boolean}}
  */
-SwfTag.prototype.straightEdgeRecord = function (tagType, numBits)
+SwfTag.prototype.straightEdgeRecord = function (tag_type, num_bits)
 {
     var deltaX = 0;
     var deltaY = 0;
 
     if (this.bitio.getUIBit()) { // GeneralLineFlag
 
-        deltaX = this.bitio.getSIBits(numBits + 2);
-        deltaY = this.bitio.getSIBits(numBits + 2);
+        deltaX = this.bitio.getSIBits(num_bits + 2);
+        deltaY = this.bitio.getSIBits(num_bits + 2);
 
     } else {
 
         if (this.bitio.getUIBit()) { // VertLineFlag
-            deltaY = this.bitio.getSIBits(numBits + 2);
+            deltaY = this.bitio.getSIBits(num_bits + 2);
         } else {
-            deltaX = this.bitio.getSIBits(numBits + 2);
+            deltaX = this.bitio.getSIBits(num_bits + 2);
         }
 
     }
@@ -25104,7 +25229,7 @@ SwfTag.prototype.straightEdgeRecord = function (tagType, numBits)
     var AnchorX = deltaX;
     var AnchorY = deltaY;
 
-    switch (tagType) {
+    switch (tag_type) {
         case 46:
         case 84:
             break;
@@ -25131,24 +25256,24 @@ SwfTag.prototype.straightEdgeRecord = function (tagType, numBits)
 };
 
 /**
- * @param  {number} tagType
- * @param  {number} numBits
+ * @param  {number} tag_type
+ * @param  {number} num_bits
  * @return {{ControlX: number, ControlY: number, AnchorX: number, AnchorY: number, isCurved: boolean, isChange: boolean}}
  */
-SwfTag.prototype.curvedEdgeRecord = function (tagType, numBits)
+SwfTag.prototype.curvedEdgeRecord = function (tag_type, num_bits)
 {
 
-    var controlDeltaX = this.bitio.getSIBits(numBits + 2);
-    var controlDeltaY = this.bitio.getSIBits(numBits + 2);
-    var anchorDeltaX  = this.bitio.getSIBits(numBits + 2);
-    var anchorDeltaY  = this.bitio.getSIBits(numBits + 2);
+    var controlDeltaX = this.bitio.getSIBits(num_bits + 2);
+    var controlDeltaY = this.bitio.getSIBits(num_bits + 2);
+    var anchorDeltaX  = this.bitio.getSIBits(num_bits + 2);
+    var anchorDeltaY  = this.bitio.getSIBits(num_bits + 2);
 
     var ControlX = controlDeltaX;
     var ControlY = controlDeltaY;
     var AnchorX  = anchorDeltaX;
     var AnchorY  = anchorDeltaY;
 
-    switch (tagType) {
+    switch (tag_type) {
         case 46:
         case 84:
             break;
@@ -25177,12 +25302,12 @@ SwfTag.prototype.curvedEdgeRecord = function (tagType, numBits)
 };
 
 /**
- * @param  {number} tagType
- * @param  {number} changeFlag
- * @param  {object} currentNumBits
+ * @param  {number} tag_type
+ * @param  {number} change_flag
+ * @param  {object} current_num_bits
  * @return {{isChange: boolean, FillStyle0: number, FillStyle1: number, LineStyle: number}}
  */
-SwfTag.prototype.styleChangeRecord = function (tagType, changeFlag, currentNumBits)
+SwfTag.prototype.styleChangeRecord = function (tag_type, change_flag, current_num_bits)
 {
     // init
     var obj = {
@@ -25192,11 +25317,11 @@ SwfTag.prototype.styleChangeRecord = function (tagType, changeFlag, currentNumBi
         LineStyle:  0
     };
 
-    obj.StateNewStyles  = (changeFlag >> 4) & 1;
-    obj.StateLineStyle  = (changeFlag >> 3) & 1;
-    obj.StateFillStyle1 = (changeFlag >> 2) & 1;
-    obj.StateFillStyle0 = (changeFlag >> 1) & 1;
-    obj.StateMoveTo     = changeFlag & 1;
+    obj.StateNewStyles  = (change_flag >> 4) & 1;
+    obj.StateLineStyle  = (change_flag >> 3) & 1;
+    obj.StateFillStyle1 = (change_flag >> 2) & 1;
+    obj.StateFillStyle0 = (change_flag >> 1) & 1;
+    obj.StateMoveTo     = change_flag & 1;
 
     if (obj.StateMoveTo) {
         var moveBits = this.bitio.getUIBits(5);
@@ -25209,24 +25334,24 @@ SwfTag.prototype.styleChangeRecord = function (tagType, changeFlag, currentNumBi
     }
 
     if (obj.StateFillStyle0) {
-        obj.FillStyle0 = this.bitio.getUIBits(currentNumBits.FillBits);
+        obj.FillStyle0 = this.bitio.getUIBits(current_num_bits.FillBits);
     }
 
     if (obj.StateFillStyle1) {
-        obj.FillStyle1 = this.bitio.getUIBits(currentNumBits.FillBits);
+        obj.FillStyle1 = this.bitio.getUIBits(current_num_bits.FillBits);
     }
 
     if (obj.StateLineStyle) {
-        obj.LineStyle = this.bitio.getUIBits(currentNumBits.LineBits);
+        obj.LineStyle = this.bitio.getUIBits(current_num_bits.LineBits);
     }
 
     if (obj.StateNewStyles) {
-        obj.FillStyles = this.fillStyleArray(tagType);
-        obj.LineStyles = this.lineStyleArray(tagType);
+        obj.FillStyles = this.fillStyleArray(tag_type);
+        obj.LineStyles = this.lineStyleArray(tag_type);
 
         var numBits = this.bitio.getUI8();
-        currentNumBits.FillBits = obj.NumFillBits = numBits >> 4;
-        currentNumBits.LineBits = obj.NumLineBits = numBits & 0x0f;
+        current_num_bits.FillBits = obj.NumFillBits = numBits >> 4;
+        current_num_bits.LineBits = obj.NumLineBits = numBits & 0x0f;
     }
 
     return obj;
@@ -25234,10 +25359,10 @@ SwfTag.prototype.styleChangeRecord = function (tagType, changeFlag, currentNumBi
 
 /**
  * TODO
- * @param {number} tagType
+ * @param {number} tag_type
  * @param {number} length
  */
-SwfTag.prototype.parseDefineBitsLossLess = function (tagType, length)
+SwfTag.prototype.parseDefineBitsLossLess = function (tag_type, length)
 {
     var stage = this.getStage();
 
@@ -25246,7 +25371,7 @@ SwfTag.prototype.parseDefineBitsLossLess = function (tagType, length)
     var format         = this.bitio.getUI8();
     var width          = this.bitio.getUI16();
     var height         = this.bitio.getUI16();
-    var isAlpha        = (tagType === 36);
+    var isAlpha        = (tag_type === 36);
     var colorTableSize = (format === 3) ? this.bitio.getUI8() + 1 : 0;
 
     // unCompress
@@ -25426,12 +25551,12 @@ SwfTag.prototype.parseJPEGTables = function (length)
 
 /**
  * TODO
- * @param   {number} tagType
+ * @param   {number} tag_type
  * @param   {number} length
- * @param   {string} jpegTables
+ * @param   {string} jpeg_tables
  * @returns void
  */
-SwfTag.prototype.parseDefineBits = function (tagType, length, jpegTables)
+SwfTag.prototype.parseDefineBits = function (tag_type, length, jpeg_tables)
 {
     var bitio = this.bitio;
 
@@ -25441,7 +25566,7 @@ SwfTag.prototype.parseDefineBits = function (tagType, length, jpegTables)
     var sub = (bitio.byte_offset - startOffset)|0;
 
     var ImageDataLen = (length - sub)|0;
-    switch (tagType) {
+    switch (tag_type) {
         case 35:
         case 90:
             ImageDataLen = bitio.getUI32();
@@ -25450,7 +25575,7 @@ SwfTag.prototype.parseDefineBits = function (tagType, length, jpegTables)
             break;
     }
 
-    if (tagType === 90) {
+    if (tag_type === 90) {
         var DeblockParam = bitio.getUI16();
         console.log("TODO DeblockParam", DeblockParam);
     }
@@ -25458,7 +25583,7 @@ SwfTag.prototype.parseDefineBits = function (tagType, length, jpegTables)
     var JPEGData = bitio.getData(ImageDataLen);
 
     var BitmapAlphaData = 0;
-    switch (tagType) {
+    switch (tag_type) {
         case 35:
         case 90:
             BitmapAlphaData = bitio.getData(length - sub - ImageDataLen);
@@ -25509,13 +25634,13 @@ SwfTag.prototype.parseDefineBits = function (tagType, length, jpegTables)
         stage.imgUnLoadCount--;
     });
 
-    if (jpegTables !== null && jpegTables.length > 4) {
+    if (jpeg_tables !== null && jpeg_tables.length > 4) {
         var margeData = [];
 
-        var len = (jpegTables.length - 2)|0;
+        var len = (jpeg_tables.length - 2)|0;
         var idx = 0;
         while (idx < len) {
-            margeData[margeData.length] = jpegTables[idx];
+            margeData[margeData.length] = jpeg_tables[idx];
             idx = (idx + 1)|0;
         }
 
@@ -25540,59 +25665,59 @@ SwfTag.prototype.parseDefineBits = function (tagType, length, jpegTables)
 };
 
 /**
- * @param  {array}  JPEGData
+ * @param  {array}  jpeg_data
  * @return {string}
  */
-SwfTag.prototype.parseJpegData = function (JPEGData)
+SwfTag.prototype.parseJpegData = function (jpeg_data)
 {
     var i      = 0;
     var idx    = 0;
     var str    = "";
-    var length = JPEGData.length|0;
+    var length = jpeg_data.length|0;
 
     // erroneous
-    if (JPEGData[0] === 0xFF && JPEGData[1] === 0xD9 && JPEGData[2] === 0xFF && JPEGData[3] === 0xD8) {
+    if (jpeg_data[0] === 0xFF && jpeg_data[1] === 0xD9 && jpeg_data[2] === 0xFF && jpeg_data[3] === 0xD8) {
         i = 4;
         while (i < length) {
-            str += this.$fromCharCode(JPEGData[i]);
+            str += this.$fromCharCode(jpeg_data[i]);
             i = (i + 1)|0;
         }
-    } else if (JPEGData[0] === 0xFF && JPEGData[1] === 0xD8) {
+    } else if (jpeg_data[0] === 0xFF && jpeg_data[1] === 0xD8) {
         idx = 0;
         i   = 2;
         while (idx < i) {
-            str += this.$fromCharCode(JPEGData[idx]);
+            str += this.$fromCharCode(jpeg_data[idx]);
             idx = (idx + 1)|0;
         }
 
         while (i < length) {
-            if (JPEGData[i] === 0xFF) {
-                if (JPEGData[i + 1] === 0xD9 && JPEGData[i + 2] === 0xFF && JPEGData[i + 3] === 0xD8) {
+            if (jpeg_data[i] === 0xFF) {
+                if (jpeg_data[i + 1] === 0xD9 && jpeg_data[i + 2] === 0xFF && jpeg_data[i + 3] === 0xD8) {
 
                     i = (i + 4)|0;
 
                     idx = i;
                     while (idx < length) {
-                        str += this.$fromCharCode(JPEGData[idx]);
+                        str += this.$fromCharCode(jpeg_data[idx]);
                         idx = (idx + 1)|0;
                     }
 
                     break;
-                } else if (JPEGData[i + 1] === 0xDA) {
+                } else if (jpeg_data[i + 1] === 0xDA) {
 
                     idx = i;
                     while (idx < length) {
-                        str += this.$fromCharCode(JPEGData[idx]);
+                        str += this.$fromCharCode(jpeg_data[idx]);
                         idx = (idx + 1)|0;
                     }
 
                     break;
                 } else {
-                    var segmentLength = ((JPEGData[i + 2] << 8) + JPEGData[i + 3] + i + 2)|0;
+                    var segmentLength = ((jpeg_data[i + 2] << 8) + jpeg_data[i + 3] + i + 2)|0;
 
                     idx = i;
                     while (idx < segmentLength) {
-                        str += this.$fromCharCode(JPEGData[idx]);
+                        str += this.$fromCharCode(jpeg_data[idx]);
                         idx = (idx + 1)|0;
                     }
 
@@ -25656,11 +25781,11 @@ SwfTag.prototype.base64encode = function (data)
 
 /**
  * TODO
- * @param   {number} tagType
+ * @param   {number} tag_type
  * @param   {number} length
  * @returns void
  */
-SwfTag.prototype.parseDefineFont = function (tagType, length)
+SwfTag.prototype.parseDefineFont = function (tag_type, length)
 {
     var stage = this.getStage();
 
@@ -25670,11 +25795,11 @@ SwfTag.prototype.parseDefineFont = function (tagType, length)
     var len = 0;
 
     var obj     = {};
-    obj.tagType = tagType;
+    obj.tagType = tag_type;
     obj.FontId  = this.bitio.getUI16();
 
     var numGlyphs = 0;
-    switch (tagType) {
+    switch (tag_type) {
         case 48:
         case 75:
             var fontFlags            = this.bitio.getUI8();
@@ -25731,13 +25856,13 @@ SwfTag.prototype.parseDefineFont = function (tagType, length)
 
     // offset
     var offset = this.bitio.byte_offset|0;
-    if (tagType === 10) {
+    if (tag_type === 10) {
         numGlyphs = this.bitio.getUI16();
     }
 
     if (numGlyphs) {
         var OffsetTable = [];
-        if (tagType === 10) {
+        if (tag_type === 10) {
             OffsetTable[0] = numGlyphs;
             numGlyphs /= 2;
             numGlyphs -= 1;
@@ -25750,7 +25875,7 @@ SwfTag.prototype.parseDefineFont = function (tagType, length)
                 i = (i + 1)|0;
             }
 
-            if (tagType !== 10) {
+            if (tag_type !== 10) {
                 obj.CodeTableOffset = this.bitio.getUI32();
             }
         } else {
@@ -25760,14 +25885,14 @@ SwfTag.prototype.parseDefineFont = function (tagType, length)
                 i = (i + 1)|0;
             }
 
-            if (tagType !== 10) {
+            if (tag_type !== 10) {
                 obj.CodeTableOffset = this.bitio.getUI16();
             }
         }
 
         // Shape
         var GlyphShapeTable = [];
-        if (tagType === 10) {
+        if (tag_type === 10) {
             numGlyphs += 1;
         }
 
@@ -25785,7 +25910,7 @@ SwfTag.prototype.parseDefineFont = function (tagType, length)
             };
 
             var shapes = {};
-            shapes.ShapeRecords = this.shapeRecords(tagType, currentNumBits);
+            shapes.ShapeRecords = this.shapeRecords(tag_type, currentNumBits);
 
             shapes.lineStyles = {
                 lineStyles: [{
@@ -25807,7 +25932,7 @@ SwfTag.prototype.parseDefineFont = function (tagType, length)
         }
         obj.GlyphShapeTable = GlyphShapeTable;
 
-        switch (tagType) {
+        switch (tag_type) {
             case 48:
             case 75:
 
@@ -25851,7 +25976,7 @@ SwfTag.prototype.parseDefineFont = function (tagType, length)
                     }
                     obj.FontBoundsTable = FontBoundsTable;
 
-                    if (tagType === 75) {
+                    if (tag_type === 75) {
                         var count         = this.bitio.getUI16();
                         obj.KerningCount  = count;
 
@@ -25888,16 +26013,16 @@ SwfTag.prototype.parseDefineFont = function (tagType, length)
 };
 
 /**
- * @param   {number} tagType
+ * @param   {number} tag_type
  * @param   {number} length
  * @returns void
  */
-SwfTag.prototype.parseDefineFontInfo = function (tagType, length)
+SwfTag.prototype.parseDefineFontInfo = function (tag_type, length)
 {
     var endOffset = (this.bitio.byte_offset + length)|0;
 
     var obj = {};
-    obj.tagType = tagType;
+    obj.tagType = tag_type;
     obj.FontId  = this.bitio.getUI16();
 
     var len  = this.bitio.getUI8();
@@ -25921,7 +26046,7 @@ SwfTag.prototype.parseDefineFontInfo = function (tagType, length)
     obj.FontFlagsItalic    = this.bitio.getUIBits(1);
     obj.FontFlagsBold      = this.bitio.getUIBits(1);
     obj.FontFlagsWideCodes = this.bitio.getUIBits(1);
-    if (tagType === 62) {
+    if (tag_type === 62) {
         obj.LanguageCode = this.bitio.getUI8();
     }
 
@@ -25936,7 +26061,7 @@ SwfTag.prototype.parseDefineFontInfo = function (tagType, length)
     this.bitio.byteAlign();
 
     var CodeTable = [];
-    if (obj.FontFlagsWideCodes || tagType === 62) {
+    if (obj.FontFlagsWideCodes || tag_type === 62) {
         while (this.bitio.byte_offset < endOffset) {
             CodeTable[CodeTable.length] = this.bitio.getUI16();
         }
@@ -25949,19 +26074,19 @@ SwfTag.prototype.parseDefineFontInfo = function (tagType, length)
 };
 
 /**
- * @param   {string} fontName
+ * @param   {string} font_name
  * @returns {string}
  */
-SwfTag.prototype.getFontName = function (fontName)
+SwfTag.prototype.getFontName = function (font_name)
 {
-    var length = fontName.length|0;
+    var length = font_name.length|0;
 
-    var str = fontName.substr(length - 1);
+    var str = font_name.substr(length - 1);
     if (str.charCodeAt(0) === 0) {
-        fontName = fontName.slice(0, -1);
+        font_name = font_name.slice(0, -1);
     }
 
-    switch (fontName) {
+    switch (font_name) {
         case "_sans":
             return "sans-serif";
         case "_serif":
@@ -25969,11 +26094,11 @@ SwfTag.prototype.getFontName = function (fontName)
         case "_typewriter":
             return "monospace";
         default:
-            var ander = fontName.substr(0, 1);
+            var ander = font_name.substr(0, 1);
             if (ander === "_") {
                 return "sans-serif";
             }
-            return fontName;
+            return font_name;
     }
 };
 
@@ -25988,33 +26113,33 @@ SwfTag.prototype.parseDefineFontName = function ()
 };
 
 /**
- * @param   {number} tagType
+ * @param   {number} tag_type
  * @returns void
  */
-SwfTag.prototype.parseDefineText = function (tagType)
+SwfTag.prototype.parseDefineText = function (tag_type)
 {
 
     var characterId = this.bitio.getUI16();
 
     var obj         = {};
-    obj.tagType     = tagType;
+    obj.tagType     = tag_type;
     obj.bounds      = this.rect();
     obj.matrix      = this.matrix();
 
     var GlyphBits   = this.bitio.getUI8();
     var AdvanceBits = this.bitio.getUI8();
-    obj.textRecords = this.getTextRecords(tagType, GlyphBits, AdvanceBits);
+    obj.textRecords = this.getTextRecords(tag_type, GlyphBits, AdvanceBits);
 
     this.setCharacter(characterId, obj);
 };
 
 /**
- * @param   {number} tagType
- * @param   {number} GlyphBits
- * @param   {number} AdvanceBits
+ * @param   {number} tag_type
+ * @param   {number} glyph_bits
+ * @param   {number} advance_bits
  * @returns {Array}
  */
-SwfTag.prototype.getTextRecords = function (tagType, GlyphBits, AdvanceBits)
+SwfTag.prototype.getTextRecords = function (tag_type, glyph_bits, advance_bits)
 {
     var records = [];
 
@@ -26035,7 +26160,7 @@ SwfTag.prototype.getTextRecords = function (tagType, GlyphBits, AdvanceBits)
         }
 
         if (obj.StyleFlagsHasColor) {
-            if (tagType === 11) {
+            if (tag_type === 11) {
                 obj.TextColor = this.rgb();
             } else {
                 obj.TextColor = this.rgba();
@@ -26055,7 +26180,7 @@ SwfTag.prototype.getTextRecords = function (tagType, GlyphBits, AdvanceBits)
         }
 
         obj.GlyphCount   = this.bitio.getUI8();
-        obj.GlyphEntries = this.getGlyphEntries(obj.GlyphCount, GlyphBits, AdvanceBits);
+        obj.GlyphEntries = this.getGlyphEntries(obj.GlyphCount, glyph_bits, advance_bits);
 
         records[records.length] = obj;
     }
@@ -26065,19 +26190,19 @@ SwfTag.prototype.getTextRecords = function (tagType, GlyphBits, AdvanceBits)
 
 /**
  * @param   {number} count
- * @param   {number} GlyphBits
- * @param   {number} AdvanceBits
+ * @param   {number} glyph_bits
+ * @param   {number} advance_bits
  * @returns {Array}
  */
-SwfTag.prototype.getGlyphEntries = function (count, GlyphBits, AdvanceBits)
+SwfTag.prototype.getGlyphEntries = function (count, glyph_bits, advance_bits)
 {
     var i = 0;
 
     var entries = [];
     while (i < count) {
         entries[entries.length] = {
-            GlyphIndex:   this.bitio.getUIBits(GlyphBits),
-            GlyphAdvance: this.bitio.getSIBits(AdvanceBits)
+            GlyphIndex:   this.bitio.getUIBits(glyph_bits),
+            GlyphAdvance: this.bitio.getSIBits(advance_bits)
         };
 
         i = (i + 1)|0;
@@ -26087,10 +26212,10 @@ SwfTag.prototype.getGlyphEntries = function (count, GlyphBits, AdvanceBits)
 };
 
 /**
- * @param   {number} tagType
+ * @param   {number} tag_type
  * @returns void
  */
-SwfTag.prototype.parseDefineEditText = function (tagType)
+SwfTag.prototype.parseDefineEditText = function (tag_type)
 {
     var obj = {};
     obj.CharacterId = this.bitio.getUI16();
@@ -26182,25 +26307,25 @@ SwfTag.prototype.parseDefineEditText = function (tagType)
     this.setCharacter(obj.CharacterId, {
         data:    obj,
         bounds:  bounds,
-        tagType: tagType
+        tagType: tag_type
     });
 };
 
 /**
  * TODO
- * @param {number} tagType
+ * @param {number} tag_type
  */
-SwfTag.prototype.parseDefineMorphShape = function (tagType)
+SwfTag.prototype.parseDefineMorphShape = function (tag_type)
 {
     var stage = this.getStage();
 
     var obj = {};
-    obj.tagType     = tagType;
+    obj.tagType     = tag_type;
     obj.CharacterId = this.bitio.getUI16();
     obj.StartBounds = this.rect();
     obj.EndBounds   = this.rect();
 
-    if (tagType === 84) {
+    if (tag_type === 84) {
         obj.StartEdgeBounds = this.rect();
         obj.EndEdgeBounds   = this.rect();
 
@@ -26213,15 +26338,15 @@ SwfTag.prototype.parseDefineMorphShape = function (tagType)
     var offset    = this.bitio.getUI32();
     var endOffset = this.bitio.byte_offset + offset;
 
-    obj.MorphFillStyles = this.fillStyleArray(tagType);
-    obj.MorphLineStyles = this.lineStyleArray(tagType);
+    obj.MorphFillStyles = this.fillStyleArray(tag_type);
+    obj.MorphLineStyles = this.lineStyleArray(tag_type);
 
-    obj.StartEdges = this.shapeWithStyle(tagType);
+    obj.StartEdges = this.shapeWithStyle(tag_type);
     if (this.bitio.byte_offset !== endOffset) {
         this.bitio.byte_offset = endOffset;
     }
 
-    obj.EndEdges = this.shapeWithStyle(tagType);
+    obj.EndEdges = this.shapeWithStyle(tag_type);
 
     // fill1 control
     var startPosition     = {x: 0, y: 0};
@@ -26595,12 +26720,12 @@ SwfTag.prototype.parseFrameLabel = function ()
 };
 
 /**
- * @param  {number} tagType
+ * @param  {number} tag_type
  * @return {object}
  */
-SwfTag.prototype.parseRemoveObject = function (tagType)
+SwfTag.prototype.parseRemoveObject = function (tag_type)
 {
-    switch (tagType) {
+    switch (tag_type) {
         case 5:
             console.log("TODO: RemoveObject");
             return {
@@ -26615,20 +26740,20 @@ SwfTag.prototype.parseRemoveObject = function (tagType)
 };
 
 /**
- * @param   {number} tagType
+ * @param   {number} tag_type
  * @param   {number} length
  * @returns {object}
  */
-SwfTag.prototype.parseDefineButton = function (tagType, length)
+SwfTag.prototype.parseDefineButton = function (tag_type, length)
 {
     var obj = {};
-    obj.tagType   = tagType;
+    obj.tagType   = tag_type;
 
     var endOffset = (this.bitio.byte_offset + length)|0;
     obj.ButtonId  = this.bitio.getUI16();
 
     var ActionOffset = 0;
-    if (tagType !== 7) {
+    if (tag_type !== 7) {
         obj.ReservedFlags = this.bitio.getUIBits(7);
         obj.TrackAsMenu   = this.bitio.getUIBits(1);
         ActionOffset      = this.bitio.getUI16();
@@ -26637,7 +26762,7 @@ SwfTag.prototype.parseDefineButton = function (tagType, length)
     obj.characters = this.buttonCharacters(endOffset);
 
     // actionScript
-    if (tagType === 7) {
+    if (tag_type === 7) {
 
         var offset = (endOffset - this.bitio.byte_offset)|0;
 
@@ -26727,10 +26852,10 @@ SwfTag.prototype.buttonRecord = function ()
 };
 
 /**
- * @param   {number} endOffset
+ * @param   {number} end_offset
  * @returns {array}
  */
-SwfTag.prototype.buttonActions = function (endOffset)
+SwfTag.prototype.buttonActions = function (end_offset)
 {
     var actions = [];
 
@@ -26752,7 +26877,7 @@ SwfTag.prototype.buttonActions = function (endOffset)
         obj.CondOverDownToIdle    = this.bitio.getUIBits(1);
 
         // ActionScript
-        var length = (endOffset - this.bitio.byte_offset + 1)|0;
+        var length = (end_offset - this.bitio.byte_offset + 1)|0;
 
         obj.ActionScript = this.parseDoAction(length);
 
@@ -26769,20 +26894,20 @@ SwfTag.prototype.buttonActions = function (endOffset)
 };
 
 /**
- * @param   {number} tagType
+ * @param   {number} tag_type
  * @param   {number} length
  * @returns {object}
  */
-SwfTag.prototype.parsePlaceObject = function (tagType, length)
+SwfTag.prototype.parsePlaceObject = function (tag_type, length)
 {
     var version = this.main.version;
 
     var startOffset = this.bitio.byte_offset|0;
 
     var obj = {};
-    obj.tagType = tagType;
+    obj.tagType = tag_type;
 
-    switch (tagType) {
+    switch (tag_type) {
         case 4:
             obj.CharacterId = this.bitio.getUI16();
             obj.Depth       = this.bitio.getUI16();
@@ -26811,7 +26936,7 @@ SwfTag.prototype.parsePlaceObject = function (tagType, length)
             obj.PlaceFlagMove              = this.bitio.getUIBits(1);
 
             // PlaceObject3
-            if (tagType === 70) {
+            if (tag_type === 70) {
                 this.bitio.getUIBits(1); // Reserved
 
                 obj.PlaceFlagOpaqueBackground = this.bitio.getUIBits(1);
@@ -26855,7 +26980,7 @@ SwfTag.prototype.parsePlaceObject = function (tagType, length)
                 obj.ClipDepth = this.bitio.getUI16();
             }
 
-            if (tagType === 70) {
+            if (tag_type === 70) {
                 if (obj.PlaceFlagHasFilterList) {
                     obj.SurfaceFilterList = this.getFilterList();
                 }
@@ -26916,15 +27041,15 @@ SwfTag.prototype.parsePlaceObject = function (tagType, length)
 };
 
 /**
- * @param  {number} endLength
+ * @param  {number} end_length
  * @return {object}
  */
-SwfTag.prototype.parseClipActionRecord = function (endLength)
+SwfTag.prototype.parseClipActionRecord = function (end_length)
 {
 
     var obj = {};
     var EventFlags = this.parseClipEventFlags();
-    if (endLength > this.bitio.byte_offset) {
+    if (end_length > this.bitio.byte_offset) {
 
         var ActionRecordSize = this.bitio.getUI32();
         if (EventFlags.keyPress) {
@@ -27410,51 +27535,49 @@ SwfTag.prototype.parseDoInitAction = function (length)
 };
 
 /**
- * @returns {object}
+ * @return void
  */
 SwfTag.prototype.parseDefineSceneAndFrameLabelData = function ()
 {
 
-    var obj = {};
-    var count = this.bitio.getU30()|0;
-    obj.SceneCount = count|0;
+    var i, count;
 
-    var sceneInfo  = [];
-    var i = 0;
-    while (i < count) {
-        sceneInfo[i] = {
-            offset: this.bitio.getU30(),
-            name:   decodeURIComponent(this.bitio.getDataUntil("\0"))
-        };
-        i = (i + 1)|0;
-    }
-    obj.sceneInfo = sceneInfo;
-
-    count = this.bitio.getU30()|0;
-    obj.FrameLabelCount = count|0;
-
-    var frameInfo = [];
+    // sceneInfo
     i = 0;
+    count = this.bitio.getU30()|0;
     while (i < count) {
-        frameInfo[i] = {
-            num:   this.bitio.getU30(),
-            label: decodeURIComponent(this.bitio.getDataUntil("\0"))
+
+        this.sceneInfo[this.sceneInfo.length] = {
+            "offset": this.bitio.getU30(),
+            "name"  : decodeURIComponent(this.bitio.getDataUntil("\0")) + ""
         };
+
         i = (i + 1)|0;
     }
-    obj.frameInfo = frameInfo;
 
-    return obj;
+
+    // frameInfo
+    i = 0;
+    count = this.bitio.getU30()|0;
+    while (i < count) {
+
+        var frame = (this.bitio.getU30() + 1)|0;
+        var name  = decodeURIComponent(this.bitio.getDataUntil("\0")) + "";
+
+        this.frameInfo[name] = frame;
+
+        i = (i + 1)|0;
+    }
 };
 
 /**
- * @param   {number} tagType
+ * @param   {number} tag_type
  * @returns {object}
  */
-SwfTag.prototype.parseSoundStreamHead = function (tagType)
+SwfTag.prototype.parseSoundStreamHead = function (tag_type)
 {
     var obj = {};
-    obj.tagType = tagType;
+    obj.tagType = tag_type;
 
     this.bitio.getUIBits(4); // Reserved
 
@@ -27496,22 +27619,22 @@ SwfTag.prototype.parseSoundStreamHead = function (tagType)
 };
 
 /**
- * @param   {number} tagType
+ * @param   {number} tag_type
  * @param   {number} length
  * @returns void
  */
-SwfTag.prototype.parseDoABC = function (tagType, length)
+SwfTag.prototype.parseDoABC = function (tag_type, length)
 {
     this.bitio.byte_offset = this.bitio.byte_offset + length;
     return ;
-    var stage = this.main.stage;
+    var stage = this.getStage();
 
     stage.abcFlag = true;
 
     var startOffset = this.bitio.byte_offset;
 
     var obj = {};
-    obj.tagType = tagType;
+    obj.tagType = tag_type;
     obj.Flags   = this.bitio.getUI32();
     obj.Name    = this.bitio.getDataUntil("\0");
 
@@ -27638,7 +27761,7 @@ SwfTag.prototype.parseDoABC = function (tagType, length)
  */
 SwfTag.prototype.ABCBuildInstance = function (obj)
 {
-    var stage = this.main.stage;
+    var stage = this.getStage();
 
     var instances  = obj.instance;
     var length     = instances.length|0;
@@ -27761,7 +27884,7 @@ SwfTag.prototype.ABCBuildInstance = function (obj)
  */
 SwfTag.prototype.ABCCreateActionScript3 = function (obj, methodId, abcKey)
 {
-    var stage = this.main.stage;
+    var stage = this.getStage();
     return (function (data, id, ns, stage)
     {
         return function ()
@@ -27884,18 +28007,18 @@ SwfTag.prototype.ABCUinteger = function (ABCBitIO)
 };
 
 /**
- * @param   {BitIO} ABCBitIO
+ * @param   {BitIO} bitio
  * @returns {array}
  */
-SwfTag.prototype.ABCDouble = function (ABCBitIO)
+SwfTag.prototype.ABCDouble = function (bitio)
 {
     var array = [];
 
-    var count = ABCBitIO.getU30()|0;
+    var count = bitio.getU30()|0;
     if (count) {
         var i = 1;
         while (i < count) {
-            array[i] = ABCBitIO.getFloat64LittleEndian();
+            array[i] = bitio.getFloat64LittleEndian();
 
             i = (i + 1)|0;
         }
@@ -27905,18 +28028,18 @@ SwfTag.prototype.ABCDouble = function (ABCBitIO)
 };
 
 /**
- * @param   {BitIO} ABCBitIO
+ * @param   {BitIO} bitio
  * @returns {array}
  */
-SwfTag.prototype.ABCStringInfo = function (ABCBitIO)
+SwfTag.prototype.ABCStringInfo = function (bitio)
 {
     var array = [];
 
-    var count = ABCBitIO.getU30()|0;
+    var count = bitio.getU30()|0;
     if (count) {
         var i = 1;
         while (i < count) {
-            array[i] = ABCBitIO.AbcReadString();
+            array[i] = bitio.AbcReadString();
 
             i = (i + 1)|0;
         }
@@ -27926,20 +28049,20 @@ SwfTag.prototype.ABCStringInfo = function (ABCBitIO)
 };
 
 /**
- * @param   {BitIO} ABCBitIO
+ * @param   {BitIO} bitio
  * @returns {array}
  */
-SwfTag.prototype.ABCNameSpaceInfo = function (ABCBitIO)
+SwfTag.prototype.ABCNameSpaceInfo = function (bitio)
 {
     var array = [];
 
-    var count = ABCBitIO.getU30()|0;
+    var count = bitio.getU30()|0;
     if (count) {
         var i = 1;
         while (i < count) {
             array[i] = {
-                kind: ABCBitIO.getUI8(),
-                name: ABCBitIO.getU30()
+                kind: bitio.getUI8(),
+                name: bitio.getU30()
             };
 
             i = (i + 1)|0;
@@ -27950,25 +28073,25 @@ SwfTag.prototype.ABCNameSpaceInfo = function (ABCBitIO)
 };
 
 /**
- * @param   {BitIO} ABCBitIO
+ * @param   {BitIO} bitio
  * @returns {array}
  */
-SwfTag.prototype.ABCNsSetInfo = function (ABCBitIO)
+SwfTag.prototype.ABCNsSetInfo = function (bitio)
 {
     var array = [];
 
-    var count = ABCBitIO.getU30()|0;
+    var count = bitio.getU30()|0;
     if (count) {
         var i = 1;
         while (i < count) {
 
-            var nsCount = ABCBitIO.getU30()|0;
+            var nsCount = bitio.getU30()|0;
 
             var ns = [];
             if (nsCount) {
                 var j = 0;
                 while (j < nsCount) {
-                    ns[j] = ABCBitIO.getU30();
+                    ns[j] = bitio.getU30();
 
                     j = (j + 1)|0;
                 }
@@ -27984,39 +28107,39 @@ SwfTag.prototype.ABCNsSetInfo = function (ABCBitIO)
 };
 
 /**
- * @param   {BitIO} ABCBitIO
+ * @param   {BitIO} bitio
  * @returns {array}
  */
-SwfTag.prototype.ABCMultiNameInfo = function (ABCBitIO)
+SwfTag.prototype.ABCMultiNameInfo = function (bitio)
 {
     var array = [];
 
-    var count = ABCBitIO.getU30()|0;
+    var count = bitio.getU30()|0;
     if (count) {
 
         var i = 1;
         while (i < count) {
 
             var obj = {};
-            obj.kind = ABCBitIO.getUI8();
+            obj.kind = bitio.getUI8();
             switch (obj.kind) {
                 case 0x07: // QName
                 case 0x0D: // QNameA
-                    obj.ns   = ABCBitIO.getU30();
-                    obj.name = ABCBitIO.getU30();
+                    obj.ns   = bitio.getU30();
+                    obj.name = bitio.getU30();
                     break;
                 case 0x0F: // RTQName
                 case 0x10: // RTQNameA
-                    obj.name = ABCBitIO.getU30();
+                    obj.name = bitio.getU30();
                     break;
                 case 0x09: // Multiname
                 case 0x0E: // MultinameA
-                    obj.name   = ABCBitIO.getU30();
-                    obj.ns_set = ABCBitIO.getU30();
+                    obj.name   = bitio.getU30();
+                    obj.ns_set = bitio.getU30();
                     break;
                 case 0x1B: // MultinameL
                 case 0x1C: // MultinameLA
-                    obj.ns_set = ABCBitIO.getU30();
+                    obj.ns_set = bitio.getU30();
                     break;
                 case 0x11: // RTQNameL
                 case 0x12: // RTQNameLA
@@ -28033,43 +28156,43 @@ SwfTag.prototype.ABCMultiNameInfo = function (ABCBitIO)
 };
 
 /**
- * @param   {BitIO}  ABCBitIO
+ * @param   {BitIO}  bitio
  * @returns {object}
  */
-SwfTag.prototype.ABCMethodInfo = function (ABCBitIO)
+SwfTag.prototype.ABCMethodInfo = function (bitio)
 {
     var obj = {};
     var i;
-    var count = ABCBitIO.getU30()|0;
+    var count = bitio.getU30()|0;
 
     obj.paramCount = count|0;
-    obj.returnType = ABCBitIO.getU30();
+    obj.returnType = bitio.getU30();
     obj.paramType  = [];
     if (count) {
         var paramType = [];
 
         i = 0;
         while (i < count) {
-            paramType[paramType.length] = ABCBitIO.getU30();
+            paramType[paramType.length] = bitio.getU30();
 
             i = (i + 1)|0;
         }
         obj.paramType = paramType;
     }
 
-    obj.name  = ABCBitIO.getU30();
-    obj.flags = ABCBitIO.getUI8();
+    obj.name  = bitio.getU30();
+    obj.flags = bitio.getUI8();
 
     obj.options = [];
     if (obj.flags === 0x08) {
         var options = [];
-        var optionCount = ABCBitIO.getU30()|0;
+        var optionCount = bitio.getU30()|0;
         if (optionCount) {
             i = 0;
             while (i < optionCount) {
                 options[options.length] = {
-                    val:  ABCBitIO.getU30(),
-                    kind: ABCBitIO.getUI8()
+                    val:  bitio.getU30(),
+                    kind: bitio.getUI8()
                 };
 
                 i = (i + 1)|0;
@@ -28084,7 +28207,7 @@ SwfTag.prototype.ABCMethodInfo = function (ABCBitIO)
         if (count) {
             i = 0;
             while (i < count) {
-                paramName[paramName.length] = ABCBitIO.getU30();
+                paramName[paramName.length] = bitio.getU30();
 
                 i = (i + 1)|0;
             }
@@ -28096,24 +28219,24 @@ SwfTag.prototype.ABCMethodInfo = function (ABCBitIO)
 };
 
 /**
- * @param   {BitIO}  ABCBitIO
+ * @param   {BitIO}  bitio
  * @returns {object}
  */
-SwfTag.prototype.ABCMetadataInfo = function (ABCBitIO)
+SwfTag.prototype.ABCMetadataInfo = function (bitio)
 {
     var obj = {};
 
-    obj.name  = ABCBitIO.getU30();
+    obj.name  = bitio.getU30();
     obj.items = [];
 
-    var count = ABCBitIO.getU30()|0;
+    var count = bitio.getU30()|0;
     if (count) {
         var items = [];
         var i = 0;
         while (i < count) {
             items[items.length] = {
-                key:   ABCBitIO.getU30(),
-                value: ABCBitIO.getU30()
+                key:   bitio.getU30(),
+                value: bitio.getU30()
             };
 
             i = (i + 1)|0;
@@ -28125,106 +28248,106 @@ SwfTag.prototype.ABCMetadataInfo = function (ABCBitIO)
 };
 
 /**
- * @param   {BitIO}  ABCBitIO
+ * @param   {BitIO}  bitio
  * @returns {object}
  */
-SwfTag.prototype.ABCInstanceInfo = function (ABCBitIO)
+SwfTag.prototype.ABCInstanceInfo = function (bitio)
 {
     var obj = {};
-    obj.name      = ABCBitIO.getU30();
-    obj.superName = ABCBitIO.getU30();
-    obj.flags     = ABCBitIO.getUI8();
+    obj.name      = bitio.getU30();
+    obj.superName = bitio.getU30();
+    obj.flags     = bitio.getUI8();
 
     if (obj.flags & 0x08) {
-        obj.protectedNs = ABCBitIO.getU30();
+        obj.protectedNs = bitio.getU30();
     }
 
-    var count = ABCBitIO.getU30()|0;
+    var count = bitio.getU30()|0;
     obj.interfaces = [];
     if (count) {
         var interfaces = [];
         var i = 0;
         while (i < count) {
-            interfaces[interfaces.length] = ABCBitIO.getU30();
+            interfaces[interfaces.length] = bitio.getU30();
 
             i = (i + 1)|0;
         }
         obj.interfaces = interfaces;
     }
 
-    obj.iinit = ABCBitIO.getU30();
-    obj.trait = this.ABCTrait(ABCBitIO);
+    obj.iinit = bitio.getU30();
+    obj.trait = this.ABCTrait(bitio);
 
     return obj;
 };
 
 /**
- * @param   {BitIO}  ABCBitIO
+ * @param   {BitIO}  bitio
  * @returns {object}
  */
-SwfTag.prototype.ABCClassInfo = function (ABCBitIO)
+SwfTag.prototype.ABCClassInfo = function (bitio)
 {
     var obj = {};
-    obj.cinit = ABCBitIO.getU30();
-    obj.trait = this.ABCTrait(ABCBitIO);
+    obj.cinit = bitio.getU30();
+    obj.trait = this.ABCTrait(bitio);
     return obj;
 };
 
 /**
- * @param   {BitIO}  ABCBitIO
+ * @param   {BitIO}  bitio
  * @returns {object}
  */
-SwfTag.prototype.ABCScriptInfo = function (ABCBitIO)
+SwfTag.prototype.ABCScriptInfo = function (bitio)
 {
     var obj = {};
-    obj.init  = ABCBitIO.getU30();
-    obj.trait = this.ABCTrait(ABCBitIO);
+    obj.init  = bitio.getU30();
+    obj.trait = this.ABCTrait(bitio);
     return obj;
 };
 
 /**
- * @param   {BitIO}  ABCBitIO
+ * @param   {BitIO}  bitio
  * @returns {object}
  */
-SwfTag.prototype.ABCMethodBodyInfo = function (ABCBitIO)
+SwfTag.prototype.ABCMethodBodyInfo = function (bitio)
 {
     var obj = {};
-    obj.method         = ABCBitIO.getU30();
-    obj.maxStack       = ABCBitIO.getU30();
-    obj.localCount     = ABCBitIO.getU30();
-    obj.initScopeDepth = ABCBitIO.getU30();
-    obj.maxScopeDepth  = ABCBitIO.getU30();
+    obj.method         = bitio.getU30();
+    obj.maxStack       = bitio.getU30();
+    obj.localCount     = bitio.getU30();
+    obj.initScopeDepth = bitio.getU30();
+    obj.maxScopeDepth  = bitio.getU30();
 
-    var count = ABCBitIO.getU30()|0;
+    var count = bitio.getU30()|0;
     var codes = [];
     if (count) {
-        codes = this.ABCBuildCode(ABCBitIO, count);
+        codes = this.ABCBuildCode(bitio, count);
     }
     obj.codes = codes;
 
-    count = ABCBitIO.getU30()|0;
+    count = bitio.getU30()|0;
     var exceptions = [];
     if (count) {
         var i = 0;
         while (i < count) {
-            exceptions[exceptions.length] = this.ABCException(ABCBitIO);
+            exceptions[exceptions.length] = this.ABCException(bitio);
 
             i = (i + 1)|0;
         }
     }
 
     obj.exceptions = exceptions;
-    obj.trait      = this.ABCTrait(ABCBitIO);
+    obj.trait      = this.ABCTrait(bitio);
 
     return obj;
 };
 
 /**
- * @param   {BitIO}  ABCBitIO
+ * @param   {BitIO}  bitio
  * @param   {number} count
  * @returns {array}
  */
-SwfTag.prototype.ABCBuildCode = function (ABCBitIO, count)
+SwfTag.prototype.ABCBuildCode = function (bitio, count)
 {
     var array = [];
     var cacheOffset = 0;
@@ -28234,7 +28357,7 @@ SwfTag.prototype.ABCBuildCode = function (ABCBitIO, count)
         var obj    = {};
         var offset = 0;
 
-        var code = ABCBitIO.getUI8();
+        var code = bitio.getUI8();
 
         obj.code = code;
         switch (code) {
@@ -28279,30 +28402,30 @@ SwfTag.prototype.ABCBuildCode = function (ABCBitIO, count)
             case 0x61: // setproperty
             case 0x6d: // setslot
             case 0x05: // setsuper
-                cacheOffset = ABCBitIO.byte_offset;
-                obj.value1  = ABCBitIO.getU30();
+                cacheOffset = bitio.byte_offset;
+                obj.value1  = bitio.getU30();
 
-                offset      = (offset + (ABCBitIO.byte_offset - cacheOffset))|0;
+                offset      = (offset + (bitio.byte_offset - cacheOffset))|0;
                 break;
             case 0x1b: // lookupswitch
-                obj.value1  = ABCBitIO.getSI24();
+                obj.value1  = bitio.getSI24();
                 offset      = (offset + 3)|0;
 
-                cacheOffset = ABCBitIO.byte_offset;
-                obj.value2  = ABCBitIO.getSI24();
-                offset      = (offset + (ABCBitIO.byte_offset - cacheOffset))|0;
+                cacheOffset = bitio.byte_offset;
+                obj.value2  = bitio.getSI24();
+                offset      = (offset + (bitio.byte_offset - cacheOffset))|0;
 
-                obj.value3  = ABCBitIO.getSI24();
+                obj.value3  = bitio.getSI24();
                 offset      = (offset + 3)|0;
                 break;
             case 0x65: // getscopeobject
             case 0x24: // pushbyte
-                obj.value1  = ABCBitIO.getSI8();
+                obj.value1  = bitio.getSI8();
                 offset      = (offset + 1)|0;
                 break;
             case 0x32: // hasnext2
-                obj.value1  = ABCBitIO.getSI8();
-                obj.value2  = ABCBitIO.getSI8();
+                obj.value1  = bitio.getSI8();
+                obj.value2  = bitio.getSI8();
                 offset      = (offset + 2)|0;
                 break;
             case 0x13: // ifeq
@@ -28320,7 +28443,7 @@ SwfTag.prototype.ABCBuildCode = function (ABCBitIO, count)
             case 0x1a: // ifstrictne
             case 0x11: // iftrue
             case 0x10: // jump
-                obj.value1  = ABCBitIO.getSI24();
+                obj.value1  = bitio.getSI24();
                 offset      = (offset + 3)|0;
                 break;
             case 0x43: // callmethod
@@ -28332,10 +28455,10 @@ SwfTag.prototype.ABCBuildCode = function (ABCBitIO, count)
             case 0x4e: // callsupervoid
             case 0x4a: // constructprop
             case 0xef: // debug
-                cacheOffset  = ABCBitIO.byte_offset;
-                obj.value1   = ABCBitIO.getU30();
-                obj.value2   = ABCBitIO.getU30();
-                offset       = (offset + (ABCBitIO.byte_offset - cacheOffset))|0;
+                cacheOffset  = bitio.byte_offset;
+                obj.value1   = bitio.getU30();
+                obj.value2   = bitio.getU30();
+                offset       = (offset + (bitio.byte_offset - cacheOffset))|0;
                 break;
         }
 
@@ -28350,36 +28473,36 @@ SwfTag.prototype.ABCBuildCode = function (ABCBitIO, count)
 };
 
 /**
- * @param   {BitIO}  ABCBitIO
+ * @param   {BitIO}  bitio
  * @returns {object}
  */
-SwfTag.prototype.ABCException = function (ABCBitIO)
+SwfTag.prototype.ABCException = function (bitio)
 {
     var obj = {};
-    obj.from    = ABCBitIO.getU30();
-    obj.to      = ABCBitIO.getU30();
-    obj.target  = ABCBitIO.getU30();
-    obj.excType = ABCBitIO.getU30();
-    obj.varName = ABCBitIO.getU30();
+    obj.from    = bitio.getU30();
+    obj.to      = bitio.getU30();
+    obj.target  = bitio.getU30();
+    obj.excType = bitio.getU30();
+    obj.varName = bitio.getU30();
     return obj;
 };
 
 /**
- * @param   {BitIO} ABCBitIO
+ * @param   {BitIO} bitio
  * @returns {array}
  */
-SwfTag.prototype.ABCTrait = function (ABCBitIO)
+SwfTag.prototype.ABCTrait = function (bitio)
 {
-    var count = ABCBitIO.getU30()|0;
+    var count = bitio.getU30()|0;
 
     var trait = [];
     if (count) {
         var i = 0;
         while (i < count) {
             var tObj  = {};
-            tObj.name = ABCBitIO.getU30();
+            tObj.name = bitio.getU30();
 
-            var tag        = ABCBitIO.getUI8();
+            var tag        = bitio.getUI8();
             var kind       = tag & 0x0f;
             var attributes = (kind >> 4) & 0x0f;
 
@@ -28390,39 +28513,39 @@ SwfTag.prototype.ABCTrait = function (ABCBitIO)
                     break;
                 case 0: // Trait_Slot
                 case 6: // Trait_Const
-                    data.id    = ABCBitIO.getU30();
-                    data.name  = ABCBitIO.getU30();
-                    data.index = ABCBitIO.getU30();
+                    data.id    = bitio.getU30();
+                    data.name  = bitio.getU30();
+                    data.index = bitio.getU30();
                     data.kind  = null;
                     if (data.index !== 0) {
-                        data.kind = ABCBitIO.getUI8();
+                        data.kind = bitio.getUI8();
                     }
                     break;
                 case 1: // Trait_Method
                 case 2: // Trait_Getter
                 case 3: // Trait_Setter
-                    data.id   = ABCBitIO.getU30();
-                    data.info = ABCBitIO.getU30();
+                    data.id   = bitio.getU30();
+                    data.info = bitio.getU30();
                     break;
                 case 4: // Trait_Class
-                    data.id   = ABCBitIO.getU30();
-                    data.info = ABCBitIO.getU30();
+                    data.id   = bitio.getU30();
+                    data.info = bitio.getU30();
                     break;
                 case 5: // Trait_Function
-                    data.id   = ABCBitIO.getU30();
-                    data.info = ABCBitIO.getU30();
+                    data.id   = bitio.getU30();
+                    data.info = bitio.getU30();
                     break;
             }
             tObj.kind = kind;
             tObj.data = data;
 
             if (attributes & 0x04) {
-                var metadataCount = ABCBitIO.getU30()|0;
+                var metadataCount = bitio.getU30()|0;
                 var metadata = [];
                 if (metadataCount) {
                     var j = 0;
                     while (j < metadataCount) {
-                        metadata[metadata.length] = ABCBitIO.getU30();
+                        metadata[metadata.length] = bitio.getU30();
 
                         j = (j + 1)|0;
                     }
@@ -28462,17 +28585,17 @@ SwfTag.prototype.parseSymbolClass = function ()
 
 /**
  * TODO
- * @param {number} tagType
+ * @param {number} tag_type
  * @param {number} length
  */
-SwfTag.prototype.parseDefineSound = function (tagType, length)
+SwfTag.prototype.parseDefineSound = function (tag_type, length)
 {
     var stage = this.getStage();
 
     var startOffset = bitio.byte_offset;
 
     var obj = {};
-    obj.tagType          = tagType;
+    obj.tagType          = tag_type;
     obj.SoundId          = this.bitio.getUI16();
     obj.SoundFormat      = this.bitio.getUIBits(4);
     obj.SoundRate        = this.bitio.getUIBits(2);
@@ -28524,17 +28647,17 @@ SwfTag.prototype.parseDefineSound = function (tagType, length)
 
 /**
  * TODO
- * @param {number} tagType
+ * @param {number} tag_type
  */
-SwfTag.prototype.parseStartSound = function (tagType)
+SwfTag.prototype.parseStartSound = function (tag_type)
 {
 
     var stage = this.getStage();
 
     var obj = {};
-    obj.tagType = tagType;
+    obj.tagType = tag_type;
     obj.SoundId = this.bitio.getUI16();
-    if (tagType === 89) {
+    if (tag_type === 89) {
         obj.SoundClassName = this.bitio.getDataUntil("\0");
     }
 
@@ -28559,7 +28682,7 @@ SwfTag.prototype.parseStartSound = function (tagType)
     return {
         SoundId: obj.SoundId,
         Audio:   audio,
-        tagType: tagType
+        tagType: tag_type
     };
 };
 
@@ -28696,12 +28819,12 @@ SwfTag.prototype.parseDefineFontAlignZones = function ()
 
 /**
  * TODO
- * @param {number} tagType
+ * @param {number} tag_type
  */
-SwfTag.prototype.parseCSMTextSettings = function (tagType)
+SwfTag.prototype.parseCSMTextSettings = function (tag_type)
 {
     var obj = {};
-    obj.tagType      = tagType;
+    obj.tagType      = tag_type;
     obj.TextID       = this.bitio.getUI16();
     obj.UseFlashType = this.bitio.getUIBits(2);
     obj.GridFit      = this.bitio.getUIBits(3);
@@ -28716,26 +28839,26 @@ SwfTag.prototype.parseCSMTextSettings = function (tagType)
 
 /**
  * TODO
- * @param {number} tagType
+ * @param {number} tag_type
  * @param {number} length
  */
-SwfTag.prototype.parseSoundStreamBlock = function (tagType, length)
+SwfTag.prototype.parseSoundStreamBlock = function (tag_type, length)
 {
     var obj = {};
-    obj.tagType    = tagType;
+    obj.tagType    = tag_type;
     obj.compressed = this.bitio.getData(length);
 };
 
 /**
  * TODO
- * @param {number} tagType
+ * @param {number} tag_type
  */
-SwfTag.prototype.parseDefineVideoStream = function (tagType)
+SwfTag.prototype.parseDefineVideoStream = function (tag_type)
 {
     var stage = this.getStage();
 
     var obj = {};
-    obj.tagType     = tagType;
+    obj.tagType     = tag_type;
     obj.CharacterId = this.bitio.getUI16();
     obj.NumFrames   = this.bitio.getUI16();
     obj.Width       = this.bitio.getUI16();
@@ -28753,17 +28876,17 @@ SwfTag.prototype.parseDefineVideoStream = function (tagType)
 
 /**
  * TODO
- * @param {number} tagType
+ * @param {number} tag_type
  * @param {number} length
  */
-SwfTag.prototype.parseVideoFrame = function (tagType, length)
+SwfTag.prototype.parseVideoFrame = function (tag_type, length)
 {
     var stage = this.getStage();
 
     var startOffset = this.bitio.byte_offset;
 
     var obj = {};
-    obj.tagType  = tagType;
+    obj.tagType  = tag_type;
     obj.StreamID = this.bitio.getUI16();
     obj.FrameNum = this.bitio.getUI16();
 
@@ -28882,10 +29005,10 @@ VectorToCanvas.prototype.clone = function (src)
 
 /**
  * @param   {object}  shapes
- * @param   {boolean} isMorph
+ * @param   {boolean} is_morph
  * @returns {array}
  */
-VectorToCanvas.prototype.convert = function (shapes, isMorph)
+VectorToCanvas.prototype.convert = function (shapes, is_morph)
 {
     var lineStyles = shapes.lineStyles.lineStyles;
     var fillStyles = shapes.fillStyles.fillStyles;
@@ -28916,7 +29039,7 @@ VectorToCanvas.prototype.convert = function (shapes, isMorph)
 
         if (!record) {
             stack = this.setStack(stack, lines);
-            stack = this.setStack(stack, this.fillMerge(fills0, fills1, isMorph));
+            stack = this.setStack(stack, this.fillMerge(fills0, fills1, is_morph));
             break;
         }
 
@@ -28926,7 +29049,7 @@ VectorToCanvas.prototype.convert = function (shapes, isMorph)
                 AnchorX = 0;
                 AnchorY = 0;
                 stack   = this.setStack(stack, lines);
-                stack   = this.setStack(stack, this.fillMerge(fills0, fills1, isMorph));
+                stack   = this.setStack(stack, this.fillMerge(fills0, fills1, is_morph));
                 fills0  = [];
                 fills1  = [];
                 lines   = [];
@@ -29052,10 +29175,10 @@ VectorToCanvas.prototype.convert = function (shapes, isMorph)
 /**
  * @param   {array}   fills0
  * @param   {array}   fills1
- * @param   {boolean} isMorph
+ * @param   {boolean} is_morph
  * @returns {array}
  */
-VectorToCanvas.prototype.fillMerge = function (fills0, fills1, isMorph)
+VectorToCanvas.prototype.fillMerge = function (fills0, fills1, is_morph)
 {
     fills0 = this.fillReverse(fills0);
 
@@ -29081,7 +29204,7 @@ VectorToCanvas.prototype.fillMerge = function (fills0, fills1, isMorph)
         }
     }
 
-    return this.coordinateAdjustment(fills1, isMorph);
+    return this.coordinateAdjustment(fills1, is_morph);
 };
 
 /**
@@ -29151,10 +29274,10 @@ VectorToCanvas.prototype.fillReverse = function (fills0)
 
 /**
  * @param   {array}   fills1
- * @param   {boolean} isMorph
+ * @param   {boolean} is_morph
  * @returns void
  */
-VectorToCanvas.prototype.coordinateAdjustment = function (fills1, isMorph)
+VectorToCanvas.prototype.coordinateAdjustment = function (fills1, is_morph)
 {
     for (var i in fills1) {
         if (!fills1.hasOwnProperty(i)) {
@@ -29173,7 +29296,7 @@ VectorToCanvas.prototype.coordinateAdjustment = function (fills1, isMorph)
         }
 
         var adjustment = [];
-        if (array.length > 1 && !isMorph) {
+        if (array.length > 1 && !is_morph) {
             while (true) {
                 if (!array.length) {
                     break;
@@ -29408,21 +29531,21 @@ CacheStore.prototype.reset = function ()
 };
 
 /**
- * @param   {CanvasRenderingContext2D|WebGLRenderingContext} ctx
+ * @param   {CanvasRenderingContext2D|WebGLRenderingContext} context
  * @returns void
  */
-CacheStore.prototype.destroy = function (ctx)
+CacheStore.prototype.destroy = function (context)
 {
-    var canvas = ctx.canvas;
+    var canvas = context.canvas;
     var width  = canvas.width|0;
     var height = canvas.height|0;
 
     this._$size = (this._$size + width * height)|0;
 
     if (this.$canWebGL) {
-        ctx.clear(ctx.STENCIL_BUFFER_BIT | ctx.COLOR_BUFFER_BIT);
+        context.clear(context.STENCIL_BUFFER_BIT | context.COLOR_BUFFER_BIT);
     } else {
-        ctx.clearRect(0, 0, width + 1, height + 1);
+        context.clearRect(0, 0, width + 1, height + 1);
     }
 
     // canvas reset
@@ -29474,36 +29597,36 @@ CacheStore.prototype.setCache = function (key, value)
 };
 
 /**
- * @param   {string} uniqueKey
- * @param   {array}  cxForm
+ * @param   {string} unique_key
+ * @param   {array}  color
  * @returns {string}
  */
-CacheStore.prototype.generateKey = function (uniqueKey, cxForm)
+CacheStore.prototype.generateKey = function (unique_key, color)
 {
     // color
     if (
-        this.$isArray(cxForm)
-        && cxForm.length === 8
+        this.$isArray(color)
+        && color.length === 8
         &&
-        (  cxForm[0] !== 1
-        || cxForm[1] !== 1
-        || cxForm[2] !== 1
-        || cxForm[3] !== 1
-        || cxForm[4] !== 0
-        || cxForm[5] !== 0
-        || cxForm[6] !== 0
-        || cxForm[7] !== 0)
+        (  color[0] !== 1
+        || color[1] !== 1
+        || color[2] !== 1
+        || color[3] !== 1
+        || color[4] !== 0
+        || color[5] !== 0
+        || color[6] !== 0
+        || color[7] !== 0)
     ) {
 
-        var R =   this.$max(0, this.$min((255 * cxForm[0]) + cxForm[4], 255))|0;
-        var G =   this.$max(0, this.$min((255 * cxForm[1]) + cxForm[5], 255))|0;
-        var B =   this.$max(0, this.$min((255 * cxForm[2]) + cxForm[6], 255))|0;
-        var A = +(this.$max(0, this.$min((255 * cxForm[3]) + cxForm[7], 255)) / 255);
+        var R =   this.$max(0, this.$min((255 * color[0]) + color[4], 255))|0;
+        var G =   this.$max(0, this.$min((255 * color[1]) + color[5], 255))|0;
+        var B =   this.$max(0, this.$min((255 * color[2]) + color[6], 255))|0;
+        var A = +(this.$max(0, this.$min((255 * color[3]) + color[7], 255)) / 255);
 
-        uniqueKey = uniqueKey +"_"+ R +"_"+ G +"_"+ B +"_"+ A;
+        unique_key = unique_key +"_"+ R +"_"+ G +"_"+ B +"_"+ A;
     }
 
-    return uniqueKey + "";
+    return unique_key + "";
 };
 
 Util.prototype.$cacheStore = new CacheStore();
@@ -29703,11 +29826,11 @@ Object.defineProperties(Player.prototype, {
             return this._$baseWidth;
         },
         /**
-         * @param {number} baseWidth
+         * @param {number} base_width
          */
-        set: function (baseWidth) {
-            if (typeof baseWidth === "number") {
-                this._$baseWidth = baseWidth|0;
+        set: function (base_width) {
+            if (typeof base_width === "number") {
+                this._$baseWidth = base_width|0;
             }
         }
     },
@@ -29719,11 +29842,11 @@ Object.defineProperties(Player.prototype, {
             return this._$baseHeight;
         },
         /**
-         * @param {number} baseHeight
+         * @param {number} base_height
          */
-        set: function (baseHeight) {
-            if (typeof baseHeight === "number") {
-                this._$baseHeight = baseHeight|0;
+        set: function (base_height) {
+            if (typeof base_height === "number") {
+                this._$baseHeight = base_height|0;
             }
         }
     },
@@ -29767,11 +29890,11 @@ Object.defineProperties(Player.prototype, {
             return this._$colorTransform;
         },
         /**
-         * @param {array} colorTransform
+         * @param {array} color_transform
          */
-        set: function (colorTransform) {
-            if (this.$isArray(colorTransform)) {
-                this._$colorTransform = this.$cloneArray(colorTransform);
+        set: function (color_transform) {
+            if (this.$isArray(color_transform)) {
+                this._$colorTransform = this.$cloneArray(color_transform);
             }
         }
     },
@@ -29783,11 +29906,11 @@ Object.defineProperties(Player.prototype, {
             return this._$backgroundColor;
         },
         /**
-         * @param {string} backgroundColor
+         * @param {string} background_color
          */
-        set: function (backgroundColor) {
-            if (typeof backgroundColor === "string") {
-                this._$backgroundColor = backgroundColor;
+        set: function (background_color) {
+            if (typeof background_color === "string") {
+                this._$backgroundColor = background_color;
             }
         }
     },
@@ -29799,11 +29922,11 @@ Object.defineProperties(Player.prototype, {
             return this._$intervalId;
         },
         /**
-         * @param {number} intervalId
+         * @param {number} interval_id
          */
-        set: function (intervalId) {
-            if (typeof intervalId === "number") {
-                this._$intervalId = intervalId|0;
+        set: function (interval_id) {
+            if (typeof interval_id === "number") {
+                this._$intervalId = interval_id|0;
             }
         }
     },
@@ -29815,11 +29938,11 @@ Object.defineProperties(Player.prototype, {
             return this._$stopFlag;
         },
         /**
-         * @param {boolean} stopFlag
+         * @param {boolean} stop_flag
          */
-        set: function (stopFlag) {
-            if (typeof stopFlag === "boolean") {
-                this._$stopFlag = stopFlag;
+        set: function (stop_flag) {
+            if (typeof stop_flag === "boolean") {
+                this._$stopFlag = stop_flag;
             }
         }
     },
@@ -29831,11 +29954,11 @@ Object.defineProperties(Player.prototype, {
             return this._$isLoad;
         },
         /**
-         * @param {boolean} isLoad
+         * @param {boolean} is_load
          */
-        set: function (isLoad) {
-            if (typeof isLoad === "boolean") {
-                this._$isLoad = isLoad;
+        set: function (is_load) {
+            if (typeof is_load === "boolean") {
+                this._$isLoad = is_load;
             }
         }
     },
@@ -29847,11 +29970,11 @@ Object.defineProperties(Player.prototype, {
             return this._$loadStatus;
         },
         /**
-         * @param {number} loadStatus
+         * @param {number} load_status
          */
-        set: function (loadStatus) {
-            if (typeof loadStatus === "number") {
-                this._$loadStatus = loadStatus|0;
+        set: function (load_status) {
+            if (typeof load_status === "number") {
+                this._$loadStatus = load_status|0;
             }
         }
     },
@@ -29863,11 +29986,11 @@ Object.defineProperties(Player.prototype, {
             return this._$optionWidth;
         },
         /**
-         * @param {number} optionWidth
+         * @param {number} option_width
          */
-        set: function (optionWidth) {
-            if (typeof optionWidth === "number") {
-                this._$optionWidth = optionWidth|0;
+        set: function (option_width) {
+            if (typeof option_width === "number") {
+                this._$optionWidth = option_width|0;
             }
         }
     },
@@ -29879,11 +30002,11 @@ Object.defineProperties(Player.prototype, {
             return this._$optionHeight;
         },
         /**
-         * @param {number} optionHeight
+         * @param {number} option_height
          */
-        set: function (optionHeight) {
-            if (typeof optionHeight === "number") {
-                this._$optionHeight = optionHeight|0;
+        set: function (option_height) {
+            if (typeof option_height === "number") {
+                this._$optionHeight = option_height|0;
             }
         }
     },
@@ -29912,15 +30035,15 @@ Object.defineProperties(Player.prototype, {
             return this._$tagId;
         },
         /**
-         * @param {string} tagId
+         * @param {string} tag_id
          */
-        set: function (tagId) {
-            if (typeof tagId === "number") {
-                tagId = tagId + "";
+        set: function (tag_id) {
+            if (typeof tag_id === "number") {
+                tag_id = tag_id + "";
             }
 
-            if (typeof tagId === "string") {
-                this._$tagId = tagId;
+            if (typeof tag_id === "string") {
+                this._$tagId = tag_id;
             }
         }
     },
@@ -29932,11 +30055,11 @@ Object.defineProperties(Player.prototype, {
             return this._$FlashVars;
         },
         /**
-         * @param {object} FlashVars
+         * @param {object} flash_vars
          */
-        set: function (FlashVars) {
-            if (typeof FlashVars === "object") {
-                this._$FlashVars = FlashVars;
+        set: function (flash_vars) {
+            if (typeof flash_vars === "object") {
+                this._$FlashVars = flash_vars;
             }
         }
     },
@@ -30034,10 +30157,10 @@ Object.defineProperties(Player.prototype, {
             return this._$preContext;
         },
         /**
-         * @param {CanvasRenderingContext2D} preContext
+         * @param {CanvasRenderingContext2D} pre_context
          */
-        set: function (preContext) {
-            this._$preContext = preContext;
+        set: function (pre_context) {
+            this._$preContext = pre_context;
         }
     },
     hitContext: {
@@ -30048,10 +30171,10 @@ Object.defineProperties(Player.prototype, {
             return this._$hitContext;
         },
         /**
-         * @param {CanvasRenderingContext2D} hitContext
+         * @param {CanvasRenderingContext2D} hit_context
          */
-        set: function (hitContext) {
-            this._$hitContext = hitContext;
+        set: function (hit_context) {
+            this._$hitContext = hit_context;
         }
     },
     actions: {
@@ -30078,11 +30201,11 @@ Object.defineProperties(Player.prototype, {
             return this._$buttonHits;
         },
         /**
-         * @param {array} buttonHits
+         * @param {array} button_hits
          */
-        set: function (buttonHits) {
-            if (this.$isArray(buttonHits)) {
-                this._$buttonHits = buttonHits;
+        set: function (button_hits) {
+            if (this.$isArray(button_hits)) {
+                this._$buttonHits = button_hits;
             }
 
         }
@@ -30095,11 +30218,11 @@ Object.defineProperties(Player.prototype, {
             return this._$downEventHits;
         },
         /**
-         * @param {array} downEventHits
+         * @param {array} down_event_hits
          */
-        set: function (downEventHits) {
-            if (this.$isArray(downEventHits)) {
-                this._$downEventHits = downEventHits;
+        set: function (down_event_hits) {
+            if (this.$isArray(down_event_hits)) {
+                this._$downEventHits = down_event_hits;
             }
         }
     },
@@ -30111,11 +30234,11 @@ Object.defineProperties(Player.prototype, {
             return this._$moveEventHits;
         },
         /**
-         * @param {array} moveEventHits
+         * @param {array} move_event_hits
          */
-        set: function (moveEventHits) {
-            if (this.$isArray(moveEventHits)) {
-                this._$moveEventHits = moveEventHits;
+        set: function (move_event_hits) {
+            if (this.$isArray(move_event_hits)) {
+                this._$moveEventHits = move_event_hits;
             }
         }
     },
@@ -30127,11 +30250,11 @@ Object.defineProperties(Player.prototype, {
             return this._$upEventHits;
         },
         /**
-         * @param {array} upEventHits
+         * @param {array} up_event_hits
          */
-        set: function (upEventHits) {
-            if (this.$isArray(upEventHits)) {
-                this._$upEventHits = upEventHits;
+        set: function (up_event_hits) {
+            if (this.$isArray(up_event_hits)) {
+                this._$upEventHits = up_event_hits;
             }
         }
     },
@@ -30143,11 +30266,11 @@ Object.defineProperties(Player.prototype, {
             return this._$keyDownEventHits;
         },
         /**
-         * @param {array} keyDownEventHits
+         * @param {array} key_down_event_hits
          */
-        set: function (keyDownEventHits) {
-            if (this.$isArray(keyDownEventHits)) {
-                this._$keyDownEventHits = keyDownEventHits;
+        set: function (key_down_event_hits) {
+            if (this.$isArray(key_down_event_hits)) {
+                this._$keyDownEventHits = key_down_event_hits;
             }
         }
     },
@@ -30159,11 +30282,11 @@ Object.defineProperties(Player.prototype, {
             return this._$keyUpEventHits;
         },
         /**
-         * @param {array} keyUpEventHits
+         * @param {array} key_up_event_hits
          */
-        set: function (keyUpEventHits) {
-            if (this.$isArray(keyUpEventHits)) {
-                this._$keyUpEventHits = keyUpEventHits;
+        set: function (key_up_event_hits) {
+            if (this.$isArray(key_up_event_hits)) {
+                this._$keyUpEventHits = key_up_event_hits;
             }
         }
     }
@@ -30192,13 +30315,13 @@ Player.prototype.setBackgroundColor = function (r, g, b)
 };
 
 /**
- * @param   {number} stageId
+ * @param   {number} stage_id
  * @returns {Stage|null}
  */
-Player.prototype.getStageAt = function (stageId)
+Player.prototype.getStageAt = function (stage_id)
 {
-    if (stageId in this.$stages) {
-        return this.$stages[stageId];
+    if (stage_id in this.$stages) {
+        return this.$stages[stage_id];
     }
     return null;
 };

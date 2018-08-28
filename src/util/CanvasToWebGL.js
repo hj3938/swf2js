@@ -1,10 +1,7 @@
 /**
  * @constructor
  */
-var CanvasToWebGL = function ()
-{
-
-};
+var CanvasToWebGL = function () {};
 
 /**
  * enable

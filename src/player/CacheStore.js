@@ -42,21 +42,21 @@ CacheStore.prototype.reset = function ()
 };
 
 /**
- * @param   {CanvasRenderingContext2D|WebGLRenderingContext} ctx
+ * @param   {CanvasRenderingContext2D|WebGLRenderingContext} context
  * @returns void
  */
-CacheStore.prototype.destroy = function (ctx)
+CacheStore.prototype.destroy = function (context)
 {
-    var canvas = ctx.canvas;
+    var canvas = context.canvas;
     var width  = canvas.width|0;
     var height = canvas.height|0;
 
     this._$size = (this._$size + width * height)|0;
 
     if (this.$canWebGL) {
-        ctx.clear(ctx.STENCIL_BUFFER_BIT | ctx.COLOR_BUFFER_BIT);
+        context.clear(context.STENCIL_BUFFER_BIT | context.COLOR_BUFFER_BIT);
     } else {
-        ctx.clearRect(0, 0, width + 1, height + 1);
+        context.clearRect(0, 0, width + 1, height + 1);
     }
 
     // canvas reset
@@ -108,36 +108,36 @@ CacheStore.prototype.setCache = function (key, value)
 };
 
 /**
- * @param   {string} uniqueKey
- * @param   {array}  cxForm
+ * @param   {string} unique_key
+ * @param   {array}  color
  * @returns {string}
  */
-CacheStore.prototype.generateKey = function (uniqueKey, cxForm)
+CacheStore.prototype.generateKey = function (unique_key, color)
 {
     // color
     if (
-        this.$isArray(cxForm)
-        && cxForm.length === 8
+        this.$isArray(color)
+        && color.length === 8
         &&
-        (  cxForm[0] !== 1
-        || cxForm[1] !== 1
-        || cxForm[2] !== 1
-        || cxForm[3] !== 1
-        || cxForm[4] !== 0
-        || cxForm[5] !== 0
-        || cxForm[6] !== 0
-        || cxForm[7] !== 0)
+        (  color[0] !== 1
+        || color[1] !== 1
+        || color[2] !== 1
+        || color[3] !== 1
+        || color[4] !== 0
+        || color[5] !== 0
+        || color[6] !== 0
+        || color[7] !== 0)
     ) {
 
-        var R =   this.$max(0, this.$min((255 * cxForm[0]) + cxForm[4], 255))|0;
-        var G =   this.$max(0, this.$min((255 * cxForm[1]) + cxForm[5], 255))|0;
-        var B =   this.$max(0, this.$min((255 * cxForm[2]) + cxForm[6], 255))|0;
-        var A = +(this.$max(0, this.$min((255 * cxForm[3]) + cxForm[7], 255)) / 255);
+        var R =   this.$max(0, this.$min((255 * color[0]) + color[4], 255))|0;
+        var G =   this.$max(0, this.$min((255 * color[1]) + color[5], 255))|0;
+        var B =   this.$max(0, this.$min((255 * color[2]) + color[6], 255))|0;
+        var A = +(this.$max(0, this.$min((255 * color[3]) + color[7], 255)) / 255);
 
-        uniqueKey = uniqueKey +"_"+ R +"_"+ G +"_"+ B +"_"+ A;
+        unique_key = unique_key +"_"+ R +"_"+ G +"_"+ B +"_"+ A;
     }
 
-    return uniqueKey + "";
+    return unique_key + "";
 };
 
 Util.prototype.$cacheStore = new CacheStore();

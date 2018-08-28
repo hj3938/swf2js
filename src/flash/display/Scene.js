@@ -1,19 +1,35 @@
 /**
- * @param name
- * @param labels
- * @param numFrames
+ * @param {string} name
+ * @param {array}  labels
+ * @param {number} numFrames
  * @constructor
  */
 var Scene = function (name, labels, numFrames)
 {
-    // default
-    this._name      = name;
-    this._labels    = labels;
-    this._numFrames = numFrames;
+
+    OriginalObject.call(this);
+
+    this._$name = "";
+    if (typeof name === "string") {
+        this._$name = name;
+    }
+
+    this._$labels = null;
+    if (this.$isArray(labels)) {
+        this._$labels = labels;
+    }
+
+    this._$numFrames = null;
+    if (typeof numFrames === "number") {
+        this._$numFrames = numFrames|0;
+    }
+
+    this._$offset = 0;
 };
 
 /**
  * extends
+ * @type {OriginalObject}
  */
 Scene.prototype = Object.create(OriginalObject.prototype);
 Scene.prototype.constructor = Scene;
@@ -23,21 +39,46 @@ Scene.prototype.constructor = Scene;
  */
 Object.defineProperties(Scene.prototype, {
     labels: {
+        /**
+         * @return {array}
+         */
         get: function () {
-            return this._labels;
+            if (this._$labels !== null) {
+                return this._$labels;
+            }
+
+
         },
+        /**
+         * readonly
+         * @return void
+         */
         set: function () {}
     },
     name: {
+        /**
+         * @return {string}
+         */
         get: function () {
-            return this._name;
+            return this._$name;
         },
+        /**
+         * readonly
+         * @return void
+         */
         set: function () {}
     },
     numFrames: {
+        /**
+         * @return {number}
+         */
         get: function () {
-            return this._numFrames;
+            return this._$numFrames;
         },
+        /**
+         * readonly
+         * @return void
+         */
         set: function () {}
     }
 });
@@ -48,14 +89,4 @@ Object.defineProperties(Scene.prototype, {
 Scene.prototype.toString = function ()
 {
     return "[object Scene]";
-};
-
-/**
- * @param {string} name
- * @param {number} frame
- * @returns void
- */
-Scene.prototype.$addLabel = function (name, frame)
-{
-    this._labels[this._labels.length] = new FrameLabel(name, frame);
 };

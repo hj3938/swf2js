@@ -101,10 +101,10 @@ Shape.prototype._$getBounds = function (matrix)
  * @param   {MovieClip} parent
  * @param   {number}    index
  * @param   {object}    tag
- * @param   {boolean}   shouldAction
+ * @param   {boolean}   should_action
  * @returns {Shape}
  */
-Shape.prototype._$build = function (parent, index, tag, shouldAction)
+Shape.prototype._$build = function (parent, index, tag, should_action)
 {
     var shape = new Shape();
 
@@ -121,34 +121,34 @@ Shape.prototype._$build = function (parent, index, tag, shouldAction)
         shape._$clipDepth = tag.ClipDepth;
     }
 
-    // build PlaceObject
-    shape._$buildPlaceObject(parent, tag);
+    // common build
+    shape._$commonBuild(parent, tag);
 
     return shape;
 };
 
 /**
  * @param   {array}   matrix
- * @param   {array}   colorTransform
- * @param   {boolean} isClip
+ * @param   {array}   color_transform
+ * @param   {boolean} is_clip
  * @param   {boolean} visible
  * @returns void
  */
-Shape.prototype._$draw = function (matrix, colorTransform, isClip, visible)
+Shape.prototype._$draw = function (matrix, color_transform, is_clip, visible)
 {
 
     // pre context
     var ctx = this.parent.stage.player.preContext;
 
-    if (isClip || this._$clipDepth) {
+    if (is_clip || this._$clipDepth) {
 
         ctx.setTransform(matrix[0], matrix[1], matrix[2], matrix[3], matrix[4], matrix[5]);
-        this._$doDraw(ctx, this.$min(matrix[0], matrix[3]), colorTransform, isClip);
+        this._$doDraw(ctx, this.$min(matrix[0], matrix[3]), color_transform, is_clip);
 
         return ;
     }
 
-    var alpha = +(colorTransform[3] + (colorTransform[7] / 255));
+    var alpha = +(color_transform[3] + (color_transform[7] / 255));
     if (visible && alpha) {
 
         var xScale = +(this.$sqrt(matrix[0] * matrix[0] + matrix[1] * matrix[1]));
@@ -171,7 +171,7 @@ Shape.prototype._$draw = function (matrix, colorTransform, isClip, visible)
             var m = null;
 
             // get cache
-            var cacheKey = this.$cacheStore.generateKey(this.characterId, colorTransform);
+            var cacheKey = this.$cacheStore.generateKey(this.characterId, color_transform);
             var cache    = this.$cacheStore.getCache(cacheKey);
 
             // cache is small
@@ -189,7 +189,7 @@ Shape.prototype._$draw = function (matrix, colorTransform, isClip, visible)
 
                 cache.setTransform(xScale, 0, 0, yScale, -xMin * xScale, -yMin * yScale);
 
-                this._$doDraw(cache, this.$min(xScale, yScale), colorTransform, isClip);
+                this._$doDraw(cache, this.$min(xScale, yScale), color_transform, false);
 
                 this.$cacheStore.setCache(cacheKey, cache);
 
@@ -211,23 +211,21 @@ Shape.prototype._$draw = function (matrix, colorTransform, isClip, visible)
             } else {
 
                 ctx.setTransform(matrix[0], matrix[1], matrix[2], matrix[3], matrix[4], matrix[5]);
-                this._$doDraw(ctx, this.$min(matrix[0], matrix[3]), colorTransform, isClip);
+                this._$doDraw(ctx, this.$min(matrix[0], matrix[3]), color_transform, s);
 
             }
         }
-
     }
 };
 
 /**
- *
  * @param   {CanvasRenderingContext2D} ctx
- * @param   {number}  minScale
- * @param   {array}   colorTransform
- * @param   {boolean} isClip
- * @retuens void
+ * @param   {number}  min_scale
+ * @param   {array}   color_transform
+ * @param   {boolean} is_clip
+ * @returns void
  */
-Shape.prototype._$doDraw = function (ctx, minScale, colorTransform, isClip)
+Shape.prototype._$doDraw = function (ctx, min_scale, color_transform, is_clip)
 {
 
     var shapes = this._$data;
@@ -270,13 +268,13 @@ Shape.prototype._$doDraw = function (ctx, minScale, colorTransform, isClip)
                 // normal
                 case 0x00:
 
-                    color = this.$generateColorTransform(styleObj.Color, colorTransform);
+                    color = this.$generateColorTransform(styleObj.Color, color_transform);
                     css   = "rgba(" + color.R + "," + color.G + "," + color.B + "," + color.A + ")";
 
                     if (isStroke) {
 
                         ctx.strokeStyle = css;
-                        ctx.lineWidth   = +this.$max(obj.Width, 1 / minScale);
+                        ctx.lineWidth   = +this.$max(obj.Width, 1 / min_scale);
                         ctx.lineCap     = "round";
                         ctx.lineJoin    = "round";
                         ctx.stroke();
@@ -319,7 +317,7 @@ Shape.prototype._$doDraw = function (ctx, minScale, colorTransform, isClip)
 
                         var record = records[rIdx];
 
-                        color = this.$generateColorTransform(record.Color, colorTransform);
+                        color = this.$generateColorTransform(record.Color, color_transform);
 
                         var rgba   = "rgba(" + color.R + "," + color.G + "," + color.B + "," + color.A + ")";
                         css.addColorStop(record.Ratio, rgba);
@@ -330,7 +328,7 @@ Shape.prototype._$doDraw = function (ctx, minScale, colorTransform, isClip)
                     if (isStroke) {
 
                         ctx.strokeStyle = css;
-                        ctx.lineWidth   = this.$max(obj.Width, 1 / minScale);
+                        ctx.lineWidth   = this.$max(obj.Width, 1 / min_scale);
                         ctx.lineCap     = "round";
                         ctx.lineJoin    = "round";
                         ctx.stroke();
@@ -365,7 +363,7 @@ Shape.prototype._$doDraw = function (ctx, minScale, colorTransform, isClip)
                     var cacheKey = this.$cacheStore.generateKey(
                         bitmapId + "_" + this.characterId + "_" + repeat,
                         undefined,
-                        colorTransform
+                        color_transform
                     );
 
                     var image = this.$cacheStore.getCache(cacheKey);
@@ -376,12 +374,12 @@ Shape.prototype._$doDraw = function (ctx, minScale, colorTransform, isClip)
                             break;
                         }
 
-                        if (colorTransform[0] !== 1 ||
-                            colorTransform[1] !== 1 ||
-                            colorTransform[2] !== 1 ||
-                            colorTransform[4] ||
-                            colorTransform[5] ||
-                            colorTransform[6]
+                        if (color_transform[0] !== 1 ||
+                            color_transform[1] !== 1 ||
+                            color_transform[2] !== 1 ||
+                            color_transform[4] ||
+                            color_transform[5] ||
+                            color_transform[6]
                         ) {
 
                             var imgCanvas = image.canvas;
@@ -396,13 +394,13 @@ Shape.prototype._$doDraw = function (ctx, minScale, colorTransform, isClip)
                                 var imageContext = canvas.getContext("2d");
                                 imageContext.drawImage(image.canvas, 0, 0, width, height);
 
-                                image = this.$generateImageTransform(imageContext, colorTransform);
+                                image = this.$generateImageTransform(imageContext, color_transform);
 
                                 this.$cacheStore.setCache(cacheKey, image);
                             }
 
                         } else {
-                            ctx.globalAlpha = +(this.$max(0, this.$min((255 * colorTransform[3]) + colorTransform[7], 255)) / 255);
+                            ctx.globalAlpha = +(this.$max(0, this.$min((255 * color_transform[3]) + color_transform[7], 255)) / 255);
                         }
                     }
 
@@ -446,7 +444,7 @@ Shape.prototype._$doDraw = function (ctx, minScale, colorTransform, isClip)
         }
 
         // shape mask
-        if (this._$clipDepth && !isClip) {
+        if (this._$clipDepth && !is_clip) {
 
             ctx.clip();
 

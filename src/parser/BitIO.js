@@ -139,12 +139,12 @@ BitIO.prototype.unlzma = function (compressed, size)
     };
 
     /**
-     * @param {array} outStream
+     * @param {array} out_stream
      * @constructor
      */
-    var OutWindow = function (outStream)
+    var OutWindow = function (out_stream)
     {
-        this.outStream = outStream;
+        this.outStream = out_stream;
         this.buf       = null;
         this.pos       = 0;
         this.size      = 0;
@@ -154,13 +154,13 @@ BitIO.prototype.unlzma = function (compressed, size)
     };
 
     /**
-     * @param {number} dictSize
+     * @param {number} dict_size
      */
-    OutWindow.prototype.create = function (dictSize)
+    OutWindow.prototype.create = function (dict_size)
     {
-        this.buf      = (self.$canArrayBuffer) ? new Uint8Array(dictSize) : [];
+        this.buf      = (self.$canArrayBuffer) ? new Uint8Array(dict_size) : [];
         this.pos      = 0;
-        this.size     = dictSize;
+        this.size     = dict_size;
         this.isFull   = false;
         this.writePos = 0;
         this.totalPos = 0;
@@ -277,12 +277,12 @@ BitIO.prototype.unlzma = function (compressed, size)
     };
 
     /**
-     * @param {array} inStream
+     * @param {array} in_stream
      * @constructor
      */
-    var RangeDecoder = function (inStream)
+    var RangeDecoder = function (in_stream)
     {
-        this.inStream = inStream;
+        this.inStream = in_stream;
         this.range    = 0;
         this.code     = 0;
     };
@@ -315,16 +315,16 @@ BitIO.prototype.unlzma = function (compressed, size)
     };
 
     /**
-     * @param   {number} numBits
+     * @param   {number} num_bits
      * @returns {number}
      */
-    RangeDecoder.prototype.decodeDirectBits = function (numBits)
+    RangeDecoder.prototype.decodeDirectBits = function (num_bits)
     {
         var res   = 0;
         var range = this.range;
         var code  = this.code;
 
-        while (numBits) {
+        while (num_bits) {
             range = (range >>> 1) | 0;
             code = (code - range) | 0;
 
@@ -338,7 +338,7 @@ BitIO.prototype.unlzma = function (compressed, size)
 
             res = ((res << 1) + t + 1) | 0;
 
-            numBits = (numBits - 1)|0;
+            num_bits = (num_bits - 1)|0;
         }
 
         this.range = range;
@@ -387,13 +387,13 @@ BitIO.prototype.unlzma = function (compressed, size)
     };
 
     /**
-     * @param {number} numBits
+     * @param {number} num_bits
      * @constructor
      */
-    var BitTreeDecoder = function (numBits)
+    var BitTreeDecoder = function (num_bits)
     {
-        this.numBits = numBits;
-        this.probs   = this.createProbsArray(1 << numBits);
+        this.numBits = num_bits;
+        this.probs   = this.createProbsArray(1 << num_bits);
     };
 
     /**
@@ -441,16 +441,16 @@ BitIO.prototype.unlzma = function (compressed, size)
     /**
      * @param   {array}  probs
      * @param   {number} offset
-     * @param   {number} numBits
+     * @param   {number} num_bits
      * @param   {object} rc
      * @returns {number}
      */
-    BitTreeDecoder.prototype.bitTreeReverseDecode = function (probs, offset, numBits, rc)
+    BitTreeDecoder.prototype.bitTreeReverseDecode = function (probs, offset, num_bits, rc)
     {
         var m = 1;
         var symbol = 0;
         var i = 0;
-        while (i < numBits) {
+        while (i < num_bits) {
             var bit = rc.decodeBit(probs, m + offset);
             m = (m << 1) + bit;
             symbol |= bit << i;
@@ -488,18 +488,18 @@ BitIO.prototype.unlzma = function (compressed, size)
     };
 
     /**
-     * @param   {number} numBits
+     * @param   {number} num_bits
      * @param   {number} length
      * @returns {array}
      */
-    LenDecoder.prototype.createBitTreeDecoderArray = function (numBits, length)
+    LenDecoder.prototype.createBitTreeDecoderArray = function (num_bits, length)
     {
         var p = [];
         p.length = length;
 
         var i = 0;
         while (i < length) {
-            p[i] = new BitTreeDecoder(numBits);
+            p[i] = new BitTreeDecoder(num_bits);
             i = (i + 1)|0;
         }
 
@@ -508,17 +508,17 @@ BitIO.prototype.unlzma = function (compressed, size)
 
     /**
      * @param   {object} rc
-     * @param   {number} posState
+     * @param   {number} pos
      * @returns {number}
      */
-    LenDecoder.prototype.decode = function (rc, posState)
+    LenDecoder.prototype.decode = function (rc, pos)
     {
         if (rc.decodeBit(this.choice, 0) === 0) {
-            return this.lowCoder[posState].decode(rc);
+            return this.lowCoder[pos].decode(rc);
         }
 
         if (rc.decodeBit(this.choice, 1) === 0) {
-            return 8 + this.midCoder[posState].decode(rc);
+            return 8 + this.midCoder[pos].decode(rc);
         }
 
         return 16 + this.highCoder.decode(rc);
@@ -698,16 +698,16 @@ BitIO.prototype.unlzma = function (compressed, size)
     /**
      * @param   {array}  probs
      * @param   {number} offset
-     * @param   {number} numBits
+     * @param   {number} num_bits
      * @param   {object} rc
      * @returns {number}
      */
-    Decoder.prototype.bitTreeReverseDecode = function (probs, offset, numBits, rc)
+    Decoder.prototype.bitTreeReverseDecode = function (probs, offset, num_bits, rc)
     {
         var m = 1;
         var symbol = 0;
         var i = 0;
-        while (i < numBits) {
+        while (i < num_bits) {
             var bit = rc.decodeBit(probs, m + offset);
             m = (m << 1) + bit;
             symbol |= bit << i;
@@ -741,18 +741,21 @@ BitIO.prototype.unlzma = function (compressed, size)
     };
 
     /**
-     * @param   {number} numBits
+     * @param   {number} num_bits
      * @param   {number} length
      * @returns {array}
      */
-    Decoder.prototype.createBitTreeDecoderArray = function (numBits, length)
+    Decoder.prototype.createBitTreeDecoderArray = function (num_bits, length)
     {
         var p = [];
+
         p.length = length;
 
         var i = 0;
         while (i < length) {
-            p[i] = new BitTreeDecoder(numBits);
+
+            p[i] = new BitTreeDecoder(num_bits);
+
             i = (i + 1)|0;
         }
 
@@ -769,6 +772,7 @@ BitIO.prototype.unlzma = function (compressed, size)
         var i = 0;
         while (i < length) {
             p[i] = 1024;
+
             i = (i + 1)|0;
         }
         return p;
@@ -783,9 +787,9 @@ BitIO.prototype.unlzma = function (compressed, size)
         if (state < 4) {
             return 0;
         } else if (state < 10) {
-            return state - 3;
+            return (state - 3)|0;
         } else {
-            return state - 6;
+            return (state - 6)|0;
         }
     };
 
@@ -950,10 +954,10 @@ BitIO.prototype.unlzma = function (compressed, size)
 
 /**
  * @param   {array}   compressed
- * @param   {boolean} isDeCompress
+ * @param   {boolean} is_de_compress
  * @returns {array}
  */
-BitIO.prototype.unzip = function (compressed, isDeCompress)
+BitIO.prototype.unzip = function (compressed, is_de_compress)
 {
     var sym        = 0;
     var i          = 0;
@@ -997,7 +1001,7 @@ BitIO.prototype.unzip = function (compressed, isDeCompress)
     }
 
     var startOffset = 2;
-    if (isDeCompress) {
+    if (is_de_compress) {
         startOffset = 10;
     }
     bitio.setOffset(startOffset, 8);
@@ -1326,10 +1330,10 @@ BitIO.prototype.getData = function (length)
 
 /**
  * @param   {string|null}  value
- * @param   {boolean} isJis
+ * @param   {boolean} is_jis
  * @returns {string}
  */
-BitIO.prototype.getDataUntil = function (value, isJis)
+BitIO.prototype.getDataUntil = function (value, is_jis)
 {
     this.byteAlign();
 
@@ -1376,7 +1380,7 @@ BitIO.prototype.getDataUntil = function (value, isJis)
                 str = str.slice(0, -5);
             }
 
-            if (isJis) {
+            if (is_jis) {
                 ret = this.decodeToShiftJis(str);
             } else {
                 try {
@@ -1652,26 +1656,26 @@ BitIO.prototype.getSI24 = function ()
 };
 
 /**
- * @param   {number} byteInt
- * @param   {number} bitInt
+ * @param   {number} byte_int
+ * @param   {number} bit_int
  * @returns void
  */
-BitIO.prototype.incrementOffset = function (byteInt, bitInt)
+BitIO.prototype.incrementOffset = function (byte_int, bit_int)
 {
-    this.byte_offset = (this.byte_offset + byteInt)|0;
-    this.bit_offset  = (this.bit_offset  + bitInt)|0;
+    this.byte_offset = (this.byte_offset + byte_int)|0;
+    this.bit_offset  = (this.bit_offset  + bit_int)|0;
     this.byteCarry();
 };
 
 /**
- * @param   {number} byteInt
- * @param   {number} bitInt
+ * @param   {number} byte_int
+ * @param   {number} bit_int
  * @returns void
  */
-BitIO.prototype.setOffset = function (byteInt, bitInt)
+BitIO.prototype.setOffset = function (byte_int, bit_int)
 {
-    this.byte_offset = byteInt;
-    this.bit_offset  = bitInt;
+    this.byte_offset = byte_int;
+    this.bit_offset  = bit_int;
 };
 
 /**

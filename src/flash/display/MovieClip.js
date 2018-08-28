@@ -12,6 +12,7 @@ var MovieClip = function ()
     // property
     this._$currentFrame  = 1;
     this._$totalFrames   = 1;
+    this._$framesLoaded  = 1;
     this._$scenes        = [new Scene()];
     this._$isPlaying     = false;
     this._$enabled       = true;
@@ -34,7 +35,6 @@ MovieClip.prototype = Object.create(Sprite.prototype);
 MovieClip.prototype.constructor = MovieClip;
 
 /**
- * TODO
  * properties
  */
 Object.defineProperties(MovieClip.prototype, {
@@ -155,10 +155,12 @@ Object.defineProperties(MovieClip.prototype, {
             }
         }
     },
-    // TODO
     framesLoaded: {
+        /**
+         * @return {number}
+         */
         get: function () {
-            return this._$id;
+            return this._$framesLoaded;
         },
         /**
          * readonly
@@ -243,7 +245,6 @@ MovieClip.prototype._$addFrameLabel = function (frameLabel)
 };
 
 /**
- * TODO test
  * @param  {string} name
  * @return {FrameLabel|null}
  */
@@ -295,7 +296,6 @@ MovieClip.prototype._$addAction = function (frame, actionScript)
 };
 
 /**
- * TODO test
  * @param   {number|null|undefined} frame
  * @returns void
  */
@@ -324,7 +324,6 @@ MovieClip.prototype._$prepareActions = function (frame)
 };
 
 /**
- * TODO
  * @param   {ActionScript} script
  * @returns {Function}
  */
@@ -359,7 +358,6 @@ MovieClip.prototype._$addSound = function (frame, sound)
 };
 
 /**
- * TODO test
  * @param   {MovieClip} parent
  * @param   {number}    index
  * @param   {object}    tag
@@ -373,11 +371,12 @@ MovieClip.prototype._$build = function (parent, index, tag, shouldAction)
     var mc = new MovieClip();
 
     // init
-    mc.id            = index|0;
-    mc.characterId   = this.characterId;
-    mc.parent        = parent;
-    mc.stage         = parent.stage;
-    mc._$totalFrames = this._$totalFrames;
+    mc.id             = index|0;
+    mc.characterId    = this.characterId;
+    mc.parent         = parent;
+    mc.stage          = parent.stage;
+    mc._$totalFrames  = this._$totalFrames;
+    mc._$framesLoaded = this._$framesLoaded;
 
     // common build
     mc._$commonBuild(parent, tag);
@@ -512,7 +511,6 @@ MovieClip.prototype._$build = function (parent, index, tag, shouldAction)
 };
 
 /**
- * TODO test
  * @param {array}   matrix
  * @param {array}   colorTransform
  * @param {boolean} isClip
@@ -550,9 +548,7 @@ MovieClip.prototype._$draw = function (matrix, colorTransform, isClip, visible)
 
 
     // case action script3
-    if (version === ActionScriptVersion.ACTIONSCRIPT3
-        && (this._$endFrame === 0 || this._$endFrame !== this.parent.currentFrame)
-    ) {
+    if (version === ActionScriptVersion.ACTIONSCRIPT3) {
 
         // next frame
         this._$putFrame();
@@ -626,7 +622,6 @@ MovieClip.prototype._$draw = function (matrix, colorTransform, isClip, visible)
         // case action script 1 or 2
         if (instance.toString() === "[object MovieClip]"
             && version === ActionScriptVersion.ACTIONSCRIPT2
-            && (instance._$endFrame === 0 || instance._$endFrame !== frame)
         ) {
 
             instance._$putFrame();
@@ -657,7 +652,6 @@ MovieClip.prototype._$draw = function (matrix, colorTransform, isClip, visible)
     // case action script2
     if (this.toString() === "[object MainTimeline]"
         && version === ActionScriptVersion.ACTIONSCRIPT2
-        && (this._$endFrame === 0 || this._$endFrame !== this.parent.currentFrame)
     ) {
 
         // next frame
@@ -667,12 +661,14 @@ MovieClip.prototype._$draw = function (matrix, colorTransform, isClip, visible)
 };
 
 /**
- * TODO test
  * @returns void
  */
 MovieClip.prototype._$putFrame = function ()
 {
-    if (!this._$stopFlag && this.totalFrames > 1) {
+
+    if (!this._$stopFlag && this.totalFrames > 1
+        && (this._$endFrame === 0 || this._$endFrame !== this.parent.currentFrame)
+    ) {
 
         // loop or reset
         if (this.totalFrames === this.currentFrame) {
@@ -726,42 +722,24 @@ MovieClip.prototype.stop = function ()
 };
 
 /**
- * TODO test
- * @param   {number|string} frame
- * @param   {null|string}   scene
+ * @param   {number|string}    frame
+ * @param   {undefined|string} scene
  * @returns void
  */
 MovieClip.prototype.gotoAndPlay = function (frame, scene)
 {
-    // scene
-    if (scene !== undefined && typeof frame === "number") {
-        var target = this._$getScene(scene);
-        if (target) {
-            frame = (frame + target._$offset)|0;
-        }
-    }
-
-    this._$goToFrame(frame);
+    this._$goToFrame(frame, scene);
     this.play();
 };
 
 /**
- * TODO test
- * @param   {number|string} frame
- * @param   {null|string}   scene
+ * @param   {number|string}    frame
+ * @param   {undefined|string} scene
  * @returns void
  */
 MovieClip.prototype.gotoAndStop = function (frame, scene)
 {
-    // scene
-    if (scene !== undefined && typeof frame === "number") {
-        var target = this._$getScene(scene);
-        if (target) {
-            frame = (frame + target._$offset)|0;
-        }
-    }
-
-    this._$goToFrame(frame);
+    this._$goToFrame(frame, scene);
     this.stop();
 };
 
@@ -771,6 +749,7 @@ MovieClip.prototype.gotoAndStop = function (frame, scene)
 MovieClip.prototype.nextFrame = function ()
 {
     this._$goToFrame(this.currentFrame + 1);
+    this.stop();
 };
 
 /**
@@ -791,6 +770,7 @@ MovieClip.prototype.nextScene = function ()
 MovieClip.prototype.prevFrame = function ()
 {
     this._$goToFrame(this.currentFrame - 1);
+    this.stop();
 };
 
 /**
@@ -806,7 +786,6 @@ MovieClip.prototype.prevScene = function ()
 };
 
 /**
- * TODO test
  * @param  {string} type
  * @return {Scene|null}
  */
@@ -849,7 +828,6 @@ MovieClip.prototype._$getCurrentScene = function (type)
 };
 
 /**
- * TODO test
  * @param  {string} name
  * @return {Scene|null}
  */
@@ -877,13 +855,21 @@ MovieClip.prototype._$getScene = function (name)
 };
 
 /**
- * TODO test
- * @param   {number|string} frame
+ * @param   {number|string}    frame
+ * @param   {undefined|string} scene
  * @returns void
  */
-MovieClip.prototype._$goToFrame = function (frame)
+MovieClip.prototype._$goToFrame = function (frame, scene)
 {
+    // scene
+    if (scene !== undefined && typeof frame === "number") {
+        var target = this._$getScene(scene);
+        if (target) {
+            frame = (frame + target._$offset)|0;
+        }
+    }
 
+    // FrameLabel
     if (typeof frame === "string") {
 
         var frameLabel = this._$getFrameLabel(frame);

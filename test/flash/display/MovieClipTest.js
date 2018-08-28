@@ -261,6 +261,19 @@ describe("MovieClip.js property test", function()
     });
 
 
+    // framesLoaded
+    it("framesLoaded test success", function ()
+    {
+        var mc = new MovieClip();
+        expect(mc.framesLoaded).toBe(1);
+    });
+
+    it("framesLoaded test readonly", function ()
+    {
+        var mc = new MovieClip();
+        mc.framesLoaded = 10;
+        expect(mc.framesLoaded).toBe(1);
+    });
 });
 
 
@@ -368,10 +381,13 @@ describe("MovieClip.js gotoAndPlay test", function()
     {
         var mc = new MovieClip();
         mc._$totalFrames = 3;
+        mc.stop();
         expect(mc.currentFrame).toBe(1);
 
         mc.gotoAndPlay(2);
         expect(mc.currentFrame).toBe(2);
+
+        expect(mc._$stopFlag).toBe(false);
     });
 
 
@@ -379,6 +395,7 @@ describe("MovieClip.js gotoAndPlay test", function()
     {
         var mc = new MovieClip();
         mc._$totalFrames = 3;
+        mc.stop();
         expect(mc.currentFrame).toBe(1);
 
         mc._$addFrameLabel(new FrameLabel("f1", 1));
@@ -387,6 +404,8 @@ describe("MovieClip.js gotoAndPlay test", function()
 
         mc.gotoAndPlay("f2");
         expect(mc.currentFrame).toBe(2);
+
+        expect(mc._$stopFlag).toBe(false);
     });
 
 
@@ -394,9 +413,12 @@ describe("MovieClip.js gotoAndPlay test", function()
     {
         var mc = new MovieClip();
         mc._$totalFrames = 3;
+        mc.stop();
 
         mc.gotoAndPlay(0);
         expect(mc.currentFrame).toBe(1);
+
+        expect(mc._$stopFlag).toBe(false);
     });
 
 
@@ -404,9 +426,12 @@ describe("MovieClip.js gotoAndPlay test", function()
     {
         var mc = new MovieClip();
         mc._$totalFrames = 3;
+        mc.stop();
 
         mc.gotoAndPlay(4);
         expect(mc.currentFrame).toBe(1);
+
+        expect(mc._$stopFlag).toBe(false);
     });
 
 
@@ -414,6 +439,7 @@ describe("MovieClip.js gotoAndPlay test", function()
     {
         var mc = new MovieClip();
         mc._$totalFrames = 4;
+        mc.stop();
 
         var sceneA = new Scene("A", [], 2);
         sceneA._$offset = 0;
@@ -427,6 +453,8 @@ describe("MovieClip.js gotoAndPlay test", function()
 
         mc.gotoAndPlay(1, "B");
         expect(mc.currentFrame).toBe(3);
+
+        expect(mc._$stopFlag).toBe(false);
     });
 
 
@@ -434,6 +462,7 @@ describe("MovieClip.js gotoAndPlay test", function()
     {
         var mc = new MovieClip();
         mc._$totalFrames = 4;
+        mc.stop();
 
         var sceneA = new Scene("A", [], 2);
         sceneA._$offset = 0;
@@ -447,6 +476,8 @@ describe("MovieClip.js gotoAndPlay test", function()
 
         mc.gotoAndPlay(1, "C");
         expect(mc.currentFrame).toBe(1);
+
+        expect(mc._$stopFlag).toBe(false);
     });
 
 
@@ -454,6 +485,7 @@ describe("MovieClip.js gotoAndPlay test", function()
     {
         var mc = new MovieClip();
         mc._$totalFrames = 4;
+        mc.stop();
 
         var sceneA = new Scene("A", [], 2);
         sceneA._$offset = 0;
@@ -467,6 +499,8 @@ describe("MovieClip.js gotoAndPlay test", function()
 
         mc.gotoAndPlay(3, "A");
         expect(mc.currentFrame).toBe(3);
+
+        expect(mc._$stopFlag).toBe(false);
     });
 
 
@@ -474,6 +508,7 @@ describe("MovieClip.js gotoAndPlay test", function()
     {
         var mc = new MovieClip();
         mc._$totalFrames = 4;
+        mc.stop();
 
         mc._$addFrameLabel(new FrameLabel("f1", 1));
         mc._$addFrameLabel(new FrameLabel("f2", 2));
@@ -492,15 +527,311 @@ describe("MovieClip.js gotoAndPlay test", function()
         mc.gotoAndPlay("f3", "B");
         expect(mc.currentFrame).toBe(3);
 
+        expect(mc._$stopFlag).toBe(false);
     });
-
-
 });
 
 
+describe("MovieClip.js gotoAndStop test", function()
+{
+
+    it("gotoAndStop test success case number", function ()
+    {
+        var mc = new MovieClip();
+        mc._$totalFrames = 3;
+        expect(mc.currentFrame).toBe(1);
+
+        mc.gotoAndStop(2);
+        expect(mc.currentFrame).toBe(2);
+
+        expect(mc._$stopFlag).toBe(true);
+    });
 
 
+    it("gotoAndStop test success case string", function ()
+    {
+        var mc = new MovieClip();
+        mc._$totalFrames = 3;
+        mc.play();
+        expect(mc.currentFrame).toBe(1);
+
+        mc._$addFrameLabel(new FrameLabel("f1", 1));
+        mc._$addFrameLabel(new FrameLabel("f2", 2));
+        mc._$addFrameLabel(new FrameLabel("f3", 3));
+
+        mc.gotoAndStop("f2");
+        expect(mc.currentFrame).toBe(2);
+
+        expect(mc._$stopFlag).toBe(true);
+    });
 
 
+    it("gotoAndStop test valid case1", function ()
+    {
+        var mc = new MovieClip();
+        mc._$totalFrames = 3;
+        mc.play();
+
+        mc.gotoAndStop(0);
+        expect(mc.currentFrame).toBe(1);
+
+        expect(mc._$stopFlag).toBe(true);
+    });
 
 
+    it("gotoAndStop test valid case2", function ()
+    {
+        var mc = new MovieClip();
+        mc._$totalFrames = 3;
+        mc.play();
+
+        mc.gotoAndStop(4);
+        expect(mc.currentFrame).toBe(1);
+
+        expect(mc._$stopFlag).toBe(true);
+    });
+
+
+    it("gotoAndStop scene test success", function ()
+    {
+        var mc = new MovieClip();
+        mc._$totalFrames = 4;
+        mc.play();
+
+        var sceneA = new Scene("A", [], 2);
+        sceneA._$offset = 0;
+
+        var sceneB = new Scene("B", [], 2);
+        sceneB._$offset = 2;
+
+        mc._$scenes = [sceneA, sceneB];
+
+        expect(mc.currentFrame).toBe(1);
+
+        mc.gotoAndStop(1, "B");
+        expect(mc.currentFrame).toBe(3);
+
+        expect(mc._$stopFlag).toBe(true);
+    });
+
+
+    it("gotoAndStop scene test valid case1", function ()
+    {
+        var mc = new MovieClip();
+        mc._$totalFrames = 4;
+        mc.play();
+
+        var sceneA = new Scene("A", [], 2);
+        sceneA._$offset = 0;
+
+        var sceneB = new Scene("B", [], 2);
+        sceneB._$offset = 2;
+
+        mc._$scenes = [sceneA, sceneB];
+
+        expect(mc.currentFrame).toBe(1);
+
+        mc.gotoAndStop(1, "C");
+        expect(mc.currentFrame).toBe(1);
+
+        expect(mc._$stopFlag).toBe(true);
+    });
+
+
+    it("gotoAndStop scene test valid case2", function ()
+    {
+        var mc = new MovieClip();
+        mc._$totalFrames = 4;
+        mc.play();
+
+        var sceneA = new Scene("A", [], 2);
+        sceneA._$offset = 0;
+
+        var sceneB = new Scene("B", [], 2);
+        sceneB._$offset = 2;
+
+        mc._$scenes = [sceneA, sceneB];
+
+        expect(mc.currentFrame).toBe(1);
+
+        mc.gotoAndStop(3, "A");
+        expect(mc.currentFrame).toBe(3);
+
+        expect(mc._$stopFlag).toBe(true);
+    });
+
+
+    it("gotoAndStop scene test valid case3", function ()
+    {
+        var mc = new MovieClip();
+        mc._$totalFrames = 4;
+        mc.play();
+
+        mc._$addFrameLabel(new FrameLabel("f1", 1));
+        mc._$addFrameLabel(new FrameLabel("f2", 2));
+        mc._$addFrameLabel(new FrameLabel("f3", 3));
+
+        var sceneA = new Scene("A", [], 2);
+        sceneA._$offset = 0;
+
+        var sceneB = new Scene("B", [], 2);
+        sceneB._$offset = 2;
+
+        mc._$scenes = [sceneA, sceneB];
+
+        expect(mc.currentFrame).toBe(1);
+
+        mc.gotoAndStop("f3", "B");
+        expect(mc.currentFrame).toBe(3);
+
+        expect(mc._$stopFlag).toBe(true);
+    });
+});
+
+
+describe("MovieClip.js nextFrame test", function()
+{
+    it("nextFrame test success", function ()
+    {
+        var mc = new MovieClip();
+        mc._$totalFrames = 3;
+        mc.play();
+
+        expect(mc._$stopFlag).toBe(false);
+        expect(mc.currentFrame).toBe(1);
+
+        mc.nextFrame();
+        expect(mc.currentFrame).toBe(2);
+        expect(mc._$stopFlag).toBe(true);
+
+        mc.nextFrame();
+        expect(mc.currentFrame).toBe(3);
+        expect(mc._$stopFlag).toBe(true);
+
+        mc.nextFrame();
+        expect(mc.currentFrame).toBe(1);
+        expect(mc._$stopFlag).toBe(true);
+    });
+});
+
+
+describe("MovieClip.js prevFrame test", function()
+{
+    it("prevFrame test success", function ()
+    {
+        var mc = new MovieClip();
+        mc._$totalFrames  = 3;
+        mc._$currentFrame = 3;
+        mc.play();
+
+        expect(mc._$stopFlag).toBe(false);
+        expect(mc.currentFrame).toBe(3);
+
+        mc.prevFrame();
+        expect(mc.currentFrame).toBe(2);
+        expect(mc._$stopFlag).toBe(true);
+
+        mc.prevFrame();
+        expect(mc.currentFrame).toBe(1);
+        expect(mc._$stopFlag).toBe(true);
+
+        mc.prevFrame();
+        expect(mc.currentFrame).toBe(1);
+        expect(mc._$stopFlag).toBe(true);
+    });
+});
+
+
+describe("MovieClip.js nextScene test", function()
+{
+    it("nextScene test success", function ()
+    {
+        var mc = new MovieClip();
+        mc._$totalFrames = 4;
+        mc.stop();
+
+        var sceneA = new Scene("A", [], 2);
+        sceneA._$offset = 0;
+
+        var sceneB = new Scene("B", [], 2);
+        sceneB._$offset = 2;
+
+        mc._$scenes = [sceneA, sceneB];
+
+        expect(mc.currentFrame).toBe(1);
+
+        mc.nextScene();
+        expect(mc.currentFrame).toBe(3);
+        expect(mc._$stopFlag).toBe(false);
+    });
+
+    it("nextScene test valid", function ()
+    {
+        var mc = new MovieClip();
+        mc._$totalFrames  = 4;
+        mc._$currentFrame = 3;
+        mc.stop();
+
+        var sceneA = new Scene("A", [], 2);
+        sceneA._$offset = 0;
+
+        var sceneB = new Scene("B", [], 2);
+        sceneB._$offset = 2;
+
+        mc._$scenes = [sceneA, sceneB];
+
+        expect(mc.currentFrame).toBe(3);
+
+        mc.nextScene();
+        expect(mc.currentFrame).toBe(3);
+        expect(mc._$stopFlag).toBe(false);
+    });
+});
+
+
+describe("MovieClip.js prevScene test", function()
+{
+    it("prevScene test success", function ()
+    {
+        var mc = new MovieClip();
+        mc._$totalFrames  = 4;
+        mc._$currentFrame = 3;
+        mc.stop();
+
+        var sceneA = new Scene("A", [], 2);
+        sceneA._$offset = 0;
+
+        var sceneB = new Scene("B", [], 2);
+        sceneB._$offset = 2;
+
+        mc._$scenes = [sceneA, sceneB];
+
+        expect(mc.currentFrame).toBe(3);
+
+        mc.prevScene();
+        expect(mc.currentFrame).toBe(1);
+        expect(mc._$stopFlag).toBe(false);
+    });
+
+    it("prevScene test valid", function ()
+    {
+        var mc = new MovieClip();
+        mc._$totalFrames  = 4;
+        mc._$currentFrame = 1;
+        mc.stop();
+
+        var sceneA = new Scene("A", [], 2);
+        sceneA._$offset = 0;
+
+        var sceneB = new Scene("B", [], 2);
+        sceneB._$offset = 2;
+
+        mc._$scenes = [sceneA, sceneB];
+
+        expect(mc.currentFrame).toBe(1);
+
+        mc.prevScene();
+        expect(mc.currentFrame).toBe(1);
+        expect(mc._$stopFlag).toBe(false);
+    });
+});

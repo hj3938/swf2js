@@ -126,7 +126,8 @@ SwfTag.prototype.showFrame = function (parent, tags, frame, cache_place_objects)
     var installed = [];
 
     // add total frame
-    parent._$totalFrames = frame;
+    parent._$totalFrames  = frame;
+    parent._$framesLoaded = frame;
 
 
     // action script

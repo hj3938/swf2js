@@ -14,7 +14,7 @@ describe("MovieClip.js toString test", function()
 
 describe("MovieClip.js property test", function()
 {
-    //currentFrame
+    // currentFrame
     it("currentFrame test success", function ()
     {
         var mc = new MovieClip();

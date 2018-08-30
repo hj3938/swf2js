@@ -361,10 +361,10 @@ MovieClip.prototype._$addSound = function (frame, sound)
  * @param   {MovieClip} parent
  * @param   {number}    index
  * @param   {object}    tag
- * @param   {boolean}   shouldAction
+ * @param   {boolean}   should_action
  * @returns {MovieClip}
  */
-MovieClip.prototype._$build = function (parent, index, tag, shouldAction)
+MovieClip.prototype._$build = function (parent, index, tag, should_action)
 {
     var length, frame;
 
@@ -490,7 +490,7 @@ MovieClip.prototype._$build = function (parent, index, tag, shouldAction)
 
 
     var nextAction = false;
-    if (shouldAction && mc.ratio === 0) {
+    if (should_action && mc.ratio === 0) {
 
         var controller = parent._$getController(parent.currentFrame);
 
@@ -511,12 +511,13 @@ MovieClip.prototype._$build = function (parent, index, tag, shouldAction)
 };
 
 /**
- * @param {array}   matrix
- * @param {array}   colorTransform
- * @param {boolean} isClip
- * @param {boolean} visible
+ * @param  {array}   matrix
+ * @param  {array}   color_transform
+ * @param  {boolean} is_clip
+ * @param  {boolean} visible
+ * @return void
  */
-MovieClip.prototype._$draw = function (matrix, colorTransform, isClip, visible)
+MovieClip.prototype._$draw = function (matrix, color_transform, is_clip, visible)
 {
 
     var instance, length, idx;
@@ -528,6 +529,8 @@ MovieClip.prototype._$draw = function (matrix, colorTransform, isClip, visible)
     var frame      = this.currentFrame|0;
     var version    = this.root.actionScriptVersion|0;
 
+
+    // build controller
     var controller = [];
     var instances  = this._$instances;
 
@@ -594,18 +597,18 @@ MovieClip.prototype._$draw = function (matrix, colorTransform, isClip, visible)
             clips[clips.length] = instance._$clipDepth|0;
 
             if (instance.toString() === "[object MovieClip]") {
-                isClip = true;
+                is_clip = true;
             }
         }
 
-        // matrix and colorTransform
+        // Transform
         var transform = instance.transform;
 
         // next draw
         instance._$draw(
             this.$multiplicationMatrix(matrix, transform.matrix._$matrix),
-            this.$multiplicationColor(colorTransform, transform.colorTransform._$colorTransform),
-            isClip,
+            this.$multiplicationColor(color_transform, transform.colorTransform._$colorTransform),
+            is_clip,
             visible
         );
 
@@ -615,7 +618,7 @@ MovieClip.prototype._$draw = function (matrix, colorTransform, isClip, visible)
 
             ctx.clip();
 
-            isClip = false;
+            is_clip = false;
         }
 
 

@@ -790,7 +790,6 @@ SwfTag.prototype.parseTags = function (data_length, parent)
  */
 SwfTag.prototype.parseTag = function (tag_type, length, parent, frame, tags, cache_place_objects)
 {
-
     var obj = null;
 
     switch (tag_type) {
@@ -853,7 +852,7 @@ SwfTag.prototype.parseTag = function (tag_type, length, parent, frame, tags, cac
             break;
         case 7:  // DefineButton
         case 34: // DefineButton2
-            obj = this.parseDefineButton(tag_type, length);
+            this.parseDefineButton(tag_type, length);
             break;
         case 43: // FrameLabel
             tags.frameLabel[tags.frameLabel.length] = this.parseFrameLabel();
@@ -3022,45 +3021,52 @@ SwfTag.prototype.parseRemoveObject = function (tag_type)
 /**
  * @param   {number} tag_type
  * @param   {number} length
- * @returns {object}
  */
 SwfTag.prototype.parseDefineButton = function (tag_type, length)
 {
-    var obj = {};
-    obj.tagType   = tag_type;
 
     var endOffset = (this.bitio.byte_offset + length)|0;
-    obj.ButtonId  = this.bitio.getUI16();
 
-    var ActionOffset = 0;
+    // create SimpleButton
+    var button = new SimpleButton();
+
+    // characterId
+    button.characterId = this.bitio.getUI16()|0;
+
+    var offset = 0;
     if (tag_type !== 7) {
-        obj.ReservedFlags = this.bitio.getUIBits(7);
-        obj.TrackAsMenu   = this.bitio.getUIBits(1);
-        ActionOffset      = this.bitio.getUI16();
+        // Reserved
+        this.bitio.getUIBits(7);
+
+        button.trackAsMenu = this.bitio.getUIBits(1) ? true : false;
+
+        offset = this.bitio.getUI16()|0;
     }
 
-    obj.characters = this.buttonCharacters(endOffset);
+    // action characters
+    button._$characters = this.buttonCharacters(endOffset);
 
     // actionScript
     if (tag_type === 7) {
 
-        var offset = (endOffset - this.bitio.byte_offset)|0;
+        offset = (endOffset - this.bitio.byte_offset)|0;
 
         if (offset > 0) {
-            obj.actions = this.parseDoAction(offset);
+            button._$actions = this.parseDoAction(offset);
         }
 
-    } else if (ActionOffset > 0) {
-        obj.actions = this.buttonActions(endOffset);
+    } else if (offset > 0) {
+        button._$actions = this.buttonActions(endOffset);
     }
 
     // set layer
-    this.setCharacter(obj.ButtonId, obj);
+    this.setCharacter(button.characterId, button);
+
     if (this.bitio.byte_offset !== endOffset) {
         this.bitio.byte_offset = endOffset|0;
     }
 
-    return obj;
+    console.log(button);
 };
 
 /**
@@ -3077,18 +3083,14 @@ SwfTag.prototype.buttonCharacters = function (offset)
         var cacheOffset = this.bitio.byte_offset|0;
 
         var record = this.buttonRecord();
+
+        // prev
         if (this.bitio.byte_offset > offset) {
             this.bitio.byte_offset = cacheOffset|0;
             break;
         }
 
-        var depth = record.Depth;
-        if (!(record.Depth in characters)) {
-            characters[depth] = [];
-        }
-
-        var length = characters[depth].length;
-        characters[depth][length] = record;
+        characters[characters.length] = record;
     }
 
     return characters;

@@ -42,7 +42,7 @@ Object.defineProperties(Sprite.prototype, {
     },
     dropTarget: {
         /**
-         * @returns {DisplayObject}
+         * @returns {DisplayObject|null}
          */
         get: function () {
             return this._$dropTarget;
@@ -195,6 +195,7 @@ Sprite.prototype._$draw = function (matrix, color_transform, is_clip, visible)
     }
 
     // children draw
+    var version = this.root.actionScriptVersion|0;
     for (var depth in controller) {
 
         if (!controller.hasOwnProperty(depth)) {
@@ -202,6 +203,12 @@ Sprite.prototype._$draw = function (matrix, color_transform, is_clip, visible)
         }
 
         instance = controller[depth];
+        if (version === ActionScriptVersion.ACTIONSCRIPT3) {
+
+            // next frame
+            instance._$putFrame();
+
+        }
 
         // Transform
         var transform = instance.transform;
@@ -213,5 +220,103 @@ Sprite.prototype._$draw = function (matrix, color_transform, is_clip, visible)
             is_clip,
             visible
         );
+
+        // case action script 1 or 2
+        if (instance.toString() === "[object MovieClip]"
+            && version === ActionScriptVersion.ACTIONSCRIPT2
+        ) {
+
+            instance._$putFrame();
+
+        }
     }
+};
+
+/**
+ * @param  {array|null|undefined} matrix
+ * @return {{xMin: number, xMax: number, yMin: number, yMax: number}}
+ */
+Sprite.prototype._$getBounds = function (matrix)
+{
+    var xMax = 0;
+    var yMax = 0;
+    var xMin = 0;
+    var yMin = 0;
+
+    // var graphics = this.graphics;
+    // var isDraw = graphics.isDraw;
+    //
+    // if (isDraw) {
+    //     var maxWidth  = graphics.maxWidth;
+    //     var halfWidth = maxWidth / 2;
+    //     var gBounds   = this.boundsMatrix(graphics.bounds, matrix);
+    //     var twips = (matrix) ? 20 : 1;
+    //     xMin = +((gBounds.xMin - halfWidth) / twips);
+    //     xMax = +((gBounds.xMax + halfWidth) / twips);
+    //     yMin = +((gBounds.yMin - halfWidth) / twips);
+    //     yMax = +((gBounds.yMax + halfWidth) / twips);
+    // }
+
+    var instances  = this._$instances;
+
+    var length = instances.length;
+    var idx    = 0;
+    while (length > idx) {
+
+        var instance = instances[idx];
+        idx = (idx + 1)|0;
+
+        // Transform
+        var transform = instance.transform;
+
+        var bounds  = instance._$getBounds(
+            matrix ? this.$multiplicationMatrix(matrix, transform.matrix._$matrix) : transform.matrix._$matrix
+        );
+
+        xMin = +this.$min(xMin, bounds.xMin);
+        xMax = +this.$max(xMax, bounds.xMax);
+        yMin = +this.$min(yMin, bounds.yMin);
+        yMax = +this.$max(yMax, bounds.yMax);
+    }
+
+    return {
+        xMin: xMin,
+        xMax: xMax,
+        yMin: yMin,
+        yMax: yMax
+    };
+};
+
+/**
+ * @param  {number} x
+ * @param  {number} y
+ * @param  {array}  matrix
+ * @return {boolean}
+ */
+Sprite.prototype._$hit = function (x, y, matrix)
+{
+    var instances = this._$instances;
+
+    var length = instances.length;
+    var idx    = 0;
+    while (length > idx) {
+
+        var instance = instances[idx];
+        idx = (idx + 1)|0;
+
+        // Transform
+        var transform = instance.transform;
+
+        // next hit test
+        var hit = instance._$hit(
+            x, y,
+            this.$multiplicationMatrix(matrix, transform.matrix._$matrix)
+        );
+
+        if (hit) {
+            return hit;
+        }
+    }
+
+    return false;
 };

@@ -75,8 +75,8 @@ VectorToCanvas.prototype.convert = function (shapes, is_morph)
         i = (i + 1)|0;
 
         if (!record) {
-            stack = this.setStack(stack, lines);
             stack = this.setStack(stack, this.fillMerge(fills0, fills1, is_morph));
+            stack = this.setStack(stack, lines);
             break;
         }
 
@@ -85,8 +85,8 @@ VectorToCanvas.prototype.convert = function (shapes, is_morph)
             if (record.StateNewStyles) {
                 AnchorX = 0;
                 AnchorY = 0;
-                stack   = this.setStack(stack, lines);
                 stack   = this.setStack(stack, this.fillMerge(fills0, fills1, is_morph));
+                stack   = this.setStack(stack, lines);
                 fills0  = [];
                 fills1  = [];
                 lines   = [];

@@ -7016,10 +7016,10 @@ Object.defineProperties(DisplayObjectContainer.prototype, {
 });
 
 /**
- * @param   {boolean} shouldAction
+ * @param   {boolean} should_action
  * @returns void
  */
-DisplayObjectContainer.prototype._$characterBuild = function (shouldAction)
+DisplayObjectContainer.prototype._$characterBuild = function (should_action)
 {
     var id = 0;
     var length = this._$dictionary.length|0;
@@ -7027,7 +7027,7 @@ DisplayObjectContainer.prototype._$characterBuild = function (shouldAction)
     while (length > id) {
 
         // attach
-        this._$createInstance(id, shouldAction);
+        this._$createInstance(id, should_action);
 
         id = (id + 1)|0;
     }
@@ -7035,15 +7035,15 @@ DisplayObjectContainer.prototype._$characterBuild = function (shouldAction)
 
 /**
  * @param   {number}  id
- * @param   {boolean} shouldAction
+ * @param   {boolean} should_action
  * @returns void
  */
-DisplayObjectContainer.prototype._$createInstance = function (id, shouldAction)
+DisplayObjectContainer.prototype._$createInstance = function (id, should_action)
 {
     // build
     var tag       = this._$dictionary[id];
     var character = this.stage._$characters[tag.CharacterId];
-    var obj       = character._$build(this, id, tag, shouldAction);
+    var obj       = character._$build(this, id, tag, should_action);
 
     this._$addInstance(id, obj);
 };
@@ -7404,15 +7404,17 @@ DisplayObjectContainer.prototype.removeChildren = function (beginIndex, endIndex
  */
 var Sprite = function ()
 {
+
     DisplayObjectContainer.call(this);
 
-    this.touchPointID     = 0;
+    // properties
     this._$buttonMode     = false;
-    this._$useHandCursor  = false;
     this._$dropTarget     = null;
-    this._$hitArea        = null;
     this._$graphics       = new Graphics();
+    this._$hitArea        = null;
     this._$soundTransform = new SoundTransform();
+    this._$useHandCursor  = false;
+
 };
 
 /**
@@ -7426,6 +7428,32 @@ Sprite.prototype.constructor = Sprite;
  * properties
  */
 Object.defineProperties(Sprite.prototype, {
+    buttonMode: {
+        /**
+         * @returns {boolean}
+         */
+        get: function () {
+            return this._$buttonMode;
+        },
+        set: function (button_mode) {
+            if (typeof button_mode === "boolean") {
+                this._$buttonMode = button_mode;
+            }
+        }
+    },
+    dropTarget: {
+        /**
+         * @returns {DisplayObject}
+         */
+        get: function () {
+            return this._$dropTarget;
+        },
+        /**
+         * readonly
+         * @return void
+         */
+        set: function () {}
+    },
     graphics: {
         /**
          * @returns {Graphics}
@@ -7435,39 +7463,24 @@ Object.defineProperties(Sprite.prototype, {
         },
         /**
          * readonly
+         * @return void
          */
         set: function () {}
     },
     hitArea: {
         /**
-         * @returns {DisplayObject|null}
+         * @returns {Sprite|null}
          */
         get: function () {
             return this._$hitArea;
         },
         /**
-         *
-         * @param {DisplayObject|null} hitArea
+         * @param  {Sprite|null} hit_area
+         * @return void
          */
-        set: function (hitArea) {
-            if (hitArea instanceof DisplayObject || hitArea === null) {
-                this._$hitArea = hitArea;
-            }
-        }
-    },
-    buttonMode: {
-        /**
-         * @returns {boolean}
-         */
-        get: function () {
-            return this._$buttonMode;
-        },
-        /**
-         * @param {boolean} buttonMode
-         */
-        set: function (buttonMode) {
-            if (typeof buttonMode === "boolean") {
-                this._$buttonMode = buttonMode;
+        set: function (hit_area) {
+            if (hit_area === null || hit_area instanceof Sprite) {
+                this._$hitArea = hit_area;
             }
         }
     },
@@ -7479,9 +7492,14 @@ Object.defineProperties(Sprite.prototype, {
             return this._$soundTransform;
         },
         /**
-         * readonly
+         * @param  {SoundTransform} sound_transform
+         * @return void
          */
-        set: function () {}
+        set: function (sound_transform) {
+            if (sound_transform instanceof SoundTransform) {
+                this._$soundTransform = sound_transform;
+            }
+        }
     },
     useHandCursor: {
         /**
@@ -7491,603 +7509,112 @@ Object.defineProperties(Sprite.prototype, {
             return this._$useHandCursor;
         },
         /**
-         * @param {boolean} useHandCursor
+         * @param  {boolean} use_hand_cursor
+         * @return void
          */
-        set: function (useHandCursor) {
-            if (typeof useHandCursor === "boolean") {
-                this._$useHandCursor = useHandCursor;
+        set: function (use_hand_cursor) {
+            if (typeof use_hand_cursor === "boolean") {
+                this._$useHandCursor = use_hand_cursor;
             }
-        }
-    },
-    dropTarget: {
-        /**
-         * @returns {DisplayObject|null}
-         */
-        get: function () {
-            return this._$dropTarget;
-        },
-        /**
-         * readonly
-         */
-        set: function () {
         }
     }
 });
 
-
-
 /**
- * startTouchDrag
+ * @returns {string}
  */
-Sprite.prototype.startTouchDrag = function (touchPointID, lock, bounds)
+Sprite.prototype.toString = function ()
 {
-    this.startDrag(lock);
+    return "[object Sprite]";
 };
 
 /**
- * @param touchPointID
+ * @param  {boolean}   lock_center
+ * @param  {Rectangle} bounds
+ * @return void
  */
-Sprite.prototype.stopTouchDrag = function (touchPointID)
+Sprite.prototype.startDrag = function (lock_center, bounds)
 {
-    this.stopDrag();
+
+
 };
 
 /**
- * startDrag
+ * @param  {number}    touch_point_id
+ * @param  {boolean}   lock_center
+ * @param  {Rectangle} bounds
+ * @return void
  */
-Sprite.prototype.startDrag = function ()
+Sprite.prototype.startTouchDrag = function (touch_point_id, lock_center, bounds)
 {
-    var args   = arguments;
-    var lock   = args[0];
-    var left   = args[1];
-    var top    = args[2];
-    var right  = args[3];
-    var bottom = args[4];
 
-    var _root  = this.getDisplayObject("_root");
-    var stage  = _root.getStage();
-    var startX = 0;
-    var startY = 0;
-    if (!lock) {
-        startX = this.getXMouse();
-        startY = this.getYMouse();
-    }
 
-    stage.dragMc    = this;
-    stage.dragRules = {
-        startX: startX,
-        startY: startY,
-        left:   left,
-        top:    top,
-        right:  right,
-        bottom: bottom
-    };
-
-    this.setDropTarget();
 };
 
 /**
- * stopDrag
+ * @return void
  */
 Sprite.prototype.stopDrag = function ()
 {
-    var _root = this.getDisplayObject("_root");
-    var stage = _root.getStage();
 
-    stage.dragMc    = null;
-    stage.dragRules = null;
 
-    this.setDropTarget();
 };
 
 /**
- * executeDrag
+ * @param  {number} touch_point_id
+ * @return void
  */
-Sprite.prototype.executeDrag = function ()
+Sprite.prototype.stopTouchDrag = function (touch_point_id)
 {
-    var _root = this.getDisplayObject("_root");
-    var stage = _root.getStage();
 
-    var dragRules = stage.dragRules;
 
-    var startX = dragRules.startX;
-    var startY = dragRules.startY;
-
-    var left   = dragRules.left;
-    var top    = dragRules.top;
-    var right  = dragRules.right;
-    var bottom = dragRules.bottom;
-
-    var x = this.getX();
-    var y = this.getY();
-
-    var xmouse = this.getXMouse();
-    var ymouse = this.getYMouse();
-
-    xmouse = xmouse - startX;
-    ymouse = ymouse - startY;
-
-    var moveX = x + xmouse;
-    var moveY = y + ymouse;
-
-    if (left === null || left === undefined) {
-        this.setX(moveX);
-        this.setY(moveY);
-    } else {
-        left   = +left;
-        top    = +top;
-        right  = +right;
-        bottom = +bottom;
-
-        // x
-        if (right < moveX) {
-            this.setX(right);
-        } else if (moveX < left) {
-            this.setX(left);
-        } else {
-            this.setX(moveX);
-        }
-
-        // y
-        if (bottom < moveY) {
-            this.setY(bottom);
-        } else if (moveY < top) {
-            this.setY(top);
-        } else {
-            this.setY(moveY);
-        }
-    }
 };
 
 /**
- *
- * @returns {null|*}
+ * @param  {array}   matrix
+ * @param  {array}   color_transform
+ * @param  {boolean} is_clip
+ * @param  {boolean} visible
+ * @return void
  */
-Sprite.prototype.getDropTarget = function ()
+Sprite.prototype._$draw = function (matrix, color_transform, is_clip, visible)
 {
-    return this._droptarget;
-};
+    var instance;
+    var controller = [];
+    var instances  = this._$instances;
 
-/**
- * setDropTarget
- */
-Sprite.prototype.setDropTarget = function ()
-{
-    this._droptarget = null;
+    // build controller
+    var length = instances.length;
+    var idx    = 0;
+    while (length > idx) {
 
-    var _root  = this.getDisplayObject("_root");
-    var stage  = _root.getStage();
-    var parent = this.getParent();
-    if (!parent) {
-        parent = stage.getParent();
+        instance = instances[idx];
+
+        controller[instance._$index] = instance;
+
+        idx = (idx + 1)|0;
     }
 
-    var x = _root.getXMouse();
-    var y = _root.getYMouse();
+    // children draw
+    for (var depth in controller) {
 
-    var tags = parent.getTags();
-    for (var depth in tags) {
-        if (!tags.hasOwnProperty(depth)) {
+        if (!controller.hasOwnProperty(depth)) {
             continue;
         }
 
-        var id = tags[depth];
-        if (id === this.instanceId) {
-            continue;
-        }
+        instance = controller[depth];
 
-        var instance = stage.getInstance(id);
-        if (!(instance instanceof MovieClip)) {
-            continue;
-        }
+        // Transform
+        var transform = instance.transform;
 
-        var hit = instance.hitTest(x, y);
-        if (hit) {
-            this._droptarget = instance;
-            break;
-        }
+        // next draw
+        instance._$draw(
+            this.$multiplicationMatrix(matrix, transform.matrix._$matrix),
+            this.$multiplicationColor(color_transform, transform.colorTransform._$colorTransform),
+            is_clip,
+            visible
+        );
     }
-};
-
-/**
- * @returns {Array}
- */
-Sprite.prototype.getTags = function ()
-{
-    return this.getContainer();
-};
-
-/**
- * @param ctx
- * @param matrix
- * @param colorTransform
- * @param stage
- * @param visible
- */
-Sprite.prototype.render = function (ctx, matrix, colorTransform, stage, visible)
-{
-    if (this.removeFlag) {
-        return "";
-    }
-
-    this.isLoad = true;
-    stage.doneTags.unshift(this);
-
-    // sound
-    if (this.getClassName() === "MovieClip" && !this.soundStopFlag) {
-        var sounds = this.getSounds();
-        if (sounds !== undefined) {
-            var sLen = sounds.length|0;
-            for (var idx = 0; idx < sLen; idx++) {
-                if (!(idx in sounds)) {
-                    continue;
-                }
-
-                var sound = sounds[idx];
-                this.startSound(sound);
-            }
-        }
-    }
-
-    // matrix & colorTransform
-    var rMatrix         = this.$multiplicationMatrix(matrix, this.getMatrix());
-    var rColorTransform = this.$multiplicationColor(colorTransform, this.getColorTransform());
-    var isVisible       = this.$min(this.getVisible(), visible)|0;
-
-    // pre render
-    var obj       = this.preRender(ctx, rMatrix, rColorTransform, stage, visible);
-    var cacheKey  = obj.cacheKey;
-    var preCtx    = obj.preCtx;
-    var preMatrix = obj.preMatrix;
-
-    // render
-    var clips     = [];
-    var container = this.getTags();
-    var length    = container.length|0;
-    if (length) {
-        var myStage = this.getStage();
-        for (var depth in container) {
-            if (!container.hasOwnProperty(depth)) {
-                continue;
-            }
-
-            var instanceId = container[depth]|0;
-            var instance   = myStage.getInstance(instanceId);
-            if (!instance) {
-                continue;
-            }
-
-            // mask end
-            var cLen = clips.length|0;
-            var cIdx = 0;
-            while (cIdx < cLen) {
-                var cDepth = clips[cIdx];
-                if (depth > cDepth) {
-                    clips.splice(cIdx, 1);
-                    ctx.restore();
-                    break;
-                }
-                cIdx = (cIdx + 1)|0;
-            }
-
-            // mask start
-            if (instance.isClipDepth) {
-                ctx.save();
-                ctx.beginPath();
-
-                clips[clips.length] = instance.clipDepth|0;
-                if (instance.getClassName() === "MovieClip") {
-                    stage.isClipDepth = true;
-                }
-            }
-
-            if (isVisible === 1) {
-                instance.setHitRange(rMatrix, stage, visible, cLen);
-            }
-
-            // mask
-            if (instance.isMask) {
-                continue;
-            }
-
-            if (instance.isClipDepth) {
-                switch (0) {
-                    case preMatrix[0]:
-                        preMatrix[0] = 0.00000000000001;
-                        break;
-                    case preMatrix[3]:
-                        preMatrix[3] = 0.00000000000001;
-                        break;
-                }
-            }
-
-            cacheKey = cacheKey + instance.render(preCtx, preMatrix, rColorTransform, stage, isVisible);
-            if (stage.isClipDepth) {
-                preCtx.clip();
-                stage.isClipDepth = false;
-            }
-        }
-    }
-
-    if (clips.length || this.getMask()) {
-        ctx.restore();
-    }
-
-    // post render
-    if (obj.isFilter || obj.isBlend) {
-        obj.cacheKey = cacheKey;
-        this.postRender(ctx, rMatrix, rColorTransform, stage, obj);
-    }
-
-    return cacheKey;
-};
-
-/**
- * initFrame
- */
-Sprite.prototype.initFrame = function () {};
-
-/**
- * @param stage
- * @param clipEvent
- */
-Sprite.prototype.putFrame = function (stage, clipEvent)
-{
-    this.active = true;
-    this.dispatchEvent(clipEvent, stage);
-};
-
-/**
- * @param stage
- */
-Sprite.prototype.addActions = function (stage)
-{
-    var myStage = this.getStage();
-    var tags    = this.getTags();
-    var length  = tags.length;
-    if (length) {
-        for (var depth in tags) {
-            if (!tags.hasOwnProperty(depth)) {
-                continue;
-            }
-
-            var instanceId = tags[depth];
-            var instance   = myStage.getInstance(instanceId);
-            if (!instance) {
-                continue;
-            }
-
-            instance.addActions(stage);
-        }
-    }
-};
-
-/**
- * @param ctx
- * @param matrix
- * @param stage
- * @param x
- * @param y
- * @returns {boolean}
- */
-Sprite.prototype.renderHitTest = function (ctx, matrix, stage, x, y)
-{
-    var loadStage = this.getStage();
-    var tags      = this.getTags();
-    var length    = tags.length;
-    var hit       = false;
-    var rMatrix   = this.$multiplicationMatrix(matrix, this.getMatrix());
-
-    if (length) {
-        for (var depth in tags) {
-            if (!tags.hasOwnProperty(depth)) {
-                continue;
-            }
-
-            var instanceId = tags[depth];
-            var obj        = loadStage.getInstance(instanceId);
-
-            hit = obj.renderHitTest(ctx, rMatrix, stage, x, y);
-            if (hit) {
-                return hit;
-            }
-        }
-    }
-
-    var graphics = this.graphics;
-    if (graphics.isDraw) {
-        return graphics.renderHitTest(ctx, rMatrix, stage, x, y);
-    }
-
-    return hit;
-};
-
-/**
- * @param mc
- * @returns {{xMin: *, xMax: number, yMin: *, yMax: number}}
- */
-Sprite.prototype.getRect = function (mc)
-{
-    if (!mc) {
-        mc = this;
-    }
-
-    var bounds    = mc.getBounds(mc.getOriginMatrix());
-    var graphics  = this.graphics;
-    var twips     = 20;
-    var maxWidth  = graphics.maxWidth / twips;
-    var halfWidth = maxWidth / 2;
-
-    var xMin = bounds.xMin + halfWidth;
-    var xMax = bounds.xMax - halfWidth;
-    var yMin = bounds.yMin + halfWidth;
-    var yMax = bounds.yMax - halfWidth;
-
-    return {
-        xMin: xMin,
-        xMax: xMax,
-        yMin: yMin,
-        yMax: yMax
-    };
-};
-
-/**
- * @param matrix
- * @returns {{}}
- */
-Sprite.prototype.getBounds = function (matrix)
-{
-    if (matrix instanceof MovieClip) {
-        return matrix.getBounds(matrix.getOriginMatrix());
-    }
-
-    var tags = this.getTags();
-    var xMax = 0;
-    var yMax = 0;
-    var xMin = 0;
-    var yMin = 0;
-
-    var graphics = this.graphics;
-    var isDraw = graphics.isDraw;
-    if (isDraw) {
-        var maxWidth  = graphics.maxWidth;
-        var halfWidth = maxWidth / 2;
-        var gBounds   = this.boundsMatrix(graphics.bounds, matrix);
-        var twips = (matrix) ? 20 : 1;
-        xMin = +((gBounds.xMin - halfWidth) / twips);
-        xMax = +((gBounds.xMax + halfWidth) / twips);
-        yMin = +((gBounds.yMin - halfWidth) / twips);
-        yMax = +((gBounds.yMax + halfWidth) / twips);
-    }
-
-    var length = tags.length|0;
-    var stage  = this.getStage();
-    if (length) {
-        if (!isDraw) {
-            var no = this.$Number.MAX_VALUE;
-            xMax = -no;
-            yMax = -no;
-            xMin = no;
-            yMin = no;
-        }
-
-        for (var depth in tags) {
-            if (!tags.hasOwnProperty(depth)) {
-                continue;
-            }
-
-            var instanceId = tags[depth]|0;
-            var tag = stage.getInstance(instanceId);
-            if (!tag || tag.isClipDepth) {
-                continue;
-            }
-
-            var matrix2 = (matrix) ? this.$multiplicationMatrix(matrix, tag.getMatrix()) : tag.getMatrix();
-            var bounds  = tag.getBounds(matrix2);
-            if (!bounds) {
-                continue;
-            }
-
-            xMin = +this.$min(xMin, bounds.xMin);
-            xMax = +this.$max(xMax, bounds.xMax);
-            yMin = +this.$min(yMin, bounds.yMin);
-            yMax = +this.$max(yMax, bounds.yMax);
-        }
-    }
-
-    return {
-        xMin: xMin,
-        xMax: xMax,
-        yMin: yMin,
-        yMax: yMax
-    };
-};
-
-/**
- * @param ctx
- * @param matrix
- * @param stage
- * @param x
- * @param y
- * @returns {*}
- */
-Sprite.prototype.hitCheck = function (ctx, matrix, stage, x, y)
-{
-    if (!this.getEnabled() ||
-        !this.getVisible() ||
-        !this.getMouseEnabled()
-    ) {
-        return false;
-    }
-
-    var hitObj;
-    var hit = false;
-    var matrix2 = this.$multiplicationMatrix(matrix, this.getMatrix());
-
-    var tags   = this.getTags();
-    var length = 0 | tags.length;
-    if (length) {
-        var loadStage = this.getStage();
-
-        tags.reverse();
-        for (var depth in tags) {
-            if (!tags.hasOwnProperty(depth)) {
-                continue;
-            }
-
-            var tagId    = tags[depth];
-            var instance = loadStage.getInstance(tagId);
-
-            switch (instance.getClassName()) {
-                case "Shape":
-                case "StaticText":
-                case "TextField":
-                    hit = instance.renderHitTest(ctx, matrix2, stage, x, y);
-                    break;
-                default:
-                    hit = instance.hitCheck(ctx, matrix2, stage, x, y);
-                    break;
-            }
-
-            if (hit) {
-                hitObj = hit;
-                if (typeof hit !== "object") {
-                    var events = this.events;
-                    if (events.press !== undefined ||
-                        events.release !== undefined ||
-                        events.releaseOutside !== undefined ||
-                        events.rollOver !== undefined ||
-                        events.rollOut !== undefined ||
-                        events.dragOver !== undefined ||
-                        events.dragOut !== undefined
-                    ) {
-                        stage.isHit = hit;
-                        hitObj = {
-                            parent : this
-                        };
-                    }
-                }
-
-                tags.reverse();
-
-                return hitObj;
-            }
-        }
-
-        tags.reverse();
-    }
-
-    var graphics = this.graphics;
-    if (graphics.isDraw) {
-        hit = graphics.renderHitTest(ctx, matrix2, stage, x, y);
-        if (hit) {
-            hitObj = {
-                parent : this
-            };
-        }
-    }
-
-    return hitObj;
 };
 /**
  * @constructor
@@ -10211,10 +9738,10 @@ MovieClip.prototype._$addSound = function (frame, sound)
  * @param   {MovieClip} parent
  * @param   {number}    index
  * @param   {object}    tag
- * @param   {boolean}   shouldAction
+ * @param   {boolean}   should_action
  * @returns {MovieClip}
  */
-MovieClip.prototype._$build = function (parent, index, tag, shouldAction)
+MovieClip.prototype._$build = function (parent, index, tag, should_action)
 {
     var length, frame;
 
@@ -10340,7 +9867,7 @@ MovieClip.prototype._$build = function (parent, index, tag, shouldAction)
 
 
     var nextAction = false;
-    if (shouldAction && mc.ratio === 0) {
+    if (should_action && mc.ratio === 0) {
 
         var controller = parent._$getController(parent.currentFrame);
 
@@ -10361,12 +9888,13 @@ MovieClip.prototype._$build = function (parent, index, tag, shouldAction)
 };
 
 /**
- * @param {array}   matrix
- * @param {array}   colorTransform
- * @param {boolean} isClip
- * @param {boolean} visible
+ * @param  {array}   matrix
+ * @param  {array}   color_transform
+ * @param  {boolean} is_clip
+ * @param  {boolean} visible
+ * @return void
  */
-MovieClip.prototype._$draw = function (matrix, colorTransform, isClip, visible)
+MovieClip.prototype._$draw = function (matrix, color_transform, is_clip, visible)
 {
 
     var instance, length, idx;
@@ -10378,6 +9906,8 @@ MovieClip.prototype._$draw = function (matrix, colorTransform, isClip, visible)
     var frame      = this.currentFrame|0;
     var version    = this.root.actionScriptVersion|0;
 
+
+    // build controller
     var controller = [];
     var instances  = this._$instances;
 
@@ -10444,18 +9974,18 @@ MovieClip.prototype._$draw = function (matrix, colorTransform, isClip, visible)
             clips[clips.length] = instance._$clipDepth|0;
 
             if (instance.toString() === "[object MovieClip]") {
-                isClip = true;
+                is_clip = true;
             }
         }
 
-        // matrix and colorTransform
+        // Transform
         var transform = instance.transform;
 
         // next draw
         instance._$draw(
             this.$multiplicationMatrix(matrix, transform.matrix._$matrix),
-            this.$multiplicationColor(colorTransform, transform.colorTransform._$colorTransform),
-            isClip,
+            this.$multiplicationColor(color_transform, transform.colorTransform._$colorTransform),
+            is_clip,
             visible
         );
 
@@ -10465,7 +9995,7 @@ MovieClip.prototype._$draw = function (matrix, colorTransform, isClip, visible)
 
             ctx.clip();
 
-            isClip = false;
+            is_clip = false;
         }
 
 
@@ -10973,6 +10503,7 @@ var Shape = function ()
 {
     DisplayObject.call(this);
 
+    // origin param
     this._$data     = null;
     this._$graphics = new Graphics();
 
@@ -11455,16 +10986,35 @@ Shape.prototype._$doDraw = function (ctx, min_scale, color_transform, is_clip)
     }
 };
 /**
+ * @param {DisplayObject|null} upState
+ * @param {DisplayObject|null} overState
+ * @param {DisplayObject|null} downState
+ * @param {DisplayObject|null} hitTestState
  * @constructor
  */
-var SimpleButton = function ()
+var SimpleButton = function (upState, overState, downState, hitTestState)
 {
     InteractiveObject.call(this);
-    this._downState = new Sprite();
-    this._hitState  = new Sprite();
-    this._overState = new Sprite();
-    this._upState   = new Sprite();
-    this.actions    = [];
+
+    // properties
+    this._$downState      = null;
+    this._$enabled        = true;
+    this._$hitTestState   = null;
+    this._$overState      = null;
+    this._$soundTransform = new SoundTransform();
+    this._$trackAsMenu    = false;
+    this._$upState        = null;
+    this._$useHandCursor  = true;
+
+    // set
+    this.downState        = downState;
+    this.hitTestState     = hitTestState;
+    this.overState        = overState;
+    this.upState          = upState;
+
+    // origin param
+    this._$actions        = [];
+    this._$characters     = [];
 };
 
 /**
@@ -11479,35 +11029,138 @@ SimpleButton.prototype.constructor = SimpleButton;
  */
 Object.defineProperties(SimpleButton.prototype, {
     downState: {
+        /**
+         * @return {DisplayObject}
+         */
         get: function () {
-            return this.getSprite("down");
+            return this._$downState;
         },
-        set: function (sprite) {
-            this.setSprite("down", sprite);
+        /**
+         * @param  {DisplayObject} down_state
+         * @return void
+         */
+        set: function (down_state) {
+            if (down_state instanceof DisplayObject) {
+                this._$downState = down_state;
+            }
         }
     },
-    hitState: {
+    enabled: {
+        /**
+         * @return {boolean}
+         */
         get: function () {
-            return this.getSprite("hit");
+            return this._$enabled;
         },
-        set: function (sprite) {
-            this.setSprite("hit", sprite);
+        /**
+         * @param  {boolean} enabled
+         * @return void
+         */
+        set: function (enabled) {
+            if (typeof enabled === "boolean") {
+                this._$enabled = enabled;
+            }
+        }
+    },
+    hitTestState: {
+        /**
+         * @return {DisplayObject}
+         */
+        get: function () {
+            return this._$hitTestState;
+        },
+        /**
+         * @param  {DisplayObject} hit_test_state
+         * @return void
+         */
+        set: function (hit_test_state) {
+            if (hit_test_state instanceof DisplayObject) {
+                this._$hitTestState = hit_test_state;
+            }
         }
     },
     overState: {
+        /**
+         * @return {DisplayObject}
+         */
         get: function () {
-            return this.getSprite("over");
+            return this._$overState;
         },
-        set: function (sprite) {
-            this.setSprite("over", sprite);
+        /**
+         * @param  {DisplayObject} over_state
+         * @return void
+         */
+        set: function (over_state) {
+            if (over_state instanceof DisplayObject) {
+                this._$overState = over_state;
+            }
+        }
+    },
+    soundTransform: {
+        /**
+         * @return {SoundTransform}
+         */
+        get: function () {
+            return this._$soundTransform;
+        },
+        /**
+         * @param  {SoundTransform} sound_transform
+         * @return void
+         */
+        set: function (sound_transform) {
+            if (sound_transform instanceof SoundTransform) {
+                this._$soundTransform = sound_transform;
+            }
+        }
+    },
+    trackAsMenu: {
+        /**
+         * @return {boolean}
+         */
+        get: function () {
+            return this._$trackAsMenu;
+        },
+        /**
+         * @param {boolean} track_as_menu
+         */
+        set: function (track_as_menu) {
+            if (typeof track_as_menu === "boolean") {
+                this._$trackAsMenu = track_as_menu;
+            }
         }
     },
     upState: {
+        /**
+         * @return {DisplayObject}
+         */
         get: function () {
-            return this.getSprite("up");
+            return this._$upState;
         },
-        set: function (sprite) {
-            this.setSprite("up", sprite);
+        /**
+         * @param  {DisplayObject} up_state
+         * @return void
+         */
+        set: function (up_state) {
+            if (up_state instanceof DisplayObject) {
+                this._$upState = up_state;
+            }
+        }
+    },
+    useHandCursor: {
+        /**
+         * @return {boolean}
+         */
+        get: function () {
+            return this._$useHandCursor;
+        },
+        /**
+         * @param  {boolean} use_hand_cursor
+         * @return void
+         */
+        set: function (use_hand_cursor) {
+            if (typeof use_hand_cursor === "boolean") {
+                this._$useHandCursor = use_hand_cursor;
+            }
         }
     }
 });
@@ -11515,438 +11168,134 @@ Object.defineProperties(SimpleButton.prototype, {
 /**
  * @returns {string}
  */
-SimpleButton.prototype.getClassName = function ()
+SimpleButton.prototype.toString = function ()
 {
-    return "SimpleButton";
+    return "[object SimpleButton]";
 };
 
 /**
- *
- * @returns {Array|ActionScript|*|actions}
+ * @param   {MovieClip}    parent
+ * @param   {number}       index
+ * @param   {object}       tag
+ * @param   {boolean}      should_action
+ * @returns {SimpleButton}
  */
-SimpleButton.prototype.getActions = function ()
+SimpleButton.prototype._$build = function (parent, index, tag, should_action)
 {
-    return this.actions;
-};
+    var button = new SimpleButton();
+    var stage  = parent.stage;
 
-/**
- * @param actions
- */
-SimpleButton.prototype.setActions = function (actions)
-{
-    this.actions = actions;
-};
+    // init
+    button.id          = index;
+    button.characterId = this.characterId;
+    button.parent      = parent;
+    button.stage       = stage;
 
-/**
- * @param status
- */
-SimpleButton.prototype.setButtonStatus = function (status)
-{
-    if (this.getButtonStatus() !== status) {
-        this.buttonReset(status);
-    }
-    this.buttonStatus = status;
-};
+    // common build
+    button._$commonBuild(parent, tag);
 
-/**
- * @param status
- * @returns {*}
- */
-SimpleButton.prototype.getSprite = function (status)
-{
-    if (!status) {
-        status = this.buttonStatus;
+    /**
+     * set place data
+     */
+    // name
+    if (tag.PlaceFlagHasName === 1) {
+        button.name = tag.Name;
     }
 
-    status += "State";
-    return this["_" + status];
-};
 
-/**
- * @param status
- * @param sprite
- */
-SimpleButton.prototype.setSprite = function (status, sprite)
-{
-    var stage = this.getStage();
+    var length = this._$characters.length;
+    var idx    = 0;
 
-    var level = 0;
-    switch (status) {
-        case "down":
-            level = 1;
-            break;
-        case "hit":
-            level = 2;
-            break;
-        case "over":
-            level = 3;
-            break;
-        case "up":
-            level = 4;
-            break;
-    }
+    // state init
+    var downState    = new Sprite();
+    var hitTestState = new Sprite();
+    var overState    = new Sprite();
+    var upState      = new Sprite();
 
-    stage.setPlaceObject(new PlaceObject(), this.instanceId, level, 0);
-    sprite.setParent(this);
-    sprite.setLevel(level);
-    sprite.setStage(stage);
+    // build children
+    var characters = stage._$characters;
+    while (length > idx) {
 
-    var container = sprite.getContainer();
-    for (var depth in container) {
-        if (!container.hasOwnProperty(depth)) {
-            continue;
+        var btnTag = this._$characters[idx];
+
+        // set new button
+        button._$characters[idx] = btnTag;
+
+        // state character
+        var character = characters[btnTag.CharacterId];
+
+        var id = 0;
+        if (btnTag.ButtonStateDown) {
+            id = downState._$instances.length|0;
+            downState._$instances[id] = this._$buildChild(parent, id, btnTag, character);
         }
 
-        var instanceId = container[depth];
-        var obj        = stage.getInstance(instanceId);
-        obj.setParentSprite(sprite);
+        if (btnTag.ButtonStateHitTest) {
+            id = hitTestState._$instances.length|0;
+            hitTestState._$instances[id] = this._$buildChild(parent, id, btnTag, character);
+        }
+
+        if (btnTag.ButtonStateOver) {
+            id = overState._$instances.length|0;
+            overState._$instances[id] = this._$buildChild(parent, id, btnTag, character);
+        }
+
+        if (btnTag.ButtonStateUp) {
+            id = upState._$instances.length|0;
+            upState._$instances[id] = this._$buildChild(parent, id, btnTag, character);
+        }
+
+        idx = (idx + 1)|0;
     }
 
-    status += "State";
-    this["_" + status] = sprite;
+    // set state
+    button.downState    = downState;
+    button.hitTestState = hitTestState;
+    button.overState    = overState;
+    button.upState      = upState;
+
+    return button;
 };
 
 /**
- * @param matrix
- * @param status
- * @returns {{xMin: number, xMax: number, yMin: number, yMax: number}}
+ * @param  {MovieClip}     parent
+ * @param  {number}        id
+ * @param  {object}        tag
+ * @param  {DisplayObject} character
+ * @return {DisplayObject}
  */
-SimpleButton.prototype.getBounds = function (matrix, status)
+SimpleButton.prototype._$buildChild = function (parent, id, tag, character)
 {
-    var xMax = 0;
-    var yMax = 0;
-    var xMin = 0;
-    var yMin = 0;
 
-    var sprite = this.getSprite(status);
-    var tags   = sprite.getContainer();
-    var length = tags.length|0;
-    if (length) {
-        var stage = this.getStage();
+    var instance = character._$build(parent, id, tag, false);
 
-        var no = this.$Number.MAX_VALUE;
-        xMax   = -no;
-        yMax   = -no;
-        xMin   = no;
-        yMin   = no;
+    // Matrix
+    var matrix                  = new Matrix();
+    matrix._$matrix             = this.$cloneArray(tag.Matrix);
+    instance.transform._$matrix = matrix;
 
-        for (var depth in tags) {
-            if (!tags.hasOwnProperty(depth)) {
-                continue;
-            }
+    // ColorTransform
+    var colorTransform                  = new ColorTransform();
+    colorTransform._$colorTransform     = this.$cloneArray(tag.ColorTransform);
+    instance.transform._$colorTransform = colorTransform;
 
-            var instanceId = tags[depth]|0;
-            var tag        = stage.getInstance(instanceId);
-            if (!tag || tag.isClipDepth) {
-                continue;
-            }
+    // TODO filter and blend
 
-            var matrix2 = (matrix) ? this.$multiplicationMatrix(matrix, tag.getMatrix()) : tag.getMatrix();
-            var bounds  = tag.getBounds(matrix2, status);
-            if (!bounds) {
-                continue;
-            }
-            xMin = +this.$min(xMin, bounds.xMin);
-            xMax = +this.$max(xMax, bounds.xMax);
-            yMin = +this.$min(yMin, bounds.yMin);
-            yMax = +this.$max(yMax, bounds.yMax);
-        }
-    }
-    return {
-        xMin: xMin,
-        xMax: xMax,
-        yMin: yMin,
-        yMax: yMax
-    };
+    return instance;
 };
 
 /**
- * @param status
+ * @param   {array}   matrix
+ * @param   {array}   color_transform
+ * @param   {boolean} is_clip
+ * @param   {boolean} visible
+ * @returns void
  */
-SimpleButton.prototype.buttonReset = function (status)
+SimpleButton.prototype._$draw = function (matrix, color_transform, is_clip, visible)
 {
-    var sprite    = this.getSprite();
-    var container = sprite.getContainer();
-
-    var nextSprite    = this.getSprite(status);
-    var nextContainer = nextSprite.getContainer();
-
-    var stage = this.getStage();
-    for (var depth in container) {
-        if (!container.hasOwnProperty(depth)) {
-            continue;
-        }
-
-        var instanceId = container[depth]|0;
-        if (depth in nextContainer && instanceId === nextContainer[depth]) {
-            continue;
-        }
-
-        var instance = stage.getInstance(instanceId);
-        if (!instance) {
-            continue;
-        }
-
-        instance.reset();
-    }
+    var state = this.upState;
+    state._$draw(matrix, color_transform, is_clip, visible);
 };
-
-/**
- * @param matrix
- * @param stage
- * @param visible
- * @param mask
- */
-SimpleButton.prototype.setHitRange = function (matrix, stage, visible, mask)
-{
-    var isVisible = this.$min(this.getVisible(), visible)|0;
-    if (!this.clipDepth && this.getEnabled() && isVisible === 1) {
-        var buttonHits = stage.buttonHits;
-
-        // enter
-        if (this.$isTouch) {
-            var actions = this.getActions();
-
-            var aLen = actions.length|0;
-            if (aLen) {
-                var idx = 0;
-                while (idx < aLen) {
-                    var cond = actions[idx];
-                    if (cond.CondKeyPress === 13) {
-                        buttonHits[buttonHits.length] = {
-                            button:       this,
-                            xMin:         0,
-                            xMax:         stage.getWidth()|0,
-                            yMin:         0,
-                            yMax:         stage.getHeight()|0,
-                            CondKeyPress: cond.CondKeyPress|0,
-                            parent:       this.getParent()
-                        };
-                    }
-
-                    idx = (idx + 1)|0;
-                }
-            }
-        }
-
-        var status  = "hit";
-        var hitTest = this.getSprite(status);
-        var hitTags = hitTest.getContainer();
-        var length  = hitTags.length|0;
-        if (length === 0) {
-            status = "up";
-            hitTest = this.getSprite(status);
-            hitTags = hitTest.getContainer();
-        }
-
-        length = hitTags.length|0;
-        if (length) {
-            var m2     = this.$multiplicationMatrix(matrix, this.getMatrix());
-            var bounds = this.getBounds(m2, status);
-            if (bounds) {
-                buttonHits[buttonHits.length] = {
-                    button:       this,
-                    xMin:         +bounds.xMin,
-                    xMax:         +bounds.xMax,
-                    yMin:         +bounds.yMin,
-                    yMax:         +bounds.yMax,
-                    CondKeyPress: 0,
-                    parent:       this.getParent(),
-                    matrix:       this.cloneArray(matrix)
-                };
-            }
-        }
-    }
-};
-
-/**
- * @param ctx
- * @param matrix
- * @param colorTransform
- * @param stage
- * @param visible
- */
-SimpleButton.prototype.render = function (ctx, matrix, colorTransform, stage, visible)
-{
-    // return "";
-
-    // colorTransform
-    var rColorTransform = this.$multiplicationColor(colorTransform, this.getColorTransform());
-
-    // matrix
-    var m2 = this.$multiplicationMatrix(matrix, this.getMatrix());
-
-    // pre render
-    var isVisible = this.$min(this.getVisible(), visible);
-    var obj       = this.preRender(ctx, m2, rColorTransform, stage, isVisible);
-
-    // render
-    var sprite  = this.getSprite();
-    var rMatrix = this.$multiplicationMatrix(obj.preMatrix, sprite.getMatrix());
-    var rColorTransform2 = this.$multiplicationColor(rColorTransform, sprite.getColorTransform());
-    isVisible = this.$min(sprite.getVisible(), visible);
-
-    var cacheKey = obj.cacheKey;
-    cacheKey    += sprite.render(obj.preCtx, rMatrix, rColorTransform2, stage, isVisible);
-
-    // post render
-    if (obj.isFilter || obj.isBlend) {
-        obj.cacheKey = cacheKey;
-        this.postRender(ctx, matrix, colorTransform, stage, obj);
-    }
-
-    return cacheKey;
-};
-
-/**
- * @param ctx
- * @param matrix
- * @param stage
- * @param x
- * @param y
- * @returns {boolean}
- */
-SimpleButton.prototype.renderHitTest = function (ctx, matrix, stage, x, y)
-{
-    var sprite = this.getSprite("hit");
-    var tags   = sprite.getContainer();
-    var length = tags.length|0;
-    if (!length) {
-        return false;
-    }
-
-    var m2 = this.$multiplicationMatrix(matrix, this.getMatrix());
-    var m3 = this.$multiplicationMatrix(m2, sprite.getMatrix());
-
-    if (length) {
-        var loadStage = this.getStage();
-        for (var depth in tags) {
-            if (!tags.hasOwnProperty(depth)) {
-                continue;
-            }
-
-            var instanceId = tags[depth]|0;
-            var tag        = loadStage.getInstance(instanceId);
-            if (!tag) {
-                continue;
-            }
-
-            var hit = tag.renderHitTest(ctx, m3, stage, x, y);
-            if (hit) {
-                return hit;
-            }
-        }
-    }
-
-    return false;
-};
-
-/**
- * @param ctx
- * @param matrix
- * @param stage
- * @param x
- * @param y
- * @returns {*}
- */
-SimpleButton.prototype.hitCheck = function (ctx, matrix, stage, x, y)
-{
-    var sprite = this.getSprite("hit");
-    var tags   = sprite.getContainer();
-    var length = tags.length;
-    if (!length) {
-        return false;
-    }
-
-    var m2 = this.$multiplicationMatrix(matrix, this.getMatrix());
-    var m3 = this.$multiplicationMatrix(m2, sprite.getMatrix());
-
-    var hitObj = false;
-    var hit    = false;
-    if (length) {
-        var loadStage = this.getStage();
-        tags.reverse();
-        for (var depth in tags) {
-            if (!tags.hasOwnProperty(depth)) {
-                continue;
-            }
-
-            var tagId    = tags[depth];
-            var instance = loadStage.getInstance(tagId);
-            switch (instance.getClassName()) {
-                case "Shape":
-                case "StaticText":
-                case "TextField":
-                    hit = instance.renderHitTest(ctx, m3, stage, x, y);
-                    break;
-                default:
-                    hit = instance.hitCheck(ctx, m3, stage, x, y);
-                    break;
-            }
-
-            if (hit) {
-                hitObj = hit;
-                if (typeof hit !== "object") {
-                    var events = this.events;
-                    if (events.press !== undefined ||
-                        events.release !== undefined ||
-                        events.releaseOutside !== undefined ||
-                        events.rollOver !== undefined ||
-                        events.rollOut !== undefined ||
-                        events.dragOver !== undefined ||
-                        events.dragOut !== undefined
-                    ) {
-                        stage.isHit = hit;
-                        hitObj = {
-                            parent : this.getParent(),
-                            button : this
-                        };
-                    }
-                }
-
-                tags.reverse();
-
-                return hitObj;
-            }
-        }
-        tags.reverse();
-    }
-
-    return false;
-};
-
-/**
- * @see MovieClip.addActions
- */
-SimpleButton.prototype.addActions = function (stage)
-{
-    var sprite = this.getSprite();
-    var tags   = sprite.getContainer();
-    var length = tags.length|0;
-    if (length) {
-        var myStage = this.getStage();
-        for (var depth in tags) {
-            if (!tags.hasOwnProperty(depth)) {
-                continue;
-            }
-
-            var instanceId = tags[depth];
-            var tag = myStage.getInstance(instanceId);
-            if (tag === undefined) {
-                continue;
-            }
-
-            tag.addActions(stage);
-        }
-    }
-};
-
-/**
- * Dummy
- * @returns {undefined}
- */
-SimpleButton.prototype.getTags   = function () { return undefined; };
-SimpleButton.prototype.initFrame = function () {};
 /**
  * @type {{PAD: string, REFLECT: string, REPEAT: string}}
  */
@@ -14718,177 +14067,149 @@ var SoundLoaderContext = function () {};
  */
 var SoundMixer = function () {};
 /**
+ * @param {number} vol
+ * @param {number} panning
  * @constructor
  */
-var SoundTransform = function ()
+var SoundTransform = function (vol, panning)
 {
-    this._leftToLeft = 0;
-    this._leftToRight = 1;
-    this._pan = 0;
-    this._rightToLeft = 0;
-    this._rightToRight = 1;
-    this._volume = 1;
+    OriginalObject.call(this);
+
+    // init
+    this._$leftToLeft   = 1;
+    this._$leftToRight  = 0;
+    this._$pan          = 0;
+    this._$rightToLeft  = 0;
+    this._$rightToRight = 1;
+    this._$volume       = 1;
+
+    // volume
+    if (vol !== undefined) {
+        this._$volume = (typeof vol === "number") ? vol : "";
+    }
+
+    // pan
+    if (panning !== undefined) {
+        if (typeof panning === "number") {
+            this._$pan = (panning > 1)
+                ? +"NaN"
+                : panning
+        } else {
+            this._$pan = "";
+        }
+    }
 };
+
+/**
+ * extends
+ * @type {OriginalObject}
+ */
+SoundTransform.prototype = Object.create(OriginalObject.prototype);
+SoundTransform.prototype.constructor = SoundTransform;
 
 /**
  * properties
  */
-Object.defineProperties(SoundTransform.prototype,
-    {
-        leftToLeft: {
-            get: function () {
-                return this.getLeftToLeft();
-            },
-            set: function (leftToLeft) {
-                this.setLeftToLeft(leftToLeft);
-            }
+Object.defineProperties(SoundTransform.prototype, {
+    leftToLeft: {
+        /**
+         * @return {number|NaN}
+         */
+        get: function () {
+            return this._$leftToLeft;
         },
-        leftToRight: {
-            get: function () {
-                return this.getLeftToRight();
-            },
-            set: function (leftToRight) {
-                this.setLeftToRight(leftToRight);
-            }
-        },
-        pan: {
-            get: function () {
-                return this.getPan();
-            },
-            set: function (pan) {
-                this.setPan(pan);
-            }
-        },
-        rightToLeft: {
-            get: function () {
-                return this.getRightToLeft();
-            },
-            set: function (rightToLeft) {
-                this.setRightToLeft(rightToLeft);
-            }
-        },
-        rightToRight: {
-            get: function () {
-                return this.getRightToRight();
-            },
-            set: function (rightToRight) {
-                this.setRightToRight(rightToRight);
-            }
-        },
-        volume: {
-            get: function () {
-                return this.getVolume();
-            },
-            set: function (volume) {
-                this.setVolume(volume);
-            }
+        /**
+         * @param  {number} left_to_left
+         * @return void
+         */
+        set: function (left_to_left) {
+            this._$leftToLeft = +left_to_left;
+
         }
-    });
+    },
+    leftToRight: {
+        /**
+         * @return {number|NaN}
+         */
+        get: function () {
+            return this._$leftToRight;
+        },
+        /**
+         * @param  {number} left_to_right
+         * @return void
+         */
+        set: function (left_to_right) {
+            this._$leftToRight = +left_to_right;
+        }
+    },
+    pan: {
+        /**
+         * @return {number|NaN|string}
+         */
+        get: function () {
+            return this._$pan;
+        },
+        /**
+         * @param  {number} pan
+         * @return void
+         */
+        set: function (pan) {
+            this._$pan = +pan;
+        }
+    },
+    rightToLeft: {
+        /**
+         * @return {number|NaN}
+         */
+        get: function () {
+            return this._$rightToLeft;
+        },
+        /**
+         * @param  {number} right_to_left
+         * @return void
+         */
+        set: function (right_to_left) {
+            this._$rightToLeft = +right_to_left;
+        }
+    },
+    rightToRight: {
+        /**
+         * @return {number|NaN}
+         */
+        get: function () {
+            return this._$rightToRight;
+        },
+        /**
+         * @param  {number} right_to_right
+         * @return void
+         */
+        set: function (right_to_right) {
+            this._$rightToRight = +right_to_right;
+        }
+    },
+    volume: {
+        /**
+         * @return {number|NaN}
+         */
+        get: function () {
+            return this._$volume;
+        },
+        /**
+         * @param  {number} volume
+         * @return void
+         */
+        set: function (volume) {
+            this._$volume = +volume;
+        }
+    }
+});
 
 /**
- * @returns {number}
+ * @return {string}
  */
-SoundTransform.prototype.getLeftToLeft = function ()
+SoundTransform.prototype.toString = function ()
 {
-    return this._leftToLeft;
-};
-
-/**
- * @param leftToLeft
- */
-SoundTransform.prototype.setLeftToLeft = function (leftToLeft)
-{
-    this._leftToLeft = leftToLeft | 0;
-};
-
-/**
- * @returns {number}
- */
-SoundTransform.prototype.getLeftToRight = function ()
-{
-    return this._leftToRight;
-};
-
-/**
- * @param leftToRight
- */
-SoundTransform.prototype.setLeftToRight = function (leftToRight)
-{
-    this._leftToRight = leftToRight | 0;
-};
-
-/**
- * @returns {number}
- */
-SoundTransform.prototype.getPan = function ()
-{
-    return this._pan;
-};
-
-/**
- * @param pan
- */
-SoundTransform.prototype.setPan = function (pan)
-{
-    this._pan = pan | 0;
-};
-
-/**
- * @returns {number}
- */
-SoundTransform.prototype.getRightToLeft = function ()
-{
-    return this._rightToLeft;
-};
-
-/**
- * @param rightToLeft
- */
-SoundTransform.prototype.setRightToLeft = function (rightToLeft)
-{
-    this._rightToLeft = rightToLeft | 0;
-};
-
-/**
- * @returns {number}
- */
-SoundTransform.prototype.getRightToRight = function ()
-{
-    return this._rightToRight;
-};
-
-/**
- * @param rightToRight
- */
-SoundTransform.prototype.setRightToRight = function (rightToRight)
-{
-    this._rightToRight = rightToRight | 0;
-};
-
-/**
- * @returns {number}
- */
-SoundTransform.prototype.getVolume = function ()
-{
-    return this._volume;
-};
-
-/**
- * @param volume
- */
-SoundTransform.prototype.setVolume = function (volume)
-{
-    this._volume = volume | 0;
-};
-
-/**
- * @param vol
- * @param panning
- */
-SoundTransform.prototype.SoundTransform = function (vol, panning)
-{
-    this.volume = vol | 0;
-    this.pan    = panning | 0;
+    return "[object SoundTransform]";
 };
 /**
  * @constructor
@@ -24565,7 +23886,6 @@ SwfTag.prototype.parseTags = function (data_length, parent)
  */
 SwfTag.prototype.parseTag = function (tag_type, length, parent, frame, tags, cache_place_objects)
 {
-
     var obj = null;
 
     switch (tag_type) {
@@ -24628,7 +23948,7 @@ SwfTag.prototype.parseTag = function (tag_type, length, parent, frame, tags, cac
             break;
         case 7:  // DefineButton
         case 34: // DefineButton2
-            obj = this.parseDefineButton(tag_type, length);
+            this.parseDefineButton(tag_type, length);
             break;
         case 43: // FrameLabel
             tags.frameLabel[tags.frameLabel.length] = this.parseFrameLabel();
@@ -26797,45 +26117,52 @@ SwfTag.prototype.parseRemoveObject = function (tag_type)
 /**
  * @param   {number} tag_type
  * @param   {number} length
- * @returns {object}
  */
 SwfTag.prototype.parseDefineButton = function (tag_type, length)
 {
-    var obj = {};
-    obj.tagType   = tag_type;
 
     var endOffset = (this.bitio.byte_offset + length)|0;
-    obj.ButtonId  = this.bitio.getUI16();
 
-    var ActionOffset = 0;
+    // create SimpleButton
+    var button = new SimpleButton();
+
+    // characterId
+    button.characterId = this.bitio.getUI16()|0;
+
+    var offset = 0;
     if (tag_type !== 7) {
-        obj.ReservedFlags = this.bitio.getUIBits(7);
-        obj.TrackAsMenu   = this.bitio.getUIBits(1);
-        ActionOffset      = this.bitio.getUI16();
+        // Reserved
+        this.bitio.getUIBits(7);
+
+        button.trackAsMenu = this.bitio.getUIBits(1) ? true : false;
+
+        offset = this.bitio.getUI16()|0;
     }
 
-    obj.characters = this.buttonCharacters(endOffset);
+    // action characters
+    button._$characters = this.buttonCharacters(endOffset);
 
     // actionScript
     if (tag_type === 7) {
 
-        var offset = (endOffset - this.bitio.byte_offset)|0;
+        offset = (endOffset - this.bitio.byte_offset)|0;
 
         if (offset > 0) {
-            obj.actions = this.parseDoAction(offset);
+            button._$actions = this.parseDoAction(offset);
         }
 
-    } else if (ActionOffset > 0) {
-        obj.actions = this.buttonActions(endOffset);
+    } else if (offset > 0) {
+        button._$actions = this.buttonActions(endOffset);
     }
 
     // set layer
-    this.setCharacter(obj.ButtonId, obj);
+    this.setCharacter(button.characterId, button);
+
     if (this.bitio.byte_offset !== endOffset) {
         this.bitio.byte_offset = endOffset|0;
     }
 
-    return obj;
+    console.log(button);
 };
 
 /**
@@ -26852,18 +26179,14 @@ SwfTag.prototype.buttonCharacters = function (offset)
         var cacheOffset = this.bitio.byte_offset|0;
 
         var record = this.buttonRecord();
+
+        // prev
         if (this.bitio.byte_offset > offset) {
             this.bitio.byte_offset = cacheOffset|0;
             break;
         }
 
-        var depth = record.Depth;
-        if (!(record.Depth in characters)) {
-            characters[depth] = [];
-        }
-
-        var length = characters[depth].length;
-        characters[depth][length] = record;
+        characters[characters.length] = record;
     }
 
     return characters;
@@ -29093,8 +28416,8 @@ VectorToCanvas.prototype.convert = function (shapes, is_morph)
         i = (i + 1)|0;
 
         if (!record) {
-            stack = this.setStack(stack, lines);
             stack = this.setStack(stack, this.fillMerge(fills0, fills1, is_morph));
+            stack = this.setStack(stack, lines);
             break;
         }
 
@@ -29103,8 +28426,8 @@ VectorToCanvas.prototype.convert = function (shapes, is_morph)
             if (record.StateNewStyles) {
                 AnchorX = 0;
                 AnchorY = 0;
-                stack   = this.setStack(stack, lines);
                 stack   = this.setStack(stack, this.fillMerge(fills0, fills1, is_morph));
+                stack   = this.setStack(stack, lines);
                 fills0  = [];
                 fills1  = [];
                 lines   = [];

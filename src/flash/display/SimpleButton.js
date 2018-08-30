@@ -28,6 +28,7 @@ var SimpleButton = function (upState, overState, downState, hitTestState)
     // origin param
     this._$actions        = [];
     this._$characters     = [];
+    this._$status         = "up";
 };
 
 /**
@@ -80,7 +81,7 @@ Object.defineProperties(SimpleButton.prototype, {
          * @return {DisplayObject}
          */
         get: function () {
-            return this._$hitTestState;
+            return (this._$hitTestState) ? this._$hitTestState : this.upState;
         },
         /**
          * @param  {DisplayObject} hit_test_state
@@ -221,9 +222,20 @@ SimpleButton.prototype._$build = function (parent, index, tag, should_action)
 
     // state init
     var downState    = new Sprite();
-    var hitTestState = new Sprite();
+    downState.parent = parent;
+    downState.stage  = stage;
+
+    var hitTestState    = new Sprite();
+    hitTestState.parent = parent;
+    hitTestState.stage  = stage;
+
     var overState    = new Sprite();
-    var upState      = new Sprite();
+    overState.parent = parent;
+    overState.stage  = stage;
+
+    var upState    = new Sprite();
+    upState.parent = parent;
+    upState.stage  = stage;
 
     // build children
     var characters = stage._$characters;
@@ -271,6 +283,46 @@ SimpleButton.prototype._$build = function (parent, index, tag, should_action)
 };
 
 /**
+ * @param  {string} status
+ * @return void
+ */
+SimpleButton.prototype._$changeState = function (status)
+{
+    var sprite    = new Sprite();
+    sprite.parent = this.parent;
+    sprite.stage  = this.stage;
+
+    // change state string
+    var state = "ButtonState" + this._$status.charAt(0).toUpperCase() + this._$status.slice(1);
+
+    var characters = this.stage._$characters;
+
+    var length = this._$characters.length|0;
+    var idx    = 0;
+    while (length > idx) {
+
+        var tag = this._$characters[idx];
+
+        // state character
+        var character = characters[tag.CharacterId];
+
+        // build
+        if (tag[state]) {
+            var id = sprite._$instances.length|0;
+            sprite._$instances[id] = this._$buildChild(this.parent, id, tag, character);
+        }
+
+        idx = (idx + 1)|0;
+    }
+
+    // reset
+    this[this._$status + "State"] = sprite;
+
+    // set
+    this._$status = status;
+};
+
+/**
  * @param  {MovieClip}     parent
  * @param  {number}        id
  * @param  {object}        tag
@@ -279,7 +331,7 @@ SimpleButton.prototype._$build = function (parent, index, tag, should_action)
  */
 SimpleButton.prototype._$buildChild = function (parent, id, tag, character)
 {
-
+    // create new instance
     var instance = character._$build(parent, id, tag, false);
 
     // Matrix
@@ -294,6 +346,8 @@ SimpleButton.prototype._$buildChild = function (parent, id, tag, character)
 
     // TODO filter and blend
 
+
+
     return instance;
 };
 
@@ -306,6 +360,39 @@ SimpleButton.prototype._$buildChild = function (parent, id, tag, character)
  */
 SimpleButton.prototype._$draw = function (matrix, color_transform, is_clip, visible)
 {
-    var state = this.upState;
+    var player = this.stage.player;
+
+    var state = this[this._$status + "State"];
     state._$draw(matrix, color_transform, is_clip, visible);
+
+    // hit state
+    player.eventObjects.unshift({
+        "instance": this,
+        "matrix"  : this.$cloneArray(matrix),
+        "bounds"  : this._$getBounds(null, "hitTest")
+    });
+};
+
+/**
+ * @param  {number} x
+ * @param  {number} y
+ * @param  {array}  matrix
+ * @return {boolean}
+ */
+SimpleButton.prototype._$hit = function (x, y, matrix)
+{
+    return this.hitTestState._$hit(x, y, matrix);
+};
+
+/**
+ * @param  {array|null|undefined} matrix
+ * @param  {string} state
+ * @return {{xMin: number, xMax: number, yMin: number, yMax: number}}
+ */
+SimpleButton.prototype._$getBounds = function (matrix, state)
+{
+    if (!state) {
+        state = this._$status;
+    }
+    return this[state + "State"]._$getBounds(matrix);
 };

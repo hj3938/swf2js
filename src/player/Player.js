@@ -20,41 +20,45 @@ var Player = function ()
     this._$keyDownEventHits = [];
     this._$keyUpEventHits   = [];
 
+    // events
+    this._$eventObjects     = [];
+    this._$activeObject     = null;
+
     // params
-    this._$ratio           = 1;
-    this._$intervalId      = 0;
-    this._$stopFlag        = true;
-    this._$isLoad          = false;
-    this._$loadStatus      = 0;
-    this._$width           = 0;
-    this._$height          = 0;
-    this._$baseWidth       = 0;
-    this._$baseHeight      = 0;
-    this._$scale           = 1;
-    this._$matrix          = [1, 0, 0, 1, 0, 0];
-    this._$colorTransform  = [1, 1, 1, 1, 0, 0, 0, 0];
-    this._$backgroundColor = "transparent";
+    this._$ratio            = 1;
+    this._$intervalId       = 0;
+    this._$stopFlag         = true;
+    this._$isLoad           = false;
+    this._$loadStatus       = 0;
+    this._$width            = 0;
+    this._$height           = 0;
+    this._$baseWidth        = 0;
+    this._$baseHeight       = 0;
+    this._$scale            = 1;
+    this._$matrix           = [1, 0, 0, 1, 0, 0];
+    this._$colorTransform   = [1, 1, 1, 1, 0, 0, 0, 0];
+    this._$backgroundColor  = "transparent";
 
     // canvas
-    this._$context         = null;
-    this._$canvas          = null;
-    this._$preContext      = null;
-    this._$hitContext      = null;
+    this._$context          = null;
+    this._$canvas           = null;
+    this._$preContext       = null;
+    this._$hitContext       = null;
 
     // options
-    this._$optionWidth     = 0;
-    this._$optionHeight    = 0;
-    this._$callback        = null;
-    this._$tagId           = null;
-    this._$FlashVars       = {};
-    this._$quality         = this.$canWebGL ? StageQuality.BEST : StageQuality.HIGH;
-    this._$bgcolor         = "";
+    this._$optionWidth      = 0;
+    this._$optionHeight     = 0;
+    this._$callback         = null;
+    this._$tagId            = null;
+    this._$FlashVars        = {};
+    this._$quality          = this.$canWebGL ? StageQuality.BEST : StageQuality.HIGH;
+    this._$bgcolor          = "";
 
     // packages
-    this._$packages        = new Packages(this);
+    this._$packages         = new Packages(this);
 
     // global vars
-    this._$global          = new Global();
+    this._$global           = new Global();
 
     // base stage
     var stage = new Stage();
@@ -657,6 +661,36 @@ Object.defineProperties(Player.prototype, {
                 this._$keyUpEventHits = key_up_event_hits;
             }
         }
+    },
+    eventObjects: {
+        /**
+         * @return {array}
+         */
+        get: function () {
+            return this._$eventObjects;
+        },
+        /**
+         * @param {DisplayObject} event_objects
+         */
+        set: function (event_objects) {
+            if (this.$isArray(event_objects)) {
+                this._$eventObjects = event_objects;
+            }
+        }
+    },
+    activeObject: {
+        /**
+         * @return {object}
+         */
+        get: function () {
+            return this._$activeObject;
+        },
+        /**
+         * @param {object} object
+         */
+        set: function (object) {
+            this._$activeObject = object;
+        }
     }
 });
 
@@ -706,11 +740,11 @@ Player.prototype.addStage = function (stage)
  * @returns {{
  *  width: (number),
  *  height: (number),
- *  callback: *,
+ *  callback: (Function|null),
  *  tagId: (number),
- *  FlashVars: *,
+ *  FlashVars: (object|null),
  *  quality: (string),
- *  bgcolor: *
+ *  bgcolor: (string|boolean|null)
  * }}
  */
 Player.prototype.getOptions = function ()
@@ -727,7 +761,7 @@ Player.prototype.getOptions = function ()
 };
 
 /**
- * @param {object} options
+ * @param   {object} options
  * @returns void
  */
 Player.prototype.setOptions = function (options)
@@ -1015,23 +1049,23 @@ Player.prototype.loaded = function ()
         //     }
         // }
 
-        // this.canvas.addEventListener(this.$startEvent, function (event)
-        // {
-        //     self.$event = event;
-        //     self.touchStart(event);
-        // });
-        //
-        // this.canvas.addEventListener(this.$moveEvent, function (event)
-        // {
-        //     self.$event = event;
-        //     self.touchMove(event);
-        // });
-        //
-        // this.canvas.addEventListener(this.$endEvent, function (event)
-        // {
-        //     self.$event = event;
-        //     self.touchEnd(event);
-        // });
+        this.canvas.addEventListener(this.$startEvent, function (event)
+        {
+            self.$event = event;
+            self.downEvent(event);
+        });
+
+        this.canvas.addEventListener(this.$moveEvent, function (event)
+        {
+            self.$event = event;
+            self.moveEvent(event);
+        });
+
+        this.canvas.addEventListener(this.$endEvent, function (event)
+        {
+            self.$event = event;
+            self.upEvent(event);
+        });
 
         // render start
         this.draw();
@@ -1211,7 +1245,8 @@ Player.prototype.getPackage = function (path)
  */
 Player.prototype.run = function ()
 {
-    stats.begin(); // 計測
+    // TODO 計測は後で削除
+    stats.begin();
 
     // hits reset
     this.buttonHits       = [];
@@ -1221,11 +1256,15 @@ Player.prototype.run = function ()
     this.keyDownEventHits = [];
     this.keyUpEventHits   = [];
 
+    // event reset
+    this.eventObjects     = [];
+
     // execute
     this.doAction();
     this.draw();
 
-    stats.end(); // 計測
+    // TODO 計測は後で削除
+    stats.end();
 };
 
 /**
@@ -1329,4 +1368,182 @@ Player.prototype.draw = function ()
         this.context.drawImage(canvas, 0, 0, width, height);
 
     }
+};
+
+/**
+ * @param  {object} event
+ * @return {boolean}
+ */
+Player.prototype.hitTest = function (event)
+{
+    var eventObjects = this.eventObjects;
+    var length = eventObjects.length;
+
+    if (length) {
+        var div  = this.$document.getElementById(this.name);
+        var rect = div.getBoundingClientRect();
+
+        var x = (this.$window.pageXOffset + rect.left)|0;
+        var y = (this.$window.pageYOffset + rect.top)|0;
+
+        var touchX = 0;
+        var touchY = 0;
+
+        if (this.$isTouch) {
+            var changedTouche = event.changedTouches[0];
+            touchX            = changedTouche.pageX|0;
+            touchY            = changedTouche.pageY|0;
+        } else {
+            touchX = event.pageX|0;
+            touchY = event.pageY|0;
+        }
+
+        touchX = (touchX - x)|0;
+        touchY = (touchY - y)|0;
+
+        // canvas point
+        var pointX = +(touchX * this.ratio);
+        var pointY = +(touchY * this.ratio);
+
+        // point
+        touchX = +(touchX / this.scale);
+        touchY = +(touchY / this.scale);
+
+        // start
+        var idx = 0;
+        while (length > idx) {
+
+            var obj    = eventObjects[idx];
+            var bounds = obj.bounds;
+
+            if (touchX >= bounds.xMin && touchX <= bounds.xMax &&
+                touchY >= bounds.yMin && touchY <= bounds.yMax
+            ) {
+
+                // reset
+                var ctx = this.hitContext;
+                ctx.setTransform(1, 0, 0, 1, 0, 0);
+                ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+
+                // hit test
+                if (obj.instance._$hit(pointX, pointY, obj.matrix)) {
+                    this.activeObject = obj;
+                    return true;
+                }
+            }
+
+            idx = (idx + 1)|0;
+        }
+    }
+
+    return false;
+};
+
+/**
+ * @param  {object} event
+ * @return void
+ */
+Player.prototype.moveEvent = function (event)
+{
+    var instance;
+    if (this.hitTest(event)) {
+
+        instance = this.activeObject.instance;
+        if (instance.toString() === "[object SimpleButton]") {
+
+            if (instance._$status === "up") {
+                instance._$changeState("over");
+            }
+
+        }
+
+    } else {
+
+        if (this.activeObject) {
+            instance = this.activeObject.instance;
+            if (instance.toString() === "[object SimpleButton]") {
+
+                if (instance._$status === "over") {
+                    instance._$changeState("up");
+                }
+
+            }
+        }
+
+        this.activeObject = null;
+
+    }
+};
+
+/**
+ * @param  {object} event
+ * @return void
+ */
+Player.prototype.downEvent = function (event)
+{
+    var instance;
+    if (this.hitTest(event)) {
+
+        instance = this.activeObject.instance;
+        if (instance.toString() === "[object SimpleButton]") {
+
+            if (instance._$status !== "down") {
+
+                instance._$changeState("down");
+
+            }
+        }
+
+    } else {
+
+        if (this.activeObject) {
+            instance = this.activeObject.instance;
+            if (instance.toString() === "[object SimpleButton]") {
+
+                if (instance._$status === "down") {
+                    instance._$changeState("up");
+                }
+
+            }
+        }
+
+        this.activeObject = null;
+    }
+};
+
+/**
+ * @param  {object} event
+ * @return void
+ */
+Player.prototype.upEvent = function (event)
+{
+    var instance;
+    if (this.hitTest(event)) {
+
+        instance = this.activeObject.instance;
+        if (instance.toString() === "[object SimpleButton]") {
+
+            if (instance._$status === "down") {
+
+                instance._$changeState("over");
+
+            }
+        }
+
+    } else {
+
+        if (this.activeObject) {
+            instance = this.activeObject.instance;
+            if (instance.toString() === "[object SimpleButton]") {
+
+                if (instance._$status === "down") {
+                    instance._$changeState("up");
+                }
+
+            }
+        }
+
+        this.activeObject = null;
+    }
+
 };

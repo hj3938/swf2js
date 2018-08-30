@@ -311,6 +311,7 @@ var Util = function () {};
 // global parameters
 Util.prototype.$stages      = [];
 Util.prototype.$players     = [];
+Util.prototype.$sounds      = [];
 Util.prototype.$event       = null;
 Util.prototype.$keyEvent    = null;
 
@@ -951,6 +952,50 @@ Util.prototype.$isArray = function (source)
 {
     return Object.prototype.toString.call(source) === "[object Array]";
 };
+
+/**
+ * @param  {{xMin: number, xMax: number, yMin: number, yMax: number}} bounds
+ * @param  {array} matrix
+ * @param  {{xMin: number, xMax: number, yMin: number, yMax: number}|null}object
+ * @return {{xMin: number, xMax: number, yMin: number, yMax: number}}
+ */
+Util.prototype.$boundsMatrix = function (bounds, matrix, object)
+{
+    var no   = this.$Number.MAX_VALUE;
+    var xMax = -no;
+    var yMax = -no;
+    var xMin = no;
+    var yMin = no;
+
+    if (object) {
+        xMin = +object.xMin;
+        xMax = +object.xMax;
+        yMin = +object.yMin;
+        yMax = +object.yMax;
+    }
+
+    var x0 = +(bounds.xMax * matrix[0] + bounds.yMax * matrix[2] + matrix[4]);
+    var x1 = +(bounds.xMax * matrix[0] + bounds.yMin * matrix[2] + matrix[4]);
+    var x2 = +(bounds.xMin * matrix[0] + bounds.yMax * matrix[2] + matrix[4]);
+    var x3 = +(bounds.xMin * matrix[0] + bounds.yMin * matrix[2] + matrix[4]);
+    var y0 = +(bounds.xMax * matrix[1] + bounds.yMax * matrix[3] + matrix[5]);
+    var y1 = +(bounds.xMax * matrix[1] + bounds.yMin * matrix[3] + matrix[5]);
+    var y2 = +(bounds.xMin * matrix[1] + bounds.yMax * matrix[3] + matrix[5]);
+    var y3 = +(bounds.xMin * matrix[1] + bounds.yMin * matrix[3] + matrix[5]);
+
+    xMax = +this.$max(this.$max(this.$max(this.$max(xMax, x0), x1), x2), x3);
+    xMin = +this.$min(this.$min(this.$min(this.$min(xMin, x0), x1), x2), x3);
+    yMax = +this.$max(this.$max(this.$max(this.$max(yMax, y0), y1), y2), y3);
+    yMin = +this.$min(this.$min(this.$min(this.$min(yMin, y0), y1), y2), y3);
+
+    return {
+        xMin: xMin,
+        xMax: xMax,
+        yMin: yMin,
+        yMax: yMax
+    };
+};
+
 var Vector = function () {};
 /**
  * @constructor
@@ -6920,9 +6965,15 @@ DisplayObject.prototype._$getPlaceObject = function ()
 DisplayObject.prototype._$commonBuild = function (parent, tag)
 {
     // set param
-    this._$index      = tag.Depth|0;
-    this._$startFrame = tag.StartFrame|0;
-    this._$endFrame   = tag.EndFrame|0;
+    this._$index = tag.Depth|0;
+
+    if ("StartFrame" in tag) {
+        this._$startFrame = tag.StartFrame|0;
+    }
+
+    if ("EndFrame" in tag) {
+        this._$endFrame = tag.EndFrame|0;
+    }
 };
 /**
  * @constructor
@@ -7443,7 +7494,7 @@ Object.defineProperties(Sprite.prototype, {
     },
     dropTarget: {
         /**
-         * @returns {DisplayObject}
+         * @returns {DisplayObject|null}
          */
         get: function () {
             return this._$dropTarget;
@@ -7596,6 +7647,7 @@ Sprite.prototype._$draw = function (matrix, color_transform, is_clip, visible)
     }
 
     // children draw
+    var version = this.root.actionScriptVersion|0;
     for (var depth in controller) {
 
         if (!controller.hasOwnProperty(depth)) {
@@ -7603,6 +7655,12 @@ Sprite.prototype._$draw = function (matrix, color_transform, is_clip, visible)
         }
 
         instance = controller[depth];
+        if (version === ActionScriptVersion.ACTIONSCRIPT3) {
+
+            // next frame
+            instance._$putFrame();
+
+        }
 
         // Transform
         var transform = instance.transform;
@@ -7614,7 +7672,105 @@ Sprite.prototype._$draw = function (matrix, color_transform, is_clip, visible)
             is_clip,
             visible
         );
+
+        // case action script 1 or 2
+        if (instance.toString() === "[object MovieClip]"
+            && version === ActionScriptVersion.ACTIONSCRIPT2
+        ) {
+
+            instance._$putFrame();
+
+        }
     }
+};
+
+/**
+ * @param  {array|null|undefined} matrix
+ * @return {{xMin: number, xMax: number, yMin: number, yMax: number}}
+ */
+Sprite.prototype._$getBounds = function (matrix)
+{
+    var xMax = 0;
+    var yMax = 0;
+    var xMin = 0;
+    var yMin = 0;
+
+    // var graphics = this.graphics;
+    // var isDraw = graphics.isDraw;
+    //
+    // if (isDraw) {
+    //     var maxWidth  = graphics.maxWidth;
+    //     var halfWidth = maxWidth / 2;
+    //     var gBounds   = this.boundsMatrix(graphics.bounds, matrix);
+    //     var twips = (matrix) ? 20 : 1;
+    //     xMin = +((gBounds.xMin - halfWidth) / twips);
+    //     xMax = +((gBounds.xMax + halfWidth) / twips);
+    //     yMin = +((gBounds.yMin - halfWidth) / twips);
+    //     yMax = +((gBounds.yMax + halfWidth) / twips);
+    // }
+
+    var instances  = this._$instances;
+
+    var length = instances.length;
+    var idx    = 0;
+    while (length > idx) {
+
+        var instance = instances[idx];
+        idx = (idx + 1)|0;
+
+        // Transform
+        var transform = instance.transform;
+
+        var bounds  = instance._$getBounds(
+            matrix ? this.$multiplicationMatrix(matrix, transform.matrix._$matrix) : transform.matrix._$matrix
+        );
+
+        xMin = +this.$min(xMin, bounds.xMin);
+        xMax = +this.$max(xMax, bounds.xMax);
+        yMin = +this.$min(yMin, bounds.yMin);
+        yMax = +this.$max(yMax, bounds.yMax);
+    }
+
+    return {
+        xMin: xMin,
+        xMax: xMax,
+        yMin: yMin,
+        yMax: yMax
+    };
+};
+
+/**
+ * @param  {number} x
+ * @param  {number} y
+ * @param  {array}  matrix
+ * @return {boolean}
+ */
+Sprite.prototype._$hit = function (x, y, matrix)
+{
+    var instances = this._$instances;
+
+    var length = instances.length;
+    var idx    = 0;
+    while (length > idx) {
+
+        var instance = instances[idx];
+        idx = (idx + 1)|0;
+
+        // Transform
+        var transform = instance.transform;
+
+        // next hit test
+        var hit = instance._$hit(
+            x, y,
+            this.$multiplicationMatrix(matrix, transform.matrix._$matrix)
+        );
+
+        if (hit) {
+            return hit;
+        }
+    }
+
+    return false;
 };
 /**
  * @constructor
@@ -9903,8 +10059,9 @@ MovieClip.prototype._$draw = function (matrix, color_transform, is_clip, visible
     this._$isPlaying = true;
 
 
-    var frame      = this.currentFrame|0;
-    var version    = this.root.actionScriptVersion|0;
+    // set param
+    var frame   = this.currentFrame|0;
+    var version = this.root.actionScriptVersion|0;
 
 
     // build controller
@@ -10562,9 +10719,10 @@ Shape.prototype._$getBounds = function (matrix)
     var isDraw   = graphics.isDraw;
 
     if (matrix) {
-        bounds = this.boundsMatrix(this._$bounds, matrix);
+
+        bounds = this.$boundsMatrix(this._$bounds, matrix, null);
         if (isDraw) {
-            gBounds = this.boundsMatrix(graphics.getBounds(), matrix);
+            gBounds = this.$boundsMatrix(graphics.getBounds(), matrix, null);
             bounds.xMin = +this.$min(gBounds.xMin, bounds.xMin);
             bounds.xMax = +this.$max(gBounds.xMax, bounds.xMax);
             bounds.yMin = +this.$min(gBounds.yMin, bounds.yMin);
@@ -10985,6 +11143,61 @@ Shape.prototype._$doDraw = function (ctx, min_scale, color_transform, is_clip)
 
     }
 };
+
+/**
+ * @param  {number} x
+ * @param  {number} y
+ * @param  {array}  matrix
+ * @return {boolean}
+ */
+Shape.prototype._$hit = function (x, y, matrix)
+{
+    var hit    = false;
+    var shapes = this._$data;
+    if (shapes) {
+
+        var ctx = this.parent.stage.player.hitContext;
+
+        ctx.setTransform(matrix[0], matrix[1], matrix[2], matrix[3], matrix[4], matrix[5]);
+
+        var idx      = 0;
+        var length   = shapes.length|0;
+        var minScale = this.$min(matrix[0], matrix[3]);
+        while (length > idx) {
+
+            var data     = shapes[idx];
+            var obj      = data.obj;
+            var isStroke = (obj.Width !== undefined);
+
+            ctx.beginPath();
+            var cmd = data.cmd;
+            cmd(ctx);
+
+            if (isStroke) {
+                ctx.lineWidth = this.$max(obj.Width, 1 / minScale);
+                ctx.lineCap   = "round";
+                ctx.lineJoin  = "round";
+            }
+
+            hit = ctx.isPointInPath(x, y);
+            if (hit) {
+                return hit;
+            }
+
+            if ("isPointInStroke" in ctx) {
+                hit = ctx.isPointInStroke(x, y);
+                if (hit) {
+                    return hit;
+                }
+            }
+
+            idx = (idx + 1)|0;
+        }
+
+    }
+
+    return hit;
+};
 /**
  * @param {DisplayObject|null} upState
  * @param {DisplayObject|null} overState
@@ -11015,6 +11228,7 @@ var SimpleButton = function (upState, overState, downState, hitTestState)
     // origin param
     this._$actions        = [];
     this._$characters     = [];
+    this._$status         = "up";
 };
 
 /**
@@ -11067,7 +11281,7 @@ Object.defineProperties(SimpleButton.prototype, {
          * @return {DisplayObject}
          */
         get: function () {
-            return this._$hitTestState;
+            return (this._$hitTestState) ? this._$hitTestState : this.upState;
         },
         /**
          * @param  {DisplayObject} hit_test_state
@@ -11208,9 +11422,20 @@ SimpleButton.prototype._$build = function (parent, index, tag, should_action)
 
     // state init
     var downState    = new Sprite();
-    var hitTestState = new Sprite();
+    downState.parent = parent;
+    downState.stage  = stage;
+
+    var hitTestState    = new Sprite();
+    hitTestState.parent = parent;
+    hitTestState.stage  = stage;
+
     var overState    = new Sprite();
-    var upState      = new Sprite();
+    overState.parent = parent;
+    overState.stage  = stage;
+
+    var upState    = new Sprite();
+    upState.parent = parent;
+    upState.stage  = stage;
 
     // build children
     var characters = stage._$characters;
@@ -11258,6 +11483,46 @@ SimpleButton.prototype._$build = function (parent, index, tag, should_action)
 };
 
 /**
+ * @param  {string} status
+ * @return void
+ */
+SimpleButton.prototype._$changeState = function (status)
+{
+    var sprite    = new Sprite();
+    sprite.parent = this.parent;
+    sprite.stage  = this.stage;
+
+    // change state string
+    var state = "ButtonState" + this._$status.charAt(0).toUpperCase() + this._$status.slice(1);
+
+    var characters = this.stage._$characters;
+
+    var length = this._$characters.length|0;
+    var idx    = 0;
+    while (length > idx) {
+
+        var tag = this._$characters[idx];
+
+        // state character
+        var character = characters[tag.CharacterId];
+
+        // build
+        if (tag[state]) {
+            var id = sprite._$instances.length|0;
+            sprite._$instances[id] = this._$buildChild(this.parent, id, tag, character);
+        }
+
+        idx = (idx + 1)|0;
+    }
+
+    // reset
+    this[this._$status + "State"] = sprite;
+
+    // set
+    this._$status = status;
+};
+
+/**
  * @param  {MovieClip}     parent
  * @param  {number}        id
  * @param  {object}        tag
@@ -11266,7 +11531,7 @@ SimpleButton.prototype._$build = function (parent, index, tag, should_action)
  */
 SimpleButton.prototype._$buildChild = function (parent, id, tag, character)
 {
-
+    // create new instance
     var instance = character._$build(parent, id, tag, false);
 
     // Matrix
@@ -11281,6 +11546,8 @@ SimpleButton.prototype._$buildChild = function (parent, id, tag, character)
 
     // TODO filter and blend
 
+
+
     return instance;
 };
 
@@ -11293,8 +11560,41 @@ SimpleButton.prototype._$buildChild = function (parent, id, tag, character)
  */
 SimpleButton.prototype._$draw = function (matrix, color_transform, is_clip, visible)
 {
-    var state = this.upState;
+    var player = this.stage.player;
+
+    var state = this[this._$status + "State"];
     state._$draw(matrix, color_transform, is_clip, visible);
+
+    // hit state
+    player.eventObjects.unshift({
+        "instance": this,
+        "matrix"  : this.$cloneArray(matrix),
+        "bounds"  : this._$getBounds(null, "hitTest")
+    });
+};
+
+/**
+ * @param  {number} x
+ * @param  {number} y
+ * @param  {array}  matrix
+ * @return {boolean}
+ */
+SimpleButton.prototype._$hit = function (x, y, matrix)
+{
+    return this.hitTestState._$hit(x, y, matrix);
+};
+
+/**
+ * @param  {array|null|undefined} matrix
+ * @param  {string} state
+ * @return {{xMin: number, xMax: number, yMin: number, yMax: number}}
+ */
+SimpleButton.prototype._$getBounds = function (matrix, state)
+{
+    if (!state) {
+        state = this._$status;
+    }
+    return this[state + "State"]._$getBounds(matrix);
 };
 /**
  * @type {{PAD: string, REFLECT: string, REPEAT: string}}
@@ -26161,8 +26461,6 @@ SwfTag.prototype.parseDefineButton = function (tag_type, length)
     if (this.bitio.byte_offset !== endOffset) {
         this.bitio.byte_offset = endOffset|0;
     }
-
-    console.log(button);
 };
 
 /**
@@ -29030,41 +29328,45 @@ var Player = function ()
     this._$keyDownEventHits = [];
     this._$keyUpEventHits   = [];
 
+    // events
+    this._$eventObjects     = [];
+    this._$activeObject     = null;
+
     // params
-    this._$ratio           = 1;
-    this._$intervalId      = 0;
-    this._$stopFlag        = true;
-    this._$isLoad          = false;
-    this._$loadStatus      = 0;
-    this._$width           = 0;
-    this._$height          = 0;
-    this._$baseWidth       = 0;
-    this._$baseHeight      = 0;
-    this._$scale           = 1;
-    this._$matrix          = [1, 0, 0, 1, 0, 0];
-    this._$colorTransform  = [1, 1, 1, 1, 0, 0, 0, 0];
-    this._$backgroundColor = "transparent";
+    this._$ratio            = 1;
+    this._$intervalId       = 0;
+    this._$stopFlag         = true;
+    this._$isLoad           = false;
+    this._$loadStatus       = 0;
+    this._$width            = 0;
+    this._$height           = 0;
+    this._$baseWidth        = 0;
+    this._$baseHeight       = 0;
+    this._$scale            = 1;
+    this._$matrix           = [1, 0, 0, 1, 0, 0];
+    this._$colorTransform   = [1, 1, 1, 1, 0, 0, 0, 0];
+    this._$backgroundColor  = "transparent";
 
     // canvas
-    this._$context         = null;
-    this._$canvas          = null;
-    this._$preContext      = null;
-    this._$hitContext      = null;
+    this._$context          = null;
+    this._$canvas           = null;
+    this._$preContext       = null;
+    this._$hitContext       = null;
 
     // options
-    this._$optionWidth     = 0;
-    this._$optionHeight    = 0;
-    this._$callback        = null;
-    this._$tagId           = null;
-    this._$FlashVars       = {};
-    this._$quality         = this.$canWebGL ? StageQuality.BEST : StageQuality.HIGH;
-    this._$bgcolor         = "";
+    this._$optionWidth      = 0;
+    this._$optionHeight     = 0;
+    this._$callback         = null;
+    this._$tagId            = null;
+    this._$FlashVars        = {};
+    this._$quality          = this.$canWebGL ? StageQuality.BEST : StageQuality.HIGH;
+    this._$bgcolor          = "";
 
     // packages
-    this._$packages        = new Packages(this);
+    this._$packages         = new Packages(this);
 
     // global vars
-    this._$global          = new Global();
+    this._$global           = new Global();
 
     // base stage
     var stage = new Stage();
@@ -29667,6 +29969,36 @@ Object.defineProperties(Player.prototype, {
                 this._$keyUpEventHits = key_up_event_hits;
             }
         }
+    },
+    eventObjects: {
+        /**
+         * @return {array}
+         */
+        get: function () {
+            return this._$eventObjects;
+        },
+        /**
+         * @param {DisplayObject} event_objects
+         */
+        set: function (event_objects) {
+            if (this.$isArray(event_objects)) {
+                this._$eventObjects = event_objects;
+            }
+        }
+    },
+    activeObject: {
+        /**
+         * @return {object}
+         */
+        get: function () {
+            return this._$activeObject;
+        },
+        /**
+         * @param {object} object
+         */
+        set: function (object) {
+            this._$activeObject = object;
+        }
     }
 });
 
@@ -29716,11 +30048,11 @@ Player.prototype.addStage = function (stage)
  * @returns {{
  *  width: (number),
  *  height: (number),
- *  callback: *,
+ *  callback: (Function|null),
  *  tagId: (number),
- *  FlashVars: *,
+ *  FlashVars: (object|null),
  *  quality: (string),
- *  bgcolor: *
+ *  bgcolor: (string|boolean|null)
  * }}
  */
 Player.prototype.getOptions = function ()
@@ -29737,7 +30069,7 @@ Player.prototype.getOptions = function ()
 };
 
 /**
- * @param {object} options
+ * @param   {object} options
  * @returns void
  */
 Player.prototype.setOptions = function (options)
@@ -30025,23 +30357,23 @@ Player.prototype.loaded = function ()
         //     }
         // }
 
-        // this.canvas.addEventListener(this.$startEvent, function (event)
-        // {
-        //     self.$event = event;
-        //     self.touchStart(event);
-        // });
-        //
-        // this.canvas.addEventListener(this.$moveEvent, function (event)
-        // {
-        //     self.$event = event;
-        //     self.touchMove(event);
-        // });
-        //
-        // this.canvas.addEventListener(this.$endEvent, function (event)
-        // {
-        //     self.$event = event;
-        //     self.touchEnd(event);
-        // });
+        this.canvas.addEventListener(this.$startEvent, function (event)
+        {
+            self.$event = event;
+            self.downEvent(event);
+        });
+
+        this.canvas.addEventListener(this.$moveEvent, function (event)
+        {
+            self.$event = event;
+            self.moveEvent(event);
+        });
+
+        this.canvas.addEventListener(this.$endEvent, function (event)
+        {
+            self.$event = event;
+            self.upEvent(event);
+        });
 
         // render start
         this.draw();
@@ -30221,7 +30553,8 @@ Player.prototype.getPackage = function (path)
  */
 Player.prototype.run = function ()
 {
-    stats.begin(); // 計測
+    // TODO 計測は後で削除
+    stats.begin();
 
     // hits reset
     this.buttonHits       = [];
@@ -30231,11 +30564,15 @@ Player.prototype.run = function ()
     this.keyDownEventHits = [];
     this.keyUpEventHits   = [];
 
+    // event reset
+    this.eventObjects     = [];
+
     // execute
     this.doAction();
     this.draw();
 
-    stats.end(); // 計測
+    // TODO 計測は後で削除
+    stats.end();
 };
 
 /**
@@ -30340,6 +30677,185 @@ Player.prototype.draw = function ()
 
     }
 };
+
+/**
+ * @param  {object} event
+ * @return {boolean}
+ */
+Player.prototype.hitTest = function (event)
+{
+    var eventObjects = this.eventObjects;
+    var length = eventObjects.length;
+
+    if (length) {
+        var div  = this.$document.getElementById(this.name);
+        var rect = div.getBoundingClientRect();
+
+        var x = (this.$window.pageXOffset + rect.left)|0;
+        var y = (this.$window.pageYOffset + rect.top)|0;
+
+        var touchX = 0;
+        var touchY = 0;
+
+        if (this.$isTouch) {
+            var changedTouche = event.changedTouches[0];
+            touchX            = changedTouche.pageX|0;
+            touchY            = changedTouche.pageY|0;
+        } else {
+            touchX = event.pageX|0;
+            touchY = event.pageY|0;
+        }
+
+        touchX = (touchX - x)|0;
+        touchY = (touchY - y)|0;
+
+        // canvas point
+        var pointX = +(touchX * this.ratio);
+        var pointY = +(touchY * this.ratio);
+
+        // point
+        touchX = +(touchX / this.scale);
+        touchY = +(touchY / this.scale);
+
+        // start
+        var idx = 0;
+        while (length > idx) {
+
+            var obj    = eventObjects[idx];
+            var bounds = obj.bounds;
+
+            if (touchX >= bounds.xMin && touchX <= bounds.xMax &&
+                touchY >= bounds.yMin && touchY <= bounds.yMax
+            ) {
+
+                // reset
+                var ctx = this.hitContext;
+                ctx.setTransform(1, 0, 0, 1, 0, 0);
+                ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+
+                // hit test
+                if (obj.instance._$hit(pointX, pointY, obj.matrix)) {
+                    this.activeObject = obj;
+                    return true;
+                }
+            }
+
+            idx = (idx + 1)|0;
+        }
+    }
+
+    return false;
+};
+
+/**
+ * @param  {object} event
+ * @return void
+ */
+Player.prototype.moveEvent = function (event)
+{
+    var instance;
+    if (this.hitTest(event)) {
+
+        instance = this.activeObject.instance;
+        if (instance.toString() === "[object SimpleButton]") {
+
+            if (instance._$status === "up") {
+                instance._$changeState("over");
+            }
+
+        }
+
+    } else {
+
+        if (this.activeObject) {
+            instance = this.activeObject.instance;
+            if (instance.toString() === "[object SimpleButton]") {
+
+                if (instance._$status === "over") {
+                    instance._$changeState("up");
+                }
+
+            }
+        }
+
+        this.activeObject = null;
+
+    }
+};
+
+/**
+ * @param  {object} event
+ * @return void
+ */
+Player.prototype.downEvent = function (event)
+{
+    var instance;
+    if (this.hitTest(event)) {
+
+        instance = this.activeObject.instance;
+        if (instance.toString() === "[object SimpleButton]") {
+
+            if (instance._$status !== "down") {
+
+                instance._$changeState("down");
+
+            }
+        }
+
+    } else {
+
+        if (this.activeObject) {
+            instance = this.activeObject.instance;
+            if (instance.toString() === "[object SimpleButton]") {
+
+                if (instance._$status === "down") {
+                    instance._$changeState("up");
+                }
+
+            }
+        }
+
+        this.activeObject = null;
+    }
+};
+
+/**
+ * @param  {object} event
+ * @return void
+ */
+Player.prototype.upEvent = function (event)
+{
+    var instance;
+    if (this.hitTest(event)) {
+
+        instance = this.activeObject.instance;
+        if (instance.toString() === "[object SimpleButton]") {
+
+            if (instance._$status === "down") {
+
+                instance._$changeState("over");
+
+            }
+        }
+
+    } else {
+
+        if (this.activeObject) {
+            instance = this.activeObject.instance;
+            if (instance.toString() === "[object SimpleButton]") {
+
+                if (instance._$status === "down") {
+                    instance._$changeState("up");
+                }
+
+            }
+        }
+
+        this.activeObject = null;
+    }
+
+};
+
 /**
  * @constructor
  */

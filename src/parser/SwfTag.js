@@ -3065,8 +3065,6 @@ SwfTag.prototype.parseDefineButton = function (tag_type, length)
     if (this.bitio.byte_offset !== endOffset) {
         this.bitio.byte_offset = endOffset|0;
     }
-
-    console.log(button);
 };
 
 /**

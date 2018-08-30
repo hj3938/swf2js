@@ -6,6 +6,7 @@ var Util = function () {};
 // global parameters
 Util.prototype.$stages      = [];
 Util.prototype.$players     = [];
+Util.prototype.$sounds      = [];
 Util.prototype.$event       = null;
 Util.prototype.$keyEvent    = null;
 
@@ -645,4 +646,47 @@ Util.prototype.$cloneArray = function (source)
 Util.prototype.$isArray = function (source)
 {
     return Object.prototype.toString.call(source) === "[object Array]";
+};
+
+/**
+ * @param  {{xMin: number, xMax: number, yMin: number, yMax: number}} bounds
+ * @param  {array} matrix
+ * @param  {{xMin: number, xMax: number, yMin: number, yMax: number}|null}object
+ * @return {{xMin: number, xMax: number, yMin: number, yMax: number}}
+ */
+Util.prototype.$boundsMatrix = function (bounds, matrix, object)
+{
+    var no   = this.$Number.MAX_VALUE;
+    var xMax = -no;
+    var yMax = -no;
+    var xMin = no;
+    var yMin = no;
+
+    if (object) {
+        xMin = +object.xMin;
+        xMax = +object.xMax;
+        yMin = +object.yMin;
+        yMax = +object.yMax;
+    }
+
+    var x0 = +(bounds.xMax * matrix[0] + bounds.yMax * matrix[2] + matrix[4]);
+    var x1 = +(bounds.xMax * matrix[0] + bounds.yMin * matrix[2] + matrix[4]);
+    var x2 = +(bounds.xMin * matrix[0] + bounds.yMax * matrix[2] + matrix[4]);
+    var x3 = +(bounds.xMin * matrix[0] + bounds.yMin * matrix[2] + matrix[4]);
+    var y0 = +(bounds.xMax * matrix[1] + bounds.yMax * matrix[3] + matrix[5]);
+    var y1 = +(bounds.xMax * matrix[1] + bounds.yMin * matrix[3] + matrix[5]);
+    var y2 = +(bounds.xMin * matrix[1] + bounds.yMax * matrix[3] + matrix[5]);
+    var y3 = +(bounds.xMin * matrix[1] + bounds.yMin * matrix[3] + matrix[5]);
+
+    xMax = +this.$max(this.$max(this.$max(this.$max(xMax, x0), x1), x2), x3);
+    xMin = +this.$min(this.$min(this.$min(this.$min(xMin, x0), x1), x2), x3);
+    yMax = +this.$max(this.$max(this.$max(this.$max(yMax, y0), y1), y2), y3);
+    yMin = +this.$min(this.$min(this.$min(this.$min(yMin, y0), y1), y2), y3);
+
+    return {
+        xMin: xMin,
+        xMax: xMax,
+        yMin: yMin,
+        yMax: yMax
+    };
 };

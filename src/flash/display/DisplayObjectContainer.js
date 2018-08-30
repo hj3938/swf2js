@@ -77,10 +77,10 @@ Object.defineProperties(DisplayObjectContainer.prototype, {
 });
 
 /**
- * @param   {boolean} shouldAction
+ * @param   {boolean} should_action
  * @returns void
  */
-DisplayObjectContainer.prototype._$characterBuild = function (shouldAction)
+DisplayObjectContainer.prototype._$characterBuild = function (should_action)
 {
     var id = 0;
     var length = this._$dictionary.length|0;
@@ -88,7 +88,7 @@ DisplayObjectContainer.prototype._$characterBuild = function (shouldAction)
     while (length > id) {
 
         // attach
-        this._$createInstance(id, shouldAction);
+        this._$createInstance(id, should_action);
 
         id = (id + 1)|0;
     }
@@ -96,15 +96,15 @@ DisplayObjectContainer.prototype._$characterBuild = function (shouldAction)
 
 /**
  * @param   {number}  id
- * @param   {boolean} shouldAction
+ * @param   {boolean} should_action
  * @returns void
  */
-DisplayObjectContainer.prototype._$createInstance = function (id, shouldAction)
+DisplayObjectContainer.prototype._$createInstance = function (id, should_action)
 {
     // build
     var tag       = this._$dictionary[id];
     var character = this.stage._$characters[tag.CharacterId];
-    var obj       = character._$build(this, id, tag, shouldAction);
+    var obj       = character._$build(this, id, tag, should_action);
 
     this._$addInstance(id, obj);
 };

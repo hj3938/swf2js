@@ -526,8 +526,9 @@ MovieClip.prototype._$draw = function (matrix, color_transform, is_clip, visible
     this._$isPlaying = true;
 
 
-    var frame      = this.currentFrame|0;
-    var version    = this.root.actionScriptVersion|0;
+    // set param
+    var frame   = this.currentFrame|0;
+    var version = this.root.actionScriptVersion|0;
 
 
     // build controller

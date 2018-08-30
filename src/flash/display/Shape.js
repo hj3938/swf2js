@@ -5,6 +5,7 @@ var Shape = function ()
 {
     DisplayObject.call(this);
 
+    // origin param
     this._$data     = null;
     this._$graphics = new Graphics();
 

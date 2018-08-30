@@ -64,9 +64,10 @@ Shape.prototype._$getBounds = function (matrix)
     var isDraw   = graphics.isDraw;
 
     if (matrix) {
-        bounds = this.boundsMatrix(this._$bounds, matrix);
+
+        bounds = this.$boundsMatrix(this._$bounds, matrix, null);
         if (isDraw) {
-            gBounds = this.boundsMatrix(graphics.getBounds(), matrix);
+            gBounds = this.$boundsMatrix(graphics.getBounds(), matrix, null);
             bounds.xMin = +this.$min(gBounds.xMin, bounds.xMin);
             bounds.xMax = +this.$max(gBounds.xMax, bounds.xMax);
             bounds.yMin = +this.$min(gBounds.yMin, bounds.yMin);
@@ -486,4 +487,59 @@ Shape.prototype._$doDraw = function (ctx, min_scale, color_transform, is_clip)
         ctx.globalAlpha = 1;
 
     }
+};
+
+/**
+ * @param  {number} x
+ * @param  {number} y
+ * @param  {array}  matrix
+ * @return {boolean}
+ */
+Shape.prototype._$hit = function (x, y, matrix)
+{
+    var hit    = false;
+    var shapes = this._$data;
+    if (shapes) {
+
+        var ctx = this.parent.stage.player.hitContext;
+
+        ctx.setTransform(matrix[0], matrix[1], matrix[2], matrix[3], matrix[4], matrix[5]);
+
+        var idx      = 0;
+        var length   = shapes.length|0;
+        var minScale = this.$min(matrix[0], matrix[3]);
+        while (length > idx) {
+
+            var data     = shapes[idx];
+            var obj      = data.obj;
+            var isStroke = (obj.Width !== undefined);
+
+            ctx.beginPath();
+            var cmd = data.cmd;
+            cmd(ctx);
+
+            if (isStroke) {
+                ctx.lineWidth = this.$max(obj.Width, 1 / minScale);
+                ctx.lineCap   = "round";
+                ctx.lineJoin  = "round";
+            }
+
+            hit = ctx.isPointInPath(x, y);
+            if (hit) {
+                return hit;
+            }
+
+            if ("isPointInStroke" in ctx) {
+                hit = ctx.isPointInStroke(x, y);
+                if (hit) {
+                    return hit;
+                }
+            }
+
+            idx = (idx + 1)|0;
+        }
+
+    }
+
+    return hit;
 };

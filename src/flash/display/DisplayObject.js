@@ -203,7 +203,13 @@ DisplayObject.prototype._$getPlaceObject = function ()
 DisplayObject.prototype._$commonBuild = function (parent, tag)
 {
     // set param
-    this._$index      = tag.Depth|0;
-    this._$startFrame = tag.StartFrame|0;
-    this._$endFrame   = tag.EndFrame|0;
+    this._$index = tag.Depth|0;
+
+    if ("StartFrame" in tag) {
+        this._$startFrame = tag.StartFrame|0;
+    }
+
+    if ("EndFrame" in tag) {
+        this._$endFrame = tag.EndFrame|0;
+    }
 };

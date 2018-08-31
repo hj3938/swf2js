@@ -2176,19 +2176,19 @@ var ExternalInterface = function () {};
  * @param bubbles
  * @param cancelable
  * @param init_dictionary
- * @param init_dataTime
+ * @param init_data_time
  * @constructor
  */
 var AVDictionaryDataEvent = function (
     type, bubbles, cancelable,
-    init_dictionary, init_dataTime
+    init_dictionary, init_data_time
 )
 {
-    this._type            = "";
-    this._bubbles         = false;
-    this._cancelable      = false;
-    this._init_dictionary = null;
-    this.init_dataTime    = null;
+    this._$type            = "";
+    this._$bubbles         = false;
+    this._$cancelable      = false;
+    this._$init_dictionary = null;
+    this._$init_dataTime   = null;
 };
 /**
  * @param type
@@ -2236,13 +2236,13 @@ var AccelerometerEvent = function (
     accelerationX, accelerationY, accelerationZ
 )
 {
-    this._type          = "";
-    this._bubbles       = false;
-    this._cancelable    = false;
-    this._timestamp     = 0;
-    this._accelerationX = 0;
-    this._accelerationY = 0;
-    this._accelerationZ = 0;
+    this._$type          = "";
+    this._$bubbles       = false;
+    this._$cancelable    = false;
+    this._$timestamp     = 0;
+    this._$accelerationX = 0;
+    this._$accelerationY = 0;
+    this._$accelerationZ = 0;
 };
 /**
  * @param type
@@ -2253,10 +2253,10 @@ var AccelerometerEvent = function (
  */
 var ActivityEvent = function (type, bubbles, cancelable, activating)
 {
-    this._type       = "";
-    this._bubbles    = false;
-    this._cancelable = false;
-    this._activating = false;
+    this._$type       = "";
+    this._$bubbles    = false;
+    this._$cancelable = false;
+    this._$activating = false;
 };
 /**
  * @param type
@@ -2268,11 +2268,11 @@ var ActivityEvent = function (type, bubbles, cancelable, activating)
  */
 var AsyncErrorEvent = function (type, bubbles, cancelable, text, error)
 {
-    this._type       = "";
-    this._bubbles    = false;
-    this._cancelable = false;
-    this._text       = "";
-    this._error      = null;
+    this._$type       = "";
+    this._$bubbles    = false;
+    this._$cancelable = false;
+    this._$text       = "";
+    this._$error      = null;
 };
 /**
  * @param type
@@ -2325,79 +2325,225 @@ var DataEvent = function (type, bubbles, cancelable, data)
     this._data       = "";
 };
 /**
- * @type {{ACTIVATE: string, ADDED: string, ADDED_TO_STAGE: string, BROWSER_ZOOM_CHANGE: string, CANCEL: string, CHANGE: string, CHANNEL_MESSAGE: string, CHANNEL_STATE: string, CLEAR: string, CLOSE: string, CLOSING: string, COMPLETE: string, CONNECT: string, CONTEXT3D_CREATE: string, COPY: string, CUT: string, DEACTIVATE: string, DISPLAYING: string, ENTER_FRAME: string, EXIT_FRAME: string, EXITING: string, FRAME_CONSTRUCTED: string, FRAME_LABEL: string, FULLSCREEN: string, HTML_BOUNDS_CHANGE: string, HTML_DOM_INITIALIZE: string, HTML_RENDER: string, ID3: string, INIT: string, LOCATION_CHANGE: string, MOUSE_LEAVE: string, OPEN: string, PASTE: string, REMOVED: string, REMOVED_FROM_STAGE: string, RENDER: string, RESIZE: string, SCROLL: string, SELECT: string, SELECT_ALL: string, SOUND_COMPLETE: string, STANDARD_ERROR_CLOSE: string, STANDARD_INPUT_CLOSE: string, STANDARD_OUTPUT_CLOSE: string, TAB_CHILDREN_CHANGE: string, TAB_ENABLED_CHANGE: string, TAB_INDEX_CHANGE: string, TEXT_INTERACTION_MODE_CHANGE: string, TEXTURE_READY: string, UNLOAD: string, USER_IDLE: string, USER_PRESENT: string, VIDEO_FRAME: string, WORKER_STATE: string}}
+ * @param {string}  type
+ * @param {boolean} bubbles
+ * @param {boolean} cancelable
+ * @constructor
  */
-var Event = {
-    "ACTIVATE"                    : "activate",
-    "ADDED"                       : "added",
-    "ADDED_TO_STAGE"              : "addedToStage",
-    "BROWSER_ZOOM_CHANGE"         : "browserZoomChange",
-    "CANCEL"                      : "cancel",
-    "CHANGE"                      : "change",
-    "CHANNEL_MESSAGE"             : "channelMessage",
-    "CHANNEL_STATE"               : "channelState",
-    "CLEAR"                       : "clear",
-    "CLOSE"                       : "close",
-    "CLOSING"                     : "closing",
-    "COMPLETE"                    : "complete",
-    "CONNECT"                     : "connect",
-    "CONTEXT3D_CREATE"            : "context3DCreate",
-    "COPY"                        : "copy",
-    "CUT"                         : "cut",
-    "DEACTIVATE"                  : "deactivate",
-    "DISPLAYING"                  : "displaying",
-    "ENTER_FRAME"                 : "enterFrame",
-    "EXIT_FRAME"                  : "exitFrame",
-    "EXITING"                     : "exiting",
-    "FRAME_CONSTRUCTED"           : "frameConstructed",
-    "FRAME_LABEL"                 : "frameLabel",
-    "FULLSCREEN"                  : "fullScreen",
-    "HTML_BOUNDS_CHANGE"          : "htmlBoundsChange",
-    "HTML_DOM_INITIALIZE"         : "htmlDOMInitialize",
-    "HTML_RENDER"                 : "htmlRender",
-    "ID3"                         : "id3",
-    "INIT"                        : "init",
-    "LOCATION_CHANGE"             : "locationChange",
-    "MOUSE_LEAVE"                 : "mouseLeave",
-    "OPEN"                        : "open",
-    "PASTE"                       : "paste",
-    "REMOVED"                     : "removed",
-    "REMOVED_FROM_STAGE"          : "removedFromStage",
-    "RENDER"                      : "render",
-    "RESIZE"                      : "resize",
-    "SCROLL"                      : "scroll",
-    "SELECT"                      : "select",
-    "SELECT_ALL"                  : "selectAll",
-    "SOUND_COMPLETE"              : "soundComplete",
-    "STANDARD_ERROR_CLOSE"        : "standardErrorClose",
-    "STANDARD_INPUT_CLOSE"        : "standardInputClose",
-    "STANDARD_OUTPUT_CLOSE"       : "standardOutputClose",
-    "TAB_CHILDREN_CHANGE"         : "tabChildrenChange",
-    "TAB_ENABLED_CHANGE"          : "tabEnabledChange",
-    "TAB_INDEX_CHANGE"            : "tabIndexChange",
-    "TEXT_INTERACTION_MODE_CHANGE": "textInteractionModeChange",
-    "TEXTURE_READY"               : "textureReady",
-    "UNLOAD"                      : "unload",
-    "USER_IDLE"                   : "userIdle",
-    "USER_PRESENT"                : "userPresent",
-    "VIDEO_FRAME"                 : "videoFrame",
-    "WORKER_STATE"                : "workerState"
+var Event = function (type, bubbles, cancelable)
+{
+    OriginalObject.call(this);
+    
+    // init
+    this._$type = type + "";
+
+    if (typeof bubbles === "boolean") {
+        this._$bubbles = bubbles;
+    }
+
+    if (typeof cancelable === "boolean") {
+        this._$cancelable = cancelable;
+    }
+
+    // origin param
+    this._$target = null;
 };
+
+/**
+ * @type {string}
+ */
+Event.ACTIVATE                     = "activate";
+Event.ADDED                        = "added";
+Event.ADDED_TO_STAGE               = "addedToStage";
+Event.BROWSER_ZOOM_CHANGE          = "browserZoomChange";
+Event.CANCEL                       = "cancel";
+Event.CHANGE                       = "change";
+Event.CHANNEL_MESSAGE              = "channelMessage";
+Event.CHANNEL_STATE                = "channelState";
+Event.CLEAR                        = "clear";
+Event.CLOSE                        = "close";
+Event.CLOSING                      = "closing";
+Event.COMPLETE                     = "complete";
+Event.CONNECT                      = "connect";
+Event.CONTEXT3D_CREATE             = "context3DCreate";
+Event.COPY                         = "copy";
+Event.CUT                          = "cut";
+Event.DEACTIVATE                   = "deactivate";
+Event.DISPLAYING                   = "displaying";
+Event.ENTER_FRAME                  = "enterFrame";
+Event.EXIT_FRAME                   = "exitFrame";
+Event.EXITING                      = "exiting";
+Event.FRAME_CONSTRUCTED            = "frameConstructed";
+Event.FRAME_LABEL                  = "frameLabel";
+Event.FULLSCREEN                   = "fullScreen";
+Event.HTML_BOUNDS_CHANGE           = "htmlBoundsChange";
+Event.HTML_DOM_INITIALIZE          = "htmlDOMInitialize";
+Event.HTML_RENDER                  = "htmlRender";
+Event.ID3                          = "id3";
+Event.INIT                         = "init";
+Event.LOCATION_CHANGE              = "locationChange";
+Event.MOUSE_LEAVE                  = "mouseLeave";
+Event.OPEN                         = "open";
+Event.PASTE                        = "paste";
+Event.REMOVED                      = "removed";
+Event.REMOVED_FROM_STAGE           = "removedFromStage";
+Event.RENDER                       = "render";
+Event.RESIZE                       = "resize";
+Event.SCROLL                       = "scroll";
+Event.SELECT                       = "select";
+Event.SELECT_ALL                   = "selectAll";
+Event.SOUND_COMPLETE               = "soundComplete";
+Event.STANDARD_ERROR_CLOSE         = "standardErrorClose";
+Event.STANDARD_INPUT_CLOSE         = "standardInputClose";
+Event.STANDARD_OUTPUT_CLOSE        = "standardOutputClose";
+Event.TAB_CHILDREN_CHANGE          = "tabChildrenChange";
+Event.TAB_ENABLED_CHANGE           = "tabEnabledChange";
+Event.TAB_INDEX_CHANGE             = "tabIndexChange";
+Event.TEXT_INTERACTION_MODE_CHANGE = "textInteractionModeChange";
+Event.TEXTURE_READY                = "textureReady";
+Event.UNLOAD                       = "unload";
+Event.USER_IDLE                    = "userIdle";
+Event.USER_PRESENT                 = "userPresent";
+Event.VIDEO_FRAME                  = "videoFrame";
+Event.WORKER_STATE                 = "workerState";
+
+/**
+ * extends
+ * @type {OriginalObject}
+ */
+Event.prototype = Object.create(OriginalObject.prototype);
+Event.prototype.constructor = Event;
+
+/**
+ * properties
+ */
+Object.defineProperties(Event.prototype, {
+    bubbles: {
+        /**
+         * @return {boolean}
+         */
+        get: function () {
+            return this._$bubbles;
+        },
+        /**
+         * readonly
+         * @return void
+         */
+        set: function () {
+        }
+    },
+    cancelable: {
+        /**
+         * @return {boolean}
+         */
+        get: function () {
+            return this._$cancelable;
+        },
+        /**
+         * readonly
+         * @return void
+         */
+        set: function () {
+        }
+    },
+    currentTarget: {
+        /**
+         * @return {object}
+         */
+        get: function () {
+            return this._$target;
+        },
+        /**
+         * readonly
+         * @return void
+         */
+        set: function () {
+        }
+    },
+    eventPhase: {
+        /**
+         * @return {number}
+         */
+        get: function () {
+            return EventPhase.AT_TARGET;
+        },
+        /**
+         * readonly
+         * @return void
+         */
+        set: function () {
+        }
+    },
+    target: {
+        /**
+         * @return {object}
+         */
+        get: function () {
+            return this._$target;
+        },
+        /**
+         * readonly
+         * @return void
+         */
+        set: function () {
+        }
+    },
+    type: {
+        /**
+         * @return {string}
+         */
+        get: function () {
+            return this._$type;
+        },
+        /**
+         * readonly
+         * @return void
+         */
+        set: function () {}
+    }
+});
+
+/**
+ * @return {Event}
+ */
+Event.prototype.clone = function ()
+{
+    var event = new Event(this.type, this.bubbles, this.cancelable);
+    event._$target = this._$target;
+
+    return event;
+};
+
+/**
+ * @return {string}
+ */
+Event.prototype.toString = function ()
+{
+    return "[Event type=" + this.type
+        + " bubbles="     + this.bubbles
+        + " cancelable="  + this.cancelable
+        + " eventPhase="  + this.eventPhase
+        +"]";
+};
+
+
+
+
+
 /**
  * @constructor
  */
-var EventDispatcher = function ()
+var EventDispatcher = function (target)
 {
     OriginalObject.call(this);
 
-    // init
+    // origin param
     this._$events = {};
-    this._$isLoad = false;
-    this._$active = false;
 };
 
 /**
- * util
+ * extends
+ * @type {OriginalObject}
  */
 EventDispatcher.prototype = Object.create(OriginalObject.prototype);
 EventDispatcher.prototype.constructor = EventDispatcher;
@@ -2537,6 +2683,14 @@ Object.defineProperties(EventDispatcher.prototype, {
 });
 
 /**
+ * @return {string}
+ */
+EventDispatcher.prototype.toString = function ()
+{
+    return "[object EventDispatcher]";
+};
+
+/**
  * @param   {string} type
  * @returns {function}
  */
@@ -2555,39 +2709,71 @@ EventDispatcher.prototype.setOnEvent = function (type, as)
 };
 
 /**
- * @param type
- * @param listener
- * @param useCapture
- * @param priority
- * @param useWeakReference
+ * @param {string}   type
+ * @param {Function} listener
+ * @param {boolean}  use_capture
+ * @param {number}   priority
+ * @param {boolean}  use_weak_reference
  */
-EventDispatcher.prototype.addEventListener = function (type, listener, useCapture, priority, useWeakReference)
-{
-    var events = this._$events;
-    if (!(type in events)) {
-        events[type] = [];
-    }
+EventDispatcher.prototype.addEventListener = function (
+    type, listener, use_capture, priority, use_weak_reference
+) {
+    if (typeof listener === "function") {
 
-    var event = events[type];
-    event[event.length] = listener;
+        // init
+        type = type + "";
+        if (!(type in this._$events)) {
+            this._$events[type] = [];
+        }
+
+        // add
+        if (typeof priority !== "number") {
+
+            this._$events[type].unshift(listener);
+
+        } else {
+
+            // priority
+            this._$events[type][priority] = listener;
+
+        }
+    }
 };
 
 /**
- * @param event
- * @param stage
+ *
+ * @param  {Event}   event
+ * @return {boolean}
  */
-EventDispatcher.prototype.dispatchEvent = function (event, stage)
+EventDispatcher.prototype.dispatchEvent = function (event)
 {
-    var type = event.type;
-    if (this.hasEventListener(type)) {
-        var events   = this._$events[type];
-        event.target = this;
-        this.setActionQueue(events, stage, [event]);
+    if (this.hasEventListener(event.type)) {
+
+        event._$target = this;
+
+        // set listeners
+        var listeners = this._$events[event.type];
+
+        // execute
+        listeners.reverse();
+        for (var idx in listeners) {
+
+            if (!listeners.hasOwnProperty(idx)) {
+                continue;
+            }
+
+            listeners[idx].apply(this, [event]);
+        }
+        listeners.reverse();
+
+        return true;
     }
+
+    return false;
 };
 
 /**
- * @param type
+ * @param   {string} type
  * @returns {boolean}
  */
 EventDispatcher.prototype.hasEventListener = function (type)
@@ -2596,53 +2782,57 @@ EventDispatcher.prototype.hasEventListener = function (type)
 };
 
 /**
- * @param type
- * @param listener
- * @param useCapture
+ * @param {string}   type
+ * @param {Function} listener
+ * @param {boolean}  use_capture
  */
-EventDispatcher.prototype.removeEventListener = function (type, listener, useCapture)
+EventDispatcher.prototype.removeEventListener = function (type, listener, use_capture)
 {
     if (this.hasEventListener(type)) {
-        var events    = this._$events;
-        var listeners = events[type];
-        var length    = 0 | listeners.length;
 
-        var i = 0;
-        while (i < length) {
-            if (listeners[i] !== listener) {
-                i = (i + 1)|0;
+        var listeners = this._$events[type];
+        for (var idx in listeners) {
+
+            if (!listeners.hasOwnProperty(idx)) {
                 continue;
             }
 
-            listeners.slice(i, 0);
-            break;
+            if (listener === listeners[idx]) {
+
+                delete listeners[idx];
+                break;
+
+            }
+
         }
+
     }
 };
 
 /**
- * @param type
+ * @param  {string}  type
+ * @return {boolean}
  */
 EventDispatcher.prototype.willTrigger = function (type)
 {
-    return this.hasEventListener(type);
-};
+    if (this.hasEventListener(type)) {
+        return true;
+    }
 
+    if (this.parent.toString() !== "[object MainTimeline]") {
+        return this.parent.willTrigger(type);
+    }
+
+    return false;
+};
 /**
- * @param as
- * @param stage
- * @param args
+ * @type {{AT_TARGET: number, BUBBLING_PHASE: number, CAPTURING_PHASE: number}}
  */
-EventDispatcher.prototype.setActionQueue = function (as, stage, args)
-{
-    var actions = stage.actions;
-    actions[actions.length] = {
-        as:   as,
-        mc:   this,
-        args: args
-    };
+var EventPhase = {
+    "AT_TARGET" : 2,
+    "BUBBLING_PHASE" : 3,
+    "CAPTURING_PHASE" : 1
 };
-
 /**
  * @param {number|undefined} redMultiplier
  * @param {number|undefined} greenMultiplier
@@ -7464,7 +7654,7 @@ var Sprite = function ()
     this._$graphics       = new Graphics();
     this._$hitArea        = null;
     this._$soundTransform = new SoundTransform();
-    this._$useHandCursor  = false;
+    this._$useHandCursor  = true;
 
 };
 
@@ -7682,6 +7872,12 @@ Sprite.prototype._$draw = function (matrix, color_transform, is_clip, visible)
 
         }
     }
+
+    // add button
+    if (this.buttonMode) {
+        this.stage.player.addEventObject(this, matrix, this._$getBounds(null));
+    }
+
 };
 
 /**
@@ -7837,21 +8033,21 @@ Object.defineProperties(Bitmap.prototype, {
     }
 });
 /**
- * @param width
- * @param height
- * @param transparent
- * @param fillColor
+ * @param {number}  width
+ * @param {number}  height
+ * @param {boolean} transparent
+ * @param {number}  fill_color
  * @constructor
  */
-var BitmapData = function (width, height, transparent, fillColor)
+var BitmapData = function (width, height, transparent, fill_color)
 {
     OriginalObject.call(this);
 
-    this._width       = width|0;
-    this._height      = height|0;
-    this._transparent = (typeof transparent === "boolean") ? transparent : true;
-    this._fillColor   = (typeof fillColor === "number") ? fillColor : 0xFFFFFFFF;
-    this._rect        = new Rectangle(0, 0, this._width, this._height);
+    this._$width       = width|0;
+    this._$height      = height|0;
+    this._$transparent = (typeof transparent === "boolean") ? transparent : true;
+    this._$fillColor   = (typeof fill_color === "number") ? fill_color : 0xFFFFFFFF;
+    this._$rect        = new Rectangle(0, 0, this.width, this.height);
 };
 
 /**
@@ -7865,30 +8061,67 @@ BitmapData.prototype.constructor = BitmapData;
  */
 Object.defineProperties(BitmapData.prototype, {
     width: {
+        /**
+         * @return {number}
+         */
         get: function () {
-            return this._width;
+            return this._$width;
         },
+        /**
+         * readonly
+         * @return void
+         */
         set: function () {}
     },
     height: {
+        /**
+         * @return {number}
+         */
         get: function () {
-            return this._height;
+            return this._$height;
         },
+        /**
+         * readonly
+         * @return void
+         */
         set: function () {}
     },
     transparent: {
+        /**
+         * @return {boolean}
+         */
         get: function () {
-            return this._transparent;
+            return this._$transparent;
         },
+        /**
+         * readonly
+         * @return void
+         */
         set: function () {}
     },
     rect: {
+        /**
+         * @return {number}
+         */
         get: function () {
-            return this._rect;
+            return this._$rect;
         },
+        /**
+         * readonly
+         * @return void
+         */
         set: function () {}
     }
 });
+
+/**
+ * @returns {string}
+ */
+BitmapData.prototype.toString = function ()
+{
+    return "[object BitmapData]";
+};
+
 
 /**
  * @param {BitmapData} sourceBitmapData
@@ -8379,12 +8612,7 @@ var GradientType = {
  */
 var Graphics = function ()
 {
-    // init
-    this.clear();
-
-    // properties
-    this.$cache = false;
-
+    OriginalObject.call(this);
 };
 
 /**
@@ -8394,944 +8622,7 @@ var Graphics = function ()
 Graphics.prototype = Object.create(OriginalObject.prototype);
 Graphics.prototype.constructor = Graphics;
 
-/**
- * @type {number}
- */
-Graphics.prototype.MOVE_TO = 0;
 
-/**
- * @type {number}
- */
-Graphics.prototype.CURVE_TO = 1;
-
-/**
- * @type {number}
- */
-Graphics.prototype.LINE_TO = 2;
-
-/**
- * @type {number}
- */
-Graphics.prototype.CUBIC = 3;
-
-/**
- * @type {number}
- */
-Graphics.prototype.ARC = 4;
-
-/**
- * @type {number}
- */
-Graphics.prototype.FILL_STYLE = 5;
-
-/**
- * @type {number}
- */
-Graphics.prototype.STROKE_STYLE = 6;
-
-/**
- * @type {number}
- */
-Graphics.prototype.FILL = 7;
-
-/**
- * @type {number}
- */
-Graphics.prototype.STROKE = 8;
-
-/**
- * @type {number}
- */
-Graphics.prototype.LINE_WIDTH = 9;
-
-/**
- * @type {number}
- */
-Graphics.prototype.LINE_CAP = 10;
-
-/**
- * @type {number}
- */
-Graphics.prototype.LINE_JOIN = 11;
-
-/**
- * @type {number}
- */
-Graphics.prototype.MITER_LIMIT = 12;
-
-/**
- * @type {number}
- */
-Graphics.prototype.BEGIN_PATH = 13;
-
-/**
- * @param {BitmapData} bitmap
- * @param {Matrix} matrix
- * @param {boolean} repeat
- * @param {boolean} smooth
- * @returns void
- */
-Graphics.prototype.beginBitmapFill = function (bitmap, matrix, repeat, smooth)
-{
-
-};
-
-/**
- * @param rgb
- * @param alpha
- * @returns {Graphics}
- */
-Graphics.prototype.beginFill = function (rgb, alpha)
-{
-    if (typeof rgb === "string") {
-        rgb = this.$colorStringToInt(rgb);
-    }
-
-    rgb   = rgb|0;
-    alpha = +alpha;
-    if (this.$isNaN(alpha)) {
-        alpha  = 100;
-    } else {
-        alpha *= 100;
-    }
-
-    var fillRecodes = this.getFillRecodes();
-
-    // beginPath
-    if (!this.isFillDraw) {
-        fillRecodes[fillRecodes.length] = [this.BEGIN_PATH];
-    }
-
-    // Fill Style
-    var color = this.$intToRGBA(rgb, alpha);
-    fillRecodes[fillRecodes.length] = [this.FILL_STYLE, color.R, color.G, color.B, color.A];
-
-    this.addCacheKey(rgb, alpha);
-
-    // on
-    this.isFillDraw = true;
-    this.isDraw     = true;
-
-    return this;
-};
-
-/**
- *
- * @param {string} type
- * @param {array} colors
- * @param {array} alphas
- * @param {array} ratios
- * @param {Matrix} matrix
- * @param {string} spreadMethod
- * @param {string} interpolationMethod
- * @param {number} focalPointRatio
- * @returns void
- */
-Graphics.prototype.beginGradientFill = function (type, colors, alphas, ratios, matrix, spreadMethod, interpolationMethod, focalPointRatio)
-{
-
-};
-
-/**
- * @param {Shader} shader
- * @param {Matrix} matrix
- * @returns void
- */
-Graphics.prototype.beginShaderFill = function (shader, matrix)
-{
-
-};
-
-/**
- * @returns {Graphics}
- */
-Graphics.prototype.clear = function ()
-{
-    var no = this.$Number.MAX_VALUE;
-
-    this.bounds      = {xMin: no, xMax: -no, yMin: no, yMax: -no};
-    this.maxWidth    = 0;
-    this.command     = null;
-    this.isDraw      = false;
-    this.isFillDraw  = false;
-    this.isLineDraw  = false;
-    this.cacheKey    = "";
-    this.fillRecodes = [];
-    this.lineRecodes = [];
-
-    return this;
-};
-
-/**
- *
- * @param {Graphics} sourceGraphics
- * @returns {Graphics}
- */
-Graphics.prototype.copyFrom = function (sourceGraphics)
-{
-    return new Graphics();
-};
-
-/**
- * @param {number} cp1x
- * @param {number} cp1y
- * @param {number} cp2x
- * @param {number} cp2y
- * @param {number} x
- * @param {number} y
- * @returns {Graphics}
- */
-Graphics.prototype.cubicCurveTo = function (cp1x, cp1y, cp2x, cp2y, x, y)
-{
-    if (this.isFillDraw || this.isLineDraw) {
-        cp1x = +(cp1x * 20);
-        cp1y = +(cp1y * 20);
-        cp2x = +(cp2x * 20);
-        cp2y = +(cp2y * 20);
-        x    = +(x * 20);
-        y    = +(y * 20);
-
-        this.setBounds(x, y);
-        this.setBounds(cp1x, cp1y);
-        this.setBounds(cp2x, cp2y);
-        this.addCacheKey(cp1x, cp1y, cp2x, cp2y, x, y);
-
-        var data = [this.CUBIC, cp1x, cp1y, cp2x, cp2y, x, y];
-
-        if (this.isFillDraw) {
-            var fillRecodes = this.getFillRecodes();
-            fillRecodes[fillRecodes.length] = data;
-        }
-
-        if (this.isLineDraw) {
-            var lineRecodes = this.getLineRecodes();
-            lineRecodes[lineRecodes.length] = data;
-        }
-    }
-
-    return this;
-};
-
-/**
- * @param {number} cx
- * @param {number} cy
- * @param {number} dx
- * @param {number} dy
- * @returns {Graphics}
- */
-Graphics.prototype.curveTo = function (cx, cy, dx, dy)
-{
-    if (this.isFillDraw || this.isLineDraw) {
-        cx = +(cx * 20);
-        cy = +(cy * 20);
-        dx = +(dx * 20);
-        dy = +(dy * 20);
-
-        this.setBounds(cx, cy);
-        this.setBounds(dx, dy);
-        this.addCacheKey(cx, cy, dx, dy);
-
-        var data = [this.CURVE_TO, cx, cy, dx, dy];
-
-        if (this.isFillDraw) {
-            var fillRecodes = this.getFillRecodes();
-            fillRecodes[fillRecodes.length] = data;
-        }
-
-        if (this.isLineDraw) {
-            var lineRecodes = this.getLineRecodes();
-            lineRecodes[lineRecodes.length] = data;
-        }
-    }
-
-    return this;
-};
-
-/**
- * @param {number} x
- * @param {number} y
- * @param {number} radius
- * @returns {Graphics}
- */
-Graphics.prototype.drawCircle = function (x, y, radius)
-{
-    if (this.isFillDraw || this.isLineDraw) {
-        x      = +(x * 20);
-        y      = +(y * 20);
-        radius = +(radius * 20);
-
-        this.setBounds(x - radius, y - radius);
-        this.setBounds(x + radius, y + radius);
-        this.addCacheKey(x, y, radius);
-
-        var data = [this.ARC, x, y, radius];
-
-        if (this.isFillDraw) {
-            var fillRecodes = this.getFillRecodes();
-            fillRecodes[fillRecodes.length] = data;
-        }
-
-        if (this.isLineDraw) {
-            var lineRecodes = this.getLineRecodes();
-            lineRecodes[lineRecodes.length] = data;
-        }
-    }
-
-    return this;
-};
-
-/**
- * @param {number} x
- * @param {number} y
- * @param {number} width
- * @param {number} height
- * @returns {Graphics}
- */
-Graphics.prototype.drawEllipse = function (x, y, width, height)
-{
-    if (this.isFillDraw || this.isLineDraw) {
-        var hw = +(width  / 2); // half width
-        var hh = +(height / 2); // half height
-        var x0 = +(x + hw);
-        var y0 = +(y + hh);
-        var x1 = +(x + width);
-        var y1 = +(y + height);
-        var c  = +(4 / 3 * (this.$SQRT2 - 1));
-        var cw = +(c * hw);
-        var ch = +(c * hh);
-
-        this.moveTo(x0, y);
-        this.cubicCurveTo(x0 + cw, y, x1, y0 - ch, x1, y0);
-        this.cubicCurveTo(x1, y0 + ch, x0 + cw, y1, x0, y1);
-        this.cubicCurveTo(x0 - cw, y1, x, y0 + ch, x,  y0);
-        this.cubicCurveTo(x, y0 - ch, x0 - cw, y, x0, y);
-    }
-
-    return this;
-};
-
-/**
- * @param {Vector} graphicsData
- * @returns void
- */
-Graphics.prototype.drawGraphicsData = function (graphicsData)
-{
-
-};
-
-/**
- * @param {Vector} commands
- * @param {Vector} data
- * @param {string} winding
- * @returns void
- */
-Graphics.prototype.drawPath = function (commands, data, winding)
-{
-
-};
-
-/**
- * @param {number} x
- * @param {number} y
- * @param {number} width
- * @param {number} height
- * @returns {Graphics}
- */
-Graphics.prototype.drawRect = function (x, y, width, height)
-{
-    if (this.isFillDraw || this.isLineDraw) {
-        this.moveTo(x, y);
-        this.lineTo(x + width, y);
-        this.lineTo(x + width, y + height);
-        this.lineTo(x, y + height);
-        this.lineTo(x, y);
-    }
-
-    return this;
-};
-
-/**
- * @param {number} x
- * @param {number} y
- * @param {number} width
- * @param {number} height
- * @param {number} ellipseWidth
- * @param {number} ellipseHeight
- * @returns {Graphics}
- */
-Graphics.prototype.drawRoundRect = function (x, y, width, height, ellipseWidth, ellipseHeight)
-{
-    if (this.isFillDraw || this.isLineDraw) {
-        var hew = +(ellipseWidth / 2);
-        var heh = +(ellipseHeight / 2);
-        var c   = +(4 / 3 * (this.$SQRT2 - 1));
-        var cw  = +(c * hew);
-        var ch  = +(c * heh);
-
-        var dx0 = +(x + hew);
-        var dx1 = +(x + width);
-        var dx2 = +(dx1 - hew);
-
-        var dy0 = +(y + heh);
-        var dy1 = +(y + height);
-        var dy2 = +(dy1 - heh);
-
-        this.moveTo(dx0, y);
-        this.lineTo(dx2, y);
-        this.cubicCurveTo(dx2 + cw, y, dx1, dy0 - ch, dx1, dy0);
-        this.lineTo(dx1, dy2);
-        this.cubicCurveTo(dx1, dy2 + ch, dx2 + cw, dy1, dx2, dy1);
-        this.lineTo(dx0, dy1);
-        this.cubicCurveTo(dx0 - cw, dy1, x, dy2 + ch, x, dy2);
-        this.lineTo(x, dy0);
-        this.cubicCurveTo(x, dy0 - ch, dx0 - cw, y, dx0, y);
-    }
-
-    return this;
-};
-
-/**
- * @param {Vector} vertices
- * @param {Vector} indices
- * @param {Vector} uvtData
- * @param {string} culling
- * @returns {Graphics}
- */
-Graphics.prototype.drawTriangles = function (vertices, indices, uvtData, culling)
-{
-    var length = vertices.length;
-    if (length && length % 3 === 0) {
-        var i = 0;
-        var count = 0;
-        if (indices) {
-            length = indices.length;
-            if (length && length % 3 === 0) {
-                i = 0;
-                while (i < length) {
-                    var idx = indices[i];
-                    if (count === 0) {
-                        this.moveTo(vertices[idx], vertices[idx + 1]);
-                    } else {
-                        this.lineTo(vertices[idx], vertices[idx + 1]);
-                    }
-
-                    count++;
-                    if (count % 3 === 0) {
-                        count = 0;
-                    }
-
-                    i = (i + 1)|0;
-                }
-            }
-        } else {
-            i = 0;
-            while (i < length) {
-                if (count === 0) {
-                    this.moveTo(vertices[i++], vertices[i]);
-                } else {
-                    this.lineTo(vertices[i++], vertices[i]);
-                }
-
-                count++;
-                if (count % 3 === 0) {
-                    count = 0;
-                }
-
-                i = (i + 1)|0;
-            }
-        }
-    }
-
-    return this;
-};
-
-/**
- * @returns {Graphics}
- */
-Graphics.prototype.endFill = function ()
-{
-    if (this.isFillDraw) {
-        var fillRecodes = this.getFillRecodes();
-        fillRecodes[fillRecodes.length] = [this.FILL];
-    }
-
-    this.isFillDraw = false;
-
-    return this;
-};
-
-/**
- * @param {BitmapData} bitmap
- * @param {Matrix} matrix
- * @param {boolean} repeat
- * @param {boolean} smooth
- * @returns void
- */
-Graphics.prototype.lineBitmapStyle = function (bitmap, matrix, repeat, smooth)
-{
-
-};
-
-/**
- * @param {string} type
- * @param {array} colors
- * @param {array} alphas
- * @param {array} ratios
- * @param {Matrix} matrix
- * @param {string} spreadMethod
- * @param {string} interpolationMethod
- * @param {number} focalPointRatio
- * @returns void
- */
-Graphics.prototype.lineGradientStyle = function (type, colors, alphas, ratios, matrix, spreadMethod, interpolationMethod, focalPointRatio)
-{
-
-};
-
-/**
- * @param {Shader} shader
- * @param {Matrix} matrix
- * @returns void
- */
-Graphics.prototype.lineShaderStyle = function (shader, matrix)
-{
-
-};
-
-/**
- * @param {number} width
- * @param {number} rgb
- * @param {number} alpha
- * @param {boolean} pixelHinting
- * @param {string} noScale
- * @param {string} capsStyle
- * @param {string} jointStyle
- * @param {number} miterLimit
- * @returns {Graphics}
- */
-Graphics.prototype.lineStyle = function (width, rgb, alpha, pixelHinting, noScale, capsStyle, jointStyle, miterLimit)
-{
-    var lineRecodes = this.getLineRecodes();
-
-    width = +width;
-    if (!this.$isNaN(width)) {
-        if (rgb === undefined) {
-            rgb = 0;
-        }
-
-        if (typeof rgb === "string") {
-            rgb = this.$colorStringToInt(rgb);
-        }
-
-        if (!capsStyle) {
-            capsStyle = "round";
-        }
-
-        if (!jointStyle) {
-            jointStyle = "round";
-        }
-
-        rgb   = rgb|0;
-        alpha = +alpha;
-        if (this.$isNaN(alpha)) {
-            alpha  = 100;
-        } else {
-            alpha *= 100;
-        }
-
-        var color = this.$intToRGBA(rgb, alpha);
-        if (width < 0.5) {
-            width += 0.2;
-        }
-
-        width *= 20;
-        this.maxWidth = this.$max(this.maxWidth, width);
-
-        if (this.isLineDraw) {
-            lineRecodes[lineRecodes.length] = [this.STROKE];
-        }
-
-        lineRecodes[lineRecodes.length] = [this.BEGIN_PATH];
-        lineRecodes[lineRecodes.length] = [this.STROKE_STYLE, color.R, color.G, color.B, color.A];
-        lineRecodes[lineRecodes.length] = [this.LINE_WIDTH,   width];
-        lineRecodes[lineRecodes.length] = [this.LINE_CAP,     capsStyle];
-        lineRecodes[lineRecodes.length] = [this.LINE_JOIN,    jointStyle];
-
-        this.addCacheKey(rgb, alpha);
-
-        this.isLineDraw = true;
-        this.isDraw = true;
-
-    } else if (this.isLineDraw) {
-        this.isLineDraw = false;
-
-        lineRecodes[lineRecodes.length] = [this.STROKE];
-
-        var length      = lineRecodes.length|0;
-        var fillRecodes = this.getFillRecodes();
-        var i = 0;
-        while (i < length) {
-            fillRecodes[fillRecodes.length] = lineRecodes[i];
-            i = (i + 1)|0;
-        }
-
-        this.lineRecodes = [];
-    }
-
-    return this;
-};
-
-/**
- * @param x
- * @param y
- * @returns {Graphics}
- */
-Graphics.prototype.lineTo = function (x, y)
-{
-    if (this.isFillDraw || this.isLineDraw) {
-        x *= 20;
-        y *= 20;
-        this.setBounds(x, y);
-        this.addCacheKey(x, y);
-    }
-
-    if (this.isFillDraw) {
-        var fillRecodes = this.getFillRecodes();
-        fillRecodes[fillRecodes.length] = [this.LINE_TO, x, y];
-    }
-
-    if (this.isLineDraw) {
-        var lineRecodes = this.getLineRecodes();
-        lineRecodes[lineRecodes.length] = [this.LINE_TO, x, y];
-    }
-
-    return this;
-};
-
-/**
- * @param x
- * @param y
- * @returns {Graphics}
- */
-Graphics.prototype.moveTo = function (x, y)
-{
-    if (this.isFillDraw || this.isLineDraw) {
-        x *= 20;
-        y *= 20;
-        this.setBounds(x, y);
-        this.addCacheKey(x, y);
-    }
-
-    if (this.isFillDraw) {
-        var fillRecodes = this.getFillRecodes();
-        fillRecodes[fillRecodes.length] = [this.MOVE_TO, x, y];
-    }
-
-    if (this.isLineDraw) {
-        var lineRecodes = this.getLineRecodes();
-        lineRecodes[lineRecodes.length] = [this.MOVE_TO, x, y];
-    }
-
-    return this;
-};
-
-/**
- * @returns {string}
- */
-Graphics.prototype.toString = function ()
-{
-    return "[object Graphics]";
-};
-
-
-
-
-
-
-
-
-/**
- * @returns {string}
- */
-Graphics.prototype.getClassName = function ()
-{
-    return "Graphics";
-};
-
-/**
- * @returns {Array}
- */
-Graphics.prototype.getFillRecodes = function ()
-{
-    return this.fillRecodes;
-};
-
-/**
- * @returns {Array}
- */
-Graphics.prototype.getLineRecodes = function ()
-{
-    return this.lineRecodes;
-};
-
-/**
- * @returns {Array}
- */
-Graphics.prototype.getCommand = function ()
-{
-    return this.command;
-};
-
-/**
- * @param command
- */
-Graphics.prototype.setCommand = function (command)
-{
-    this.command = command;
-};
-
-/**
- * @returns {string}
- */
-Graphics.prototype.getCacheKey = function ()
-{
-    return this.cacheKey;
-};
-
-/**
- * @returns {string}
- */
-Graphics.prototype.addCacheKey = function ()
-{
-    var args     = arguments;
-    var cacheKey = "";
-    var length   = args.length|0;
-    if (length) {
-        var i = 0;
-        while (i < length) {
-            cacheKey = cacheKey + "_" + args[i];
-            i = (i + 1)|0;
-        }
-    }
-
-    this.cacheKey = this.cacheKey + cacheKey;
-};
-
-/**
- * @returns {*}
- */
-Graphics.prototype.getBounds = function ()
-{
-    return this.bounds;
-};
-
-/**
- * @param x
- * @param y
- */
-Graphics.prototype.setBounds = function (x, y)
-{
-    var bounds  = this.bounds;
-    bounds.xMin = this.$min(bounds.xMin, x);
-    bounds.xMax = this.$max(bounds.xMax, x);
-    bounds.yMin = this.$min(bounds.yMin, y);
-    bounds.yMax = this.$max(bounds.yMax, y);
-};
-
-/**
- * @param ctx
- * @param matrix
- * @param colorTransform
- * @param stage
- * @returns {*}
- */
-Graphics.prototype.render = function (ctx, matrix, colorTransform, stage)
-{
-    var cacheKey = "";
-    var alpha    = colorTransform[3] + (colorTransform[7] / 255);
-    if (!alpha) {
-        return cacheKey;
-    }
-
-    var rMatrix = this.$multiplicationMatrix(stage.getMatrix(), matrix);
-    var xScale  = +this.$sqrt(rMatrix[0] * rMatrix[0] + rMatrix[1] * rMatrix[1]);
-    var yScale  = +this.$sqrt(rMatrix[2] * rMatrix[2] + rMatrix[3] * rMatrix[3]);
-    xScale = +this.$pow(this.$SQRT2, this.$ceil(this.$log(xScale) / this.$LN2_2 - this.$LOG1P));
-    yScale = +this.$pow(this.$SQRT2, this.$ceil(this.$log(yScale) / this.$LN2_2 - this.$LOG1P));
-
-    var maxWidth  = this.maxWidth;
-    var halfWidth = maxWidth / 2;
-
-    var bounds = this.getBounds();
-    var xMax   = +bounds.xMax;
-    var xMin   = +bounds.xMin;
-    var yMax   = +bounds.yMax;
-    var yMin   = +bounds.yMin;
-
-    var W = this.$abs(this.$ceil((xMax - xMin + maxWidth) * xScale))|0;
-    var H = this.$abs(this.$ceil((yMax - yMin + maxWidth) * yScale))|0;
-    if (W <= 0 || H <= 0) {
-        return cacheKey;
-    }
-
-    var cache;
-    var canvas;
-    var isClipDepth = stage.clipMc || this.isClipDepth;
-    if (!isClipDepth) {
-        var cacheStore = this.$cacheStore;
-
-        cacheKey = cacheStore.generateKey(0, [xScale, yScale], colorTransform);
-        cacheKey = cacheKey + this.getCacheKey();
-
-        cache = cacheStore.getCache(cacheKey);
-        if (!cache && stage.getWidth() > W && stage.getHeight() > H && cacheStore.size > (W * H)) {
-            canvas        = cacheStore.getCanvas();
-            canvas.width  = W;
-            canvas.height = H;
-            cache         = canvas.getContext("2d");
-
-            var cMatrix = [xScale, 0, 0, yScale, (-xMin + halfWidth) * xScale, (-yMin + halfWidth) * yScale];
-            cache.setTransform(cMatrix[0], cMatrix[1], cMatrix[2], cMatrix[3], cMatrix[4], cMatrix[5]);
-            cache = this.executeRender(cache, this.$min(xScale, yScale), colorTransform, false);
-            cacheStore.setCache(cacheKey, cache);
-        }
-    }
-
-    if (cache) {
-        canvas = cache.canvas;
-
-        var sMatrix = [1 / xScale, 0, 0, 1 / yScale, xMin - halfWidth, yMin - halfWidth];
-
-        var m2 = this.$multiplicationMatrix(rMatrix, sMatrix);
-        ctx.setTransform(m2[0], m2[1], m2[2], m2[3], m2[4], m2[5]);
-
-        if (this.$isAndroid4x && !this.$isChrome) {
-            ctx.fillStyle = stage.context.createPattern(cache.canvas, "no-repeat");
-            ctx.fillRect(0, 0, W, H);
-        } else {
-            ctx.drawImage(canvas, 0, 0, W, H);
-        }
-    } else {
-        ctx.setTransform(rMatrix[0],rMatrix[1],rMatrix[2],rMatrix[3],rMatrix[4],rMatrix[5]);
-        this.executeRender(ctx, this.$min(rMatrix[0], rMatrix[3]), colorTransform, isClipDepth);
-    }
-
-    return cacheKey + "_" + rMatrix[4] + "_" + rMatrix[5];
-};
-
-/**
- * @param ctx
- * @param minScale
- * @param colorTransform
- * @param isClip
- */
-Graphics.prototype.executeRender = function (ctx, minScale, colorTransform, isClip)
-{
-    var fillRecodes = this.getFillRecodes();
-    var lineRecodes = this.getLineRecodes();
-
-    var lLen = lineRecodes.length;
-    var fLen = fillRecodes.length;
-
-    if (fLen || lLen) {
-        var command = this.getCommand();
-
-        // build command
-        if (command === null) {
-            command = this.buildCommand();
-            this.setCommand(command);
-        }
-
-        ctx.beginPath();
-        command(ctx, colorTransform, isClip);
-
-        // rendering
-        switch (true) {
-            case isClip:
-                ctx.clip();
-                break;
-            default:
-                if (this.isFillDraw) {
-                    ctx.fill();
-                }
-
-                if (this.isLineDraw) {
-                    ctx.stroke();
-                }
-                break;
-        }
-    }
-
-    var resetCss    = "rgba(0,0,0,1)";
-    ctx.strokeStyle = resetCss;
-    ctx.fillStyle   = resetCss;
-    ctx.globalAlpha = 1;
-
-    return ctx;
-};
-
-/**
- * @param ctx
- * @param matrix
- * @param stage
- * @param x
- * @param y
- * @returns {boolean}
- */
-Graphics.prototype.renderHitTest = function (ctx, matrix, stage, x, y)
-{
-    var command = this.getCommand();
-
-    // build command
-    if (command === null) {
-        command = this.buildCommand();
-        this.setCommand(command);
-    }
-
-    var m = this.$multiplicationMatrix(stage.getMatrix(), matrix);
-    ctx.setTransform(m[0], m[1], m[2], m[3], m[4], m[5]);
-
-    ctx.beginPath();
-    command(ctx, [1,1,1,1,0,0,0,0], true);
-
-    var hit = ctx.isPointInPath(x, y);
-    if (hit) {
-        return hit;
-    }
-
-    if ("isPointInStroke" in ctx) {
-        hit = ctx.isPointInStroke(x, y);
-        if (hit) {
-            return hit;
-        }
-    }
-
-    return hit;
-};
-
-
-/**
- * @returns {*}
- */
-Graphics.prototype.buildCommand = function ()
-{
-    var fillRecodes = this.getFillRecodes();
-    var lineRecodes = this.getLineRecodes();
-
-    var length = lineRecodes.length;
-    if (length) {
-        var i = 0;
-        while (i < length) {
-            fillRecodes[fillRecodes.length] = lineRecodes[i];
-            i = (i + 1)|0;
-        }
-
-        // reset
-        this.lineRecodes = [];
-    }
-
-    return this.$vtc.buildCommand(fillRecodes);
-};
 /**
  * @param bitmapData
  * @param matrix
@@ -10184,6 +9475,11 @@ MovieClip.prototype._$draw = function (matrix, color_transform, is_clip, visible
     // if (clips.length || this.mask) {
     if (clips.length) {
         ctx.restore();
+    }
+
+    // add button
+    if (this.buttonMode) {
+        this.stage.player.addEventObject(this, matrix, this._$getBounds(null));
     }
 
     // case action script2
@@ -11219,7 +10515,7 @@ var SimpleButton = function (upState, overState, downState, hitTestState)
     this._$upState        = null;
     this._$useHandCursor  = true;
 
-    // set
+    // init
     this.downState        = downState;
     this.hitTestState     = hitTestState;
     this.overState        = overState;
@@ -11565,12 +10861,12 @@ SimpleButton.prototype._$draw = function (matrix, color_transform, is_clip, visi
     var state = this[this._$status + "State"];
     state._$draw(matrix, color_transform, is_clip, visible);
 
-    // hit state
-    player.eventObjects.unshift({
-        "instance": this,
-        "matrix"  : this.$cloneArray(matrix),
-        "bounds"  : this._$getBounds(null, "hitTest")
-    });
+    // add button
+    player.addEventObject(
+        this,
+        this.$cloneArray(matrix),
+        this._$getBounds(null, "hitTest")
+    );
 };
 
 /**
@@ -30108,6 +29404,21 @@ Player.prototype.setRatio = function ()
 };
 
 /**
+ * @param {DisplayObject} instance
+ * @param {array} matrix
+ * @param {object} bounds
+ */
+Player.prototype.addEventObject = function (instance, matrix, bounds)
+{
+    this.eventObjects.unshift({
+        "instance": instance,
+        "matrix"  : this.$cloneArray(matrix),
+        "bounds"  : bounds
+    });
+};
+
+
+/**
  * @returns void
  */
 Player.prototype.play = function ()
@@ -30734,8 +30045,15 @@ Player.prototype.hitTest = function (event)
                 ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
                 // hit test
-                if (obj.instance._$hit(pointX, pointY, obj.matrix)) {
+                var instance = obj.instance;
+                if (instance._$hit(pointX, pointY, obj.matrix)) {
+
+                    if (!isTouch && instance.useHandCursor) {
+                        this.canvas.style.cursor = "pointer";
+                    }
+
                     this.activeObject = obj;
+
                     return true;
                 }
             }
@@ -30744,6 +30062,7 @@ Player.prototype.hitTest = function (event)
         }
     }
 
+    this.canvas.style.cursor = "auto";
     return false;
 };
 

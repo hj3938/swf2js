@@ -8,9 +8,9 @@
  */
 var AsyncErrorEvent = function (type, bubbles, cancelable, text, error)
 {
-    this._type       = "";
-    this._bubbles    = false;
-    this._cancelable = false;
-    this._text       = "";
-    this._error      = null;
+    this._$type       = "";
+    this._$bubbles    = false;
+    this._$cancelable = false;
+    this._$text       = "";
+    this._$error      = null;
 };

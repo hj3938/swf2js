@@ -13,11 +13,11 @@ var AccelerometerEvent = function (
     accelerationX, accelerationY, accelerationZ
 )
 {
-    this._type          = "";
-    this._bubbles       = false;
-    this._cancelable    = false;
-    this._timestamp     = 0;
-    this._accelerationX = 0;
-    this._accelerationY = 0;
-    this._accelerationZ = 0;
+    this._$type          = "";
+    this._$bubbles       = false;
+    this._$cancelable    = false;
+    this._$timestamp     = 0;
+    this._$accelerationX = 0;
+    this._$accelerationY = 0;
+    this._$accelerationZ = 0;
 };

@@ -1,18 +1,17 @@
 /**
  * @constructor
  */
-var EventDispatcher = function ()
+var EventDispatcher = function (target)
 {
     OriginalObject.call(this);
 
-    // init
+    // origin param
     this._$events = {};
-    this._$isLoad = false;
-    this._$active = false;
 };
 
 /**
- * util
+ * extends
+ * @type {OriginalObject}
  */
 EventDispatcher.prototype = Object.create(OriginalObject.prototype);
 EventDispatcher.prototype.constructor = EventDispatcher;
@@ -152,6 +151,14 @@ Object.defineProperties(EventDispatcher.prototype, {
 });
 
 /**
+ * @return {string}
+ */
+EventDispatcher.prototype.toString = function ()
+{
+    return "[object EventDispatcher]";
+};
+
+/**
  * @param   {string} type
  * @returns {function}
  */
@@ -170,39 +177,71 @@ EventDispatcher.prototype.setOnEvent = function (type, as)
 };
 
 /**
- * @param type
- * @param listener
- * @param useCapture
- * @param priority
- * @param useWeakReference
+ * @param {string}   type
+ * @param {Function} listener
+ * @param {boolean}  use_capture
+ * @param {number}   priority
+ * @param {boolean}  use_weak_reference
  */
-EventDispatcher.prototype.addEventListener = function (type, listener, useCapture, priority, useWeakReference)
-{
-    var events = this._$events;
-    if (!(type in events)) {
-        events[type] = [];
-    }
+EventDispatcher.prototype.addEventListener = function (
+    type, listener, use_capture, priority, use_weak_reference
+) {
+    if (typeof listener === "function") {
 
-    var event = events[type];
-    event[event.length] = listener;
+        // init
+        type = type + "";
+        if (!(type in this._$events)) {
+            this._$events[type] = [];
+        }
+
+        // add
+        if (typeof priority !== "number") {
+
+            this._$events[type].unshift(listener);
+
+        } else {
+
+            // priority
+            this._$events[type][priority] = listener;
+
+        }
+    }
 };
 
 /**
- * @param event
- * @param stage
+ *
+ * @param  {Event}   event
+ * @return {boolean}
  */
-EventDispatcher.prototype.dispatchEvent = function (event, stage)
+EventDispatcher.prototype.dispatchEvent = function (event)
 {
-    var type = event.type;
-    if (this.hasEventListener(type)) {
-        var events   = this._$events[type];
-        event.target = this;
-        this.setActionQueue(events, stage, [event]);
+    if (this.hasEventListener(event.type)) {
+
+        event._$target = this;
+
+        // set listeners
+        var listeners = this._$events[event.type];
+
+        // execute
+        listeners.reverse();
+        for (var idx in listeners) {
+
+            if (!listeners.hasOwnProperty(idx)) {
+                continue;
+            }
+
+            listeners[idx].apply(this, [event]);
+        }
+        listeners.reverse();
+
+        return true;
     }
+
+    return false;
 };
 
 /**
- * @param type
+ * @param   {string} type
  * @returns {boolean}
  */
 EventDispatcher.prototype.hasEventListener = function (type)
@@ -211,49 +250,46 @@ EventDispatcher.prototype.hasEventListener = function (type)
 };
 
 /**
- * @param type
- * @param listener
- * @param useCapture
+ * @param {string}   type
+ * @param {Function} listener
+ * @param {boolean}  use_capture
  */
-EventDispatcher.prototype.removeEventListener = function (type, listener, useCapture)
+EventDispatcher.prototype.removeEventListener = function (type, listener, use_capture)
 {
     if (this.hasEventListener(type)) {
-        var events    = this._$events;
-        var listeners = events[type];
-        var length    = 0 | listeners.length;
 
-        var i = 0;
-        while (i < length) {
-            if (listeners[i] !== listener) {
-                i = (i + 1)|0;
+        var listeners = this._$events[type];
+        for (var idx in listeners) {
+
+            if (!listeners.hasOwnProperty(idx)) {
                 continue;
             }
 
-            listeners.slice(i, 0);
-            break;
+            if (listener === listeners[idx]) {
+
+                delete listeners[idx];
+                break;
+
+            }
+
         }
+
     }
 };
 
 /**
- * @param type
+ * @param  {string}  type
+ * @return {boolean}
  */
 EventDispatcher.prototype.willTrigger = function (type)
 {
-    return this.hasEventListener(type);
-};
+    if (this.hasEventListener(type)) {
+        return true;
+    }
 
-/**
- * @param as
- * @param stage
- * @param args
- */
-EventDispatcher.prototype.setActionQueue = function (as, stage, args)
-{
-    var actions = stage.actions;
-    actions[actions.length] = {
-        as:   as,
-        mc:   this,
-        args: args
-    };
+    if (this.parent.toString() !== "[object MainTimeline]") {
+        return this.parent.willTrigger(type);
+    }
+
+    return false;
 };

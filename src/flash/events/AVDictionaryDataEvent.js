@@ -3,17 +3,17 @@
  * @param bubbles
  * @param cancelable
  * @param init_dictionary
- * @param init_dataTime
+ * @param init_data_time
  * @constructor
  */
 var AVDictionaryDataEvent = function (
     type, bubbles, cancelable,
-    init_dictionary, init_dataTime
+    init_dictionary, init_data_time
 )
 {
-    this._type            = "";
-    this._bubbles         = false;
-    this._cancelable      = false;
-    this._init_dictionary = null;
-    this.init_dataTime    = null;
+    this._$type            = "";
+    this._$bubbles         = false;
+    this._$cancelable      = false;
+    this._$init_dictionary = null;
+    this._$init_dataTime   = null;
 };

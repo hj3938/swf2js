@@ -7,8 +7,8 @@
  */
 var ActivityEvent = function (type, bubbles, cancelable, activating)
 {
-    this._type       = "";
-    this._bubbles    = false;
-    this._cancelable = false;
-    this._activating = false;
+    this._$type       = "";
+    this._$bubbles    = false;
+    this._$cancelable = false;
+    this._$activating = false;
 };

@@ -1,59 +1,205 @@
 /**
- * @type {{ACTIVATE: string, ADDED: string, ADDED_TO_STAGE: string, BROWSER_ZOOM_CHANGE: string, CANCEL: string, CHANGE: string, CHANNEL_MESSAGE: string, CHANNEL_STATE: string, CLEAR: string, CLOSE: string, CLOSING: string, COMPLETE: string, CONNECT: string, CONTEXT3D_CREATE: string, COPY: string, CUT: string, DEACTIVATE: string, DISPLAYING: string, ENTER_FRAME: string, EXIT_FRAME: string, EXITING: string, FRAME_CONSTRUCTED: string, FRAME_LABEL: string, FULLSCREEN: string, HTML_BOUNDS_CHANGE: string, HTML_DOM_INITIALIZE: string, HTML_RENDER: string, ID3: string, INIT: string, LOCATION_CHANGE: string, MOUSE_LEAVE: string, OPEN: string, PASTE: string, REMOVED: string, REMOVED_FROM_STAGE: string, RENDER: string, RESIZE: string, SCROLL: string, SELECT: string, SELECT_ALL: string, SOUND_COMPLETE: string, STANDARD_ERROR_CLOSE: string, STANDARD_INPUT_CLOSE: string, STANDARD_OUTPUT_CLOSE: string, TAB_CHILDREN_CHANGE: string, TAB_ENABLED_CHANGE: string, TAB_INDEX_CHANGE: string, TEXT_INTERACTION_MODE_CHANGE: string, TEXTURE_READY: string, UNLOAD: string, USER_IDLE: string, USER_PRESENT: string, VIDEO_FRAME: string, WORKER_STATE: string}}
+ * @param {string}  type
+ * @param {boolean} bubbles
+ * @param {boolean} cancelable
+ * @constructor
  */
-var Event = {
-    "ACTIVATE"                    : "activate",
-    "ADDED"                       : "added",
-    "ADDED_TO_STAGE"              : "addedToStage",
-    "BROWSER_ZOOM_CHANGE"         : "browserZoomChange",
-    "CANCEL"                      : "cancel",
-    "CHANGE"                      : "change",
-    "CHANNEL_MESSAGE"             : "channelMessage",
-    "CHANNEL_STATE"               : "channelState",
-    "CLEAR"                       : "clear",
-    "CLOSE"                       : "close",
-    "CLOSING"                     : "closing",
-    "COMPLETE"                    : "complete",
-    "CONNECT"                     : "connect",
-    "CONTEXT3D_CREATE"            : "context3DCreate",
-    "COPY"                        : "copy",
-    "CUT"                         : "cut",
-    "DEACTIVATE"                  : "deactivate",
-    "DISPLAYING"                  : "displaying",
-    "ENTER_FRAME"                 : "enterFrame",
-    "EXIT_FRAME"                  : "exitFrame",
-    "EXITING"                     : "exiting",
-    "FRAME_CONSTRUCTED"           : "frameConstructed",
-    "FRAME_LABEL"                 : "frameLabel",
-    "FULLSCREEN"                  : "fullScreen",
-    "HTML_BOUNDS_CHANGE"          : "htmlBoundsChange",
-    "HTML_DOM_INITIALIZE"         : "htmlDOMInitialize",
-    "HTML_RENDER"                 : "htmlRender",
-    "ID3"                         : "id3",
-    "INIT"                        : "init",
-    "LOCATION_CHANGE"             : "locationChange",
-    "MOUSE_LEAVE"                 : "mouseLeave",
-    "OPEN"                        : "open",
-    "PASTE"                       : "paste",
-    "REMOVED"                     : "removed",
-    "REMOVED_FROM_STAGE"          : "removedFromStage",
-    "RENDER"                      : "render",
-    "RESIZE"                      : "resize",
-    "SCROLL"                      : "scroll",
-    "SELECT"                      : "select",
-    "SELECT_ALL"                  : "selectAll",
-    "SOUND_COMPLETE"              : "soundComplete",
-    "STANDARD_ERROR_CLOSE"        : "standardErrorClose",
-    "STANDARD_INPUT_CLOSE"        : "standardInputClose",
-    "STANDARD_OUTPUT_CLOSE"       : "standardOutputClose",
-    "TAB_CHILDREN_CHANGE"         : "tabChildrenChange",
-    "TAB_ENABLED_CHANGE"          : "tabEnabledChange",
-    "TAB_INDEX_CHANGE"            : "tabIndexChange",
-    "TEXT_INTERACTION_MODE_CHANGE": "textInteractionModeChange",
-    "TEXTURE_READY"               : "textureReady",
-    "UNLOAD"                      : "unload",
-    "USER_IDLE"                   : "userIdle",
-    "USER_PRESENT"                : "userPresent",
-    "VIDEO_FRAME"                 : "videoFrame",
-    "WORKER_STATE"                : "workerState"
+var Event = function (type, bubbles, cancelable)
+{
+    OriginalObject.call(this);
+    
+    // init
+    this._$type = type + "";
+
+    if (typeof bubbles === "boolean") {
+        this._$bubbles = bubbles;
+    }
+
+    if (typeof cancelable === "boolean") {
+        this._$cancelable = cancelable;
+    }
+
+    // origin param
+    this._$target = null;
 };
+
+/**
+ * @type {string}
+ */
+Event.ACTIVATE                     = "activate";
+Event.ADDED                        = "added";
+Event.ADDED_TO_STAGE               = "addedToStage";
+Event.BROWSER_ZOOM_CHANGE          = "browserZoomChange";
+Event.CANCEL                       = "cancel";
+Event.CHANGE                       = "change";
+Event.CHANNEL_MESSAGE              = "channelMessage";
+Event.CHANNEL_STATE                = "channelState";
+Event.CLEAR                        = "clear";
+Event.CLOSE                        = "close";
+Event.CLOSING                      = "closing";
+Event.COMPLETE                     = "complete";
+Event.CONNECT                      = "connect";
+Event.CONTEXT3D_CREATE             = "context3DCreate";
+Event.COPY                         = "copy";
+Event.CUT                          = "cut";
+Event.DEACTIVATE                   = "deactivate";
+Event.DISPLAYING                   = "displaying";
+Event.ENTER_FRAME                  = "enterFrame";
+Event.EXIT_FRAME                   = "exitFrame";
+Event.EXITING                      = "exiting";
+Event.FRAME_CONSTRUCTED            = "frameConstructed";
+Event.FRAME_LABEL                  = "frameLabel";
+Event.FULLSCREEN                   = "fullScreen";
+Event.HTML_BOUNDS_CHANGE           = "htmlBoundsChange";
+Event.HTML_DOM_INITIALIZE          = "htmlDOMInitialize";
+Event.HTML_RENDER                  = "htmlRender";
+Event.ID3                          = "id3";
+Event.INIT                         = "init";
+Event.LOCATION_CHANGE              = "locationChange";
+Event.MOUSE_LEAVE                  = "mouseLeave";
+Event.OPEN                         = "open";
+Event.PASTE                        = "paste";
+Event.REMOVED                      = "removed";
+Event.REMOVED_FROM_STAGE           = "removedFromStage";
+Event.RENDER                       = "render";
+Event.RESIZE                       = "resize";
+Event.SCROLL                       = "scroll";
+Event.SELECT                       = "select";
+Event.SELECT_ALL                   = "selectAll";
+Event.SOUND_COMPLETE               = "soundComplete";
+Event.STANDARD_ERROR_CLOSE         = "standardErrorClose";
+Event.STANDARD_INPUT_CLOSE         = "standardInputClose";
+Event.STANDARD_OUTPUT_CLOSE        = "standardOutputClose";
+Event.TAB_CHILDREN_CHANGE          = "tabChildrenChange";
+Event.TAB_ENABLED_CHANGE           = "tabEnabledChange";
+Event.TAB_INDEX_CHANGE             = "tabIndexChange";
+Event.TEXT_INTERACTION_MODE_CHANGE = "textInteractionModeChange";
+Event.TEXTURE_READY                = "textureReady";
+Event.UNLOAD                       = "unload";
+Event.USER_IDLE                    = "userIdle";
+Event.USER_PRESENT                 = "userPresent";
+Event.VIDEO_FRAME                  = "videoFrame";
+Event.WORKER_STATE                 = "workerState";
+
+/**
+ * extends
+ * @type {OriginalObject}
+ */
+Event.prototype = Object.create(OriginalObject.prototype);
+Event.prototype.constructor = Event;
+
+/**
+ * properties
+ */
+Object.defineProperties(Event.prototype, {
+    bubbles: {
+        /**
+         * @return {boolean}
+         */
+        get: function () {
+            return this._$bubbles;
+        },
+        /**
+         * readonly
+         * @return void
+         */
+        set: function () {
+        }
+    },
+    cancelable: {
+        /**
+         * @return {boolean}
+         */
+        get: function () {
+            return this._$cancelable;
+        },
+        /**
+         * readonly
+         * @return void
+         */
+        set: function () {
+        }
+    },
+    currentTarget: {
+        /**
+         * @return {object}
+         */
+        get: function () {
+            return this._$target;
+        },
+        /**
+         * readonly
+         * @return void
+         */
+        set: function () {
+        }
+    },
+    eventPhase: {
+        /**
+         * @return {number}
+         */
+        get: function () {
+            return EventPhase.AT_TARGET;
+        },
+        /**
+         * readonly
+         * @return void
+         */
+        set: function () {
+        }
+    },
+    target: {
+        /**
+         * @return {object}
+         */
+        get: function () {
+            return this._$target;
+        },
+        /**
+         * readonly
+         * @return void
+         */
+        set: function () {
+        }
+    },
+    type: {
+        /**
+         * @return {string}
+         */
+        get: function () {
+            return this._$type;
+        },
+        /**
+         * readonly
+         * @return void
+         */
+        set: function () {}
+    }
+});
+
+/**
+ * @return {Event}
+ */
+Event.prototype.clone = function ()
+{
+    var event = new Event(this.type, this.bubbles, this.cancelable);
+    event._$target = this._$target;
+
+    return event;
+};
+
+/**
+ * @return {string}
+ */
+Event.prototype.toString = function ()
+{
+    return "[Event type=" + this.type
+        + " bubbles="     + this.bubbles
+        + " cancelable="  + this.cancelable
+        + " eventPhase="  + this.eventPhase
+        +"]";
+};
+
+
+
+

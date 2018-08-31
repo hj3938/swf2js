@@ -2691,21 +2691,30 @@ EventDispatcher.prototype.toString = function ()
 };
 
 /**
- * @param   {string} type
+ * @param  {string}   type
+ * @return {boolean}
+ */
+EventDispatcher.prototype.hasOnEvent = function (type)
+{
+    return (type in this._$variables);
+};
+
+/**
+ * @param   {string}   type
  * @returns {function}
  */
 EventDispatcher.prototype.getOnEvent = function (type)
 {
-    return (type in this._$variables) ? this._$variables[type]: null;
+    return this.hasOnEvent(type) ? this._$variables[type]: null;
 };
 
 /**
  * @param {string} type
- * @param {function} as
+ * @param {*} action_script
  */
-EventDispatcher.prototype.setOnEvent = function (type, as)
+EventDispatcher.prototype.setOnEvent = function (type, action_script)
 {
-    this._$variables[type] = as;
+    this._$variables[type] = action_script;
 };
 
 /**
@@ -28642,6 +28651,7 @@ var Player = function ()
     this._$matrix           = [1, 0, 0, 1, 0, 0];
     this._$colorTransform   = [1, 1, 1, 1, 0, 0, 0, 0];
     this._$backgroundColor  = "transparent";
+    this._$state            = "up";
 
     // canvas
     this._$context          = null;
@@ -29996,9 +30006,10 @@ Player.prototype.draw = function ()
 Player.prototype.hitTest = function (event)
 {
     var eventObjects = this.eventObjects;
-    var length = eventObjects.length;
 
+    var length = eventObjects.length;
     if (length) {
+
         var div  = this.$document.getElementById(this.name);
         var rect = div.getBoundingClientRect();
 
@@ -30048,11 +30059,19 @@ Player.prototype.hitTest = function (event)
                 var instance = obj.instance;
                 if (instance._$hit(pointX, pointY, obj.matrix)) {
 
-                    if (!isTouch && instance.useHandCursor) {
+                    // PC
+                    if (!isTouch && instance.useHandCursor && this._$state === "up") {
+
                         this.canvas.style.cursor = "pointer";
+
                     }
 
-                    this.activeObject = obj;
+                    if (this._$state === "up") {
+
+                        event.preventDefault();
+                        this.activeObject = obj;
+
+                    }
 
                     return true;
                 }
@@ -30062,7 +30081,6 @@ Player.prototype.hitTest = function (event)
         }
     }
 
-    this.canvas.style.cursor = "auto";
     return false;
 };
 
@@ -30073,31 +30091,85 @@ Player.prototype.hitTest = function (event)
 Player.prototype.moveEvent = function (event)
 {
     var instance;
-    if (this.hitTest(event)) {
+    switch (this.hitTest(event)) {
 
-        instance = this.activeObject.instance;
-        if (instance.toString() === "[object SimpleButton]") {
+        case true:
 
-            if (instance._$status === "up") {
-                instance._$changeState("over");
-            }
+            if (this.activeObject) {
 
-        }
+                instance = this.activeObject.instance;
+                if (instance.toString() === "[object SimpleButton]") {
 
-    } else {
+                    switch (this._$state) {
 
-        if (this.activeObject) {
-            instance = this.activeObject.instance;
-            if (instance.toString() === "[object SimpleButton]") {
+                        case "up":
 
-                if (instance._$status === "over") {
-                    instance._$changeState("up");
+                            if (instance._$status !== "over") {
+
+                                instance._$changeState("over");
+
+                            }
+
+                            break;
+
+                        case "down":
+
+                            if (instance._$status === "over") {
+
+                                instance._$changeState("down");
+
+                            }
+
+                            break;
+                    }
+
                 }
 
             }
-        }
 
-        this.activeObject = null;
+            break;
+
+        case false:
+
+            switch (this.activeObject === null) {
+
+                case true:
+
+                    this.canvas.style.cursor = "auto";
+
+                    break;
+
+                case false:
+
+                    instance = this.activeObject.instance;
+                    if (instance.toString() === "[object SimpleButton]") {
+
+
+                        switch (this._$state) {
+
+                            case "down":
+
+                                instance._$changeState("over");
+
+                                break;
+
+                            case "up":
+
+                                instance._$changeState("up");
+                                this.activeObject = null;
+                                this.canvas.style.cursor = "auto";
+
+                                break;
+                        }
+
+                    }
+
+
+
+                    break;
+            }
+
+            break;
 
     }
 };
@@ -30108,34 +30180,66 @@ Player.prototype.moveEvent = function (event)
  */
 Player.prototype.downEvent = function (event)
 {
+    // pc operation
+    if (!isTouch) {
+        this._$state = "down";
+    }
+
     var instance;
-    if (this.hitTest(event)) {
 
-        instance = this.activeObject.instance;
-        if (instance.toString() === "[object SimpleButton]") {
+    switch (this.hitTest(event)) {
 
-            if (instance._$status !== "down") {
+        case true:
 
-                instance._$changeState("down");
-
-            }
-        }
-
-    } else {
-
-        if (this.activeObject) {
             instance = this.activeObject.instance;
             if (instance.toString() === "[object SimpleButton]") {
 
-                if (instance._$status === "down") {
-                    instance._$changeState("up");
+                if (instance._$status !== "down") {
+
+                    instance._$changeState("down");
+
                 }
+            }
+
+            break;
+
+        case false:
+
+            switch (this.activeObject === null) {
+
+                case true:
+
+                    this.canvas.style.cursor = "auto";
+
+                    break;
+
+                case false:
+
+                    instance = this.activeObject.instance;
+                    if (instance.toString() === "[object SimpleButton]") {
+
+                        if (instance._$status !== "up") {
+
+                            instance._$changeState("up");
+
+                        }
+
+                    }
+                    this.activeObject = null;
+
+                    break;
 
             }
-        }
 
-        this.activeObject = null;
+            break;
+
     }
+
+    // sp operation
+    if (isTouch) {
+        this._$state = "down";
+    }
+
 };
 
 /**
@@ -30144,37 +30248,65 @@ Player.prototype.downEvent = function (event)
  */
 Player.prototype.upEvent = function (event)
 {
+    // operation
+    this._$state = "up";
+
     var instance;
-    if (this.hitTest(event)) {
+    switch (this.hitTest(event)) {
 
-        instance = this.activeObject.instance;
-        if (instance.toString() === "[object SimpleButton]") {
+        case true:
 
-            if (instance._$status === "down") {
-
-                instance._$changeState("over");
-
-            }
-        }
-
-    } else {
-
-        if (this.activeObject) {
             instance = this.activeObject.instance;
             if (instance.toString() === "[object SimpleButton]") {
 
-                if (instance._$status === "down") {
-                    instance._$changeState("up");
+                switch (isTouch) {
+
+                    case true:
+
+                        instance._$changeState("up");
+
+                        break;
+
+                    case false:
+
+                        if (instance._$status !== "over") {
+
+                            instance._$changeState("over");
+
+                        }
+
+                        break;
+
+                }
+            }
+
+
+            break;
+
+        case false:
+
+            if (this.activeObject) {
+
+                instance = this.activeObject.instance;
+                if (instance.toString() === "[object SimpleButton]") {
+
+                    if (instance._$status !== "up") {
+
+                        instance._$changeState("up");
+
+                    }
+
                 }
 
             }
-        }
 
-        this.activeObject = null;
+            // reset
+            this.canvas.style.cursor = "auto";
+            this.activeObject = null;
+
+            break;
     }
-
 };
-
 /**
  * @constructor
  */

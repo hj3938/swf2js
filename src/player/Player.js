@@ -1494,6 +1494,7 @@ Player.prototype.moveEvent = function (event)
                             if (instance._$status !== "over") {
 
                                 instance._$changeState("over");
+                                this.draw();
 
                             }
 
@@ -1504,6 +1505,7 @@ Player.prototype.moveEvent = function (event)
                             if (instance._$status === "over") {
 
                                 instance._$changeState("down");
+                                this.draw();
 
                             }
 
@@ -1537,12 +1539,14 @@ Player.prototype.moveEvent = function (event)
                             case "down":
 
                                 instance._$changeState("over");
+                                this.draw();
 
                                 break;
 
                             case "up":
 
                                 instance._$changeState("up");
+                                this.draw();
                                 this.activeObject = null;
                                 this.canvas.style.cursor = "auto";
 
@@ -1584,6 +1588,7 @@ Player.prototype.downEvent = function (event)
                 if (instance._$status !== "down") {
 
                     instance._$changeState("down");
+                    this.draw();
 
                 }
             }
@@ -1608,6 +1613,7 @@ Player.prototype.downEvent = function (event)
                         if (instance._$status !== "up") {
 
                             instance._$changeState("up");
+                            this.draw();
 
                         }
 
@@ -1651,6 +1657,7 @@ Player.prototype.upEvent = function (event)
                     case true:
 
                         instance._$changeState("up");
+                        this.draw();
 
                         break;
 
@@ -1659,6 +1666,7 @@ Player.prototype.upEvent = function (event)
                         if (instance._$status !== "over") {
 
                             instance._$changeState("over");
+                            this.draw();
 
                         }
 
@@ -1680,6 +1688,7 @@ Player.prototype.upEvent = function (event)
                     if (instance._$status !== "up") {
 
                         instance._$changeState("up");
+                        this.draw();
 
                     }
 

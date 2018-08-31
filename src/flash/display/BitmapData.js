@@ -1,19 +1,19 @@
 /**
- * @param width
- * @param height
- * @param transparent
- * @param fillColor
+ * @param {number}  width
+ * @param {number}  height
+ * @param {boolean} transparent
+ * @param {number}  fill_color
  * @constructor
  */
-var BitmapData = function (width, height, transparent, fillColor)
+var BitmapData = function (width, height, transparent, fill_color)
 {
     OriginalObject.call(this);
 
-    this._width       = width|0;
-    this._height      = height|0;
-    this._transparent = (typeof transparent === "boolean") ? transparent : true;
-    this._fillColor   = (typeof fillColor === "number") ? fillColor : 0xFFFFFFFF;
-    this._rect        = new Rectangle(0, 0, this._width, this._height);
+    this._$width       = width|0;
+    this._$height      = height|0;
+    this._$transparent = (typeof transparent === "boolean") ? transparent : true;
+    this._$fillColor   = (typeof fill_color === "number") ? fill_color : 0xFFFFFFFF;
+    this._$rect        = new Rectangle(0, 0, this.width, this.height);
 };
 
 /**
@@ -27,30 +27,67 @@ BitmapData.prototype.constructor = BitmapData;
  */
 Object.defineProperties(BitmapData.prototype, {
     width: {
+        /**
+         * @return {number}
+         */
         get: function () {
-            return this._width;
+            return this._$width;
         },
+        /**
+         * readonly
+         * @return void
+         */
         set: function () {}
     },
     height: {
+        /**
+         * @return {number}
+         */
         get: function () {
-            return this._height;
+            return this._$height;
         },
+        /**
+         * readonly
+         * @return void
+         */
         set: function () {}
     },
     transparent: {
+        /**
+         * @return {boolean}
+         */
         get: function () {
-            return this._transparent;
+            return this._$transparent;
         },
+        /**
+         * readonly
+         * @return void
+         */
         set: function () {}
     },
     rect: {
+        /**
+         * @return {number}
+         */
         get: function () {
-            return this._rect;
+            return this._$rect;
         },
+        /**
+         * readonly
+         * @return void
+         */
         set: function () {}
     }
 });
+
+/**
+ * @returns {string}
+ */
+BitmapData.prototype.toString = function ()
+{
+    return "[object BitmapData]";
+};
+
 
 /**
  * @param {BitmapData} sourceBitmapData

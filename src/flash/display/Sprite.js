@@ -12,7 +12,7 @@ var Sprite = function ()
     this._$graphics       = new Graphics();
     this._$hitArea        = null;
     this._$soundTransform = new SoundTransform();
-    this._$useHandCursor  = false;
+    this._$useHandCursor  = true;
 
 };
 
@@ -230,6 +230,12 @@ Sprite.prototype._$draw = function (matrix, color_transform, is_clip, visible)
 
         }
     }
+
+    // add button
+    if (this.buttonMode) {
+        this.stage.player.addEventObject(this, matrix, this._$getBounds(null));
+    }
+
 };
 
 /**

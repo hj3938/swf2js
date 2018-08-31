@@ -800,6 +800,21 @@ Player.prototype.setRatio = function ()
 };
 
 /**
+ * @param {DisplayObject} instance
+ * @param {array} matrix
+ * @param {object} bounds
+ */
+Player.prototype.addEventObject = function (instance, matrix, bounds)
+{
+    this.eventObjects.unshift({
+        "instance": instance,
+        "matrix"  : this.$cloneArray(matrix),
+        "bounds"  : bounds
+    });
+};
+
+
+/**
  * @returns void
  */
 Player.prototype.play = function ()
@@ -1426,8 +1441,15 @@ Player.prototype.hitTest = function (event)
                 ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
                 // hit test
-                if (obj.instance._$hit(pointX, pointY, obj.matrix)) {
+                var instance = obj.instance;
+                if (instance._$hit(pointX, pointY, obj.matrix)) {
+
+                    if (!isTouch && instance.useHandCursor) {
+                        this.canvas.style.cursor = "pointer";
+                    }
+
                     this.activeObject = obj;
+
                     return true;
                 }
             }
@@ -1436,6 +1458,7 @@ Player.prototype.hitTest = function (event)
         }
     }
 
+    this.canvas.style.cursor = "auto";
     return false;
 };
 

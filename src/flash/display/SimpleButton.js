@@ -19,7 +19,7 @@ var SimpleButton = function (upState, overState, downState, hitTestState)
     this._$upState        = null;
     this._$useHandCursor  = true;
 
-    // set
+    // init
     this.downState        = downState;
     this.hitTestState     = hitTestState;
     this.overState        = overState;
@@ -365,12 +365,12 @@ SimpleButton.prototype._$draw = function (matrix, color_transform, is_clip, visi
     var state = this[this._$status + "State"];
     state._$draw(matrix, color_transform, is_clip, visible);
 
-    // hit state
-    player.eventObjects.unshift({
-        "instance": this,
-        "matrix"  : this.$cloneArray(matrix),
-        "bounds"  : this._$getBounds(null, "hitTest")
-    });
+    // add button
+    player.addEventObject(
+        this,
+        this.$cloneArray(matrix),
+        this._$getBounds(null, "hitTest")
+    );
 };
 
 /**

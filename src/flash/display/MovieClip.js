@@ -653,6 +653,11 @@ MovieClip.prototype._$draw = function (matrix, color_transform, is_clip, visible
         ctx.restore();
     }
 
+    // add button
+    if (this.buttonMode) {
+        this.stage.player.addEventObject(this, matrix, this._$getBounds(null));
+    }
+
     // case action script2
     if (this.toString() === "[object MainTimeline]"
         && version === ActionScriptVersion.ACTIONSCRIPT2

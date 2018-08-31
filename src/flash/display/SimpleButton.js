@@ -208,6 +208,8 @@ SimpleButton.prototype._$build = function (parent, index, tag, should_action)
     // common build
     button._$commonBuild(parent, tag);
 
+    console.log(tag);
+
     /**
      * set place data
      */
@@ -236,6 +238,7 @@ SimpleButton.prototype._$build = function (parent, index, tag, should_action)
     var upState    = new Sprite();
     upState.parent = parent;
     upState.stage  = stage;
+
 
     // build children
     var characters = stage._$characters;
@@ -345,7 +348,6 @@ SimpleButton.prototype._$buildChild = function (parent, id, tag, character)
     instance.transform._$colorTransform = colorTransform;
 
     // TODO filter and blend
-
 
 
     return instance;

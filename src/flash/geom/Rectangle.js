@@ -1,17 +1,19 @@
 /**
- * @param x
- * @param y
- * @param width
- * @param height
+ * @param {number} x
+ * @param {number} y
+ * @param {number} width
+ * @param {number} height
  * @constructor
  */
 var Rectangle = function (x, y, width, height)
 {
+    OriginalObject.call(this);
+
     // default
-    this._x      = 0;
-    this._y      = 0;
-    this._width  = 0;
-    this._height = 0;
+    this._$x      = 0;
+    this._$y      = 0;
+    this._$width  = 0;
+    this._$height = 0;
 
     // init
     this.x      = x||0;
@@ -22,6 +24,7 @@ var Rectangle = function (x, y, width, height)
 
 /**
  * extends
+ * @type {OriginalObject}
  */
 Rectangle.prototype = Object.create(OriginalObject.prototype);
 Rectangle.prototype.constructor = Rectangle;
@@ -31,96 +34,173 @@ Rectangle.prototype.constructor = Rectangle;
  */
 Object.defineProperties(Rectangle.prototype, {
     bottom: {
+        /**
+         * @return {number}
+         */
         get: function () {
             return this.$abs(this.y) + this.height;
         },
+        /**
+         * @param  {number} bottom
+         * @return void
+         */
         set: function (bottom) {
             this.height = +(bottom - this.y);
         }
     },
     bottomRight: {
+        /**
+         * @return {Point}
+         */
         get: function () {
             return new Point(this.right, this.bottom);
         },
+        /**
+         * @param  {Point} value
+         * @return void
+         */
         set: function (value) {
             this.right  = value.x;
             this.bottom = value.y;
         }
     },
     height: {
+        /**
+         * @return {number}
+         */
         get: function () {
-            return this._height / 20;
+            return this._$height / 20;
         },
+        /**
+         * @param  {number} height
+         * @return void
+         */
         set: function (height) {
-            this._height = +(height * 20);
+            this._$height = +(height * 20);
         }
     },
     left: {
+        /**
+         * @return {number}
+         */
         get: function () {
             return this.x;
         },
+        /**
+         * @param  {number} left
+         * @return void
+         */
         set: function (left) {
             this.width = +(this.right - left);
             this.x     = left;
         }
     },
     right: {
+        /**
+         * @return {number}
+         */
         get: function () {
             return +(this.$abs(this.x) + this.width);
         },
+        /**
+         * @param  {number} right
+         * @return void
+         */
         set: function (right) {
             this.width = +(right - this.x);
         }
     },
     size: {
+        /**
+         * @return {Point}
+         */
         get: function () {
             return new Point(this.width, this.height);
         },
+        /**
+         * @param  {Point} value
+         * @return void
+         */
         set: function (value) {
             this.width  = value.x;
             this.height = value.y;
         }
     },
     top: {
+        /**
+         * @return {number}
+         */
         get: function () {
             return this.y;
         },
+        /**
+         * @param  {number} top
+         * @return void
+         */
         set: function (top) {
             this.height = +(this.bottom - top);
             this.y      = top;
         }
     },
     topLeft: {
+        /**
+         * @return {Point}
+         */
         get: function () {
             return new Point(this.x, this.y);
         },
+        /**
+         * @param  {Point} value
+         * @return void
+         */
         set: function (value) {
             this.left = value.x;
             this.top  = value.y;
         }
     },
     width: {
+        /**
+         * @return {number}
+         */
         get: function () {
-            return this._width / 20;
+            return this._$width / 20;
         },
+        /**
+         * @param  {number} width
+         * @return void
+         */
         set: function (width) {
-            this._width = +(width * 20);
+            this._$width = +(width * 20);
         }
     },
     x: {
+        /**
+         * @return {number}
+         */
         get: function () {
-            return this._x / 20;
+            return this._$x / 20;
         },
+        /**
+         * @param  {number} x
+         * @return void
+         */
         set: function (x) {
-            this._x = +(x * 20);
+            this._$x = +(x * 20);
         }
     },
     y: {
+        /**
+         * @return {number}
+         */
         get: function () {
-            return this._y / 20;
+            return this._$y / 20;
         },
+        /**
+         * @param  {number} y
+         * @return void
+         */
         set: function (y) {
-            this._y = +(y * 20);
+            this._$y = +(y * 20);
         }
     }
 });
@@ -134,8 +214,8 @@ Rectangle.prototype.clone = function ()
 };
 
 /**
- * @param {number} x
- * @param {number} y
+ * @param   {number} x
+ * @param   {number} y
  * @returns {boolean}
  */
 Rectangle.prototype.contains = function (x, y)
@@ -144,7 +224,7 @@ Rectangle.prototype.contains = function (x, y)
 };
 
 /**
- * @param {Point} point
+ * @param   {Point}   point
  * @returns {boolean}
  */
 Rectangle.prototype.containsPoint = function (point)
@@ -155,7 +235,7 @@ Rectangle.prototype.containsPoint = function (point)
 
 /**
  *
- * @param {Rectangle} rect
+ * @param   {Rectangle} rect
  * @returns {boolean}
  */
 Rectangle.prototype.containsRect = function (rect)
@@ -165,7 +245,7 @@ Rectangle.prototype.containsRect = function (rect)
 };
 
 /**
- * @param {Rectangle} sourceRect
+ * @param   {Rectangle} sourceRect
  * @returns void
  */
 Rectangle.prototype.copyFrom = function (sourceRect)
@@ -177,7 +257,7 @@ Rectangle.prototype.copyFrom = function (sourceRect)
 };
 
 /**
- * @param {Rectangle} toCompare
+ * @param   {Rectangle} toCompare
  * @returns {boolean}
  */
 Rectangle.prototype.equals = function (toCompare)
@@ -187,8 +267,8 @@ Rectangle.prototype.equals = function (toCompare)
 };
 
 /**
- * @param {number} dx
- * @param {number} dy
+ * @param   {number} dx
+ * @param   {number} dy
  * @returns void
  */
 Rectangle.prototype.inflate = function (dx, dy)
@@ -201,7 +281,7 @@ Rectangle.prototype.inflate = function (dx, dy)
 };
 
 /**
- * @param {Point} point
+ * @param   {Point} point
  * @returns void
  */
 Rectangle.prototype.inflatePoint = function (point)
@@ -214,7 +294,7 @@ Rectangle.prototype.inflatePoint = function (point)
 };
 
 /**
- * @param {Rectangle} toIntersect
+ * @param   {Rectangle} toIntersect
  * @returns {Rectangle}
  */
 Rectangle.prototype.intersection = function (toIntersect)
@@ -230,7 +310,7 @@ Rectangle.prototype.intersection = function (toIntersect)
 };
 
 /**
- * @param {Rectangle} toIntersect
+ * @param   {Rectangle} toIntersect
  * @returns {boolean}
  */
 Rectangle.prototype.intersects = function (toIntersect)
@@ -255,8 +335,8 @@ Rectangle.prototype.isEmpty = function ()
 
 /**
  *
- * @param {number} dx
- * @param {number} dy
+ * @param   {number} dx
+ * @param   {number} dy
  * @returns void
  */
 Rectangle.prototype.offset = function (dx ,dy)
@@ -266,7 +346,7 @@ Rectangle.prototype.offset = function (dx ,dy)
 };
 
 /**
- * @param {Point} point
+ * @param   {Point} point
  * @returns void
  */
 Rectangle.prototype.offsetPoint = function (point)
@@ -288,10 +368,10 @@ Rectangle.prototype.setEmpty = function ()
 
 /**
  *
- * @param {number} xa
- * @param {number} ya
- * @param {number} widtha
- * @param {number} heighta
+ * @param   {number} xa
+ * @param   {number} ya
+ * @param   {number} widtha
+ * @param   {number} heighta
  * @returns void
  */
 Rectangle.prototype.setTo = function (xa, ya, widtha, heighta)
@@ -311,16 +391,19 @@ Rectangle.prototype.toString = function ()
 };
 
 /**
- * @param {Rectangle} toUnion
+ * @param   {Rectangle} toUnion
  * @returns {Rectangle}
  */
 Rectangle.prototype.union = function (toUnion)
 {
     switch (true) {
+
         case this.isEmpty():
             return toUnion.clone();
+
         case toUnion.isEmpty():
             return this.clone();
+
         default:
             return new Rectangle(
                 this.$min(this.x, toUnion.x),
@@ -328,5 +411,6 @@ Rectangle.prototype.union = function (toUnion)
                 this.$max(this.right,  toUnion.right),
                 this.$max(this.bottom, toUnion.bottom)
             );
+
     }
 };

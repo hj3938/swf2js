@@ -2874,14 +2874,12 @@ var ColorTransform = function (
     this.alphaOffset      = alphaOffset;
 };
 
-
 /**
  * extends
  * @type {OriginalObject}
  */
 ColorTransform.prototype = Object.create(OriginalObject.prototype);
 ColorTransform.prototype.constructor = ColorTransform;
-
 
 /**
  * properties
@@ -3070,7 +3068,6 @@ Object.defineProperties(ColorTransform.prototype, {
     }
 });
 
-
 /**
  * @returns {string}
  */
@@ -3179,62 +3176,104 @@ Matrix.prototype.constructor = Matrix;
  */
 Object.defineProperties(Matrix.prototype, {
     a: {
+        /**
+         * @return {number}
+         */
         get: function () {
-            return this._$matrix[0];
+            return +this._$matrix[0];
         },
+        /**
+         * @param  {number} a
+         * @return void
+         */
         set: function (a) {
-            if (!this.$isNaN(a)) {
-                this._$matrix[0] = a;
+            if (typeof a === "number") {
+                this._$matrix[0] = +a;
             }
         }
     },
     b: {
+        /**
+         * @return {number}
+         */
         get: function () {
-            return this._$matrix[1];
+            return +this._$matrix[1];
         },
+        /**
+         * @param  {number} b
+         * @return void
+         */
         set: function (b) {
-            if (!this.$isNaN(b)) {
-                this._$matrix[1] = b;
+            if (typeof b === "number") {
+                this._$matrix[1] = +b;
             }
         }
     },
     c: {
+        /**
+         * @return {number}
+         */
         get: function () {
-            return this._$matrix[2];
+            return +this._$matrix[2];
         },
+        /**
+         * @param  {number} c
+         * @return void
+         */
         set: function (c) {
-            if (!this.$isNaN(c)) {
-                this._$matrix[2] = c;
+            if (typeof c === "number") {
+                this._$matrix[2] = +c;
             }
         }
     },
     d: {
+        /**
+         * @return {number}
+         */
         get: function () {
-            return this._$matrix[3];
+            return +this._$matrix[3];
         },
+        /**
+         * @param  {number} d
+         * @return void
+         */
         set: function (d) {
-            if (!this.$isNaN(d)) {
-                this._$matrix[3] = d;
+            if (typeof d === "number") {
+                this._$matrix[3] = +d;
             }
         }
     },
     tx: {
+        /**
+         * @return {number}
+         */
         get: function () {
-            return this._$matrix[4] / 20;
+            return +(this._$matrix[4] / 20);
         },
+        /**
+         * @param  {number} tx
+         * @return void
+         */
         set: function (tx) {
-            if (!this.$isNaN(tx)) {
-                this._$matrix[4] = tx * 20;
+            if (typeof tx === "number") {
+                this._$matrix[4] = +(tx * 20);
             }
         }
     },
     ty: {
+        /**
+         * @return {number}
+         */
         get: function () {
-            return this._$matrix[5] / 20;
+            return +(this._$matrix[5] / 20);
         },
+        /**
+         * @param  {number} ty
+         * @return void
+         */
         set: function (ty) {
-            if (!this.$isNaN(ty)) {
-                this._$matrix[5] = ty * 20;
+            if (typeof ty === "number") {
+                this._$matrix[5] = +(ty * 20);
             }
         }
     }
@@ -3506,11 +3545,14 @@ Matrix.prototype.translate = function (dx, dy)
  */
 var Matrix3D = function (v)
 {
+    OriginalObject.call(this);
+
     this._v = null;
 };
 
 /**
  * extends
+ * @type {OriginalObject}
  */
 Matrix3D.prototype = Object.create(OriginalObject.prototype);
 Matrix3D.prototype.constructor = Matrix3D;
@@ -3528,8 +3570,8 @@ var Orientation3D = {
 var PerspectiveProjection = function () {};
 
 /**
- * @param x
- * @param y
+ * @param {number} x
+ * @param {number} y
  * @constructor
  */
 var Point = function (x, y)
@@ -3537,8 +3579,8 @@ var Point = function (x, y)
     OriginalObject.call(this);
 
     // default
-    this._x = 0;
-    this._y = 0;
+    this._$x = 0;
+    this._$y = 0;
 
     // init
     this.x = x;
@@ -3547,6 +3589,7 @@ var Point = function (x, y)
 
 /**
  * extends
+ * @type {OriginalObject}
  */
 Point.prototype = Object.create(OriginalObject.prototype);
 Point.prototype.constructor = Point;
@@ -3556,35 +3599,56 @@ Point.prototype.constructor = Point;
  */
 Object.defineProperties(Point.prototype, {
     x: {
+        /**
+         * @return {number}
+         */
         get: function () {
-            return this._x / 20;
+            return this._$x / 20;
         },
+        /**
+         * @param  {number} x
+         * @return void
+         */
         set: function (x) {
-            if (!this.$isNaN(x)) {
-                this._x = x * 20;
+            if (typeof x === "number") {
+                this._$x = x * 20;
             }
         }
     },
     y: {
+        /**
+         * @return {number}
+         */
         get: function () {
-            return this._y / 20;
+            return this._$y / 20;
         },
+        /**
+         * @param  {number} y
+         * @return void
+         */
         set: function (y) {
-            if (!this.$isNaN(y)) {
-                this._y = y * 20;
+            if (typeof y === "number") {
+                this._$y = y * 20;
             }
         }
     },
     length: {
+        /**
+         * @return {number}
+         */
         get: function () {
             return this.$sqrt(this.$pow(this.x, 2) + this.$pow(this.y, 2));
         },
+        /**
+         * readonly
+         * @return void
+         */
         set: function () {}
     }
 });
 
 /**
- * @param {Point} v
+ * @param   {Point} v
  * @returns {Point}
  */
 Point.prototype.add = function (v)
@@ -3601,18 +3665,18 @@ Point.prototype.clone = function ()
 };
 
 /**
- * @param sourcePoint
+ * @param   {Point} source_point
  * @returns void
  */
-Point.prototype.copyFrom = function (sourcePoint)
+Point.prototype.copyFrom = function (source_point)
 {
-    this.x = sourcePoint.x;
-    this.y = sourcePoint.y;
+    this.x = source_point.x;
+    this.y = source_point.y;
 };
 
 /**
- * @param {Point} pt1
- * @param {Point} pt2
+ * @param   {Point} pt1
+ * @param   {Point} pt2
  * @returns {number}
  */
 Point.distance = function (pt1, pt2)
@@ -3622,18 +3686,18 @@ Point.distance = function (pt1, pt2)
 
 /**
  *
- * @param {Point} toCompare
+ * @param   {Point} to_compare
  * @returns {boolean}
  */
-Point.prototype.equals = function (toCompare)
+Point.prototype.equals = function (to_compare)
 {
-    return (this.x === toCompare.x && this.y === toCompare.y);
+    return (this.x === to_compare.x && this.y === to_compare.y);
 };
 
 /**
- * @param {Point} pt1
- * @param {Point} pt2
- * @param {number} f
+ * @param   {Point}  pt1
+ * @param   {Point}  pt2
+ * @param   {number} f
  * @returns {Point}
  */
 Point.interpolate = function (pt1, pt2, f)
@@ -3644,7 +3708,7 @@ Point.interpolate = function (pt1, pt2, f)
 };
 
 /**
- * @param {number} thickness
+ * @param   {number} thickness
  * @returns void
  */
 Point.prototype.normalize = function (thickness)
@@ -3657,8 +3721,8 @@ Point.prototype.normalize = function (thickness)
 };
 
 /**
- * @param {number} dx
- * @param {number} dy
+ * @param   {number} dx
+ * @param   {number} dy
  * @returns {Point}
  */
 Point.prototype.offset = function (dx, dy)
@@ -3668,8 +3732,8 @@ Point.prototype.offset = function (dx, dy)
 };
 
 /**
- * @param {number} len
- * @param {number} angle
+ * @param   {number} len
+ * @param   {number} angle
  * @returns {Point}
  */
 Point.polar = function (len, angle)
@@ -3680,8 +3744,8 @@ Point.polar = function (len, angle)
 };
 
 /**
- * @param {number} xa
- * @param {number} ya
+ * @param   {number} xa
+ * @param   {number} ya
  * @returns void
  */
 Point.prototype.setTo = function (xa, ya)
@@ -3691,7 +3755,7 @@ Point.prototype.setTo = function (xa, ya)
 };
 
 /**
- * @param {Point} v
+ * @param   {Point} v
  * @returns {Point}
  */
 Point.prototype.subtract = function (v)
@@ -3707,19 +3771,21 @@ Point.prototype.toString = function ()
     return "(x="+ this.x +", y="+ this.y +")";
 };
 /**
- * @param x
- * @param y
- * @param width
- * @param height
+ * @param {number} x
+ * @param {number} y
+ * @param {number} width
+ * @param {number} height
  * @constructor
  */
 var Rectangle = function (x, y, width, height)
 {
+    OriginalObject.call(this);
+
     // default
-    this._x      = 0;
-    this._y      = 0;
-    this._width  = 0;
-    this._height = 0;
+    this._$x      = 0;
+    this._$y      = 0;
+    this._$width  = 0;
+    this._$height = 0;
 
     // init
     this.x      = x||0;
@@ -3730,6 +3796,7 @@ var Rectangle = function (x, y, width, height)
 
 /**
  * extends
+ * @type {OriginalObject}
  */
 Rectangle.prototype = Object.create(OriginalObject.prototype);
 Rectangle.prototype.constructor = Rectangle;
@@ -3739,96 +3806,173 @@ Rectangle.prototype.constructor = Rectangle;
  */
 Object.defineProperties(Rectangle.prototype, {
     bottom: {
+        /**
+         * @return {number}
+         */
         get: function () {
             return this.$abs(this.y) + this.height;
         },
+        /**
+         * @param  {number} bottom
+         * @return void
+         */
         set: function (bottom) {
             this.height = +(bottom - this.y);
         }
     },
     bottomRight: {
+        /**
+         * @return {Point}
+         */
         get: function () {
             return new Point(this.right, this.bottom);
         },
+        /**
+         * @param  {Point} value
+         * @return void
+         */
         set: function (value) {
             this.right  = value.x;
             this.bottom = value.y;
         }
     },
     height: {
+        /**
+         * @return {number}
+         */
         get: function () {
-            return this._height / 20;
+            return this._$height / 20;
         },
+        /**
+         * @param  {number} height
+         * @return void
+         */
         set: function (height) {
-            this._height = +(height * 20);
+            this._$height = +(height * 20);
         }
     },
     left: {
+        /**
+         * @return {number}
+         */
         get: function () {
             return this.x;
         },
+        /**
+         * @param  {number} left
+         * @return void
+         */
         set: function (left) {
             this.width = +(this.right - left);
             this.x     = left;
         }
     },
     right: {
+        /**
+         * @return {number}
+         */
         get: function () {
             return +(this.$abs(this.x) + this.width);
         },
+        /**
+         * @param  {number} right
+         * @return void
+         */
         set: function (right) {
             this.width = +(right - this.x);
         }
     },
     size: {
+        /**
+         * @return {Point}
+         */
         get: function () {
             return new Point(this.width, this.height);
         },
+        /**
+         * @param  {Point} value
+         * @return void
+         */
         set: function (value) {
             this.width  = value.x;
             this.height = value.y;
         }
     },
     top: {
+        /**
+         * @return {number}
+         */
         get: function () {
             return this.y;
         },
+        /**
+         * @param  {number} top
+         * @return void
+         */
         set: function (top) {
             this.height = +(this.bottom - top);
             this.y      = top;
         }
     },
     topLeft: {
+        /**
+         * @return {Point}
+         */
         get: function () {
             return new Point(this.x, this.y);
         },
+        /**
+         * @param  {Point} value
+         * @return void
+         */
         set: function (value) {
             this.left = value.x;
             this.top  = value.y;
         }
     },
     width: {
+        /**
+         * @return {number}
+         */
         get: function () {
-            return this._width / 20;
+            return this._$width / 20;
         },
+        /**
+         * @param  {number} width
+         * @return void
+         */
         set: function (width) {
-            this._width = +(width * 20);
+            this._$width = +(width * 20);
         }
     },
     x: {
+        /**
+         * @return {number}
+         */
         get: function () {
-            return this._x / 20;
+            return this._$x / 20;
         },
+        /**
+         * @param  {number} x
+         * @return void
+         */
         set: function (x) {
-            this._x = +(x * 20);
+            this._$x = +(x * 20);
         }
     },
     y: {
+        /**
+         * @return {number}
+         */
         get: function () {
-            return this._y / 20;
+            return this._$y / 20;
         },
+        /**
+         * @param  {number} y
+         * @return void
+         */
         set: function (y) {
-            this._y = +(y * 20);
+            this._$y = +(y * 20);
         }
     }
 });
@@ -3842,8 +3986,8 @@ Rectangle.prototype.clone = function ()
 };
 
 /**
- * @param {number} x
- * @param {number} y
+ * @param   {number} x
+ * @param   {number} y
  * @returns {boolean}
  */
 Rectangle.prototype.contains = function (x, y)
@@ -3852,7 +3996,7 @@ Rectangle.prototype.contains = function (x, y)
 };
 
 /**
- * @param {Point} point
+ * @param   {Point}   point
  * @returns {boolean}
  */
 Rectangle.prototype.containsPoint = function (point)
@@ -3863,7 +4007,7 @@ Rectangle.prototype.containsPoint = function (point)
 
 /**
  *
- * @param {Rectangle} rect
+ * @param   {Rectangle} rect
  * @returns {boolean}
  */
 Rectangle.prototype.containsRect = function (rect)
@@ -3873,7 +4017,7 @@ Rectangle.prototype.containsRect = function (rect)
 };
 
 /**
- * @param {Rectangle} sourceRect
+ * @param   {Rectangle} sourceRect
  * @returns void
  */
 Rectangle.prototype.copyFrom = function (sourceRect)
@@ -3885,7 +4029,7 @@ Rectangle.prototype.copyFrom = function (sourceRect)
 };
 
 /**
- * @param {Rectangle} toCompare
+ * @param   {Rectangle} toCompare
  * @returns {boolean}
  */
 Rectangle.prototype.equals = function (toCompare)
@@ -3895,8 +4039,8 @@ Rectangle.prototype.equals = function (toCompare)
 };
 
 /**
- * @param {number} dx
- * @param {number} dy
+ * @param   {number} dx
+ * @param   {number} dy
  * @returns void
  */
 Rectangle.prototype.inflate = function (dx, dy)
@@ -3909,7 +4053,7 @@ Rectangle.prototype.inflate = function (dx, dy)
 };
 
 /**
- * @param {Point} point
+ * @param   {Point} point
  * @returns void
  */
 Rectangle.prototype.inflatePoint = function (point)
@@ -3922,7 +4066,7 @@ Rectangle.prototype.inflatePoint = function (point)
 };
 
 /**
- * @param {Rectangle} toIntersect
+ * @param   {Rectangle} toIntersect
  * @returns {Rectangle}
  */
 Rectangle.prototype.intersection = function (toIntersect)
@@ -3938,7 +4082,7 @@ Rectangle.prototype.intersection = function (toIntersect)
 };
 
 /**
- * @param {Rectangle} toIntersect
+ * @param   {Rectangle} toIntersect
  * @returns {boolean}
  */
 Rectangle.prototype.intersects = function (toIntersect)
@@ -3963,8 +4107,8 @@ Rectangle.prototype.isEmpty = function ()
 
 /**
  *
- * @param {number} dx
- * @param {number} dy
+ * @param   {number} dx
+ * @param   {number} dy
  * @returns void
  */
 Rectangle.prototype.offset = function (dx ,dy)
@@ -3974,7 +4118,7 @@ Rectangle.prototype.offset = function (dx ,dy)
 };
 
 /**
- * @param {Point} point
+ * @param   {Point} point
  * @returns void
  */
 Rectangle.prototype.offsetPoint = function (point)
@@ -3996,10 +4140,10 @@ Rectangle.prototype.setEmpty = function ()
 
 /**
  *
- * @param {number} xa
- * @param {number} ya
- * @param {number} widtha
- * @param {number} heighta
+ * @param   {number} xa
+ * @param   {number} ya
+ * @param   {number} widtha
+ * @param   {number} heighta
  * @returns void
  */
 Rectangle.prototype.setTo = function (xa, ya, widtha, heighta)
@@ -4019,16 +4163,19 @@ Rectangle.prototype.toString = function ()
 };
 
 /**
- * @param {Rectangle} toUnion
+ * @param   {Rectangle} toUnion
  * @returns {Rectangle}
  */
 Rectangle.prototype.union = function (toUnion)
 {
     switch (true) {
+
         case this.isEmpty():
             return toUnion.clone();
+
         case toUnion.isEmpty():
             return this.clone();
+
         default:
             return new Rectangle(
                 this.$min(this.x, toUnion.x),
@@ -4036,6 +4183,7 @@ Rectangle.prototype.union = function (toUnion)
                 this.$max(this.right,  toUnion.right),
                 this.$max(this.bottom, toUnion.bottom)
             );
+
     }
 };
 
@@ -4064,7 +4212,6 @@ var Transform = function (src)
  */
 Transform.prototype = Object.create(OriginalObject.prototype);
 Transform.prototype.constructor = Transform;
-
 
 /**
  * properties
@@ -4108,6 +4255,7 @@ Object.defineProperties(Transform.prototype, {
             }
         }
     },
+    // TODO
     matrix3D: {
         get: function () {
             return this._$matrix3D;
@@ -4118,6 +4266,7 @@ Object.defineProperties(Transform.prototype, {
             }
         }
     },
+    // TODO
     perspectiveProjection: {
         get: function () {
             return this._$perspectiveProjection;
@@ -4128,18 +4277,21 @@ Object.defineProperties(Transform.prototype, {
             }
         }
     },
+    // TODO
     pixelBounds: {
         get: function () {
             return this._$pixelBounds;
         },
         set: function () {} // readonly
     },
+    // TODO
     concatenatedColorTransform: {
         get: function () {
 
         },
         set: function () {} // readonly
     },
+    // TODO
     concatenatedMatrix: {
         get: function () {
 
@@ -4175,15 +4327,18 @@ Transform.prototype.getRelativeMatrix3D = function (relativeTo)
  */
 var Utils3D = function (percent, mat, pos, at, up)
 {
-    this._percent = 0;
-    this._mat     = null;
-    this._pos     = null;
-    this._at      = null;
-    this._up      = null;
+    OriginalObject.call(this);
+
+    this._$percent = 0;
+    this._$mat     = null;
+    this._$pos     = null;
+    this._$at      = null;
+    this._$up      = null;
 };
 
 /**
  * extends
+ * @type {OriginalObject}
  */
 Utils3D.prototype = Object.create(OriginalObject.prototype);
 Utils3D.prototype.constructor = Utils3D;
@@ -4197,14 +4352,17 @@ Utils3D.prototype.constructor = Utils3D;
  */
 var Vector3D = function (x, y, z, w)
 {
-    this._x = 0;
-    this._y = 0;
-    this._z = 0;
-    this._w = 0;
+    OriginalObject.call(this);
+
+    this._$x = 0;
+    this._$y = 0;
+    this._$z = 0;
+    this._$w = 0;
 };
 
 /**
  * extends
+ * @type {OriginalObject}
  */
 Vector3D.prototype = Object.create(OriginalObject.prototype);
 Vector3D.prototype.constructor = Vector3D;
@@ -7142,7 +7300,6 @@ Object.defineProperties(DisplayObject.prototype, {
         }
     }
 });
-
 
 /**
  * @return {PlaceObject}
@@ -10713,6 +10870,8 @@ SimpleButton.prototype._$build = function (parent, index, tag, should_action)
     // common build
     button._$commonBuild(parent, tag);
 
+    console.log(tag);
+
     /**
      * set place data
      */
@@ -10741,6 +10900,7 @@ SimpleButton.prototype._$build = function (parent, index, tag, should_action)
     var upState    = new Sprite();
     upState.parent = parent;
     upState.stage  = stage;
+
 
     // build children
     var characters = stage._$characters;
@@ -10850,7 +11010,6 @@ SimpleButton.prototype._$buildChild = function (parent, id, tag, character)
     instance.transform._$colorTransform = colorTransform;
 
     // TODO filter and blend
-
 
 
     return instance;

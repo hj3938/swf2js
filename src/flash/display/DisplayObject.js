@@ -182,7 +182,6 @@ Object.defineProperties(DisplayObject.prototype, {
     }
 });
 
-
 /**
  * @return {PlaceObject}
  */

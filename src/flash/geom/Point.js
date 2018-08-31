@@ -1,6 +1,6 @@
 /**
- * @param x
- * @param y
+ * @param {number} x
+ * @param {number} y
  * @constructor
  */
 var Point = function (x, y)
@@ -8,8 +8,8 @@ var Point = function (x, y)
     OriginalObject.call(this);
 
     // default
-    this._x = 0;
-    this._y = 0;
+    this._$x = 0;
+    this._$y = 0;
 
     // init
     this.x = x;
@@ -18,6 +18,7 @@ var Point = function (x, y)
 
 /**
  * extends
+ * @type {OriginalObject}
  */
 Point.prototype = Object.create(OriginalObject.prototype);
 Point.prototype.constructor = Point;
@@ -27,35 +28,56 @@ Point.prototype.constructor = Point;
  */
 Object.defineProperties(Point.prototype, {
     x: {
+        /**
+         * @return {number}
+         */
         get: function () {
-            return this._x / 20;
+            return this._$x / 20;
         },
+        /**
+         * @param  {number} x
+         * @return void
+         */
         set: function (x) {
-            if (!this.$isNaN(x)) {
-                this._x = x * 20;
+            if (typeof x === "number") {
+                this._$x = x * 20;
             }
         }
     },
     y: {
+        /**
+         * @return {number}
+         */
         get: function () {
-            return this._y / 20;
+            return this._$y / 20;
         },
+        /**
+         * @param  {number} y
+         * @return void
+         */
         set: function (y) {
-            if (!this.$isNaN(y)) {
-                this._y = y * 20;
+            if (typeof y === "number") {
+                this._$y = y * 20;
             }
         }
     },
     length: {
+        /**
+         * @return {number}
+         */
         get: function () {
             return this.$sqrt(this.$pow(this.x, 2) + this.$pow(this.y, 2));
         },
+        /**
+         * readonly
+         * @return void
+         */
         set: function () {}
     }
 });
 
 /**
- * @param {Point} v
+ * @param   {Point} v
  * @returns {Point}
  */
 Point.prototype.add = function (v)
@@ -72,18 +94,18 @@ Point.prototype.clone = function ()
 };
 
 /**
- * @param sourcePoint
+ * @param   {Point} source_point
  * @returns void
  */
-Point.prototype.copyFrom = function (sourcePoint)
+Point.prototype.copyFrom = function (source_point)
 {
-    this.x = sourcePoint.x;
-    this.y = sourcePoint.y;
+    this.x = source_point.x;
+    this.y = source_point.y;
 };
 
 /**
- * @param {Point} pt1
- * @param {Point} pt2
+ * @param   {Point} pt1
+ * @param   {Point} pt2
  * @returns {number}
  */
 Point.distance = function (pt1, pt2)
@@ -93,18 +115,18 @@ Point.distance = function (pt1, pt2)
 
 /**
  *
- * @param {Point} toCompare
+ * @param   {Point} to_compare
  * @returns {boolean}
  */
-Point.prototype.equals = function (toCompare)
+Point.prototype.equals = function (to_compare)
 {
-    return (this.x === toCompare.x && this.y === toCompare.y);
+    return (this.x === to_compare.x && this.y === to_compare.y);
 };
 
 /**
- * @param {Point} pt1
- * @param {Point} pt2
- * @param {number} f
+ * @param   {Point}  pt1
+ * @param   {Point}  pt2
+ * @param   {number} f
  * @returns {Point}
  */
 Point.interpolate = function (pt1, pt2, f)
@@ -115,7 +137,7 @@ Point.interpolate = function (pt1, pt2, f)
 };
 
 /**
- * @param {number} thickness
+ * @param   {number} thickness
  * @returns void
  */
 Point.prototype.normalize = function (thickness)
@@ -128,8 +150,8 @@ Point.prototype.normalize = function (thickness)
 };
 
 /**
- * @param {number} dx
- * @param {number} dy
+ * @param   {number} dx
+ * @param   {number} dy
  * @returns {Point}
  */
 Point.prototype.offset = function (dx, dy)
@@ -139,8 +161,8 @@ Point.prototype.offset = function (dx, dy)
 };
 
 /**
- * @param {number} len
- * @param {number} angle
+ * @param   {number} len
+ * @param   {number} angle
  * @returns {Point}
  */
 Point.polar = function (len, angle)
@@ -151,8 +173,8 @@ Point.polar = function (len, angle)
 };
 
 /**
- * @param {number} xa
- * @param {number} ya
+ * @param   {number} xa
+ * @param   {number} ya
  * @returns void
  */
 Point.prototype.setTo = function (xa, ya)
@@ -162,7 +184,7 @@ Point.prototype.setTo = function (xa, ya)
 };
 
 /**
- * @param {Point} v
+ * @param   {Point} v
  * @returns {Point}
  */
 Point.prototype.subtract = function (v)

@@ -30,14 +30,12 @@ var ColorTransform = function (
     this.alphaOffset      = alphaOffset;
 };
 
-
 /**
  * extends
  * @type {OriginalObject}
  */
 ColorTransform.prototype = Object.create(OriginalObject.prototype);
 ColorTransform.prototype.constructor = ColorTransform;
-
 
 /**
  * properties
@@ -225,7 +223,6 @@ Object.defineProperties(ColorTransform.prototype, {
         }
     }
 });
-
 
 /**
  * @returns {string}

@@ -24,7 +24,6 @@ var Transform = function (src)
 Transform.prototype = Object.create(OriginalObject.prototype);
 Transform.prototype.constructor = Transform;
 
-
 /**
  * properties
  */
@@ -67,6 +66,7 @@ Object.defineProperties(Transform.prototype, {
             }
         }
     },
+    // TODO
     matrix3D: {
         get: function () {
             return this._$matrix3D;
@@ -77,6 +77,7 @@ Object.defineProperties(Transform.prototype, {
             }
         }
     },
+    // TODO
     perspectiveProjection: {
         get: function () {
             return this._$perspectiveProjection;
@@ -87,18 +88,21 @@ Object.defineProperties(Transform.prototype, {
             }
         }
     },
+    // TODO
     pixelBounds: {
         get: function () {
             return this._$pixelBounds;
         },
         set: function () {} // readonly
     },
+    // TODO
     concatenatedColorTransform: {
         get: function () {
 
         },
         set: function () {} // readonly
     },
+    // TODO
     concatenatedMatrix: {
         get: function () {
 

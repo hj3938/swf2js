@@ -159,21 +159,30 @@ EventDispatcher.prototype.toString = function ()
 };
 
 /**
- * @param   {string} type
+ * @param  {string}   type
+ * @return {boolean}
+ */
+EventDispatcher.prototype.hasOnEvent = function (type)
+{
+    return (type in this._$variables);
+};
+
+/**
+ * @param   {string}   type
  * @returns {function}
  */
 EventDispatcher.prototype.getOnEvent = function (type)
 {
-    return (type in this._$variables) ? this._$variables[type]: null;
+    return this.hasOnEvent(type) ? this._$variables[type]: null;
 };
 
 /**
  * @param {string} type
- * @param {function} as
+ * @param {*} action_script
  */
-EventDispatcher.prototype.setOnEvent = function (type, as)
+EventDispatcher.prototype.setOnEvent = function (type, action_script)
 {
-    this._$variables[type] = as;
+    this._$variables[type] = action_script;
 };
 
 /**

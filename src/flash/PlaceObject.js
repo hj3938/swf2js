@@ -7,7 +7,7 @@ var PlaceObject = function ()
 
     this._$matrix         = new Matrix();
     this._$colorTransform = new ColorTransform();
-    this._$filters        = null;
+    this._$filters        = [];
     this._$blendMode      = "normal";
 };
 
@@ -17,7 +17,6 @@ var PlaceObject = function ()
  */
 PlaceObject.prototype = Object.create(Util.prototype);
 PlaceObject.prototype.constructor = PlaceObject;
-
 
 /**
  * properties
@@ -55,7 +54,7 @@ Object.defineProperties(PlaceObject.prototype, {
     },
     filters: {
         /**
-         * @returns {array|null}
+         * @returns {array}
          */
         get: function () {
             return this._$filters;
@@ -65,7 +64,9 @@ Object.defineProperties(PlaceObject.prototype, {
          * @returns void
          */
         set: function (filters) {
-            this._$filters = filters;
+            if (this.$isArray(filters)) {
+                this._$filters = filters;
+            }
         }
     },
     blendMode: {

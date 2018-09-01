@@ -8,14 +8,14 @@ var BlurFilter = function ()
     this.filterId = 1;
 
     // default
-    this._blurX    = 4;
-    this._blurY    = 4;
-    this._quality  = 1;
+    this._$blurX    = 4;
+    this._$blurY    = 4;
+    this._$quality  = 1;
 
-    var arg      = arguments;
-    this.blurX   = arg[0];
-    this.blurY   = arg[1];
-    this.quality = arg[2];
+    // init
+    this.blurX   = arguments[0];
+    this.blurY   = arguments[1];
+    this.quality = arguments[2];
 };
 
 /**
@@ -30,88 +30,123 @@ BlurFilter.prototype.constructor = BlurFilter;
  */
 Object.defineProperties(BlurFilter.prototype, {
     blurX: {
+        /**
+         * @return {number}
+         */
         get: function () {
-            return this._blurX;
+            return this._$blurX;
         },
-        set: function (blurX) {
-            if (!this.$isNaN(blurX) && 0 <= blurX && 256 > blurX) {
-                this._blurX = +blurX;
+        /**
+         * @param  {number} blur_x
+         * @return void
+         */
+        set: function (blur_x) {
+            if (typeof blur_x === "number") {
+
+                if (blur_x < 0) {
+                    blur_x = 0;
+                }
+
+                if (255 < blur_x) {
+                    blur_x = 255;
+                }
+
+                this._$blurX = +blur_x;
             }
         }
     },
     blurY: {
+        /**
+         * @return {number}
+         */
         get: function () {
-            return this._blurY;
+            return this._$blurY;
         },
-        set: function (blurY) {
-            if (!this.$isNaN(blurY) && 0 <= blurY && 256 > blurY) {
-                this._blurY = +blurY;
+        /**
+         * @param  {number} blur_y
+         * @return void
+         */
+        set: function (blur_y) {
+            if (typeof blur_y === "number") {
+
+                if (blur_y < 0) {
+                    blur_y = 0;
+                }
+
+                if (255 < blur_y) {
+                    blur_y = 255;
+                }
+
+                this._$blurY = +blur_y;
             }
         }
     },
     quality: {
+        /**
+         * @return {number}
+         */
         get: function () {
-            return this._quality;
+            return this._$quality;
         },
+        /**
+         * @param  {number} quality
+         * @return void
+         */
         set: function (quality) {
-            if (0 < quality && 16 > quality) {
-                this._quality = quality|0;
+            if (typeof quality === "number") {
+
+                if (quality < 0) {
+                    quality = 0;
+                }
+
+                if (15 < quality) {
+                    quality = 15;
+                }
+
+
+                this._$quality = quality|0;
             }
         }
     }
 });
 
 /**
- * @param cache
- * @param colorTransform
- * @param stage
- * @returns {*}
+ * @param  {CanvasRenderingContext2D} context
+ * @param  {array} colorTransform
+ * @param  {Player} player
+ * @return {CanvasRenderingContext2D}
  */
-BlurFilter.prototype.render = function (cache, colorTransform, stage)
+BlurFilter.prototype._$applyFilter = function (context, colorTransform, player)
 {
-    var _blurX = this.blurX;
-    var _blurY = this.blurY;
-    if (!_blurX && !_blurY) {
-        return cache;
+
+    if (!this.blurX && !this.blurY) {
+        return context;
     }
 
-    var cacheCanvas = cache.canvas;
-    var copyCanvas      = this.$cacheStore.getCanvas();
-    copyCanvas.width    = cacheCanvas.width|0;
-    copyCanvas.height   = cacheCanvas.height|0;
 
-    var ctx = copyCanvas.getContext("2d");
-    ctx.drawImage(cacheCanvas, 0, 0);
-
-    ctx._offsetX = +cache._offsetX;
-    ctx._offsetY = +cache._offsetY;
-
-    var scale = stage.getScale();
-
-    var _quality = this.quality|0;
     var STEP     = [0.5, 1.05, 1.35, 1.55, 1.75, 1.9, 2, 2.1, 2.2, 2.3, 2.5, 3, 3, 3.5, 3.5];
-    var stepNo   = STEP[_quality - 1] * 2;
+    var stepNo   = STEP[this.quality - 1] * 2;
 
-    var blurX = this.$ceil(_blurX * stepNo * scale * stage.ratio)|0;
-    var blurY = this.$ceil(_blurY * stepNo * scale * stage.ratio)|0;
+    var blurX = this.$ceil(this.blurX * stepNo * player.scale * player.ratio)|0;
+    var blurY = this.$ceil(this.blurY * stepNo * player.scale * player.ratio)|0;
 
-    var canvas = ctx.canvas;
-    var width  = this.$ceil(canvas.width  + (blurX * 2) + 1)|0;
-    var height = this.$ceil(canvas.height + (blurY * 2) + 1)|0;
+    var width  = this.$ceil(context.canvas.width  + (blurX * 2) + 1)|0;
+    var height = this.$ceil(context.canvas.height + (blurY * 2) + 1)|0;
 
-    var blurCanvas    = this.$cacheStore.getCanvas();
-    blurCanvas.width  = width;
-    blurCanvas.height = height;
+    //
+    var canvas    = this.$cacheStore.getCanvas();
+    canvas.width  = width|0;
+    canvas.height = height|0;
 
-    var blurCtx = blurCanvas.getContext("2d");
+    var ctx = canvas.getContext("2d");
     var offsetX = blurX;
     var offsetY = blurY;
 
-    blurCtx._offsetX = +(blurX + ctx._offsetX);
-    blurCtx._offsetY = +(blurY + ctx._offsetY);
-    blurCtx.drawImage(canvas, offsetX, offsetY);
+    ctx._$offsetX = +(blurX + context._$offsetX);
+    ctx._$offsetY = +(blurY + context._$offsetY);
+    ctx.drawImage(context.canvas, offsetX, offsetY);
 
-    var imgData = blurCtx.getImageData(0, 0, width, height);
+    var imgData = ctx.getImageData(0, 0, width, height);
     var px      = imgData.data;
 
     var radiusX = (offsetX) >> 1;
@@ -171,8 +206,10 @@ BlurFilter.prototype.render = function (cache, colorTransform, stage)
     sy.n = ssy;
 
     var si = null;
-    while (_quality > 0) {
-        _quality = (_quality - 1)|0;
+    var quality = this.quality;
+    while (quality > 0) {
+
+        quality = (quality - 1)|0;
 
         yw = 0;
         yi = 0;
@@ -291,7 +328,7 @@ BlurFilter.prototype.render = function (cache, colorTransform, stage)
 
             yi = x;
             si = ssy;
-            if (_quality > 0) {
+            if (quality > 0) {
                 y = 0;
                 while (y < h) {
                     p = yi << 2;
@@ -352,8 +389,10 @@ BlurFilter.prototype.render = function (cache, colorTransform, stage)
         }
     }
 
-    blurCtx.putImageData(imgData, 0, 0);
-    this.$cacheStore.destroy(ctx);
+    ctx.putImageData(imgData, 0, 0);
 
-    return blurCtx;
+    // destroy
+    this.$cacheStore.destroy(context);
+
+    return ctx;
 };

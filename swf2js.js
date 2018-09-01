@@ -1767,7 +1767,7 @@ var PlaceObject = function ()
 
     this._$matrix         = new Matrix();
     this._$colorTransform = new ColorTransform();
-    this._$filters        = null;
+    this._$filters        = [];
     this._$blendMode      = "normal";
 };
 
@@ -1777,7 +1777,6 @@ var PlaceObject = function ()
  */
 PlaceObject.prototype = Object.create(Util.prototype);
 PlaceObject.prototype.constructor = PlaceObject;
-
 
 /**
  * properties
@@ -1815,7 +1814,7 @@ Object.defineProperties(PlaceObject.prototype, {
     },
     filters: {
         /**
-         * @returns {array|null}
+         * @returns {array}
          */
         get: function () {
             return this._$filters;
@@ -1825,7 +1824,9 @@ Object.defineProperties(PlaceObject.prototype, {
          * @returns void
          */
         set: function (filters) {
-            this._$filters = filters;
+            if (this.$isArray(filters)) {
+                this._$filters = filters;
+            }
         }
     },
     blendMode: {
@@ -4204,6 +4205,8 @@ var Transform = function (src)
 
     // origin param
     this._$displayObject         = src;
+    this._$filters               = null;
+    this._$blendMode             = null;
 };
 
 /**
@@ -4222,9 +4225,25 @@ Object.defineProperties(Transform.prototype, {
          * @return {ColorTransform}
          */
         get: function () {
-            return (this._$colorTransform === null)
-                ? this._$displayObject._$getPlaceObject().colorTransform
-                : this._$colorTransform;
+
+            if (this._$colorTransform) {
+
+                return this._$colorTransform;
+
+            } else {
+
+                var placeObject = this._$displayObject._$getPlaceObject();
+                if (placeObject) {
+
+                    return placeObject.colorTransform;
+
+                }
+
+                this._$transform();
+                return this._$colorTransform;
+
+            }
+
         },
         /**
          * @param  {ColorTransform} colorTransform
@@ -4232,7 +4251,7 @@ Object.defineProperties(Transform.prototype, {
          */
         set: function (colorTransform) {
             if (colorTransform instanceof ColorTransform) {
-                this._$colorTransform = colorTransform._$clone();
+                this._$transform(null, colorTransform._$colorTransform, null, null);
             }
         }
     },
@@ -4241,9 +4260,23 @@ Object.defineProperties(Transform.prototype, {
          * @return {Matrix}
          */
         get: function () {
-            return (this._$matrix === null)
-                ? this._$displayObject._$getPlaceObject().matrix
-                : this._$matrix;
+            if (this._$matrix) {
+
+                return this._$matrix;
+
+            } else {
+
+                var placeObject = this._$displayObject._$getPlaceObject();
+                if (placeObject) {
+
+                    return placeObject.matrix;
+
+                }
+
+                this._$transform();
+                return this._$matrix;
+
+            }
         },
         /**
          * @param  {Matrix} matrix
@@ -4251,7 +4284,7 @@ Object.defineProperties(Transform.prototype, {
          */
         set: function (matrix) {
             if (matrix instanceof Matrix) {
-                this._$matrix = matrix._$clone();
+                this._$transform(matrix._$matrix, null, null, null);
             }
         }
     },
@@ -4316,6 +4349,106 @@ Transform.prototype.getRelativeMatrix3D = function (relativeTo)
 {
     // todo
     return new Matrix3D();
+};
+
+/**
+ * @param  {array|null}  matrix
+ * @param  {array|null}  colorTransform
+ * @param  {array|null}  filters
+ * @param  {string|null} blendMode
+ * @return void
+ */
+Transform.prototype._$transform = function (matrix, colorTransform, filters, blendMode)
+{
+    var placeObject = this._$displayObject._$getPlaceObject();
+
+    // Matrix
+    if (matrix) {
+
+        if (!this._$matrix) {
+            this._$matrix = new Matrix();
+        }
+
+        this._$matrix._$matrix = matrix;
+
+    } else if (!this._$matrix) {
+
+        if (!placeObject) {
+
+            this._$matrix = new Matrix();
+
+        } else {
+
+            this._$matrix = placeObject.matrix._$clone();
+
+        }
+
+    }
+
+
+    // ColorTransform
+    if (colorTransform) {
+
+        if (!this._$colorTransform) {
+            this._$colorTransform = new ColorTransform();
+        }
+
+        this._$colorTransform._$colorTransform = colorTransform;
+
+    } else if (!this._$colorTransform) {
+
+        if (!placeObject) {
+
+            this._$colorTransform = new ColorTransform();
+
+        } else {
+
+            this._$colorTransform = placeObject.colorTransform._$clone();
+
+        }
+
+    }
+
+
+    // Filter
+    if (this.$isArray(filters)) {
+
+        this._$filters = filters;
+
+    } else if (!this._$filters) {
+
+        if (!placeObject) {
+
+            this._$filters = [];
+
+        } else {
+
+            this._$filters = placeObject.filters;
+
+        }
+
+    }
+
+
+    // BlendMode
+    if (blendMode) {
+
+        this._$blendMode = blendMode;
+
+    } else if (!this._$blendMode) {
+
+        if (!placeObject) {
+
+            this._$blendMode = "normal";
+
+        } else {
+
+            this._$blendMode = placeObject.blendMode;
+
+        }
+
+    }
+
 };
 /**
  * @param percent
@@ -5019,14 +5152,14 @@ var BlurFilter = function ()
     this.filterId = 1;
 
     // default
-    this._blurX    = 4;
-    this._blurY    = 4;
-    this._quality  = 1;
+    this._$blurX    = 4;
+    this._$blurY    = 4;
+    this._$quality  = 1;
 
-    var arg      = arguments;
-    this.blurX   = arg[0];
-    this.blurY   = arg[1];
-    this.quality = arg[2];
+    // init
+    this.blurX   = arguments[0];
+    this.blurY   = arguments[1];
+    this.quality = arguments[2];
 };
 
 /**
@@ -5041,88 +5174,123 @@ BlurFilter.prototype.constructor = BlurFilter;
  */
 Object.defineProperties(BlurFilter.prototype, {
     blurX: {
+        /**
+         * @return {number}
+         */
         get: function () {
-            return this._blurX;
+            return this._$blurX;
         },
-        set: function (blurX) {
-            if (!this.$isNaN(blurX) && 0 <= blurX && 256 > blurX) {
-                this._blurX = +blurX;
+        /**
+         * @param  {number} blur_x
+         * @return void
+         */
+        set: function (blur_x) {
+            if (typeof blur_x === "number") {
+
+                if (blur_x < 0) {
+                    blur_x = 0;
+                }
+
+                if (255 < blur_x) {
+                    blur_x = 255;
+                }
+
+                this._$blurX = +blur_x;
             }
         }
     },
     blurY: {
+        /**
+         * @return {number}
+         */
         get: function () {
-            return this._blurY;
+            return this._$blurY;
         },
-        set: function (blurY) {
-            if (!this.$isNaN(blurY) && 0 <= blurY && 256 > blurY) {
-                this._blurY = +blurY;
+        /**
+         * @param  {number} blur_y
+         * @return void
+         */
+        set: function (blur_y) {
+            if (typeof blur_y === "number") {
+
+                if (blur_y < 0) {
+                    blur_y = 0;
+                }
+
+                if (255 < blur_y) {
+                    blur_y = 255;
+                }
+
+                this._$blurY = +blur_y;
             }
         }
     },
     quality: {
+        /**
+         * @return {number}
+         */
         get: function () {
-            return this._quality;
+            return this._$quality;
         },
+        /**
+         * @param  {number} quality
+         * @return void
+         */
         set: function (quality) {
-            if (0 < quality && 16 > quality) {
-                this._quality = quality|0;
+            if (typeof quality === "number") {
+
+                if (quality < 0) {
+                    quality = 0;
+                }
+
+                if (15 < quality) {
+                    quality = 15;
+                }
+
+
+                this._$quality = quality|0;
             }
         }
     }
 });
 
 /**
- * @param cache
- * @param colorTransform
- * @param stage
- * @returns {*}
+ * @param  {CanvasRenderingContext2D} context
+ * @param  {array} colorTransform
+ * @param  {Player} player
+ * @return {CanvasRenderingContext2D}
  */
-BlurFilter.prototype.render = function (cache, colorTransform, stage)
+BlurFilter.prototype._$applyFilter = function (context, colorTransform, player)
 {
-    var _blurX = this.blurX;
-    var _blurY = this.blurY;
-    if (!_blurX && !_blurY) {
-        return cache;
+
+    if (!this.blurX && !this.blurY) {
+        return context;
     }
 
-    var cacheCanvas = cache.canvas;
-    var copyCanvas      = this.$cacheStore.getCanvas();
-    copyCanvas.width    = cacheCanvas.width|0;
-    copyCanvas.height   = cacheCanvas.height|0;
 
-    var ctx = copyCanvas.getContext("2d");
-    ctx.drawImage(cacheCanvas, 0, 0);
-
-    ctx._offsetX = +cache._offsetX;
-    ctx._offsetY = +cache._offsetY;
-
-    var scale = stage.getScale();
-
-    var _quality = this.quality|0;
     var STEP     = [0.5, 1.05, 1.35, 1.55, 1.75, 1.9, 2, 2.1, 2.2, 2.3, 2.5, 3, 3, 3.5, 3.5];
-    var stepNo   = STEP[_quality - 1] * 2;
+    var stepNo   = STEP[this.quality - 1] * 2;
 
-    var blurX = this.$ceil(_blurX * stepNo * scale * stage.ratio)|0;
-    var blurY = this.$ceil(_blurY * stepNo * scale * stage.ratio)|0;
+    var blurX = this.$ceil(this.blurX * stepNo * player.scale * player.ratio)|0;
+    var blurY = this.$ceil(this.blurY * stepNo * player.scale * player.ratio)|0;
 
-    var canvas = ctx.canvas;
-    var width  = this.$ceil(canvas.width  + (blurX * 2) + 1)|0;
-    var height = this.$ceil(canvas.height + (blurY * 2) + 1)|0;
+    var width  = this.$ceil(context.canvas.width  + (blurX * 2) + 1)|0;
+    var height = this.$ceil(context.canvas.height + (blurY * 2) + 1)|0;
 
-    var blurCanvas    = this.$cacheStore.getCanvas();
-    blurCanvas.width  = width;
-    blurCanvas.height = height;
+    //
+    var canvas    = this.$cacheStore.getCanvas();
+    canvas.width  = width|0;
+    canvas.height = height|0;
 
-    var blurCtx = blurCanvas.getContext("2d");
+    var ctx = canvas.getContext("2d");
     var offsetX = blurX;
     var offsetY = blurY;
 
-    blurCtx._offsetX = +(blurX + ctx._offsetX);
-    blurCtx._offsetY = +(blurY + ctx._offsetY);
-    blurCtx.drawImage(canvas, offsetX, offsetY);
+    ctx._$offsetX = +(blurX + context._$offsetX);
+    ctx._$offsetY = +(blurY + context._$offsetY);
+    ctx.drawImage(context.canvas, offsetX, offsetY);
 
-    var imgData = blurCtx.getImageData(0, 0, width, height);
+    var imgData = ctx.getImageData(0, 0, width, height);
     var px      = imgData.data;
 
     var radiusX = (offsetX) >> 1;
@@ -5182,8 +5350,10 @@ BlurFilter.prototype.render = function (cache, colorTransform, stage)
     sy.n = ssy;
 
     var si = null;
-    while (_quality > 0) {
-        _quality = (_quality - 1)|0;
+    var quality = this.quality;
+    while (quality > 0) {
+
+        quality = (quality - 1)|0;
 
         yw = 0;
         yi = 0;
@@ -5302,7 +5472,7 @@ BlurFilter.prototype.render = function (cache, colorTransform, stage)
 
             yi = x;
             si = ssy;
-            if (_quality > 0) {
+            if (quality > 0) {
                 y = 0;
                 while (y < h) {
                     p = yi << 2;
@@ -5363,10 +5533,12 @@ BlurFilter.prototype.render = function (cache, colorTransform, stage)
         }
     }
 
-    blurCtx.putImageData(imgData, 0, 0);
-    this.$cacheStore.destroy(ctx);
+    ctx.putImageData(imgData, 0, 0);
 
-    return blurCtx;
+    // destroy
+    this.$cacheStore.destroy(context);
+
+    return ctx;
 };
 /**
  * @constructor
@@ -5898,33 +6070,35 @@ var DropShadowFilter = function ()
 {
     BitmapFilter.call(this);
 
+    // id
     this.filterId = 0;
 
     // default
-    this._distance   = 4;
-    this._angle      = 45;
-    this._color      = 0;
-    this._alpha      = 1;
-    this._blurX      = 4;
-    this._blurY      = 4;
-    this._strength   = 1;
-    this._quality    = 1;
-    this._inner      = false;
-    this._knockout   = false;
-    this._hideObject = false;
+    this._$distance   = 4;
+    this._$angle      = 45;
+    this._$color      = 0;
+    this._$alpha      = 1;
+    this._$blurX      = 4;
+    this._$blurY      = 4;
+    this._$strength   = 1;
+    this._$quality    = 1;
+    this._$inner      = false;
+    this._$knockout   = false;
+    this._$hideObject = false;
 
-    var arg = arguments;
-    this.distance   = arg[0];
-    this.angle      = arg[1];
-    this.color      = arg[2];
-    this.alpha      = arg[3];
-    this.blurX      = arg[4];
-    this.blurY      = arg[5];
-    this.strength   = arg[6];
-    this.quality    = arg[7];
-    this.inner      = arg[8];
-    this.knockout   = arg[9];
-    this.hideObject = arg[10];
+    // init
+    this.distance     = arguments[0];
+    this.angle        = arguments[1];
+    this.color        = arguments[2];
+    this.alpha        = arguments[3];
+    this.blurX        = arguments[4];
+    this.blurY        = arguments[5];
+    this.strength     = arguments[6];
+    this.quality      = arguments[7];
+    this.inner        = arguments[8];
+    this.knockout     = arguments[9];
+    this.hideObject   = arguments[10];
+
 };
 
 /**
@@ -5939,112 +6113,119 @@ DropShadowFilter.prototype.constructor = DropShadowFilter;
  */
 Object.defineProperties(DropShadowFilter.prototype, {
     distance: {
+        /**
+         * @return {number}
+         */
         get: function () {
-            return this._distance;
+            return this._$distance;
         },
+        /**
+         * @param  distance
+         * @return void
+         */
         set: function (distance) {
-            if (!this.$isNaN(distance)) {
-                this._distance = distance;
+            if (typeof distance === "number") {
+                this._$distance = distance;
             }
         }
     },
     angle: {
         get: function () {
-            return this._angle;
+            return this._$angle;
         },
         set: function (angle) {
             if (!this.$isNaN(angle) && 0 <= angle && 360 >= angle) {
-                this._angle = angle % 360;
+                this._$angle = angle % 360;
             }
         }
     },
     color: {
         get: function () {
-            return this._color;
+            return this._$color;
         },
         set: function (color) {
             if (color) {
-                this._color = this.$toColorInt(color);
+                this._$color = this.$toColorInt(color);
             }
         }
     },
     alpha: {
         get: function () {
-            return this._alphae;
+            return this._$alpha;
         },
         set: function (alpha) {
             if (!this.$isNaN(alpha) && 0 <= alpha && 1 >= alpha) {
-                this._alphae = alpha;
+                this._$alpha = alpha;
             }
         }
     },
     blurX: {
         get: function () {
-            return this._blurX;
+            return this._$blurX;
         },
         set: function (blurX) {
             if (!this.$isNaN(blurX) && 0 <= blurX && 256 > blurX) {
-                this._blurX = blurX;
+                this._$blurX = blurX;
             }
         }
     },
     blurY: {
         get: function () {
-            return this._blurY;
+            return this._$blurY;
         },
         set: function (blurY) {
             if (!this.$isNaN(blurY) && 0 <= blurY && 256 > blurY) {
-                this._blurY = blurY;
+                this._$blurY = blurY;
             }
         }
     },
     strength: {
         get: function () {
-            return this._strength;
+            return this._$strength;
         },
         set: function (strength) {
             if (!this.$isNaN(strength) && 0 <= strength && 256 > strength) {
-                this._strength = strength;
+                this._$strength = strength;
             }
         }
     },
     quality: {
         get: function () {
-            return this._quality;
+            return this._$quality;
         },
         set: function (quality) {
             if (0 < quality && 16 > quality) {
-                this._quality = quality;
+                this._$quality = quality;
             }
         }
     },
     inner: {
         get: function () {
-            return this._inner;
+            return this._$inner;
         },
         set: function (inner) {
             if (typeof inner === "boolean") {
-                this._inner = inner;
+                this._$inner = inner;
             }
         }
     },
     knockout: {
         get: function () {
-            return this._knockout;
+            return this._$knockout;
         },
         set: function (knockout) {
             if (typeof knockout === "boolean") {
-                this._knockout = knockout;
+                this._$knockout = knockout;
             }
         }
     },
     hideObject: {
         get: function () {
-            return this._hideObject;
+            return this._$hideObject;
         },
         set: function (hideObject) {
             if (typeof hideObject === "boolean") {
-                this._hideObject = hideObject;
+                this._$hideObject = hideObject;
             }
         }
     }
@@ -6052,36 +6233,32 @@ Object.defineProperties(DropShadowFilter.prototype, {
 
 
 /**
- * @param cache
- * @param colorTransform
- * @param stage
+ * @param  {CanvasRenderingContext2D} context
+ * @param  {array} colorTransform
+ * @param  {Player} player
+ * @return {CanvasRenderingContext2D}
  */
-DropShadowFilter.prototype.render = function (cache, colorTransform, stage)
+DropShadowFilter.prototype._$applyFilter = function (context, colorTransform, player)
 {
-    var strength = this.strength;
-    if (strength <= 0) {
-        return cache;
+    if (this.strength <= 0) {
+        return context;
     }
 
-    var quality = this.quality;
-    var inner   = this.inner;
-
+    // radian
     var r = +(this.angle * this.$PI / 180);
-    var blurX = this.blurX;
-    var blurY = this.blurY;
 
-    // blur
-    var blurFilter = new BlurFilter(blurX, blurY, quality);
-    var ctx        = blurFilter.render(cache, colorTransform, stage);
+    // blur filter
+    var blurFilter = new BlurFilter(this.blurX, this.blurY, this.quality);
+    var ctx        = blurFilter._$applyFilter(context, colorTransform, stage);
 
     // dropShadow
     var filterColor = this.$intToRGBA(this.color);
     var color       = this.$generateColorTransform(filterColor, colorTransform);
-    ctx             = this.coatOfColor(ctx, color, inner, strength);
+    ctx             = this.coatOfColor(ctx, color, this.inner, this.strength);
 
     // synthesis
-    var cacheOffsetX = cache._offsetX;
-    var cacheOffsetY = cache._offsetY;
+    var cacheOffsetX = context._$offsetX;
+    var cacheOffsetY = context._$offsetY;
     var _offsetX     = ctx._offsetX;
     var _offsetY     = ctx._offsetY;
 
@@ -6089,10 +6266,8 @@ DropShadowFilter.prototype.render = function (cache, colorTransform, stage)
     var width  = (canvas.width  + cacheOffsetX)|0;
     var height = (canvas.height + cacheOffsetY)|0;
 
-    var distance = this.distance;
-    var scale    = stage.getScale();
-    var x = this.$ceil(this.$cos(r) * distance * scale * stage.ratio)|0;
-    var y = this.$ceil(this.$sin(r) * distance * scale * stage.ratio)|0;
+    var x = this.$ceil(this.$cos(r) * this.distance * player.scale * player.ratio)|0;
+    var y = this.$ceil(this.$sin(r) * this.distance * player.scale * player.ratio)|0;
 
     width  = (width  + this.$abs(x))|0;
     height = (height + this.$abs(y))|0;
@@ -6113,22 +6288,20 @@ DropShadowFilter.prototype.render = function (cache, colorTransform, stage)
         dy = y|0;
     }
 
-    var synCanvas = this.$cacheStore.getCanvas();
+    var synCanvas    = this.$cacheStore.getCanvas();
     synCanvas.width  = width|0;
     synCanvas.height = height|0;
 
     var synCtx = synCanvas.getContext("2d");
-    synCtx.drawImage(cache.canvas, cx, cy);
+    synCtx.drawImage(context.canvas, cx, cy);
     synCtx.globalAlpha = this.alpha;
-    if (strength < 1) {
-        synCtx.globalAlpha = +(synCtx.globalAlpha * strength);
+    if (this.strength < 1) {
+        synCtx.globalAlpha = +(synCtx.globalAlpha * this.strength);
     }
 
-    var knockout   = this.knockout;
-    var hideObject = this.hideObject;
-    synCtx.globalCompositeOperation = this.filterOperation(inner, knockout, hideObject);
+    synCtx.globalCompositeOperation = this.filterOperation(this.inner, this.knockout, this.hideObject);
 
-    if (inner) {
+    if (this.inner) {
         var innerCanvas    = this.$cacheStore.getCanvas();
         innerCanvas.width  = width;
         innerCanvas.height = height;
@@ -6151,15 +6324,20 @@ DropShadowFilter.prototype.render = function (cache, colorTransform, stage)
         innerCtx.drawImage(canvas, cacheOffsetX + dx, cacheOffsetY + dy);
 
         synCtx.drawImage(innerCtx.canvas, 0, 0);
+
+        // destroy
         this.$cacheStore.destroy(innerCtx);
 
     } else {
+
         synCtx.drawImage(canvas, cacheOffsetX + dx, cacheOffsetY + dy);
+
     }
 
     synCtx._offsetX = +(cacheOffsetX + cx);
     synCtx._offsetY = +(cacheOffsetY + cy);
 
+    // destroy
     this.$cacheStore.destroy(ctx);
 
     return synCtx;
@@ -7131,6 +7309,7 @@ var DisplayObject = function ()
     this._$containerId = null;
     this._$parent      = null;
     this._$variables   = {};
+    this._$poolContext = null;
 
 
     // controller
@@ -7268,6 +7447,37 @@ Object.defineProperties(DisplayObject.prototype, {
             }
         }
     },
+    blendMode: {
+        /**
+         * @return {string}
+         */
+        get: function () {
+
+            if (this.transform._$blendMode) {
+
+                return this.transform._$blendMode;
+
+            }
+
+            var placeObject = this._$getPlaceObject();
+            if (placeObject) {
+
+                return placeObject.blendMode;
+
+            }
+
+            this.transform._$transform();
+            return this.transform._$blendMode;
+
+        },
+        /**
+         * @param  {string|number} blend_mode
+         * @return void
+         */
+        set: function (blend_mode) {
+            this.transform._$transform(null, null, null, blend_mode);
+        }
+    },
     name: {
         /**
          * @returns {string}
@@ -7280,6 +7490,37 @@ Object.defineProperties(DisplayObject.prototype, {
          */
         set: function (name) {
             this._$name = name + "";
+        }
+    },
+    filters: {
+        /**
+         * @return {string}
+         */
+        get: function () {
+
+            if (this.transform._$filters) {
+
+                return this.transform._$filters;
+
+            }
+
+            var placeObject = this._$getPlaceObject();
+            if (placeObject) {
+
+                return placeObject.filters;
+
+            }
+
+            this.transform._$transform();
+            return this.transform._$filters;
+
+        },
+        /**
+         * @param  {array} filters
+         * @return void
+         */
+        set: function (filters) {
+            this.transform._$transform(null, null, filters, null);
         }
     },
     transform: {
@@ -7302,13 +7543,21 @@ Object.defineProperties(DisplayObject.prototype, {
 });
 
 /**
- * @return {PlaceObject}
+ * @return {PlaceObject|null}
  */
 DisplayObject.prototype._$getPlaceObject = function ()
 {
     var parent = this.parent;
-    var frame  = parent.currentFrame|0;
-    var id     = parent._$placeController[frame][this._$index];
+    if (!parent) {
+        return null;
+    }
+
+    var frame = parent.currentFrame|0;
+    if (!(frame in parent._$placeController)) {
+        return null;
+    }
+
+    var id = parent._$placeController[frame][this._$index];
 
     return parent._$placeObjects[id];
 };
@@ -7329,6 +7578,182 @@ DisplayObject.prototype._$commonBuild = function (parent, tag)
 
     if ("EndFrame" in tag) {
         this._$endFrame = tag.EndFrame|0;
+    }
+};
+
+/**
+ * @param  {array} matrix
+ * @return {array}
+ */
+DisplayObject.prototype._$preDraw = function (matrix)
+{
+    if (this.filters.length || this.blendMode !== BlendMode.NORMAL) {
+
+        this._$poolContext = this.stage.player._$preContext;
+
+        // reset
+        this.stage.player._$preContext = null;
+
+        var player = this.stage.player;
+        var xScale = +(player.scale * player.ratio);
+        var yScale = +(player.scale * player.ratio);
+
+        var bounds = this._$getBounds(null);
+        var xMax   = +bounds.xMax;
+        var xMin   = +bounds.xMin;
+        var yMax   = +bounds.yMax;
+        var yMin   = +bounds.yMin;
+
+        var width  = this.$abs(this.$ceil((xMax - xMin) * xScale))|0;
+        var height = this.$abs(this.$ceil((yMax - yMin) * yScale))|0;
+
+        // start canvas
+        var canvas    = this.$cacheStore.getCanvas();
+        canvas.width  = width;
+        canvas.height = height;
+
+        // start context
+        var context = canvas.getContext("2d");
+
+        var x = xMin * xScale;
+        var y = yMin * yScale;
+
+        // offset
+        context._$offsetX = 0;
+        context._$offsetY = 0;
+        context._$dx      = x;
+        context._$dy      = y;
+
+        this.stage.player._$preContext = context;
+
+        return [matrix[0], matrix[1], matrix[2], matrix[3], -x, -y];
+
+    }
+
+    return matrix;
+};
+
+/**
+ * @param  {array} matrix
+ * @param  {array} color_transform
+ * @return void
+ */
+DisplayObject.prototype._$postDraw = function (matrix, color_transform)
+{
+    if (this._$poolContext) {
+
+
+        var ctx    = this.stage.player._$preContext;
+        var width  = ctx.canvas.width|0;
+        var height = ctx.canvas.height|0;
+
+        // filter
+        var length = this.filters.length;
+        if (length) {
+            var idx = 0;
+            while (length > idx) {
+
+                var filter = this.filters[idx];
+
+                ctx = filter._$applyFilter(ctx, color_transform, this.stage.player);
+
+                idx = (idx + 1)|0;
+            }
+        }
+
+        // blend
+        if (this.blendMode !== BlendMode.NORMAL) {
+
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+
+            var operation = "source-over";
+            switch (this.blendMode) {
+
+                case BlendMode.MULTIPLY:
+                    operation = BlendMode.MULTIPLY;
+                    break;
+
+                case BlendMode.SCREEN:
+                    operation = BlendMode.SCREEN;
+                    break;
+
+                case BlendMode.LIGHTEN:
+                    operation = BlendMode.LIGHTEN;
+                    break;
+
+                case BlendMode.DARKEN:
+                    operation = BlendMode.DARKEN;
+                    break;
+
+                case BlendMode.DIFFERENCE:
+                    operation = BlendMode.DIFFERENCE;
+                    break;
+
+                case BlendMode.ADD:
+                    operation = "lighter";
+                    break;
+
+                case BlendMode.SUBTRACT:
+
+                    ctx.globalCompositeOperation = BlendMode.DIFFERENCE;
+                    ctx.fillStyle = "rgb(255,255,255)";
+                    ctx.fillRect(0, 0, width, height);
+
+                    ctx.globalCompositeOperation = BlendMode.DARKEN;
+                    ctx.fillStyle = "rgb(255,255,255)";
+                    ctx.fillRect(0, 0, width, height);
+
+                    operation = "color-burn";
+                    break;
+
+                case BlendMode.INVERT:
+
+                    ctx.globalCompositeOperation = BlendMode.DIFFERENCE;
+                    ctx.fillStyle = "rgb(255,255,255)";
+                    ctx.fillRect(0, 0, width, height);
+
+                    ctx.globalCompositeOperation = "lighter";
+                    ctx.fillStyle = "rgb(255,255,255)";
+                    ctx.fillRect(0, 0, width, height);
+
+                    operation = BlendMode.DIFFERENCE;
+                    break;
+
+                case BlendMode.ALPHA:
+                    operation = "source-over";
+                    break;
+
+                case BlendMode.ERASE:
+                    operation = "destination-out";
+                    break;
+
+                case BlendMode.OVERLAY:
+                    operation = BlendMode.OVERLAY;
+                    break;
+
+                case BlendMode.HARDLIGHT:
+                    operation = "hard-light";
+                    break;
+
+                default:
+                    break;
+
+            }
+
+            ctx.globalAlpha = 1;
+            ctx.globalCompositeOperation = operation;
+
+        }
+
+        var m = this.$multiplicationMatrix([1, 0, 0, 1, ctx._$dx, ctx._$dy], matrix);
+
+        this._$poolContext.setTransform(1, 0, 0, 1, m[4], m[5]);
+        this._$poolContext.drawImage(ctx.canvas, 0, 0, width, height);
+
+        this.stage.player._$preContext = this._$poolContext;
+
+        // reset
+        this._$poolContext = null;
     }
 };
 /**
@@ -7986,6 +8411,9 @@ Sprite.prototype.stopTouchDrag = function (touch_point_id)
  */
 Sprite.prototype._$draw = function (matrix, color_transform, is_clip, visible)
 {
+    // filter and blend
+    this._$preDraw(matrix);
+
     var instance;
     var controller = [];
     var instances  = this._$instances;
@@ -8044,6 +8472,8 @@ Sprite.prototype._$draw = function (matrix, color_transform, is_clip, visible)
         this.stage.player.addEventObject(this, matrix, this._$getBounds(null));
     }
 
+    // filter and blend
+    this._$postDraw(matrix, color_transform);
 };
 
 /**
@@ -9510,6 +9940,9 @@ MovieClip.prototype._$build = function (parent, index, tag, should_action)
 MovieClip.prototype._$draw = function (matrix, color_transform, is_clip, visible)
 {
 
+    // filter and blend
+    var preMatrix = this._$preDraw(matrix);
+
     var instance, length, idx;
 
     // play flag
@@ -9595,9 +10028,10 @@ MovieClip.prototype._$draw = function (matrix, color_transform, is_clip, visible
         // Transform
         var transform = instance.transform;
 
+
         // next draw
         instance._$draw(
-            this.$multiplicationMatrix(matrix, transform.matrix._$matrix),
+            this.$multiplicationMatrix(preMatrix, transform.matrix._$matrix),
             this.$multiplicationColor(color_transform, transform.colorTransform._$colorTransform),
             is_clip,
             visible
@@ -9642,6 +10076,11 @@ MovieClip.prototype._$draw = function (matrix, color_transform, is_clip, visible
     if (clips.length) {
         ctx.restore();
     }
+
+
+    // filter and blend
+    this._$postDraw(matrix, color_transform);
+
 
     // add button
     if (this.buttonMode) {
@@ -9699,6 +10138,68 @@ MovieClip.prototype._$putFrame = function ()
     // set next action
     this._$prepareActions(this._$currentFrame);
 };
+
+/**
+ * @param  {array|null|undefined} matrix
+ * @return {{xMin: number, xMax: number, yMin: number, yMax: number}}
+ */
+MovieClip.prototype._$getBounds = function (matrix)
+{
+    var xMax = 0;
+    var yMax = 0;
+    var xMin = 0;
+    var yMin = 0;
+
+    // var graphics = this.graphics;
+    // var isDraw = graphics.isDraw;
+    //
+    // if (isDraw) {
+    //     var maxWidth  = graphics.maxWidth;
+    //     var halfWidth = maxWidth / 2;
+    //     var gBounds   = this.boundsMatrix(graphics.bounds, matrix);
+    //     var twips = (matrix) ? 20 : 1;
+    //     xMin = +((gBounds.xMin - halfWidth) / twips);
+    //     xMax = +((gBounds.xMax + halfWidth) / twips);
+    //     yMin = +((gBounds.yMin - halfWidth) / twips);
+    //     yMax = +((gBounds.yMax + halfWidth) / twips);
+    // }
+
+    var frame     = this.currentFrame|0;
+    var instances = this._$instances;
+
+    var length = instances.length;
+    var idx    = 0;
+    while (length > idx) {
+
+        var instance = instances[idx];
+
+        if (instance._$startFrame <= frame && (!instance._$endFrame || instance._$endFrame >= frame)) {
+
+            // Transform
+            var transform = instance.transform;
+
+            var bounds  = instance._$getBounds(
+                matrix ? this.$multiplicationMatrix(matrix, transform.matrix._$matrix) : transform.matrix._$matrix
+            );
+
+            xMin = +this.$min(xMin, bounds.xMin);
+            xMax = +this.$max(xMax, bounds.xMax);
+            yMin = +this.$min(yMin, bounds.yMin);
+            yMax = +this.$max(yMax, bounds.yMax);
+
+        }
+
+        idx = (idx + 1)|0;
+    }
+
+    return {
+        xMin: xMin,
+        xMax: xMax,
+        yMin: yMin,
+        yMax: yMax
+    };
+};
+
 
 /**
  * Action Script 3
@@ -10330,11 +10831,12 @@ Shape.prototype._$draw = function (matrix, color_transform, is_clip, visible)
             } else {
 
                 ctx.setTransform(matrix[0], matrix[1], matrix[2], matrix[3], matrix[4], matrix[5]);
-                this._$doDraw(ctx, this.$min(matrix[0], matrix[3]), color_transform, s);
+                this._$doDraw(ctx, this.$min(matrix[0], matrix[3]), color_transform, false);
 
             }
         }
     }
+
 };
 
 /**
@@ -10870,7 +11372,6 @@ SimpleButton.prototype._$build = function (parent, index, tag, should_action)
     // common build
     button._$commonBuild(parent, tag);
 
-    console.log(tag);
 
     /**
      * set place data
@@ -11024,10 +11525,12 @@ SimpleButton.prototype._$buildChild = function (parent, id, tag, character)
  */
 SimpleButton.prototype._$draw = function (matrix, color_transform, is_clip, visible)
 {
-    var player = this.stage.player;
+    // filter and blend
+    var preMatrix = this._$preDraw(matrix);
 
-    var state = this[this._$status + "State"];
-    state._$draw(matrix, color_transform, is_clip, visible);
+    var player = this.stage.player;
+    var state  = this[this._$status + "State"];
+    state._$draw(preMatrix, color_transform, is_clip, visible);
 
     // add button
     player.addEventObject(
@@ -11035,6 +11538,9 @@ SimpleButton.prototype._$draw = function (matrix, color_transform, is_clip, visi
         this.$cloneArray(matrix),
         this._$getBounds(null, "hitTest")
     );
+
+    // filter and blend
+    this._$postDraw(matrix, color_transform);
 };
 
 /**

@@ -15,6 +15,8 @@ var Transform = function (src)
 
     // origin param
     this._$displayObject         = src;
+    this._$filters               = null;
+    this._$blendMode             = null;
 };
 
 /**
@@ -33,9 +35,25 @@ Object.defineProperties(Transform.prototype, {
          * @return {ColorTransform}
          */
         get: function () {
-            return (this._$colorTransform === null)
-                ? this._$displayObject._$getPlaceObject().colorTransform
-                : this._$colorTransform;
+
+            if (this._$colorTransform) {
+
+                return this._$colorTransform;
+
+            } else {
+
+                var placeObject = this._$displayObject._$getPlaceObject();
+                if (placeObject) {
+
+                    return placeObject.colorTransform;
+
+                }
+
+                this._$transform();
+                return this._$colorTransform;
+
+            }
+
         },
         /**
          * @param  {ColorTransform} colorTransform
@@ -43,7 +61,7 @@ Object.defineProperties(Transform.prototype, {
          */
         set: function (colorTransform) {
             if (colorTransform instanceof ColorTransform) {
-                this._$colorTransform = colorTransform._$clone();
+                this._$transform(null, colorTransform._$colorTransform, null, null);
             }
         }
     },
@@ -52,9 +70,23 @@ Object.defineProperties(Transform.prototype, {
          * @return {Matrix}
          */
         get: function () {
-            return (this._$matrix === null)
-                ? this._$displayObject._$getPlaceObject().matrix
-                : this._$matrix;
+            if (this._$matrix) {
+
+                return this._$matrix;
+
+            } else {
+
+                var placeObject = this._$displayObject._$getPlaceObject();
+                if (placeObject) {
+
+                    return placeObject.matrix;
+
+                }
+
+                this._$transform();
+                return this._$matrix;
+
+            }
         },
         /**
          * @param  {Matrix} matrix
@@ -62,7 +94,7 @@ Object.defineProperties(Transform.prototype, {
          */
         set: function (matrix) {
             if (matrix instanceof Matrix) {
-                this._$matrix = matrix._$clone();
+                this._$transform(matrix._$matrix, null, null, null);
             }
         }
     },
@@ -127,4 +159,104 @@ Transform.prototype.getRelativeMatrix3D = function (relativeTo)
 {
     // todo
     return new Matrix3D();
+};
+
+/**
+ * @param  {array|null}  matrix
+ * @param  {array|null}  colorTransform
+ * @param  {array|null}  filters
+ * @param  {string|null} blendMode
+ * @return void
+ */
+Transform.prototype._$transform = function (matrix, colorTransform, filters, blendMode)
+{
+    var placeObject = this._$displayObject._$getPlaceObject();
+
+    // Matrix
+    if (matrix) {
+
+        if (!this._$matrix) {
+            this._$matrix = new Matrix();
+        }
+
+        this._$matrix._$matrix = matrix;
+
+    } else if (!this._$matrix) {
+
+        if (!placeObject) {
+
+            this._$matrix = new Matrix();
+
+        } else {
+
+            this._$matrix = placeObject.matrix._$clone();
+
+        }
+
+    }
+
+
+    // ColorTransform
+    if (colorTransform) {
+
+        if (!this._$colorTransform) {
+            this._$colorTransform = new ColorTransform();
+        }
+
+        this._$colorTransform._$colorTransform = colorTransform;
+
+    } else if (!this._$colorTransform) {
+
+        if (!placeObject) {
+
+            this._$colorTransform = new ColorTransform();
+
+        } else {
+
+            this._$colorTransform = placeObject.colorTransform._$clone();
+
+        }
+
+    }
+
+
+    // Filter
+    if (this.$isArray(filters)) {
+
+        this._$filters = filters;
+
+    } else if (!this._$filters) {
+
+        if (!placeObject) {
+
+            this._$filters = [];
+
+        } else {
+
+            this._$filters = placeObject.filters;
+
+        }
+
+    }
+
+
+    // BlendMode
+    if (blendMode) {
+
+        this._$blendMode = blendMode;
+
+    } else if (!this._$blendMode) {
+
+        if (!placeObject) {
+
+            this._$blendMode = "normal";
+
+        } else {
+
+            this._$blendMode = placeObject.blendMode;
+
+        }
+
+    }
+
 };

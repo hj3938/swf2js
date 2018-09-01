@@ -178,6 +178,9 @@ Sprite.prototype.stopTouchDrag = function (touch_point_id)
  */
 Sprite.prototype._$draw = function (matrix, color_transform, is_clip, visible)
 {
+    // filter and blend
+    this._$preDraw(matrix);
+
     var instance;
     var controller = [];
     var instances  = this._$instances;
@@ -236,6 +239,8 @@ Sprite.prototype._$draw = function (matrix, color_transform, is_clip, visible)
         this.stage.player.addEventObject(this, matrix, this._$getBounds(null));
     }
 
+    // filter and blend
+    this._$postDraw(matrix, color_transform);
 };
 
 /**

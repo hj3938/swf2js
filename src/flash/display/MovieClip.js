@@ -520,6 +520,9 @@ MovieClip.prototype._$build = function (parent, index, tag, should_action)
 MovieClip.prototype._$draw = function (matrix, color_transform, is_clip, visible)
 {
 
+    // filter and blend
+    var preMatrix = this._$preDraw(matrix);
+
     var instance, length, idx;
 
     // play flag
@@ -605,9 +608,10 @@ MovieClip.prototype._$draw = function (matrix, color_transform, is_clip, visible
         // Transform
         var transform = instance.transform;
 
+
         // next draw
         instance._$draw(
-            this.$multiplicationMatrix(matrix, transform.matrix._$matrix),
+            this.$multiplicationMatrix(preMatrix, transform.matrix._$matrix),
             this.$multiplicationColor(color_transform, transform.colorTransform._$colorTransform),
             is_clip,
             visible
@@ -652,6 +656,11 @@ MovieClip.prototype._$draw = function (matrix, color_transform, is_clip, visible
     if (clips.length) {
         ctx.restore();
     }
+
+
+    // filter and blend
+    this._$postDraw(matrix, color_transform);
+
 
     // add button
     if (this.buttonMode) {
@@ -709,6 +718,68 @@ MovieClip.prototype._$putFrame = function ()
     // set next action
     this._$prepareActions(this._$currentFrame);
 };
+
+/**
+ * @param  {array|null|undefined} matrix
+ * @return {{xMin: number, xMax: number, yMin: number, yMax: number}}
+ */
+MovieClip.prototype._$getBounds = function (matrix)
+{
+    var xMax = 0;
+    var yMax = 0;
+    var xMin = 0;
+    var yMin = 0;
+
+    // var graphics = this.graphics;
+    // var isDraw = graphics.isDraw;
+    //
+    // if (isDraw) {
+    //     var maxWidth  = graphics.maxWidth;
+    //     var halfWidth = maxWidth / 2;
+    //     var gBounds   = this.boundsMatrix(graphics.bounds, matrix);
+    //     var twips = (matrix) ? 20 : 1;
+    //     xMin = +((gBounds.xMin - halfWidth) / twips);
+    //     xMax = +((gBounds.xMax + halfWidth) / twips);
+    //     yMin = +((gBounds.yMin - halfWidth) / twips);
+    //     yMax = +((gBounds.yMax + halfWidth) / twips);
+    // }
+
+    var frame     = this.currentFrame|0;
+    var instances = this._$instances;
+
+    var length = instances.length;
+    var idx    = 0;
+    while (length > idx) {
+
+        var instance = instances[idx];
+
+        if (instance._$startFrame <= frame && (!instance._$endFrame || instance._$endFrame >= frame)) {
+
+            // Transform
+            var transform = instance.transform;
+
+            var bounds  = instance._$getBounds(
+                matrix ? this.$multiplicationMatrix(matrix, transform.matrix._$matrix) : transform.matrix._$matrix
+            );
+
+            xMin = +this.$min(xMin, bounds.xMin);
+            xMax = +this.$max(xMax, bounds.xMax);
+            yMin = +this.$min(yMin, bounds.yMin);
+            yMax = +this.$max(yMax, bounds.yMax);
+
+        }
+
+        idx = (idx + 1)|0;
+    }
+
+    return {
+        xMin: xMin,
+        xMax: xMax,
+        yMin: yMin,
+        yMax: yMax
+    };
+};
+
 
 /**
  * Action Script 3

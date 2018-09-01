@@ -12,6 +12,7 @@ var DisplayObject = function ()
     this._$containerId = null;
     this._$parent      = null;
     this._$variables   = {};
+    this._$poolContext = null;
 
 
     // controller
@@ -149,6 +150,37 @@ Object.defineProperties(DisplayObject.prototype, {
             }
         }
     },
+    blendMode: {
+        /**
+         * @return {string}
+         */
+        get: function () {
+
+            if (this.transform._$blendMode) {
+
+                return this.transform._$blendMode;
+
+            }
+
+            var placeObject = this._$getPlaceObject();
+            if (placeObject) {
+
+                return placeObject.blendMode;
+
+            }
+
+            this.transform._$transform();
+            return this.transform._$blendMode;
+
+        },
+        /**
+         * @param  {string|number} blend_mode
+         * @return void
+         */
+        set: function (blend_mode) {
+            this.transform._$transform(null, null, null, blend_mode);
+        }
+    },
     name: {
         /**
          * @returns {string}
@@ -161,6 +193,37 @@ Object.defineProperties(DisplayObject.prototype, {
          */
         set: function (name) {
             this._$name = name + "";
+        }
+    },
+    filters: {
+        /**
+         * @return {string}
+         */
+        get: function () {
+
+            if (this.transform._$filters) {
+
+                return this.transform._$filters;
+
+            }
+
+            var placeObject = this._$getPlaceObject();
+            if (placeObject) {
+
+                return placeObject.filters;
+
+            }
+
+            this.transform._$transform();
+            return this.transform._$filters;
+
+        },
+        /**
+         * @param  {array} filters
+         * @return void
+         */
+        set: function (filters) {
+            this.transform._$transform(null, null, filters, null);
         }
     },
     transform: {
@@ -183,13 +246,21 @@ Object.defineProperties(DisplayObject.prototype, {
 });
 
 /**
- * @return {PlaceObject}
+ * @return {PlaceObject|null}
  */
 DisplayObject.prototype._$getPlaceObject = function ()
 {
     var parent = this.parent;
-    var frame  = parent.currentFrame|0;
-    var id     = parent._$placeController[frame][this._$index];
+    if (!parent) {
+        return null;
+    }
+
+    var frame = parent.currentFrame|0;
+    if (!(frame in parent._$placeController)) {
+        return null;
+    }
+
+    var id = parent._$placeController[frame][this._$index];
 
     return parent._$placeObjects[id];
 };
@@ -210,5 +281,180 @@ DisplayObject.prototype._$commonBuild = function (parent, tag)
 
     if ("EndFrame" in tag) {
         this._$endFrame = tag.EndFrame|0;
+    }
+};
+
+/**
+ * @param  {array} matrix
+ * @return {array}
+ */
+DisplayObject.prototype._$preDraw = function (matrix)
+{
+    if (this.filters.length || this.blendMode !== BlendMode.NORMAL) {
+
+        this._$poolContext = this.stage.player._$preContext;
+
+        // reset
+        this.stage.player._$preContext = null;
+
+        var player = this.stage.player;
+        var xScale = +(player.scale * player.ratio);
+        var yScale = +(player.scale * player.ratio);
+
+        var bounds = this._$getBounds(null);
+        var xMax   = +bounds.xMax;
+        var xMin   = +bounds.xMin;
+        var yMax   = +bounds.yMax;
+        var yMin   = +bounds.yMin;
+
+        var width  = this.$abs(this.$ceil((xMax - xMin) * xScale))|0;
+        var height = this.$abs(this.$ceil((yMax - yMin) * yScale))|0;
+
+        // start canvas
+        var canvas    = this.$cacheStore.getCanvas();
+        canvas.width  = width;
+        canvas.height = height;
+
+        // start context
+        var context = canvas.getContext("2d");
+
+        var x = xMin * xScale;
+        var y = yMin * yScale;
+
+        // offset
+        context._$offsetX = 0;
+        context._$offsetY = 0;
+        context._$dx      = x;
+        context._$dy      = y;
+
+        this.stage.player._$preContext = context;
+
+        return [matrix[0], matrix[1], matrix[2], matrix[3], -x, -y];
+
+    }
+
+    return matrix;
+};
+
+/**
+ * @param  {array} matrix
+ * @param  {array} color_transform
+ * @return void
+ */
+DisplayObject.prototype._$postDraw = function (matrix, color_transform)
+{
+    if (this._$poolContext) {
+
+        var ctx    = this.stage.player._$preContext;
+        var width  = ctx.canvas.width|0;
+        var height = ctx.canvas.height|0;
+
+        // filter
+        var length = this.filters.length;
+        if (length) {
+            var idx = 0;
+            while (length > idx) {
+
+                var filter = this.filters[idx];
+
+                ctx = filter._$applyFilter(ctx, color_transform, this.stage.player);
+
+                idx = (idx + 1)|0;
+            }
+        }
+
+        // blend
+        if (this.blendMode !== BlendMode.NORMAL) {
+
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+
+            var operation = "source-over";
+            switch (this.blendMode) {
+
+                case BlendMode.MULTIPLY:
+                    operation = BlendMode.MULTIPLY;
+                    break;
+
+                case BlendMode.SCREEN:
+                    operation = BlendMode.SCREEN;
+                    break;
+
+                case BlendMode.LIGHTEN:
+                    operation = BlendMode.LIGHTEN;
+                    break;
+
+                case BlendMode.DARKEN:
+                    operation = BlendMode.DARKEN;
+                    break;
+
+                case BlendMode.DIFFERENCE:
+                    operation = BlendMode.DIFFERENCE;
+                    break;
+
+                case BlendMode.ADD:
+                    operation = "lighter";
+                    break;
+
+                case BlendMode.SUBTRACT:
+
+                    ctx.globalCompositeOperation = BlendMode.DIFFERENCE;
+                    ctx.fillStyle = "rgb(255,255,255)";
+                    ctx.fillRect(0, 0, width, height);
+
+                    ctx.globalCompositeOperation = BlendMode.DARKEN;
+                    ctx.fillStyle = "rgb(255,255,255)";
+                    ctx.fillRect(0, 0, width, height);
+
+                    operation = "color-burn";
+                    break;
+
+                case BlendMode.INVERT:
+
+                    ctx.globalCompositeOperation = BlendMode.DIFFERENCE;
+                    ctx.fillStyle = "rgb(255,255,255)";
+                    ctx.fillRect(0, 0, width, height);
+
+                    ctx.globalCompositeOperation = "lighter";
+                    ctx.fillStyle = "rgb(255,255,255)";
+                    ctx.fillRect(0, 0, width, height);
+
+                    operation = BlendMode.DIFFERENCE;
+                    break;
+
+                case BlendMode.ALPHA:
+                    operation = "source-over";
+                    break;
+
+                case BlendMode.ERASE:
+                    operation = "destination-out";
+                    break;
+
+                case BlendMode.OVERLAY:
+                    operation = BlendMode.OVERLAY;
+                    break;
+
+                case BlendMode.HARDLIGHT:
+                    operation = "hard-light";
+                    break;
+
+                default:
+                    break;
+
+            }
+
+            ctx.globalAlpha = 1;
+            ctx.globalCompositeOperation = operation;
+
+        }
+
+        var m = this.$multiplicationMatrix([1, 0, 0, 1, ctx._$dx, ctx._$dy], matrix);
+
+        this._$poolContext.setTransform(1, 0, 0, 1, m[4], m[5]);
+        this._$poolContext.drawImage(ctx.canvas, 0, 0, width, height);
+
+        this.stage.player._$preContext = this._$poolContext;
+
+        // reset
+        this._$poolContext = null;
     }
 };

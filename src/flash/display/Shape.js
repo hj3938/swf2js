@@ -213,11 +213,12 @@ Shape.prototype._$draw = function (matrix, color_transform, is_clip, visible)
             } else {
 
                 ctx.setTransform(matrix[0], matrix[1], matrix[2], matrix[3], matrix[4], matrix[5]);
-                this._$doDraw(ctx, this.$min(matrix[0], matrix[3]), color_transform, s);
+                this._$doDraw(ctx, this.$min(matrix[0], matrix[3]), color_transform, false);
 
             }
         }
     }
+
 };
 
 /**

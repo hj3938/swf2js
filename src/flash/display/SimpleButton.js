@@ -208,7 +208,6 @@ SimpleButton.prototype._$build = function (parent, index, tag, should_action)
     // common build
     button._$commonBuild(parent, tag);
 
-    console.log(tag);
 
     /**
      * set place data
@@ -362,10 +361,12 @@ SimpleButton.prototype._$buildChild = function (parent, id, tag, character)
  */
 SimpleButton.prototype._$draw = function (matrix, color_transform, is_clip, visible)
 {
-    var player = this.stage.player;
+    // filter and blend
+    var preMatrix = this._$preDraw(matrix);
 
-    var state = this[this._$status + "State"];
-    state._$draw(matrix, color_transform, is_clip, visible);
+    var player = this.stage.player;
+    var state  = this[this._$status + "State"];
+    state._$draw(preMatrix, color_transform, is_clip, visible);
 
     // add button
     player.addEventObject(
@@ -373,6 +374,9 @@ SimpleButton.prototype._$draw = function (matrix, color_transform, is_clip, visi
         this.$cloneArray(matrix),
         this._$getBounds(null, "hitTest")
     );
+
+    // filter and blend
+    this._$postDraw(matrix, color_transform);
 };
 
 /**

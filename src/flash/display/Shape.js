@@ -61,21 +61,11 @@ Shape.prototype.toString = function ()
  */
 Shape.prototype._$getBounds = function (matrix)
 {
-    var bounds, gBounds;
-
     if (matrix) {
 
-        bounds = this.$boundsMatrix(this._$bounds, matrix, null);
-
-        if (this.graphics._$getBounds() !== null) {
-
-            gBounds = this.$boundsMatrix(this.graphics._$getBounds(), matrix, null);
-            bounds.xMin = +this.$min(gBounds.xMin, bounds.xMin);
-            bounds.xMax = +this.$max(gBounds.xMax, bounds.xMax);
-            bounds.yMin = +this.$min(gBounds.yMin, bounds.yMin);
-            bounds.yMax = +this.$max(gBounds.yMax, bounds.yMax);
-
-        }
+        var bounds = (this.graphics._$getBounds() !== null)
+            ? this.$boundsMatrix(this._$bounds, matrix, null)
+            : this.$boundsMatrix(this.graphics._$getBounds(), matrix, null);
 
         for (var name in bounds) {
 
@@ -87,22 +77,16 @@ Shape.prototype._$getBounds = function (matrix)
             bounds[name] = +(value / 20);
         }
 
+        return bounds;
+
     } else {
 
-        bounds = this._$bounds;
+        return (this.graphics._$getBounds() !== null)
+            ? this._$bounds
+            : this.graphics.getBounds();
 
-        if (this.graphics._$getBounds() !== null) {
-
-            gBounds = this.graphics.getBounds();
-            bounds.xMin = +this.$min(gBounds.xMin, bounds.xMin);
-            bounds.xMax = +this.$max(gBounds.xMax, bounds.xMax);
-            bounds.yMin = +this.$min(gBounds.yMin, bounds.yMin);
-            bounds.yMax = +this.$max(gBounds.yMax, bounds.yMax);
-
-        }
     }
 
-    return bounds;
 };
 
 /**
@@ -518,7 +502,7 @@ Shape.prototype._$hit = function (x, y, matrix)
     if (this.graphics._$getBounds() !== null) {
 
         return this.graphics._$hit(x, y, matrix);
-        
+
     }
 
     var shapes = this._$data;

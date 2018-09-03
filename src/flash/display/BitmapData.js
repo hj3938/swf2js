@@ -18,6 +18,7 @@ var BitmapData = function (width, height, transparent, fill_color)
 
 /**
  * extends
+ * @type {OriginalObject}
  */
 BitmapData.prototype = Object.create(OriginalObject.prototype);
 BitmapData.prototype.constructor = BitmapData;
@@ -26,12 +27,12 @@ BitmapData.prototype.constructor = BitmapData;
  * properties
  */
 Object.defineProperties(BitmapData.prototype, {
-    width: {
+    height: {
         /**
          * @return {number}
          */
         get: function () {
-            return this._$width;
+            return this._$height;
         },
         /**
          * readonly
@@ -39,12 +40,12 @@ Object.defineProperties(BitmapData.prototype, {
          */
         set: function () {}
     },
-    height: {
+    rect: {
         /**
-         * @return {number}
+         * @return {Rectangle}
          */
         get: function () {
-            return this._$height;
+            return this._$rect;
         },
         /**
          * readonly
@@ -65,12 +66,12 @@ Object.defineProperties(BitmapData.prototype, {
          */
         set: function () {}
     },
-    rect: {
+    width: {
         /**
          * @return {number}
          */
         get: function () {
-            return this._$rect;
+            return this._$width;
         },
         /**
          * readonly
@@ -90,10 +91,10 @@ BitmapData.prototype.toString = function ()
 
 
 /**
- * @param {BitmapData} sourceBitmapData
- * @param {Rectangle} sourceRect
- * @param {Point} destPoint
- * @param {BitmapFilter} filter
+ * @param   {BitmapData}   sourceBitmapData
+ * @param   {Rectangle}    sourceRect
+ * @param   {Point}        destPoint
+ * @param   {BitmapFilter} filter
  * @returns void
  */
 BitmapData.prototype.applyFilter = function (sourceBitmapData, sourceRect, destPoint, filter)
@@ -110,9 +111,9 @@ BitmapData.prototype.clone = function ()
 };
 
 /**
- *
- * @param {Rectangle} rect
- * @param {ColorTransform} colorTransform
+ * @param   {Rectangle}      rect
+ * @param   {ColorTransform} colorTransform
+ * @returns void
  */
 BitmapData.prototype.colorTransform = function (rect, colorTransform)
 {
@@ -120,7 +121,7 @@ BitmapData.prototype.colorTransform = function (rect, colorTransform)
 };
 
 /**
- * @param {BitmapData} otherBitmapData
+ * @param   {BitmapData} otherBitmapData
  * @returns {object}
  */
 BitmapData.prototype.compare = function (otherBitmapData)
@@ -130,11 +131,11 @@ BitmapData.prototype.compare = function (otherBitmapData)
 
 /**
  *
- * @param {BitmapData} sourceBitmapData
- * @param {Rectangle} sourceRect
- * @param {Point} destPoint
- * @param {number} sourceChannel
- * @param {number} destChannel
+ * @param   {BitmapData} sourceBitmapData
+ * @param   {Rectangle}  sourceRect
+ * @param   {Point}      destPoint
+ * @param   {number}     sourceChannel
+ * @param   {number}     destChannel
  * @returns void
  */
 BitmapData.prototype.copyChannel = function (sourceBitmapData, sourceRect, destPoint, sourceChannel, destChannel)
@@ -143,12 +144,12 @@ BitmapData.prototype.copyChannel = function (sourceBitmapData, sourceRect, destP
 };
 
 /**
- * @param {BitmapData} sourceBitmapData
- * @param {Rectangle} sourceRect
- * @param {Point} destPoint
- * @param {BitmapData} alphaBitmapData
- * @param {Point} alphaPoint
- * @param {boolean} mergeAlpha
+ * @param   {BitmapData} sourceBitmapData
+ * @param   {Rectangle}  sourceRect
+ * @param   {Point}      destPoint
+ * @param   {BitmapData} alphaBitmapData
+ * @param   {Point}      alphaPoint
+ * @param   {boolean}    mergeAlpha
  * @returns void
  */
 BitmapData.prototype.copyPixels = function (sourceBitmapData, sourceRect, destPoint, alphaBitmapData, alphaPoint, mergeAlpha)
@@ -165,12 +166,12 @@ BitmapData.prototype.dispose = function ()
 };
 
 /**
- * @param {BitmapData} source
- * @param {Matrix} matrix
- * @param {ColorTransform} colorTransform
- * @param {string} blendMode
- * @param {Rectangle} clipRect
- * @param {boolean} smoothing
+ * @param   {BitmapData} source
+ * @param   {Matrix} matrix
+ * @param   {ColorTransform} colorTransform
+ * @param   {string} blendMode
+ * @param   {Rectangle} clipRect
+ * @param   {boolean} smoothing
  * @returns void
  */
 BitmapData.prototype.draw = function (source, matrix, colorTransform, blendMode, clipRect, smoothing)
@@ -179,8 +180,8 @@ BitmapData.prototype.draw = function (source, matrix, colorTransform, blendMode,
 };
 
 /**
- * @param {Rectangle} rect
- * @param {number} color
+ * @param   {Rectangle} rect
+ * @param   {number}    color
  * @returns void
  */
 BitmapData.prototype.fillRect = function (rect, color)
@@ -190,9 +191,9 @@ BitmapData.prototype.fillRect = function (rect, color)
 
 /**
  *
- * @param {number} x
- * @param {number} y
- * @param {number} color
+ * @param   {number} x
+ * @param   {number} y
+ * @param   {number} color
  * @returns void
  */
 BitmapData.prototype.floodFill = function (x, y, color)
@@ -201,8 +202,8 @@ BitmapData.prototype.floodFill = function (x, y, color)
 };
 
 /**
- * @param {Rectangle} sourceRect
- * @param {BitmapFilter} filter
+ * @param   {Rectangle}    sourceRect
+ * @param   {BitmapFilter} filter
  * @returns Rectangle
  */
 BitmapData.prototype.generateFilterRect = function (sourceRect, filter)
@@ -211,9 +212,9 @@ BitmapData.prototype.generateFilterRect = function (sourceRect, filter)
 };
 
 /**
- * @param {number} mask
- * @param {number} color
- * @param {boolean} findColor
+ * @param   {number}  mask
+ * @param   {number}  color
+ * @param   {boolean} findColor
  * @returns {Rectangle}
  */
 BitmapData.prototype.getColorBoundsRect = function (mask, color, findColor)
@@ -222,8 +223,8 @@ BitmapData.prototype.getColorBoundsRect = function (mask, color, findColor)
 };
 
 /**
- * @param {number} x
- * @param {number} y
+ * @param   {number} x
+ * @param   {number} y
  * @returns {number}
  */
 BitmapData.prototype.getPixel = function (x, y)
@@ -232,8 +233,8 @@ BitmapData.prototype.getPixel = function (x, y)
 };
 
 /**
- * @param {number} x
- * @param {number} y
+ * @param   {number} x
+ * @param   {number} y
  * @returns {number}
  */
 BitmapData.prototype.getPixel32 = function (x, y)
@@ -242,7 +243,7 @@ BitmapData.prototype.getPixel32 = function (x, y)
 };
 
 /**
- * @param {Rectangle} rect
+ * @param   {Rectangle} rect
  * @returns {Array}
  */
 BitmapData.prototype.getPixels = function (rect)
@@ -251,7 +252,7 @@ BitmapData.prototype.getPixels = function (rect)
 };
 
 /**
- * @param rect
+ * @param   {Rectangle} rect
  * @returns {Vector}
  */
 BitmapData.prototype.getVector = function (rect)
@@ -260,7 +261,7 @@ BitmapData.prototype.getVector = function (rect)
 };
 
 /**
- * @param {Rectangle} hRect
+ * @param   {Rectangle} hRect
  * @returns {Vector}
  */
 BitmapData.prototype.histogram = function (hRect)
@@ -269,11 +270,11 @@ BitmapData.prototype.histogram = function (hRect)
 };
 
 /**
- * @param {Point} firstPoint
- * @param {number} firstAlphaThreshold
- * @param {object} secondObject
- * @param {Point} secondBitmapDataPoint
- * @param {number} secondAlphaThreshold
+ * @param   {Point}  firstPoint
+ * @param   {number} firstAlphaThreshold
+ * @param   {object} secondObject
+ * @param   {Point}  secondBitmapDataPoint
+ * @param   {number} secondAlphaThreshold
  * @returns {boolean}
  */
 BitmapData.prototype.hitTest = function (firstPoint, firstAlphaThreshold, secondObject, secondBitmapDataPoint, secondAlphaThreshold)
@@ -290,13 +291,13 @@ BitmapData.prototype.lock = function ()
 };
 
 /**
- * @param {BitmapData} sourceBitmapData
- * @param {Rectangle} sourceRect
- * @param {Point} destPoint
- * @param {number} redMultiplier
- * @param {number} greenMultiplier
- * @param {number} blueMultiplier
- * @param {number} alphaMultiplier
+ * @param   {BitmapData} sourceBitmapData
+ * @param   {Rectangle}  sourceRect
+ * @param   {Point}      destPoint
+ * @param   {number}     redMultiplier
+ * @param   {number}     greenMultiplier
+ * @param   {number}     blueMultiplier
+ * @param   {number}     alphaMultiplier
  * @returns void
  */
 BitmapData.prototype.merge = function (sourceBitmapData, sourceRect, destPoint, redMultiplier, greenMultiplier, blueMultiplier, alphaMultiplier)
@@ -305,11 +306,11 @@ BitmapData.prototype.merge = function (sourceBitmapData, sourceRect, destPoint, 
 };
 
 /**
- * @param {number} randomSeed
- * @param {number} low
- * @param {number} high
- * @param {number} channelOptions
- * @param {boolean} grayScale
+ * @param   {number}  randomSeed
+ * @param   {number}  low
+ * @param   {number}  high
+ * @param   {number}  channelOptions
+ * @param   {boolean} grayScale
  * @returns void
  */
 BitmapData.prototype.noise = function (randomSeed, low, high, channelOptions, grayScale)
@@ -318,13 +319,13 @@ BitmapData.prototype.noise = function (randomSeed, low, high, channelOptions, gr
 };
 
 /**
- * @param {BitmapData} sourceBitmapData
- * @param {Rectangle} sourceRect
- * @param {Point} destPoint
- * @param {array} redArray
- * @param {array} greenArray
- * @param {array} blueArray
- * @param {array} alphaArray
+ * @param   {BitmapData} sourceBitmapData
+ * @param   {Rectangle}  sourceRect
+ * @param   {Point}      destPoint
+ * @param   {array}      redArray
+ * @param   {array}      greenArray
+ * @param   {array}      blueArray
+ * @param   {array}      alphaArray
  * @returns void
  */
 BitmapData.prototype.paletteMap = function (sourceBitmapData, sourceRect, destPoint, redArray, greenArray, blueArray, alphaArray)
@@ -333,15 +334,15 @@ BitmapData.prototype.paletteMap = function (sourceBitmapData, sourceRect, destPo
 };
 
 /**
- * @param {number} baseX
- * @param {number} baseY
- * @param {number} numOctaves
- * @param {number} randomSeed
- * @param {boolean} stitch
- * @param {boolean} fractalNoise
- * @param {number} channelOptions
- * @param {boolean} grayScale
- * @param {array} offsets
+ * @param   {number}  baseX
+ * @param   {number}  baseY
+ * @param   {number}  numOctaves
+ * @param   {number}  randomSeed
+ * @param   {boolean} stitch
+ * @param   {boolean} fractalNoise
+ * @param   {number}  channelOptions
+ * @param   {boolean} grayScale
+ * @param   {array}   offsets
  * @returns void
  */
 BitmapData.prototype.perlinNoise = function (baseX, baseY, numOctaves, randomSeed, stitch, fractalNoise, channelOptions, grayScale, offsets)
@@ -350,12 +351,12 @@ BitmapData.prototype.perlinNoise = function (baseX, baseY, numOctaves, randomSee
 };
 
 /**
- * @param {BitmapData} sourceBitmapData
- * @param {Rectangle} sourceRect
- * @param {Point} destPoint
- * @param {number} randomSeed
- * @param {number} numPixels
- * @param {number} fillColor
+ * @param   {BitmapData} sourceBitmapData
+ * @param   {Rectangle}  sourceRect
+ * @param   {Point}      destPoint
+ * @param   {number}     randomSeed
+ * @param   {number}     numPixels
+ * @param   {number}     fillColor
  * @returns {number}
  */
 BitmapData.prototype.pixelDissolve = function (sourceBitmapData, sourceRect, destPoint, randomSeed, numPixels, fillColor)
@@ -364,8 +365,8 @@ BitmapData.prototype.pixelDissolve = function (sourceBitmapData, sourceRect, des
 };
 
 /**
- * @param {number} x
- * @param {number} y
+ * @param   {number} x
+ * @param   {number} y
  * @returns void
  */
 BitmapData.prototype.scroll = function (x, y)
@@ -374,9 +375,9 @@ BitmapData.prototype.scroll = function (x, y)
 };
 
 /**
- * @param {number} x
- * @param {number} y
- * @param {number} color
+ * @param   {number} x
+ * @param   {number} y
+ * @param   {number} color
  * @returns void
  */
 BitmapData.prototype.setPixel = function (x, y, color)
@@ -385,9 +386,9 @@ BitmapData.prototype.setPixel = function (x, y, color)
 };
 
 /**
- * @param {number} x
- * @param {number} y
- * @param {number} color
+ * @param   {number} x
+ * @param   {number} y
+ * @param   {number} color
  * @returns void
  */
 BitmapData.prototype.setPixel32 = function (x, y, color)
@@ -406,8 +407,8 @@ BitmapData.prototype.setPixels = function (rect, inputByteArray)
 };
 
 /**
- * @param {Rectangle} rect
- * @param {Vector} inputVector
+ * @param   {Rectangle} rect
+ * @param   {Vector}    inputVector
  * @returns void
  */
 BitmapData.prototype.setVector = function (rect, inputVector)
@@ -416,14 +417,14 @@ BitmapData.prototype.setVector = function (rect, inputVector)
 };
 
 /**
- * @param {BitmapData} sourceBitmapData
- * @param {Rectangle} sourceRect
- * @param {Point} destPoint
- * @param {string} operation
- * @param {number} threshold
- * @param {number} color
- * @param {number} mask
- * @param {boolean} copySource
+ * @param   {BitmapData} sourceBitmapData
+ * @param   {Rectangle}  sourceRect
+ * @param   {Point}      destPoint
+ * @param   {string}     operation
+ * @param   {number}     threshold
+ * @param   {number}     color
+ * @param   {number}     mask
+ * @param   {boolean}    copySource
  * @returns {number}
  */
 BitmapData.prototype.threshold = function (sourceBitmapData, sourceRect, destPoint, operation, threshold, color, mask, copySource)
@@ -432,7 +433,7 @@ BitmapData.prototype.threshold = function (sourceBitmapData, sourceRect, destPoi
 };
 
 /**
- * @param {Rectangle} changeRect
+ * @param   {Rectangle} changeRect
  * @returns void
  */
 BitmapData.prototype.unlock = function (changeRect)

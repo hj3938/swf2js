@@ -103,7 +103,6 @@ Object.defineProperties(BlurFilter.prototype, {
                     quality = 15;
                 }
 
-
                 this._$quality = quality|0;
             }
         }
@@ -124,27 +123,29 @@ BlurFilter.prototype._$applyFilter = function (context, colorTransform, player)
     }
 
 
-    var STEP     = [0.5, 1.05, 1.35, 1.55, 1.75, 1.9, 2, 2.1, 2.2, 2.3, 2.5, 3, 3, 3.5, 3.5];
-    var stepNo   = STEP[this.quality - 1] * 2;
+    var STEP   = [0.5, 1.05, 1.35, 1.55, 1.75, 1.9, 2, 2.1, 2.2, 2.3, 2.5, 3, 3, 3.5, 3.5];
+    var stepNo = STEP[this.quality - 1] * 2;
 
-    var blurX = this.$ceil(this.blurX * stepNo * player.scale * player.ratio)|0;
-    var blurY = this.$ceil(this.blurY * stepNo * player.scale * player.ratio)|0;
+    var blurX  = this.$ceil(this.blurX * stepNo * player.scale * player.ratio)|0;
+    var blurY  = this.$ceil(this.blurY * stepNo * player.scale * player.ratio)|0;
 
     var width  = this.$ceil(context.canvas.width  + (blurX * 2) + 1)|0;
     var height = this.$ceil(context.canvas.height + (blurY * 2) + 1)|0;
+
 
     // new canvas
     var canvas    = this.$cacheStore.getCanvas();
     canvas.width  = width|0;
     canvas.height = height|0;
 
-    var ctx     = canvas.getContext("2d");
-    var offsetX = blurX;
-    var offsetY = blurY;
+    var ctx       = canvas.getContext("2d");
+    var offsetX   = blurX|0;
+    var offsetY   = blurY|0;
 
     ctx._$offsetX = +(blurX + context._$offsetX);
     ctx._$offsetY = +(blurY + context._$offsetY);
     ctx.drawImage(context.canvas, offsetX, offsetY);
+
 
     var imgData = ctx.getImageData(0, 0, width, height);
     var px      = imgData.data;
@@ -291,7 +292,7 @@ BlurFilter.prototype._$applyFilter = function (context, colorTransform, player)
         while (x < w) {
             yi = (x << 2)|0;
 
-            r = (ryp1 * (pr = px[yi]))|0;
+            r = (ryp1 * (pr = px[yi      ]))|0;
             g = (ryp1 * (pg = px[(yi + 1)]))|0;
             b = (ryp1 * (pb = px[(yi + 2)]))|0;
             a = (ryp1 * (pa = px[(yi + 3)]))|0;

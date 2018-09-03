@@ -88,6 +88,22 @@ CacheStore.prototype.getCache = function (key)
 };
 
 /**
+ * @param   {string} key
+ * @returns void
+ */
+CacheStore.prototype.removeCache = function (key)
+{
+    if (typeof key !== "string") {
+        key = key + "";
+    }
+
+    if (key in this._$store) {
+        this.destroy(this._$store[key]);
+        delete this._$store[key];
+    }
+};
+
+/**
  * @param {string} key
  * @param {CanvasRenderingContext2D|WebGLRenderingContext} value
  */

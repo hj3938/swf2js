@@ -7,7 +7,11 @@ var Shape = function ()
 
     // origin param
     this._$data     = null;
-    this._$graphics = new Graphics();
+
+    // Graphics
+    var graphics = new Graphics();
+    graphics._$displayObject = this;
+    this._$graphics = graphics;
 
     var no = this.$Number.MAX_VALUE;
     this._$bounds = {
@@ -52,7 +56,6 @@ Shape.prototype.toString = function ()
 };
 
 /**
- * TODO
  * @param   {array|null|undefined} matrix
  * @returns {object}
  */
@@ -60,18 +63,18 @@ Shape.prototype._$getBounds = function (matrix)
 {
     var bounds, gBounds;
 
-    var graphics = this.graphics;
-    var isDraw   = graphics.isDraw;
-
     if (matrix) {
 
         bounds = this.$boundsMatrix(this._$bounds, matrix, null);
-        if (isDraw) {
-            gBounds = this.$boundsMatrix(graphics.getBounds(), matrix, null);
+
+        if (this.graphics._$getBounds() !== null) {
+
+            gBounds = this.$boundsMatrix(this.graphics._$getBounds(), matrix, null);
             bounds.xMin = +this.$min(gBounds.xMin, bounds.xMin);
             bounds.xMax = +this.$max(gBounds.xMax, bounds.xMax);
             bounds.yMin = +this.$min(gBounds.yMin, bounds.yMin);
             bounds.yMax = +this.$max(gBounds.yMax, bounds.yMax);
+
         }
 
         for (var name in bounds) {
@@ -87,12 +90,15 @@ Shape.prototype._$getBounds = function (matrix)
     } else {
 
         bounds = this._$bounds;
-        if (isDraw) {
-            gBounds = graphics.getBounds();
+
+        if (this.graphics._$getBounds() !== null) {
+
+            gBounds = this.graphics.getBounds();
             bounds.xMin = +this.$min(gBounds.xMin, bounds.xMin);
             bounds.xMax = +this.$max(gBounds.xMax, bounds.xMax);
             bounds.yMin = +this.$min(gBounds.yMin, bounds.yMin);
             bounds.yMax = +this.$max(gBounds.yMax, bounds.yMax);
+
         }
     }
 
@@ -141,6 +147,14 @@ Shape.prototype._$draw = function (matrix, color_transform, is_clip, visible)
 
     // pre context
     var ctx = this.parent.stage.player.preContext;
+
+    // Graphics
+    if (this.graphics._$getBounds() !== null) {
+
+        this.graphics._$draw(matrix, color_transform, is_clip, visible);
+
+        return ;
+    }
 
     if (is_clip || this._$clipDepth) {
 
@@ -498,7 +512,15 @@ Shape.prototype._$doDraw = function (ctx, min_scale, color_transform, is_clip)
  */
 Shape.prototype._$hit = function (x, y, matrix)
 {
-    var hit    = false;
+    var hit = false;
+
+    // Graphics
+    if (this.graphics._$getBounds() !== null) {
+
+        return this.graphics._$hit(x, y, matrix);
+        
+    }
+
     var shapes = this._$data;
     if (shapes) {
 

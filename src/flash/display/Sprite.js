@@ -9,10 +9,14 @@ var Sprite = function ()
     // properties
     this._$buttonMode     = false;
     this._$dropTarget     = null;
-    this._$graphics       = new Graphics();
     this._$hitArea        = null;
     this._$soundTransform = new SoundTransform();
     this._$useHandCursor  = true;
+
+    // Graphics
+    var graphics = new Graphics();
+    graphics._$displayObject = this;
+    this._$graphics = graphics;
 
 };
 

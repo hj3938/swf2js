@@ -478,27 +478,27 @@ VectorToCanvas.prototype.toCanvas2D = function (cache)
 
             // Graphics
             case 5: // fillStyle
-                str += "var r = Math.max(0, Math.min(("+ a[1] +" * ct[0]) + ct[4], 255))|0;";
-                str += "var g = Math.max(0, Math.min(("+ a[2] +" * ct[1]) + ct[5], 255))|0;";
-                str += "var b = Math.max(0, Math.min(("+ a[3] +" * ct[2]) + ct[6], 255))|0;";
-                str += "var a = Math.max(0, Math.min(("+ a[4] +" * 255 * ct[3]) + ct[7], 255)) / 255;";
+                str += "var r =  Math.max(0, Math.min(("+ a[1] +" * ct[0]) + ct[4], 255))|0;";
+                str += "var g =  Math.max(0, Math.min(("+ a[2] +" * ct[1]) + ct[5], 255))|0;";
+                str += "var b =  Math.max(0, Math.min(("+ a[3] +" * ct[2]) + ct[6], 255))|0;";
+                str += "var a = +Math.max(0, Math.min(("+ a[4] +" * 255 * ct[3]) + ct[7], 255)) / 255;";
                 str += "ctx.fillStyle = 'rgba('+r+', '+g+', '+b+', '+a+')';";
                 break;
             case 6: // strokeStyle
-                str += "var r = Math.max(0, Math.min(("+ a[1] +" * ct[0]) + ct[4], 255))|0;";
-                str += "var g = Math.max(0, Math.min(("+ a[2] +" * ct[1]) + ct[5], 255))|0;";
-                str += "var b = Math.max(0, Math.min(("+ a[3] +" * ct[2]) + ct[6], 255))|0;";
-                str += "var a = Math.max(0, Math.min(("+ a[4] +" * 255 * ct[3]) + ct[7], 255)) / 255;";
+                str += "var r =  Math.max(0, Math.min(("+ a[1] +" * ct[0]) + ct[4], 255))|0;";
+                str += "var g =  Math.max(0, Math.min(("+ a[2] +" * ct[1]) + ct[5], 255))|0;";
+                str += "var b =  Math.max(0, Math.min(("+ a[3] +" * ct[2]) + ct[6], 255))|0;";
+                str += "var a = +Math.max(0, Math.min(("+ a[4] +" * 255 * ct[3]) + ct[7], 255)) / 255;";
                 str += "ctx.strokeStyle = 'rgba('+r+', '+g+', '+b+', '+a+')';";
                 break;
             case 7: // fill
-                str += "if (!isClip) { ctx.fill(); }";
+                str += "if (!is_clip) { ctx.fill(); }";
                 break;
             case 8: // stroke
-                str += "if (!isClip) { ctx.stroke(); }";
+                str += "if (!is_clip) { ctx.stroke(); }";
                 break;
             case 9: // width
-                str += "ctx.lineWidth = "+ a[1] +";";
+                str += "ctx.lineWidth = "+ a[1] +" * min_scale;";
                 break;
             case 10: // lineCap
                 str += "ctx.lineCap = '"+ a[1] +"';";
@@ -517,7 +517,7 @@ VectorToCanvas.prototype.toCanvas2D = function (cache)
         i = (i + 1)|0;
     }
 
-    return new this.$Function("ctx", "ct", "isClip", str);
+    return new this.$Function("ctx", "ct", "is_clip", "min_scale", str);
 };
 
 /**

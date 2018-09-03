@@ -1,4 +1,10 @@
 /**
+ * @type {number}
+ */
+var graphicsId = 0;
+
+
+/**
  * @constructor
  */
 var Util = function () {};

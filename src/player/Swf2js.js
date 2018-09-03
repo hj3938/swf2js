@@ -96,7 +96,7 @@ Swf2js.prototype.createRootMovieClip = function (width, height, fps, options)
     // set params
     player.baseWidth  = width|0;
     player.baseHeight = height|0;
-    player.frameRate  = fps|0;
+    player.stage.frameRate = fps|0;
 
     // readyState
     switch (this.$document.readyState) {

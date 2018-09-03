@@ -112,7 +112,7 @@ BitmapFilter.prototype._$coatOfColor = function (context, color, inner, strength
             break;
 
     }
-    
+
 
     context.putImageData(imgData, 0, 0);
 

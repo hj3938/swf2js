@@ -5224,10 +5224,14 @@ SwfTag.prototype.parseFileAttributes = function ()
     // Reserved
     this.bitio.getUIBits(24);
 
-    if (obj.ActionScript3) {
-        this.main.actionScriptVersion = ActionScriptVersion.ACTIONSCRIPT3;
+    if (obj.ActionScript3 === 1) {
+
+        this.main.actionScriptVersion = ActionScriptVersion.ACTIONSCRIPT3|0;
+
     } else {
-        this.main.actionScriptVersion = ActionScriptVersion.ACTIONSCRIPT2;
+
+        this.main.actionScriptVersion = ActionScriptVersion.ACTIONSCRIPT2|0;
+
     }
 
 };

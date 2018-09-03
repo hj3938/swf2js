@@ -554,15 +554,6 @@ MovieClip.prototype._$draw = function (matrix, color_transform, is_clip, visible
     }
 
 
-    // case action script3
-    if (version === ActionScriptVersion.ACTIONSCRIPT3) {
-
-        // next frame
-        this._$putFrame();
-
-    }
-
-
     // init clip
     var ctx   = this.stage.player.preContext;
     var clips = [];
@@ -628,9 +619,7 @@ MovieClip.prototype._$draw = function (matrix, color_transform, is_clip, visible
 
 
         // case action script 1 or 2
-        if (instance.toString() === "[object MovieClip]"
-            && version === ActionScriptVersion.ACTIONSCRIPT2
-        ) {
+        if (instance.toString() === "[object MovieClip]") {
 
             instance._$putFrame();
 
@@ -668,9 +657,7 @@ MovieClip.prototype._$draw = function (matrix, color_transform, is_clip, visible
     }
 
     // case action script2
-    if (this.toString() === "[object MainTimeline]"
-        && version === ActionScriptVersion.ACTIONSCRIPT2
-    ) {
+    if (this.toString() === "[object MainTimeline]") {
 
         // next frame
         this._$putFrame();

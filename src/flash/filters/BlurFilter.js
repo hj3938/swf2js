@@ -133,12 +133,12 @@ BlurFilter.prototype._$applyFilter = function (context, colorTransform, player)
     var width  = this.$ceil(context.canvas.width  + (blurX * 2) + 1)|0;
     var height = this.$ceil(context.canvas.height + (blurY * 2) + 1)|0;
 
-    //
+    // new canvas
     var canvas    = this.$cacheStore.getCanvas();
     canvas.width  = width|0;
     canvas.height = height|0;
 
-    var ctx = canvas.getContext("2d");
+    var ctx     = canvas.getContext("2d");
     var offsetX = blurX;
     var offsetY = blurY;
 
@@ -329,6 +329,7 @@ BlurFilter.prototype._$applyFilter = function (context, colorTransform, player)
             yi = x;
             si = ssy;
             if (quality > 0) {
+
                 y = 0;
                 while (y < h) {
                     p = yi << 2;
@@ -355,7 +356,9 @@ BlurFilter.prototype._$applyFilter = function (context, colorTransform, player)
                     yi = (yi + w)|0;
                     y  = (y + 1)|0;
                 }
+
             } else {
+
                 y = 0;
                 while (y < h) {
                     p = yi << 2;
@@ -383,6 +386,7 @@ BlurFilter.prototype._$applyFilter = function (context, colorTransform, player)
                     yi = (yi + w)|0;
                     y  = (y + 1)|0;
                 }
+
             }
 
             x = (x + 1)|0;

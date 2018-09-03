@@ -49,9 +49,11 @@ Object.defineProperties(MainTimeline.prototype, {
          * @param {number} action_script_version
          */
         set: function (action_script_version) {
-            if (typeof actionScriptVersion !== "number") {
+
+            if (typeof action_script_version !== "number") {
                 action_script_version = ActionScriptVersion.ACTIONSCRIPT2;
             }
+
             this._$actionScriptVersion = action_script_version;
         }
     }

@@ -26,9 +26,9 @@ var SimpleButton = function (upState, overState, downState, hitTestState)
     this.upState          = upState;
 
     // origin param
-    this._$actions        = [];
-    this._$characters     = [];
-    this._$status         = "up";
+    this._$actions         = [];
+    this._$characters      = [];
+    this._$status          = "up";
 };
 
 /**
@@ -176,6 +176,21 @@ Object.defineProperties(SimpleButton.prototype, {
                 this._$useHandCursor = use_hand_cursor;
             }
         }
+    },
+    filters: {
+        /**
+         * @return {array}
+         */
+        get: function () {
+            return this[this._$status + "State"].filters;
+        },
+        /**
+         * @param  {array} filters
+         * @return void
+         */
+        set: function (filters) {
+            this[this._$status + "State"].filters = filters;
+        }
     }
 });
 
@@ -222,22 +237,33 @@ SimpleButton.prototype._$build = function (parent, index, tag, should_action)
     var idx    = 0;
 
     // state init
-    var downState    = new Sprite();
-    downState.parent = parent;
-    downState.stage  = stage;
+    var downState   = new Sprite();
+    downState.stage = stage;
+    downState.transform._$transform();
 
-    var hitTestState    = new Sprite();
-    hitTestState.parent = parent;
-    hitTestState.stage  = stage;
+    var hitTestState   = new Sprite();
+    hitTestState.stage = stage;
+    hitTestState.transform._$transform();
 
-    var overState    = new Sprite();
-    overState.parent = parent;
-    overState.stage  = stage;
+    var overState   = new Sprite();
+    overState.stage = stage;
+    overState.transform._$transform();
 
-    var upState    = new Sprite();
-    upState.parent = parent;
-    upState.stage  = stage;
+    var upState   = new Sprite();
+    upState.stage = stage;
+    upState.transform._$transform();
 
+    if (parent.root.actionScriptVersion === ActionScriptVersion.ACTIONSCRIPT2) {
+
+        downState.parent    = parent;
+        hitTestState.parent = parent;
+        overState.parent    = parent;
+        upState.parent      = parent;
+
+    }
+
+
+    var version = parent.root.actionScriptVersion;
 
     // build children
     var characters = stage._$characters;
@@ -252,24 +278,50 @@ SimpleButton.prototype._$build = function (parent, index, tag, should_action)
         var character = characters[btnTag.CharacterId];
 
         var id = 0;
+
+
+        // touch or press
         if (btnTag.ButtonStateDown) {
+
             id = downState._$instances.length|0;
-            downState._$instances[id] = this._$buildChild(parent, id, btnTag, character);
+
+            downState._$instances[id] = (version === ActionScriptVersion.ACTIONSCRIPT2)
+                ? this._$buildChild(button,    id, btnTag, character)
+                : this._$buildChild(downState, id, btnTag, character);
+
         }
 
+        // hit area
         if (btnTag.ButtonStateHitTest) {
+
             id = hitTestState._$instances.length|0;
-            hitTestState._$instances[id] = this._$buildChild(parent, id, btnTag, character);
+
+            hitTestState._$instances[id] = (version === ActionScriptVersion.ACTIONSCRIPT2)
+                ? this._$buildChild(button,       id, btnTag, character)
+                : this._$buildChild(hitTestState, id, btnTag, character);
+
         }
 
+        // over
         if (btnTag.ButtonStateOver) {
+
             id = overState._$instances.length|0;
-            overState._$instances[id] = this._$buildChild(parent, id, btnTag, character);
+
+            overState._$instances[id] = (version === ActionScriptVersion.ACTIONSCRIPT2)
+                ? this._$buildChild(button,    id, btnTag, character)
+                : this._$buildChild(overState, id, btnTag, character);
+
         }
 
+        // up
         if (btnTag.ButtonStateUp) {
+
             id = upState._$instances.length|0;
-            upState._$instances[id] = this._$buildChild(parent, id, btnTag, character);
+
+            upState._$instances[id] = (version === ActionScriptVersion.ACTIONSCRIPT2)
+                ? this._$buildChild(button,  id, btnTag, character)
+                : this._$buildChild(upState, id, btnTag, character);
+
         }
 
         idx = (idx + 1)|0;
@@ -325,7 +377,7 @@ SimpleButton.prototype._$changeState = function (status)
 };
 
 /**
- * @param  {MovieClip}     parent
+ * @param  {DisplayObject} parent
  * @param  {number}        id
  * @param  {object}        tag
  * @param  {DisplayObject} character
@@ -361,11 +413,13 @@ SimpleButton.prototype._$buildChild = function (parent, id, tag, character)
  */
 SimpleButton.prototype._$draw = function (matrix, color_transform, is_clip, visible)
 {
+
     // filter and blend
     var preMatrix = this._$preDraw(matrix);
 
     var player = this.stage.player;
     var state  = this[this._$status + "State"];
+
     state._$draw(preMatrix, color_transform, is_clip, visible);
 
     // add button

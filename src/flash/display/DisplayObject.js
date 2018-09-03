@@ -162,6 +162,18 @@ Object.defineProperties(DisplayObject.prototype, {
 
             }
 
+            // switch (this.parent.toString()) {
+            //
+            //     case "[object SimpleButton]":
+            //
+            //         var button = this.parent;
+            //         return button[button._$status + "State"].blendMode;
+            //
+            //     default:
+            //
+            //         break;
+            // }
+
             var placeObject = this._$getPlaceObject();
             if (placeObject) {
 
@@ -206,6 +218,18 @@ Object.defineProperties(DisplayObject.prototype, {
                 return this.transform._$filters;
 
             }
+
+            // switch (this.parent.toString()) {
+            //
+            //     case "[object SimpleButton]":
+            //
+            //         var button = this.parent;
+            //         return button[button._$status + "State"].filters;
+            //
+            //     default:
+            //
+            //         break;
+            // }
 
             var placeObject = this._$getPlaceObject();
             if (placeObject) {
@@ -290,6 +314,7 @@ DisplayObject.prototype._$commonBuild = function (parent, tag)
  */
 DisplayObject.prototype._$preDraw = function (matrix)
 {
+
     if (this.filters.length || this.blendMode !== BlendMode.NORMAL) {
 
         this._$poolContext = this.stage.player._$preContext;
@@ -349,6 +374,9 @@ DisplayObject.prototype._$postDraw = function (matrix, color_transform)
         var width  = ctx.canvas.width|0;
         var height = ctx.canvas.height|0;
 
+        var offsetX = 0;
+        var offsetY = 0;
+
         // filter
         var length = this.filters.length;
         if (length) {
@@ -361,6 +389,9 @@ DisplayObject.prototype._$postDraw = function (matrix, color_transform)
 
                 idx = (idx + 1)|0;
             }
+
+            offsetX = ctx._$offsetX;
+            offsetY = ctx._$offsetY;
         }
 
         // blend
@@ -447,7 +478,7 @@ DisplayObject.prototype._$postDraw = function (matrix, color_transform)
 
         }
 
-        var m = this.$multiplicationMatrix([1, 0, 0, 1, ctx._$dx, ctx._$dy], matrix);
+        var m = this.$multiplicationMatrix([1, 0, 0, 1, ctx._$dx - offsetX, ctx._$dy - offsetY], matrix);
 
         this._$poolContext.setTransform(1, 0, 0, 1, m[4], m[5]);
         this._$poolContext.drawImage(ctx.canvas, 0, 0, width, height);

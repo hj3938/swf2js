@@ -198,7 +198,6 @@ Sprite.prototype._$draw = function (matrix, color_transform, is_clip, visible)
     }
 
     // children draw
-    var version = this.root.actionScriptVersion|0;
     for (var depth in controller) {
 
         if (!controller.hasOwnProperty(depth)) {
@@ -206,12 +205,6 @@ Sprite.prototype._$draw = function (matrix, color_transform, is_clip, visible)
         }
 
         instance = controller[depth];
-        if (version === ActionScriptVersion.ACTIONSCRIPT3) {
-
-            // next frame
-            instance._$putFrame();
-
-        }
 
         // Transform
         var transform = instance.transform;
@@ -224,14 +217,6 @@ Sprite.prototype._$draw = function (matrix, color_transform, is_clip, visible)
             visible
         );
 
-        // case action script 1 or 2
-        if (instance.toString() === "[object MovieClip]"
-            && version === ActionScriptVersion.ACTIONSCRIPT2
-        ) {
-
-            instance._$putFrame();
-
-        }
     }
 
     // add button

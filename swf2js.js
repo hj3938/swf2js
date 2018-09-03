@@ -9343,12 +9343,12 @@ Graphics.STROKE_STYLE = 6;
 /**
  * @type {number}
  */
-Graphics.FILL = 7;
+Graphics.END_FILL = 7;
 
 /**
  * @type {number}
  */
-Graphics.STROKE = 8;
+Graphics.END_STROKE = 8;
 
 /**
  * @type {number}
@@ -9528,12 +9528,8 @@ Graphics.prototype._$doDraw = function (ctx, min_scale, color_transform, is_clip
  */
 Graphics.prototype._$buildCommand = function ()
 {
-    this._$doFill = (this._$fills.length > 0);
-
     var length = this._$lines.length;
     if (length) {
-
-        this._$doLine = true;
 
         var i = 0;
         while (length > i) {
@@ -9622,6 +9618,29 @@ Graphics.prototype._$setBounds = function (x, y)
 };
 
 /**
+ * @return void
+ */
+Graphics.prototype._$restart = function ()
+{
+    // command restart
+    this._$command = null;
+
+    // cache restart
+    var keys = this._$keys;
+    for (var idx in keys) {
+
+        if (!keys.hasOwnProperty(idx)) {
+            continue;
+        }
+
+        this.$cacheStore.removeCache(keys[idx]);
+    }
+
+    // cache key reset
+    this._$keys = [];
+};
+
+/**
  * @return {string}
  */
 Graphics.prototype.toString = function ()
@@ -9671,6 +9690,10 @@ Graphics.prototype.beginFill = function (color, alpha)
             break;
     }
 
+    if (this._$doFill) {
+        this._$fills[this._$fills.length] = [Graphics.END_FILL];
+    }
+
     // beginPath
     this._$fills[this._$fills.length] = [Graphics.BEGIN_PATH];
 
@@ -9680,6 +9703,9 @@ Graphics.prototype.beginFill = function (color, alpha)
 
     // restart
     this._$restart();
+
+    // start
+    this._$doFill = true;
 
     return this;
 };
@@ -9715,30 +9741,127 @@ Graphics.prototype.clear = function ()
 };
 
 /**
- * @return void
+ * @return {Graphics}
  */
-Graphics.prototype._$restart = function ()
+Graphics.prototype.endFill = function ()
 {
-    // command restart
-    this._$command = null;
-
-    // cache restart
-    var keys = this._$keys;
-    for (var idx in keys) {
-
-        if (!keys.hasOwnProperty(idx)) {
-            continue;
-        }
-
-        this.$cacheStore.removeCache(keys[idx]);
+    if (this._$doFill) {
+        this._$fills[this._$fills.length] = [Graphics.END_FILL];
     }
 
-    // cache key reset
-    this._$keys = [];
+    return this;
 };
 
+/**
+ * @param  {number} x
+ * @param  {number} y
+ * @param  {number} width
+ * @param  {number} height
+ * @return {Graphics}
+ */
+Graphics.prototype.drawRect = function (x, y, width, height)
+{
+    // valid
+    if (typeof x !== "number") {
+        x = x|0;
+    }
 
+    if (typeof y !== "number") {
+        y = y|0;
+    }
 
+    if (typeof width !== "number") {
+        width = width|0;
+    }
+
+    if (typeof height !== "number") {
+        height = height|0;
+    }
+
+    if (this._$doFill || this._$doLine) {
+
+        this
+            .moveTo(x, y)
+            .lineTo(x + width, y)
+            .lineTo(x + width, y + height)
+            .lineTo(x, y + height)
+            .lineTo(x, y);
+
+    }
+
+    return this;
+
+};
+
+/**
+ * @param   {number} x
+ * @param   {number} y
+ * @returns {Graphics}
+ */
+Graphics.prototype.lineTo = function (x, y)
+{
+    // valid
+    if (typeof x !== "number") {
+        x = x|0;
+    }
+
+    if (typeof y !== "number") {
+        y = y|0;
+    }
+
+    if (this._$doFill || this._$doLine) {
+        x = +(x * 20);
+        y = +(y * 20);
+        this._$setBounds(x, y);
+    }
+
+    // fills
+    if (this._$doFill) {
+        this._$fills[this._$fills.length] = [Graphics.LINE_TO, x, y];
+    }
+
+    // lines
+    if (this._$doLine) {
+        this._$lines[this._$lines.length] = [Graphics.LINE_TO, x, y];
+    }
+
+    return this;
+};
+
+/**
+ * @param   {number} x
+ * @param   {number} y
+ * @returns {Graphics}
+ */
+Graphics.prototype.moveTo = function (x, y)
+{
+    // valid
+    if (typeof x !== "number") {
+        x = x|0;
+    }
+
+    if (typeof y !== "number") {
+        y = y|0;
+    }
+
+    if (this._$doFill || this._$doLine) {
+        x = +(x * 20);
+        y = +(y * 20);
+        this._$setBounds(x, y);
+    }
+
+    // fills
+    if (this._$doFill) {
+        this._$fills[this._$fills.length] = [Graphics.MOVE_TO, x, y];
+    }
+
+    // lines
+    if (this._$doLine) {
+        this._$lines[this._$lines.length] = [Graphics.MOVE_TO, x, y];
+    }
+
+    return this;
+};
 
 
 
@@ -11189,21 +11312,11 @@ Shape.prototype.toString = function ()
  */
 Shape.prototype._$getBounds = function (matrix)
 {
-    var bounds, gBounds;
-
     if (matrix) {
 
-        bounds = this.$boundsMatrix(this._$bounds, matrix, null);
-
-        if (this.graphics._$getBounds() !== null) {
-
-            gBounds = this.$boundsMatrix(this.graphics._$getBounds(), matrix, null);
-            bounds.xMin = +this.$min(gBounds.xMin, bounds.xMin);
-            bounds.xMax = +this.$max(gBounds.xMax, bounds.xMax);
-            bounds.yMin = +this.$min(gBounds.yMin, bounds.yMin);
-            bounds.yMax = +this.$max(gBounds.yMax, bounds.yMax);
-
-        }
+        var bounds = (this.graphics._$getBounds() === null)
+            ? this.$boundsMatrix(this._$bounds, matrix, null)
+            : this.$boundsMatrix(this.graphics._$getBounds(), matrix, null);
 
         for (var name in bounds) {
 
@@ -11215,22 +11328,16 @@ Shape.prototype._$getBounds = function (matrix)
             bounds[name] = +(value / 20);
         }
 
+        return bounds;
+
     } else {
 
-        bounds = this._$bounds;
+        return (this.graphics._$getBounds() === null)
+            ? this._$bounds
+            : this.graphics._$getBounds();
 
-        if (this.graphics._$getBounds() !== null) {
-
-            gBounds = this.graphics.getBounds();
-            bounds.xMin = +this.$min(gBounds.xMin, bounds.xMin);
-            bounds.xMax = +this.$max(gBounds.xMax, bounds.xMax);
-            bounds.yMin = +this.$min(gBounds.yMin, bounds.yMin);
-            bounds.yMax = +this.$max(gBounds.yMax, bounds.yMax);
-
-        }
     }
 
-    return bounds;
 };
 
 /**
@@ -11646,7 +11753,7 @@ Shape.prototype._$hit = function (x, y, matrix)
     if (this.graphics._$getBounds() !== null) {
 
         return this.graphics._$hit(x, y, matrix);
-        
+
     }
 
     var shapes = this._$data;

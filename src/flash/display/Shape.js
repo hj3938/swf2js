@@ -63,7 +63,7 @@ Shape.prototype._$getBounds = function (matrix)
 {
     if (matrix) {
 
-        var bounds = (this.graphics._$getBounds() !== null)
+        var bounds = (this.graphics._$getBounds() === null)
             ? this.$boundsMatrix(this._$bounds, matrix, null)
             : this.$boundsMatrix(this.graphics._$getBounds(), matrix, null);
 
@@ -81,9 +81,9 @@ Shape.prototype._$getBounds = function (matrix)
 
     } else {
 
-        return (this.graphics._$getBounds() !== null)
+        return (this.graphics._$getBounds() === null)
             ? this._$bounds
-            : this.graphics.getBounds();
+            : this.graphics._$getBounds();
 
     }
 

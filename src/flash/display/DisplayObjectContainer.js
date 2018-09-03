@@ -258,6 +258,12 @@ DisplayObjectContainer.prototype._$addChild = function (child, index)
     child.stage   = this.stage;
     child.parent  = this;
 
+    if (child instanceof DisplayObjectContainer) {
+
+        child._$setParentAndStage(this);
+
+    }
+
     this._$children[index] = child.id;
 
     // event
@@ -265,6 +271,28 @@ DisplayObjectContainer.prototype._$addChild = function (child, index)
     this.dispatchEvent(Event.ADDED,  this.stage);
 
     return child;
+};
+
+/**
+ * @param {DisplayObject} parent
+ */
+DisplayObjectContainer.prototype._$setParentAndStage = function(parent)
+{
+    var instances = this._$instances;
+    var length = instances.length;
+    var idx = 0;
+    while (length > idx) {
+
+        var instance = instances[idx];
+        instance.stage  = parent.stage;
+        instance.parent = parent;
+
+        if (instance instanceof DisplayObjectContainer) {
+            instance._$setParentAndStage(parent);
+        }
+
+        idx = (idx + 1)|0;
+    }
 };
 
 /**

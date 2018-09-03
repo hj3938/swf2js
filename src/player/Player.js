@@ -1090,7 +1090,7 @@ Player.prototype.loaded = function ()
         div.appendChild(this.canvas);
 
         // player start
-        //this.play();
+        this.play();
     }
 };
 

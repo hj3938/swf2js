@@ -176,21 +176,6 @@ Object.defineProperties(SimpleButton.prototype, {
                 this._$useHandCursor = use_hand_cursor;
             }
         }
-    },
-    filters: {
-        /**
-         * @return {array}
-         */
-        get: function () {
-            return this[this._$status + "State"].filters;
-        },
-        /**
-         * @param  {array} filters
-         * @return void
-         */
-        set: function (filters) {
-            this[this._$status + "State"].filters = filters;
-        }
     }
 });
 
@@ -430,7 +415,8 @@ SimpleButton.prototype._$draw = function (matrix, color_transform, is_clip, visi
     );
 
     // filter and blend
-    this._$postDraw(matrix, color_transform);
+    this._$postDraw(matrix, preMatrix, color_transform);
+
 };
 
 /**

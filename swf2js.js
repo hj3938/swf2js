@@ -4683,43 +4683,60 @@ var BitmapFilter = function ()
 };
 
 /**
- * util
+ * extends
+ * @type {OriginalObject}
  */
 BitmapFilter.prototype = Object.create(OriginalObject.prototype);
 BitmapFilter.prototype.constructor = BitmapFilter;
 
 /**
- * @param inner
- * @param knockout
- * @param hideObject
- * @returns {*}
+ * @return {string}
  */
-BitmapFilter.prototype.filterOperation = function (inner, knockout, hideObject)
+BitmapFilter.prototype.toString = function ()
 {
-    var operation = "source-over";
-    if (knockout) {
-        operation = (inner) ? "source-in": "source-out";
-    } else {
-        if (hideObject) {
-            operation = (inner) ? "source-in" : "copy";
-        } else {
-            operation = (inner) ? "source-atop" : "destination-over";
-        }
-    }
-    return operation;
+    return "[object BitmapFilter]";
 };
 
 /**
- * @param ctx
- * @param color
- * @param inner
- * @param strength
- * @returns {*}
+ * @param   {boolean} inner
+ * @param   {boolean} knockout
+ * @param   {boolean} hide_object
+ * @returns {string}
  */
-BitmapFilter.prototype.coatOfColor = function (ctx, color, inner, strength)
+BitmapFilter.prototype._$filterOperation = function (inner, knockout, hide_object)
 {
-    var canvas  = ctx.canvas;
-    var imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    switch (knockout) {
+
+        case true:
+
+            return (inner) ? "source-in" : "source-out";
+
+        default:
+
+            switch (hide_object) {
+
+                case true:
+
+                    return (inner) ? "source-in" : "copy";
+
+                default:
+
+                    return (inner) ? "source-atop" : "destination-over";
+
+            }
+    }
+};
+
+/**
+ * @param   {CanvasRenderingContext2D} context
+ * @param   {object}  color
+ * @param   {boolean} inner
+ * @param   {number}  strength
+ * @returns {CanvasRenderingContext2D}
+ */
+BitmapFilter.prototype._$coatOfColor = function (context, color, inner, strength)
+{
+    var imgData = context.getImageData(0, 0, context.canvas.width, context.canvas.height);
 
     var i = 0;
     var R = color.R|0;
@@ -4729,94 +4746,97 @@ BitmapFilter.prototype.coatOfColor = function (ctx, color, inner, strength)
     var pxData = imgData.data;
     var length = pxData.length|0;
 
-    var aKey, alpha;
-    if (!inner) {
-        while (i < length) {
-            aKey  = (i + 3)|0;
-            alpha = pxData[aKey]|0;
-            if (alpha !== 0) {
-                pxData[i    ] = R|0;
-                pxData[i + 1] = G|0;
-                pxData[i + 2] = B|0;
-                pxData[aKey]  = alpha|0;
+    var idx, alpha;
+    switch (inner) {
+
+        case true:
+
+            while (i < length) {
+                idx  = (i + 3)|0;
+                alpha = pxData[idx]|0;
+
+                if (alpha !== 255) {
+                    pxData[i    ] = R | 0;
+                    pxData[i + 1] = G | 0;
+                    pxData[i + 2] = B | 0;
+                    pxData[idx]   = (255 - alpha) | 0;
+                } else {
+                    pxData[idx]   = 0;
+                }
+
+                i = (i + 4)|0;
             }
 
-            i = (i + 4)|0;
-        }
-    } else {
-        while (i < length) {
-            aKey  = (i + 3)|0;
-            alpha = pxData[aKey]|0;
+            break;
 
-            if (alpha !== 255) {
-                pxData[i    ] = R | 0;
-                pxData[i + 1] = G | 0;
-                pxData[i + 2] = B | 0;
-                pxData[aKey] = (255 - alpha) | 0;
-            } else {
-                pxData[aKey] = 0;
+        default:
+
+            while (i < length) {
+                idx = (i + 3)|0;
+                alpha = pxData[idx]|0;
+
+                if (alpha !== 0) {
+                    pxData[i    ] = R|0;
+                    pxData[i + 1] = G|0;
+                    pxData[i + 2] = B|0;
+                    pxData[idx]   = alpha|0;
+                }
+
+                i = (i + 4)|0;
             }
 
-            i = (i + 4)|0;
-        }
+            break;
+
     }
+    
 
-    ctx.putImageData(imgData, 0, 0);
+    context.putImageData(imgData, 0, 0);
+
+
     if (strength > 0) {
         i = 1;
-        while (i < strength) {
+        while (strength > i) {
             i = (i + 1)|0;
-            ctx.drawImage(ctx.canvas, 0, 0);
+            context.drawImage(context.canvas, 0, 0);
         }
     }
 
-    return ctx;
+    return context;
 };
 
 /**
- * clone
+ * @return {BitmapFilter}
  */
 BitmapFilter.prototype.clone = function ()
 {
-    var args = [];
+
+    var clone = new this.constructor();
+
     for (var prop in this) {
+
         if (!this.hasOwnProperty(prop)) {
             continue;
         }
 
-        args[args.length] = this[prop];
+        var value = this[prop];
+
+        switch (this.$isArray(value)) {
+
+            case true:
+
+                clone[prop] = this.$cloneArray(this[prop]);
+
+                break;
+
+            default:
+
+                clone[prop] = this[prop];
+
+                break;
+        }
     }
 
-    var type   = this.filterId|0;
-    var filter = this;
-    switch (type) {
-        case 0: // DropShadowFilter
-            filter = new (Function.prototype.bind.apply(DropShadowFilter, args))();
-            break;
-        case 1: // BlurFilter
-            filter = new (Function.prototype.bind.apply(BlurFilter, args))();
-            break;
-        case 2: // GlowFilter
-            filter = new (Function.prototype.bind.apply(GlowFilter, args))();
-            break;
-        case 3: // BevelFilter
-            filter = new (Function.prototype.bind.apply(BevelFilter, args))();
-            break;
-        case 4: // GradientGlowFilter
-            filter = new (Function.prototype.bind.apply(GradientGlowFilter, args))();
-            break;
-        case 5: // ConvolutionFilter
-            filter = new (Function.prototype.bind.apply(ConvolutionFilter, args))();
-            break;
-        case 6: // ColorMatrixFilter
-            filter = new (Function.prototype.bind.apply(ColorMatrixFilter, args))();
-            break;
-        case 7: // GradientBevelFilter
-            filter = new (Function.prototype.bind.apply(GradientBevelFilter, args))();
-            break;
-    }
-
-    return filter;
+    return clone;
 };
 /**
  * @constructor
@@ -5247,7 +5267,6 @@ Object.defineProperties(BlurFilter.prototype, {
                     quality = 15;
                 }
 
-
                 this._$quality = quality|0;
             }
         }
@@ -5268,27 +5287,29 @@ BlurFilter.prototype._$applyFilter = function (context, colorTransform, player)
     }
 
 
-    var STEP     = [0.5, 1.05, 1.35, 1.55, 1.75, 1.9, 2, 2.1, 2.2, 2.3, 2.5, 3, 3, 3.5, 3.5];
-    var stepNo   = STEP[this.quality - 1] * 2;
+    var STEP   = [0.5, 1.05, 1.35, 1.55, 1.75, 1.9, 2, 2.1, 2.2, 2.3, 2.5, 3, 3, 3.5, 3.5];
+    var stepNo = STEP[this.quality - 1] * 2;
 
-    var blurX = this.$ceil(this.blurX * stepNo * player.scale * player.ratio)|0;
-    var blurY = this.$ceil(this.blurY * stepNo * player.scale * player.ratio)|0;
+    var blurX  = this.$ceil(this.blurX * stepNo * player.scale * player.ratio)|0;
+    var blurY  = this.$ceil(this.blurY * stepNo * player.scale * player.ratio)|0;
 
     var width  = this.$ceil(context.canvas.width  + (blurX * 2) + 1)|0;
     var height = this.$ceil(context.canvas.height + (blurY * 2) + 1)|0;
+
 
     // new canvas
     var canvas    = this.$cacheStore.getCanvas();
     canvas.width  = width|0;
     canvas.height = height|0;
 
-    var ctx     = canvas.getContext("2d");
-    var offsetX = blurX;
-    var offsetY = blurY;
+    var ctx       = canvas.getContext("2d");
+    var offsetX   = blurX|0;
+    var offsetY   = blurY|0;
 
     ctx._$offsetX = +(blurX + context._$offsetX);
     ctx._$offsetY = +(blurY + context._$offsetY);
     ctx.drawImage(context.canvas, offsetX, offsetY);
+
 
     var imgData = ctx.getImageData(0, 0, width, height);
     var px      = imgData.data;
@@ -5435,7 +5456,7 @@ BlurFilter.prototype._$applyFilter = function (context, colorTransform, player)
         while (x < w) {
             yi = (x << 2)|0;
 
-            r = (ryp1 * (pr = px[yi]))|0;
+            r = (ryp1 * (pr = px[yi      ]))|0;
             g = (ryp1 * (pg = px[(yi + 1)]))|0;
             b = (ryp1 * (pb = px[(yi + 2)]))|0;
             a = (ryp1 * (pa = px[(yi + 3)]))|0;
@@ -7650,8 +7671,6 @@ DisplayObject.prototype._$preDraw = function (matrix)
         // offset
         context._$offsetX = 0;
         context._$offsetY = 0;
-        context._$dx      = x;
-        context._$dy      = y;
 
         this.stage.player._$preContext = context;
 
@@ -7664,10 +7683,11 @@ DisplayObject.prototype._$preDraw = function (matrix)
 
 /**
  * @param  {array} matrix
+ * @param  {array} pre_matrix
  * @param  {array} color_transform
  * @return void
  */
-DisplayObject.prototype._$postDraw = function (matrix, color_transform)
+DisplayObject.prototype._$postDraw = function (matrix, pre_matrix, color_transform)
 {
     if (this._$poolContext) {
 
@@ -7677,6 +7697,7 @@ DisplayObject.prototype._$postDraw = function (matrix, color_transform)
 
         var offsetX = 0;
         var offsetY = 0;
+
 
         // filter
         var length = this.filters.length;
@@ -7694,6 +7715,7 @@ DisplayObject.prototype._$postDraw = function (matrix, color_transform)
             offsetX = ctx._$offsetX;
             offsetY = ctx._$offsetY;
         }
+
 
         // blend
         if (this.blendMode !== BlendMode.NORMAL) {
@@ -7779,7 +7801,11 @@ DisplayObject.prototype._$postDraw = function (matrix, color_transform)
 
         }
 
-        var m = this.$multiplicationMatrix([1, 0, 0, 1, ctx._$dx - offsetX, ctx._$dy - offsetY], matrix);
+
+        var m = this.$multiplicationMatrix(
+            [1, 0, 0, 1, -pre_matrix[4] + offsetX, -pre_matrix[5] + offsetY],
+            matrix
+        );
 
         this._$poolContext.setTransform(1, 0, 0, 1, m[4], m[5]);
         this._$poolContext.drawImage(ctx.canvas, 0, 0, width, height);
@@ -8446,7 +8472,7 @@ Sprite.prototype.stopTouchDrag = function (touch_point_id)
 Sprite.prototype._$draw = function (matrix, color_transform, is_clip, visible)
 {
     // filter and blend
-    this._$preDraw(matrix);
+    var preMatrix = this._$preDraw(matrix);
 
     var instance;
     var controller = [];
@@ -8478,7 +8504,7 @@ Sprite.prototype._$draw = function (matrix, color_transform, is_clip, visible)
 
         // next draw
         instance._$draw(
-            this.$multiplicationMatrix(matrix, transform.matrix._$matrix),
+            this.$multiplicationMatrix(preMatrix, transform.matrix._$matrix),
             this.$multiplicationColor(color_transform, transform.colorTransform._$colorTransform),
             is_clip,
             visible
@@ -8492,7 +8518,7 @@ Sprite.prototype._$draw = function (matrix, color_transform, is_clip, visible)
     }
 
     // filter and blend
-    this._$postDraw(matrix, color_transform);
+    this._$postDraw(matrix, preMatrix, color_transform);
 };
 
 /**
@@ -10087,7 +10113,7 @@ MovieClip.prototype._$draw = function (matrix, color_transform, is_clip, visible
 
 
     // filter and blend
-    this._$postDraw(matrix, color_transform);
+    this._$postDraw(matrix, preMatrix, color_transform);
 
 
     // add button
@@ -11346,21 +11372,6 @@ Object.defineProperties(SimpleButton.prototype, {
                 this._$useHandCursor = use_hand_cursor;
             }
         }
-    },
-    filters: {
-        /**
-         * @return {array}
-         */
-        get: function () {
-            return this[this._$status + "State"].filters;
-        },
-        /**
-         * @param  {array} filters
-         * @return void
-         */
-        set: function (filters) {
-            this[this._$status + "State"].filters = filters;
-        }
     }
 });
 
@@ -11600,7 +11611,8 @@ SimpleButton.prototype._$draw = function (matrix, color_transform, is_clip, visi
     );
 
     // filter and blend
-    this._$postDraw(matrix, color_transform);
+    this._$postDraw(matrix, preMatrix, color_transform);
+
 };
 
 /**
@@ -30434,7 +30446,7 @@ Player.prototype.loaded = function ()
         div.appendChild(this.canvas);
 
         // player start
-        //this.play();
+        this.play();
     }
 };
 

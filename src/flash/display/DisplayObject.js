@@ -349,8 +349,6 @@ DisplayObject.prototype._$preDraw = function (matrix)
         // offset
         context._$offsetX = 0;
         context._$offsetY = 0;
-        context._$dx      = x;
-        context._$dy      = y;
 
         this.stage.player._$preContext = context;
 
@@ -363,10 +361,11 @@ DisplayObject.prototype._$preDraw = function (matrix)
 
 /**
  * @param  {array} matrix
+ * @param  {array} pre_matrix
  * @param  {array} color_transform
  * @return void
  */
-DisplayObject.prototype._$postDraw = function (matrix, color_transform)
+DisplayObject.prototype._$postDraw = function (matrix, pre_matrix, color_transform)
 {
     if (this._$poolContext) {
 
@@ -376,6 +375,7 @@ DisplayObject.prototype._$postDraw = function (matrix, color_transform)
 
         var offsetX = 0;
         var offsetY = 0;
+
 
         // filter
         var length = this.filters.length;
@@ -393,6 +393,7 @@ DisplayObject.prototype._$postDraw = function (matrix, color_transform)
             offsetX = ctx._$offsetX;
             offsetY = ctx._$offsetY;
         }
+
 
         // blend
         if (this.blendMode !== BlendMode.NORMAL) {
@@ -478,7 +479,11 @@ DisplayObject.prototype._$postDraw = function (matrix, color_transform)
 
         }
 
-        var m = this.$multiplicationMatrix([1, 0, 0, 1, ctx._$dx - offsetX, ctx._$dy - offsetY], matrix);
+
+        var m = this.$multiplicationMatrix(
+            [1, 0, 0, 1, -pre_matrix[4] + offsetX, -pre_matrix[5] + offsetY],
+            matrix
+        );
 
         this._$poolContext.setTransform(1, 0, 0, 1, m[4], m[5]);
         this._$poolContext.drawImage(ctx.canvas, 0, 0, width, height);

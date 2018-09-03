@@ -179,7 +179,7 @@ Sprite.prototype.stopTouchDrag = function (touch_point_id)
 Sprite.prototype._$draw = function (matrix, color_transform, is_clip, visible)
 {
     // filter and blend
-    this._$preDraw(matrix);
+    var preMatrix = this._$preDraw(matrix);
 
     var instance;
     var controller = [];
@@ -211,7 +211,7 @@ Sprite.prototype._$draw = function (matrix, color_transform, is_clip, visible)
 
         // next draw
         instance._$draw(
-            this.$multiplicationMatrix(matrix, transform.matrix._$matrix),
+            this.$multiplicationMatrix(preMatrix, transform.matrix._$matrix),
             this.$multiplicationColor(color_transform, transform.colorTransform._$colorTransform),
             is_clip,
             visible
@@ -225,7 +225,7 @@ Sprite.prototype._$draw = function (matrix, color_transform, is_clip, visible)
     }
 
     // filter and blend
-    this._$postDraw(matrix, color_transform);
+    this._$postDraw(matrix, preMatrix, color_transform);
 };
 
 /**

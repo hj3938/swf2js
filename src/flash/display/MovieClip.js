@@ -648,7 +648,7 @@ MovieClip.prototype._$draw = function (matrix, color_transform, is_clip, visible
 
 
     // filter and blend
-    this._$postDraw(matrix, color_transform);
+    this._$postDraw(matrix, preMatrix, color_transform);
 
 
     // add button

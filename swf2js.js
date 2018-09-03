@@ -304,6 +304,12 @@ CanvasToWebGL.prototype.enable = function ()
 
 };
 /**
+ * @type {number}
+ */
+var graphicsId = 0;
+
+
+/**
  * @constructor
  */
 var Util = function () {};
@@ -4788,7 +4794,7 @@ BitmapFilter.prototype._$coatOfColor = function (context, color, inner, strength
             break;
 
     }
-    
+
 
     context.putImageData(imgData, 0, 0);
 
@@ -8089,6 +8095,12 @@ DisplayObjectContainer.prototype._$addChild = function (child, index)
     child.stage   = this.stage;
     child.parent  = this;
 
+    if (child instanceof DisplayObjectContainer) {
+
+        child._$setParentAndStage(this);
+
+    }
+
     this._$children[index] = child.id;
 
     // event
@@ -8096,6 +8108,28 @@ DisplayObjectContainer.prototype._$addChild = function (child, index)
     this.dispatchEvent(Event.ADDED,  this.stage);
 
     return child;
+};
+
+/**
+ * @param {DisplayObject} parent
+ */
+DisplayObjectContainer.prototype._$setParentAndStage = function(parent)
+{
+    var instances = this._$instances;
+    var length = instances.length;
+    var idx = 0;
+    while (length > idx) {
+
+        var instance = instances[idx];
+        instance.stage  = parent.stage;
+        instance.parent = parent;
+
+        if (instance instanceof DisplayObjectContainer) {
+            instance._$setParentAndStage(parent);
+        }
+
+        idx = (idx + 1)|0;
+    }
 };
 
 /**
@@ -8302,10 +8336,14 @@ var Sprite = function ()
     // properties
     this._$buttonMode     = false;
     this._$dropTarget     = null;
-    this._$graphics       = new Graphics();
     this._$hitArea        = null;
     this._$soundTransform = new SoundTransform();
     this._$useHandCursor  = true;
+
+    // Graphics
+    var graphics = new Graphics();
+    graphics._$displayObject = this;
+    this._$graphics = graphics;
 
 };
 
@@ -8693,6 +8731,7 @@ var BitmapData = function (width, height, transparent, fill_color)
 
 /**
  * extends
+ * @type {OriginalObject}
  */
 BitmapData.prototype = Object.create(OriginalObject.prototype);
 BitmapData.prototype.constructor = BitmapData;
@@ -8701,12 +8740,12 @@ BitmapData.prototype.constructor = BitmapData;
  * properties
  */
 Object.defineProperties(BitmapData.prototype, {
-    width: {
+    height: {
         /**
          * @return {number}
          */
         get: function () {
-            return this._$width;
+            return this._$height;
         },
         /**
          * readonly
@@ -8714,12 +8753,12 @@ Object.defineProperties(BitmapData.prototype, {
          */
         set: function () {}
     },
-    height: {
+    rect: {
         /**
-         * @return {number}
+         * @return {Rectangle}
          */
         get: function () {
-            return this._$height;
+            return this._$rect;
         },
         /**
          * readonly
@@ -8740,12 +8779,12 @@ Object.defineProperties(BitmapData.prototype, {
          */
         set: function () {}
     },
-    rect: {
+    width: {
         /**
          * @return {number}
          */
         get: function () {
-            return this._$rect;
+            return this._$width;
         },
         /**
          * readonly
@@ -8765,10 +8804,10 @@ BitmapData.prototype.toString = function ()
 
 
 /**
- * @param {BitmapData} sourceBitmapData
- * @param {Rectangle} sourceRect
- * @param {Point} destPoint
- * @param {BitmapFilter} filter
+ * @param   {BitmapData}   sourceBitmapData
+ * @param   {Rectangle}    sourceRect
+ * @param   {Point}        destPoint
+ * @param   {BitmapFilter} filter
  * @returns void
  */
 BitmapData.prototype.applyFilter = function (sourceBitmapData, sourceRect, destPoint, filter)
@@ -8785,9 +8824,9 @@ BitmapData.prototype.clone = function ()
 };
 
 /**
- *
- * @param {Rectangle} rect
- * @param {ColorTransform} colorTransform
+ * @param   {Rectangle}      rect
+ * @param   {ColorTransform} colorTransform
+ * @returns void
  */
 BitmapData.prototype.colorTransform = function (rect, colorTransform)
 {
@@ -8795,7 +8834,7 @@ BitmapData.prototype.colorTransform = function (rect, colorTransform)
 };
 
 /**
- * @param {BitmapData} otherBitmapData
+ * @param   {BitmapData} otherBitmapData
  * @returns {object}
  */
 BitmapData.prototype.compare = function (otherBitmapData)
@@ -8805,11 +8844,11 @@ BitmapData.prototype.compare = function (otherBitmapData)
 
 /**
  *
- * @param {BitmapData} sourceBitmapData
- * @param {Rectangle} sourceRect
- * @param {Point} destPoint
- * @param {number} sourceChannel
- * @param {number} destChannel
+ * @param   {BitmapData} sourceBitmapData
+ * @param   {Rectangle}  sourceRect
+ * @param   {Point}      destPoint
+ * @param   {number}     sourceChannel
+ * @param   {number}     destChannel
  * @returns void
  */
 BitmapData.prototype.copyChannel = function (sourceBitmapData, sourceRect, destPoint, sourceChannel, destChannel)
@@ -8818,12 +8857,12 @@ BitmapData.prototype.copyChannel = function (sourceBitmapData, sourceRect, destP
 };
 
 /**
- * @param {BitmapData} sourceBitmapData
- * @param {Rectangle} sourceRect
- * @param {Point} destPoint
- * @param {BitmapData} alphaBitmapData
- * @param {Point} alphaPoint
- * @param {boolean} mergeAlpha
+ * @param   {BitmapData} sourceBitmapData
+ * @param   {Rectangle}  sourceRect
+ * @param   {Point}      destPoint
+ * @param   {BitmapData} alphaBitmapData
+ * @param   {Point}      alphaPoint
+ * @param   {boolean}    mergeAlpha
  * @returns void
  */
 BitmapData.prototype.copyPixels = function (sourceBitmapData, sourceRect, destPoint, alphaBitmapData, alphaPoint, mergeAlpha)
@@ -8840,12 +8879,12 @@ BitmapData.prototype.dispose = function ()
 };
 
 /**
- * @param {BitmapData} source
- * @param {Matrix} matrix
- * @param {ColorTransform} colorTransform
- * @param {string} blendMode
- * @param {Rectangle} clipRect
- * @param {boolean} smoothing
+ * @param   {BitmapData} source
+ * @param   {Matrix} matrix
+ * @param   {ColorTransform} colorTransform
+ * @param   {string} blendMode
+ * @param   {Rectangle} clipRect
+ * @param   {boolean} smoothing
  * @returns void
  */
 BitmapData.prototype.draw = function (source, matrix, colorTransform, blendMode, clipRect, smoothing)
@@ -8854,8 +8893,8 @@ BitmapData.prototype.draw = function (source, matrix, colorTransform, blendMode,
 };
 
 /**
- * @param {Rectangle} rect
- * @param {number} color
+ * @param   {Rectangle} rect
+ * @param   {number}    color
  * @returns void
  */
 BitmapData.prototype.fillRect = function (rect, color)
@@ -8865,9 +8904,9 @@ BitmapData.prototype.fillRect = function (rect, color)
 
 /**
  *
- * @param {number} x
- * @param {number} y
- * @param {number} color
+ * @param   {number} x
+ * @param   {number} y
+ * @param   {number} color
  * @returns void
  */
 BitmapData.prototype.floodFill = function (x, y, color)
@@ -8876,8 +8915,8 @@ BitmapData.prototype.floodFill = function (x, y, color)
 };
 
 /**
- * @param {Rectangle} sourceRect
- * @param {BitmapFilter} filter
+ * @param   {Rectangle}    sourceRect
+ * @param   {BitmapFilter} filter
  * @returns Rectangle
  */
 BitmapData.prototype.generateFilterRect = function (sourceRect, filter)
@@ -8886,9 +8925,9 @@ BitmapData.prototype.generateFilterRect = function (sourceRect, filter)
 };
 
 /**
- * @param {number} mask
- * @param {number} color
- * @param {boolean} findColor
+ * @param   {number}  mask
+ * @param   {number}  color
+ * @param   {boolean} findColor
  * @returns {Rectangle}
  */
 BitmapData.prototype.getColorBoundsRect = function (mask, color, findColor)
@@ -8897,8 +8936,8 @@ BitmapData.prototype.getColorBoundsRect = function (mask, color, findColor)
 };
 
 /**
- * @param {number} x
- * @param {number} y
+ * @param   {number} x
+ * @param   {number} y
  * @returns {number}
  */
 BitmapData.prototype.getPixel = function (x, y)
@@ -8907,8 +8946,8 @@ BitmapData.prototype.getPixel = function (x, y)
 };
 
 /**
- * @param {number} x
- * @param {number} y
+ * @param   {number} x
+ * @param   {number} y
  * @returns {number}
  */
 BitmapData.prototype.getPixel32 = function (x, y)
@@ -8917,7 +8956,7 @@ BitmapData.prototype.getPixel32 = function (x, y)
 };
 
 /**
- * @param {Rectangle} rect
+ * @param   {Rectangle} rect
  * @returns {Array}
  */
 BitmapData.prototype.getPixels = function (rect)
@@ -8926,7 +8965,7 @@ BitmapData.prototype.getPixels = function (rect)
 };
 
 /**
- * @param rect
+ * @param   {Rectangle} rect
  * @returns {Vector}
  */
 BitmapData.prototype.getVector = function (rect)
@@ -8935,7 +8974,7 @@ BitmapData.prototype.getVector = function (rect)
 };
 
 /**
- * @param {Rectangle} hRect
+ * @param   {Rectangle} hRect
  * @returns {Vector}
  */
 BitmapData.prototype.histogram = function (hRect)
@@ -8944,11 +8983,11 @@ BitmapData.prototype.histogram = function (hRect)
 };
 
 /**
- * @param {Point} firstPoint
- * @param {number} firstAlphaThreshold
- * @param {object} secondObject
- * @param {Point} secondBitmapDataPoint
- * @param {number} secondAlphaThreshold
+ * @param   {Point}  firstPoint
+ * @param   {number} firstAlphaThreshold
+ * @param   {object} secondObject
+ * @param   {Point}  secondBitmapDataPoint
+ * @param   {number} secondAlphaThreshold
  * @returns {boolean}
  */
 BitmapData.prototype.hitTest = function (firstPoint, firstAlphaThreshold, secondObject, secondBitmapDataPoint, secondAlphaThreshold)
@@ -8965,13 +9004,13 @@ BitmapData.prototype.lock = function ()
 };
 
 /**
- * @param {BitmapData} sourceBitmapData
- * @param {Rectangle} sourceRect
- * @param {Point} destPoint
- * @param {number} redMultiplier
- * @param {number} greenMultiplier
- * @param {number} blueMultiplier
- * @param {number} alphaMultiplier
+ * @param   {BitmapData} sourceBitmapData
+ * @param   {Rectangle}  sourceRect
+ * @param   {Point}      destPoint
+ * @param   {number}     redMultiplier
+ * @param   {number}     greenMultiplier
+ * @param   {number}     blueMultiplier
+ * @param   {number}     alphaMultiplier
  * @returns void
  */
 BitmapData.prototype.merge = function (sourceBitmapData, sourceRect, destPoint, redMultiplier, greenMultiplier, blueMultiplier, alphaMultiplier)
@@ -8980,11 +9019,11 @@ BitmapData.prototype.merge = function (sourceBitmapData, sourceRect, destPoint, 
 };
 
 /**
- * @param {number} randomSeed
- * @param {number} low
- * @param {number} high
- * @param {number} channelOptions
- * @param {boolean} grayScale
+ * @param   {number}  randomSeed
+ * @param   {number}  low
+ * @param   {number}  high
+ * @param   {number}  channelOptions
+ * @param   {boolean} grayScale
  * @returns void
  */
 BitmapData.prototype.noise = function (randomSeed, low, high, channelOptions, grayScale)
@@ -8993,13 +9032,13 @@ BitmapData.prototype.noise = function (randomSeed, low, high, channelOptions, gr
 };
 
 /**
- * @param {BitmapData} sourceBitmapData
- * @param {Rectangle} sourceRect
- * @param {Point} destPoint
- * @param {array} redArray
- * @param {array} greenArray
- * @param {array} blueArray
- * @param {array} alphaArray
+ * @param   {BitmapData} sourceBitmapData
+ * @param   {Rectangle}  sourceRect
+ * @param   {Point}      destPoint
+ * @param   {array}      redArray
+ * @param   {array}      greenArray
+ * @param   {array}      blueArray
+ * @param   {array}      alphaArray
  * @returns void
  */
 BitmapData.prototype.paletteMap = function (sourceBitmapData, sourceRect, destPoint, redArray, greenArray, blueArray, alphaArray)
@@ -9008,15 +9047,15 @@ BitmapData.prototype.paletteMap = function (sourceBitmapData, sourceRect, destPo
 };
 
 /**
- * @param {number} baseX
- * @param {number} baseY
- * @param {number} numOctaves
- * @param {number} randomSeed
- * @param {boolean} stitch
- * @param {boolean} fractalNoise
- * @param {number} channelOptions
- * @param {boolean} grayScale
- * @param {array} offsets
+ * @param   {number}  baseX
+ * @param   {number}  baseY
+ * @param   {number}  numOctaves
+ * @param   {number}  randomSeed
+ * @param   {boolean} stitch
+ * @param   {boolean} fractalNoise
+ * @param   {number}  channelOptions
+ * @param   {boolean} grayScale
+ * @param   {array}   offsets
  * @returns void
  */
 BitmapData.prototype.perlinNoise = function (baseX, baseY, numOctaves, randomSeed, stitch, fractalNoise, channelOptions, grayScale, offsets)
@@ -9025,12 +9064,12 @@ BitmapData.prototype.perlinNoise = function (baseX, baseY, numOctaves, randomSee
 };
 
 /**
- * @param {BitmapData} sourceBitmapData
- * @param {Rectangle} sourceRect
- * @param {Point} destPoint
- * @param {number} randomSeed
- * @param {number} numPixels
- * @param {number} fillColor
+ * @param   {BitmapData} sourceBitmapData
+ * @param   {Rectangle}  sourceRect
+ * @param   {Point}      destPoint
+ * @param   {number}     randomSeed
+ * @param   {number}     numPixels
+ * @param   {number}     fillColor
  * @returns {number}
  */
 BitmapData.prototype.pixelDissolve = function (sourceBitmapData, sourceRect, destPoint, randomSeed, numPixels, fillColor)
@@ -9039,8 +9078,8 @@ BitmapData.prototype.pixelDissolve = function (sourceBitmapData, sourceRect, des
 };
 
 /**
- * @param {number} x
- * @param {number} y
+ * @param   {number} x
+ * @param   {number} y
  * @returns void
  */
 BitmapData.prototype.scroll = function (x, y)
@@ -9049,9 +9088,9 @@ BitmapData.prototype.scroll = function (x, y)
 };
 
 /**
- * @param {number} x
- * @param {number} y
- * @param {number} color
+ * @param   {number} x
+ * @param   {number} y
+ * @param   {number} color
  * @returns void
  */
 BitmapData.prototype.setPixel = function (x, y, color)
@@ -9060,9 +9099,9 @@ BitmapData.prototype.setPixel = function (x, y, color)
 };
 
 /**
- * @param {number} x
- * @param {number} y
- * @param {number} color
+ * @param   {number} x
+ * @param   {number} y
+ * @param   {number} color
  * @returns void
  */
 BitmapData.prototype.setPixel32 = function (x, y, color)
@@ -9081,8 +9120,8 @@ BitmapData.prototype.setPixels = function (rect, inputByteArray)
 };
 
 /**
- * @param {Rectangle} rect
- * @param {Vector} inputVector
+ * @param   {Rectangle} rect
+ * @param   {Vector}    inputVector
  * @returns void
  */
 BitmapData.prototype.setVector = function (rect, inputVector)
@@ -9091,14 +9130,14 @@ BitmapData.prototype.setVector = function (rect, inputVector)
 };
 
 /**
- * @param {BitmapData} sourceBitmapData
- * @param {Rectangle} sourceRect
- * @param {Point} destPoint
- * @param {string} operation
- * @param {number} threshold
- * @param {number} color
- * @param {number} mask
- * @param {boolean} copySource
+ * @param   {BitmapData} sourceBitmapData
+ * @param   {Rectangle}  sourceRect
+ * @param   {Point}      destPoint
+ * @param   {string}     operation
+ * @param   {number}     threshold
+ * @param   {number}     color
+ * @param   {number}     mask
+ * @param   {boolean}    copySource
  * @returns {number}
  */
 BitmapData.prototype.threshold = function (sourceBitmapData, sourceRect, destPoint, operation, threshold, color, mask, copySource)
@@ -9107,7 +9146,7 @@ BitmapData.prototype.threshold = function (sourceBitmapData, sourceRect, destPoi
 };
 
 /**
- * @param {Rectangle} changeRect
+ * @param   {Rectangle} changeRect
  * @returns void
  */
 BitmapData.prototype.unlock = function (changeRect)
@@ -9254,7 +9293,88 @@ var GradientType = {
 var Graphics = function ()
 {
     OriginalObject.call(this);
+
+    // origin param
+    this._$id   = graphicsId++;
+    this._$keys = [];
+
+    // reset
+    this.clear();
+
+    // DisplayObject
+    this._$displayObject = null;
 };
+
+/**
+ * @type {number}
+ */
+Graphics.MOVE_TO = 0;
+
+/**
+ * @type {number}
+ */
+Graphics.CURVE_TO = 1;
+
+/**
+ * @type {number}
+ */
+Graphics.LINE_TO = 2;
+
+/**
+ * @type {number}
+ */
+Graphics.CUBIC = 3;
+
+/**
+ * @type {number}
+ */
+Graphics.ARC = 4;
+
+/**
+ * @type {number}
+ */
+Graphics.FILL_STYLE = 5;
+
+/**
+ * @type {number}
+ */
+Graphics.STROKE_STYLE = 6;
+
+/**
+ * @type {number}
+ */
+Graphics.FILL = 7;
+
+/**
+ * @type {number}
+ */
+Graphics.STROKE = 8;
+
+/**
+ * @type {number}
+ */
+Graphics.LINE_WIDTH = 9;
+
+/**
+ * @type {number}
+ */
+Graphics.LINE_CAP = 10;
+
+/**
+ * @type {number}
+ */
+Graphics.LINE_JOIN = 11;
+
+/**
+ * @type {number}
+ */
+Graphics.MITER_LIMIT = 12;
+
+/**
+ * @type {number}
+ */
+Graphics.BEGIN_PATH = 13;
+
 
 /**
  * extends
@@ -9262,6 +9382,364 @@ var Graphics = function ()
  */
 Graphics.prototype = Object.create(OriginalObject.prototype);
 Graphics.prototype.constructor = Graphics;
+
+/**
+ * @param  {array}   matrix
+ * @param  {array}   color_transform
+ * @param  {boolean} is_clip
+ * @param  {boolean} visible
+ * @return void
+ */
+Graphics.prototype._$draw = function (matrix, color_transform, is_clip, visible)
+{
+
+    var ctx = this._$displayObject.stage.player.preContext;
+
+    if (is_clip) {
+
+        ctx.setTransform(matrix[0], matrix[1], matrix[2], matrix[3], matrix[4], matrix[5]);
+        this._$doDraw(ctx, this.$min(matrix[0], matrix[3]), color_transform, is_clip);
+
+        return ;
+    }
+
+    var alpha = +(color_transform[3] + (color_transform[7] / 255));
+    if (visible && alpha) {
+
+        var xScale = +(this.$sqrt(matrix[0] * matrix[0] + matrix[1] * matrix[1]));
+        var yScale = +(this.$sqrt(matrix[2] * matrix[2] + matrix[3] * matrix[3]));
+        xScale = +(this.$pow(this.$SQRT2, this.$ceil(this.$log(xScale) / this.$LN2_2 - this.$LOG1P)));
+        yScale = +(this.$pow(this.$SQRT2, this.$ceil(this.$log(yScale) / this.$LN2_2 - this.$LOG1P)));
+
+        var bounds = this._$getBounds();
+        var xMax   = +bounds.xMax;
+        var xMin   = +bounds.xMin;
+        var yMax   = +bounds.yMax;
+        var yMin   = +bounds.yMin;
+
+        var width  = this.$abs(this.$ceil((xMax - xMin) * xScale))|0;
+        var height = this.$abs(this.$ceil((yMax - yMin) * yScale))|0;
+
+        if (width > 0 || height > 0) {
+
+            // matrix
+            var m = null;
+
+            // get cache
+            var cacheKey = this.$cacheStore.generateKey(this._$id, color_transform);
+            var cache    = this.$cacheStore.getCache(cacheKey);
+
+            // cache is small
+            if (cache && (width > cache.canvas.width || height > cache.canvas.height)) {
+                cache = null;
+            }
+
+            // cache is not
+            if (!cache) {
+
+                var canvas    = this.$cacheStore.getCanvas();
+                canvas.width  = width;
+                canvas.height = height;
+                cache         = canvas.getContext("2d");
+
+                cache.setTransform(xScale, 0, 0, yScale, -xMin * xScale, -yMin * yScale);
+
+                this._$doDraw(cache, this.$min(xScale, yScale), color_transform, false);
+
+                this._$keys[cacheKey] = 1;
+                this.$cacheStore.setCache(cacheKey, cache);
+
+            }
+
+            if (cache) {
+
+                m = this.$multiplicationMatrix(matrix, [1 / xScale, 0, 0, 1 / yScale, xMin, yMin]);
+
+                ctx.setTransform(m[0], m[1], m[2], m[3], m[4], m[5]);
+
+                if (this.$isAndroid4x && !this.$isChrome) {
+                    ctx.fillStyle = stage.context.createPattern(cache.canvas, "no-repeat");
+                    ctx.fillRect(0, 0, width, height);
+                } else {
+                    ctx.drawImage(cache.canvas, 0, 0, width, height);
+                }
+
+            } else {
+
+                ctx.setTransform(matrix[0], matrix[1], matrix[2], matrix[3], matrix[4], matrix[5]);
+                this._$doDraw(ctx, this.$min(matrix[0], matrix[3]), color_transform, false);
+
+            }
+        }
+    }
+};
+
+/**
+ * @param  {CanvasRenderingContext2D} ctx
+ * @param  {number}                   min_scale
+ * @param  {array}                    color_transform
+ * @param  {boolean}                  is_clip
+ * @return void
+ */
+Graphics.prototype._$doDraw = function (ctx, min_scale, color_transform, is_clip)
+{
+
+    if (this._$getBounds() !== null) {
+
+        // build command
+        if (this._$command === null) {
+
+            this._$command = this._$buildCommand();
+
+        }
+
+        ctx.beginPath();
+        this._$command(ctx, color_transform, is_clip, min_scale);
+
+        // rendering
+        switch (is_clip) {
+
+            case true:
+                ctx.clip();
+                break;
+
+            default:
+
+                if (this._$doFill) {
+                    ctx.fill();
+                }
+
+                if (this._$doLine) {
+                    ctx.stroke();
+                }
+
+                break;
+        }
+    }
+
+    var resetCss    = "rgba(0,0,0,1)";
+    ctx.strokeStyle = resetCss;
+    ctx.fillStyle   = resetCss;
+    ctx.globalAlpha = 1;
+};
+
+/**
+ * @return {Function}
+ */
+Graphics.prototype._$buildCommand = function ()
+{
+    this._$doFill = (this._$fills.length > 0);
+
+    var length = this._$lines.length;
+    if (length) {
+
+        this._$doLine = true;
+
+        var i = 0;
+        while (length > i) {
+
+            this._$fills[this._$fills.length] = this._$lines[i];
+
+            i = (i + 1)|0;
+        }
+
+        // reset
+        this._$lines = [];
+    }
+
+    return this.$vtc.buildCommand(this._$fills);
+};
+
+/**
+ * @param  {number} x
+ * @param  {number} y
+ * @param  {array}  matrix
+ * @return {boolean}
+ */
+Graphics.prototype._$hit = function (x, y, matrix)
+{
+    var hit = false;
+    if (this._$getBounds() !== null) {
+
+        var ctx = this._$displayObject.stage.player.hitContext;
+
+        ctx.setTransform(matrix[0], matrix[1], matrix[2], matrix[3], matrix[4], matrix[5]);
+
+        // build command
+        if (this._$command === null) {
+
+            this._$command = this._$buildCommand();
+
+        }
+
+        ctx.beginPath();
+        this._$command(ctx, [1,1,1,1,0,0,0,0], false, this.$min(matrix[0], matrix[3]));
+
+        hit = ctx.isPointInPath(x, y);
+        if (hit) {
+            return hit;
+        }
+
+        if ("isPointInStroke" in ctx) {
+            hit = ctx.isPointInStroke(x, y);
+            if (hit) {
+                return hit;
+            }
+        }
+
+    }
+
+    return hit;
+};
+
+/**
+ * @return {null|object}
+ */
+Graphics.prototype._$getBounds = function ()
+{
+    return this._$bounds;
+};
+
+/**
+ * @param {number} x
+ * @param {number} y
+ */
+Graphics.prototype._$setBounds = function (x, y)
+{
+    // init
+    if (this._$bounds === null) {
+
+        var no = this.$Number.MAX_VALUE;
+        this._$bounds = {xMin: no, xMax: -no, yMin: no, yMax: -no};
+
+    }
+
+    var bounds  = this._$bounds;
+    bounds.xMin = this.$min(bounds.xMin, x);
+    bounds.xMax = this.$max(bounds.xMax, x);
+    bounds.yMin = this.$min(bounds.yMin, y);
+    bounds.yMax = this.$max(bounds.yMax, y);
+};
+
+/**
+ * @return {string}
+ */
+Graphics.prototype.toString = function ()
+{
+    return "[object Graphics]";
+};
+
+/**
+ * TODO
+ * @param {BitmapData} bitmap
+ * @param {Matrix}     matrix
+ * @param {boolean}    repeat
+ * @param {boolean}    smooth
+ */
+Graphics.prototype.beginBitmapFill = function (bitmap, matrix, repeat, smooth)
+{
+    // restart
+    this._$restart();
+};
+
+/**
+ * @param  {string|number} color
+ * @param  {number} alpha
+ * @return {Graphics}
+ */
+Graphics.prototype.beginFill = function (color, alpha)
+{
+    if (typeof color === "string") {
+        color = this.$colorStringToInt(color);
+    }
+
+    // alpha
+    alpha = +alpha;
+    switch (typeof alpha) {
+        case "number":
+
+            alpha = alpha * 100;
+            if (alpha > 100) {
+                alpha = 100;
+            }
+
+            break;
+
+        default:
+
+            alpha = 100;
+            break;
+    }
+
+    // beginPath
+    this._$fills[this._$fills.length] = [Graphics.BEGIN_PATH];
+
+    // add Fill Style
+    var rgba = this.$intToRGBA(color, alpha);
+    this._$fills[this._$fills.length] = [Graphics.FILL_STYLE, rgba.R, rgba.G, rgba.B, rgba.A];
+
+    // restart
+    this._$restart();
+
+    return this;
+};
+
+
+/**
+ * @param  {Shader} shader
+ * @param  {Matrix} matrix
+ * @return void
+ */
+Graphics.prototype.beginShaderFill = function (shader, matrix)
+{
+    // TODO
+
+    // restart
+    this._$restart();
+};
+
+/**
+ * @return void
+ */
+Graphics.prototype.clear = function ()
+{
+    // origin param clear
+    this._$fills   = [];
+    this._$lines   = [];
+    this._$bounds  = null;
+    this._$doFill  = false;
+    this._$doLine  = false;
+
+    // restart
+    this._$restart();
+};
+
+/**
+ * @return void
+ */
+Graphics.prototype._$restart = function ()
+{
+    // command restart
+    this._$command = null;
+
+    // cache restart
+    var keys = this._$keys;
+    for (var idx in keys) {
+
+        if (!keys.hasOwnProperty(idx)) {
+            continue;
+        }
+
+        this.$cacheStore.removeCache(keys[idx]);
+    }
+
+    // cache key reset
+    this._$keys = [];
+};
+
+
+
+
 
 
 /**
@@ -10657,7 +11135,11 @@ var Shape = function ()
 
     // origin param
     this._$data     = null;
-    this._$graphics = new Graphics();
+
+    // Graphics
+    var graphics = new Graphics();
+    graphics._$displayObject = this;
+    this._$graphics = graphics;
 
     var no = this.$Number.MAX_VALUE;
     this._$bounds = {
@@ -10702,7 +11184,6 @@ Shape.prototype.toString = function ()
 };
 
 /**
- * TODO
  * @param   {array|null|undefined} matrix
  * @returns {object}
  */
@@ -10710,18 +11191,18 @@ Shape.prototype._$getBounds = function (matrix)
 {
     var bounds, gBounds;
 
-    var graphics = this.graphics;
-    var isDraw   = graphics.isDraw;
-
     if (matrix) {
 
         bounds = this.$boundsMatrix(this._$bounds, matrix, null);
-        if (isDraw) {
-            gBounds = this.$boundsMatrix(graphics.getBounds(), matrix, null);
+
+        if (this.graphics._$getBounds() !== null) {
+
+            gBounds = this.$boundsMatrix(this.graphics._$getBounds(), matrix, null);
             bounds.xMin = +this.$min(gBounds.xMin, bounds.xMin);
             bounds.xMax = +this.$max(gBounds.xMax, bounds.xMax);
             bounds.yMin = +this.$min(gBounds.yMin, bounds.yMin);
             bounds.yMax = +this.$max(gBounds.yMax, bounds.yMax);
+
         }
 
         for (var name in bounds) {
@@ -10737,12 +11218,15 @@ Shape.prototype._$getBounds = function (matrix)
     } else {
 
         bounds = this._$bounds;
-        if (isDraw) {
-            gBounds = graphics.getBounds();
+
+        if (this.graphics._$getBounds() !== null) {
+
+            gBounds = this.graphics.getBounds();
             bounds.xMin = +this.$min(gBounds.xMin, bounds.xMin);
             bounds.xMax = +this.$max(gBounds.xMax, bounds.xMax);
             bounds.yMin = +this.$min(gBounds.yMin, bounds.yMin);
             bounds.yMax = +this.$max(gBounds.yMax, bounds.yMax);
+
         }
     }
 
@@ -10791,6 +11275,14 @@ Shape.prototype._$draw = function (matrix, color_transform, is_clip, visible)
 
     // pre context
     var ctx = this.parent.stage.player.preContext;
+
+    // Graphics
+    if (this.graphics._$getBounds() !== null) {
+
+        this.graphics._$draw(matrix, color_transform, is_clip, visible);
+
+        return ;
+    }
 
     if (is_clip || this._$clipDepth) {
 
@@ -11148,7 +11640,15 @@ Shape.prototype._$doDraw = function (ctx, min_scale, color_transform, is_clip)
  */
 Shape.prototype._$hit = function (x, y, matrix)
 {
-    var hit    = false;
+    var hit = false;
+
+    // Graphics
+    if (this.graphics._$getBounds() !== null) {
+
+        return this.graphics._$hit(x, y, matrix);
+        
+    }
+
     var shapes = this._$data;
     if (shapes) {
 
@@ -29165,27 +29665,27 @@ VectorToCanvas.prototype.toCanvas2D = function (cache)
 
             // Graphics
             case 5: // fillStyle
-                str += "var r = Math.max(0, Math.min(("+ a[1] +" * ct[0]) + ct[4], 255))|0;";
-                str += "var g = Math.max(0, Math.min(("+ a[2] +" * ct[1]) + ct[5], 255))|0;";
-                str += "var b = Math.max(0, Math.min(("+ a[3] +" * ct[2]) + ct[6], 255))|0;";
-                str += "var a = Math.max(0, Math.min(("+ a[4] +" * 255 * ct[3]) + ct[7], 255)) / 255;";
+                str += "var r =  Math.max(0, Math.min(("+ a[1] +" * ct[0]) + ct[4], 255))|0;";
+                str += "var g =  Math.max(0, Math.min(("+ a[2] +" * ct[1]) + ct[5], 255))|0;";
+                str += "var b =  Math.max(0, Math.min(("+ a[3] +" * ct[2]) + ct[6], 255))|0;";
+                str += "var a = +Math.max(0, Math.min(("+ a[4] +" * 255 * ct[3]) + ct[7], 255)) / 255;";
                 str += "ctx.fillStyle = 'rgba('+r+', '+g+', '+b+', '+a+')';";
                 break;
             case 6: // strokeStyle
-                str += "var r = Math.max(0, Math.min(("+ a[1] +" * ct[0]) + ct[4], 255))|0;";
-                str += "var g = Math.max(0, Math.min(("+ a[2] +" * ct[1]) + ct[5], 255))|0;";
-                str += "var b = Math.max(0, Math.min(("+ a[3] +" * ct[2]) + ct[6], 255))|0;";
-                str += "var a = Math.max(0, Math.min(("+ a[4] +" * 255 * ct[3]) + ct[7], 255)) / 255;";
+                str += "var r =  Math.max(0, Math.min(("+ a[1] +" * ct[0]) + ct[4], 255))|0;";
+                str += "var g =  Math.max(0, Math.min(("+ a[2] +" * ct[1]) + ct[5], 255))|0;";
+                str += "var b =  Math.max(0, Math.min(("+ a[3] +" * ct[2]) + ct[6], 255))|0;";
+                str += "var a = +Math.max(0, Math.min(("+ a[4] +" * 255 * ct[3]) + ct[7], 255)) / 255;";
                 str += "ctx.strokeStyle = 'rgba('+r+', '+g+', '+b+', '+a+')';";
                 break;
             case 7: // fill
-                str += "if (!isClip) { ctx.fill(); }";
+                str += "if (!is_clip) { ctx.fill(); }";
                 break;
             case 8: // stroke
-                str += "if (!isClip) { ctx.stroke(); }";
+                str += "if (!is_clip) { ctx.stroke(); }";
                 break;
             case 9: // width
-                str += "ctx.lineWidth = "+ a[1] +";";
+                str += "ctx.lineWidth = "+ a[1] +" * min_scale;";
                 break;
             case 10: // lineCap
                 str += "ctx.lineCap = '"+ a[1] +"';";
@@ -29204,7 +29704,7 @@ VectorToCanvas.prototype.toCanvas2D = function (cache)
         i = (i + 1)|0;
     }
 
-    return new this.$Function("ctx", "ct", "isClip", str);
+    return new this.$Function("ctx", "ct", "is_clip", "min_scale", str);
 };
 
 /**
@@ -29298,6 +29798,22 @@ CacheStore.prototype.getCache = function (key)
     }
 
     return (key in this._$store) ? this._$store[key] : null;
+};
+
+/**
+ * @param   {string} key
+ * @returns void
+ */
+CacheStore.prototype.removeCache = function (key)
+{
+    if (typeof key !== "string") {
+        key = key + "";
+    }
+
+    if (key in this._$store) {
+        this.destroy(this._$store[key]);
+        delete this._$store[key];
+    }
 };
 
 /**
@@ -31157,7 +31673,7 @@ Swf2js.prototype.createRootMovieClip = function (width, height, fps, options)
     // set params
     player.baseWidth  = width|0;
     player.baseHeight = height|0;
-    player.frameRate  = fps|0;
+    player.stage.frameRate = fps|0;
 
     // readyState
     switch (this.$document.readyState) {

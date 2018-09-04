@@ -9539,11 +9539,15 @@ Graphics.prototype._$buildCommand = function ()
             i = (i + 1)|0;
         }
 
-        // reset
-        this._$lines = [];
     }
 
-    return this.$vtc.buildCommand(this._$fills);
+    var command = this.$vtc.buildCommand(this._$fills);
+
+    // reset
+    this._$fills = [];
+    this._$lines = [];
+
+    return command;
 };
 
 /**
@@ -9738,6 +9742,22 @@ Graphics.prototype.clear = function ()
 
     // restart
     this._$restart();
+};
+
+
+/**
+ * @param  {Graphics} source_graphics
+ * @return void
+ */
+Graphics.prototype.copyFrom = function (source_graphics)
+{
+    this.clear();
+
+    this._$command = source_graphics._$buildCommand;
+    this._$bounds  = source_graphics._$bounds;
+    this._$doFill  = source_graphics._$doFill;
+    this._$doLine  = source_graphics._$doLine;
+
 };
 
 /**

@@ -250,15 +250,10 @@ Graphics.prototype._$buildCommand = function ()
             i = (i + 1)|0;
         }
 
+        this._$lines = [];
     }
 
-    var command = this.$vtc.buildCommand(this._$fills);
-
-    // reset
-    this._$fills = [];
-    this._$lines = [];
-
-    return command;
+    return this.$vtc.buildCommand(this._$fills);
 };
 
 /**
@@ -425,6 +420,24 @@ Graphics.prototype.beginFill = function (color, alpha)
     return this;
 };
 
+/**
+ * TODO
+ * @param  {string} type
+ * @param  {array}  colors
+ * @param  {array}  alphas
+ * @param  {array}  ratios
+ * @param  {Matrix} matrix
+ * @param  {string} spread_method
+ * @param  {string} interpolation_method
+ * @param  {number} focal_point_ratio
+ * @return void
+ */
+Graphics.prototype.beginGradientFill = function (
+    type, colors, alphas, ratios, matrix,
+    spread_method, interpolation_method, focal_point_ratio
+) {
+
+};
 
 /**
  * @param  {Shader} shader
@@ -455,29 +468,199 @@ Graphics.prototype.clear = function ()
     this._$restart();
 };
 
-
 /**
  * @param  {Graphics} source_graphics
  * @return void
  */
 Graphics.prototype.copyFrom = function (source_graphics)
 {
-    this.clear();
+    if (source_graphics instanceof Graphics) {
 
-    this._$command = source_graphics._$buildCommand;
-    this._$bounds  = source_graphics._$bounds;
-    this._$doFill  = source_graphics._$doFill;
-    this._$doLine  = source_graphics._$doLine;
+        this.clear();
 
+        // command
+        this._$command = source_graphics._$buildCommand();
+        this._$fills   = this.$cloneArray(source_graphics._$fills);
+
+        // bounds
+        this._$bounds = {};
+        this._$bounds.xMin = source_graphics._$bounds.xMin;
+        this._$bounds.xMax = source_graphics._$bounds.xMax;
+        this._$bounds.yMin = source_graphics._$bounds.yMin;
+        this._$bounds.yMax = source_graphics._$bounds.yMax;
+
+        // flag
+        this._$doFill = source_graphics._$doFill;
+        this._$doLine = source_graphics._$doLine;
+
+    }
 };
 
 /**
+ * @param  {number} control_x1
+ * @param  {number} control_y1
+ * @param  {number} control_x2
+ * @param  {number} control_y2
+ * @param  {number} anchor_x
+ * @param  {number} anchor_y
  * @return {Graphics}
  */
-Graphics.prototype.endFill = function ()
+Graphics.prototype.cubicCurveTo = function (
+    control_x1, control_y1, control_x2, control_y2,
+    anchor_x, anchor_y
+) {
+
+    if (typeof control_x1 !== "number") {
+        control_x1 = control_x1|0;
+    }
+
+    if (typeof control_y1 !== "number") {
+        control_y1 = control_y1|0;
+    }
+
+    if (typeof control_x2 !== "number") {
+        control_x2 = control_x2|0;
+    }
+
+    if (typeof control_y2 !== "number") {
+        control_y2 = control_y2|0;
+    }
+
+    if (typeof anchor_x !== "number") {
+        anchor_x = anchor_x|0;
+    }
+
+    if (typeof anchor_y !== "number") {
+        anchor_y = anchor_y|0;
+    }
+
+
+    if (this._$doFill || this._$doLine) {
+
+        control_x1 = +(control_x1 * 20);
+        control_y1 = +(control_y1 * 20);
+        control_x2 = +(control_x2 * 20);
+        control_y2 = +(control_y2 * 20);
+        anchor_x   = +(anchor_x   * 20);
+        anchor_y   = +(anchor_y   * 20);
+
+        // set bounds
+        this._$setBounds(anchor_x,   anchor_y);
+        this._$setBounds(control_x1, control_y1);
+        this._$setBounds(control_x2, control_y2);
+
+        var data = [
+            Graphics.CUBIC,
+            control_x1, control_y1, control_x2, control_y2,
+            anchor_x, anchor_y
+        ];
+
+        if (this._$doFill) {
+            this._$fills[this._$fills.length] = data;
+        }
+
+        if (this._$doLine) {
+            this._$lines[this._$lines.length] = data;
+        }
+    }
+
+    return this;
+};
+
+/**
+ * @param  {number} control_x
+ * @param  {number} control_y
+ * @param  {number} anchor_x
+ * @param  {number} anchor_y
+ * @return {Graphics}
+ */
+Graphics.prototype.curveTo = function (control_x, control_y, anchor_x, anchor_y)
 {
-    if (this._$doFill) {
-        this._$fills[this._$fills.length] = [Graphics.END_FILL];
+
+    if (typeof control_x !== "number") {
+        control_x = control_x|0;
+    }
+
+    if (typeof control_y !== "number") {
+        control_y = control_y|0;
+    }
+
+    if (typeof anchor_x !== "number") {
+        anchor_x = anchor_x|0;
+    }
+
+    if (typeof anchor_y !== "number") {
+        anchor_y = anchor_y|0;
+    }
+
+    if (this._$doFill || this._$doLine) {
+
+        control_x = +(control_x * 20);
+        control_y = +(control_y * 20);
+        anchor_x  = +(anchor_x  * 20);
+        anchor_y  = +(anchor_y  * 20);
+
+        this._$setBounds(control_x, control_y);
+        this._$setBounds(anchor_x,  anchor_y);
+
+        var data = [Graphics.CURVE_TO, control_x, control_y, anchor_x, anchor_y];
+
+        if (this._$doFill) {
+            this._$fills[this._$fills.length] = data;
+        }
+
+        if (this._$doLine) {
+            this._$lines[this._$lines.length] = data;
+        }
+
+    }
+
+    return this;
+};
+
+/**
+ * @param  {number} x
+ * @param  {number} y
+ * @param  {number} radius
+ * @return {Graphics}
+ */
+Graphics.prototype.drawCircle = function (x, y, radius)
+{
+
+    // valid
+    if (typeof x !== "number") {
+        x = x|0;
+    }
+
+    if (typeof y !== "number") {
+        y = y|0;
+    }
+
+    if (typeof radius !== "number") {
+        radius = radius|0;
+    }
+
+    if (this._$doFill || this._$doLine) {
+
+        x      = +(x * 20);
+        y      = +(y * 20);
+        radius = +(radius * 20);
+
+        this._$setBounds(x - radius, y - radius);
+        this._$setBounds(x + radius, y + radius);
+
+        var data = [Graphics.ARC, x, y, radius];
+
+        // fills
+        if (this._$doFill) {
+            this._$fills[this._$fills.length] = data;
+        }
+
+        // lines
+        if (this._$doLine) {
+            this._$lines[this._$lines.length] = data;
+        }
+
     }
 
     return this;
@@ -525,6 +708,158 @@ Graphics.prototype.drawRect = function (x, y, width, height)
 };
 
 /**
+ * @param  {number} x
+ * @param  {number} y
+ * @param  {number} width
+ * @param  {number} height
+ * @return {Graphics}
+ */
+Graphics.prototype.drawEllipse = function (x, y, width, height)
+{
+
+    // valid
+    if (typeof x !== "number") {
+        x = x|0;
+    }
+
+    if (typeof y !== "number") {
+        y = y|0;
+    }
+
+    if (typeof width !== "number") {
+        width = width|0;
+    }
+
+    if (typeof height !== "number") {
+        height = height|0;
+    }
+
+    if (this._$doFill || this._$doLine) {
+
+        var hw = +(width  / 2); // half width
+        var hh = +(height / 2); // half height
+        var x0 = +(x + hw);
+        var y0 = +(y + hh);
+        var x1 = +(x + width);
+        var y1 = +(y + height);
+        var c  = +(4 / 3 * (this.$SQRT2 - 1));
+        var cw = +(c * hw);
+        var ch = +(c * hh);
+
+        this.moveTo(x0, y);
+        this.cubicCurveTo(x0 + cw, y,       x1,      y0 - ch, x1, y0);
+        this.cubicCurveTo(x1,      y0 + ch, x0 + cw, y1,      x0, y1);
+        this.cubicCurveTo(x0 - cw, y1,      x,       y0 + ch, x,  y0);
+        this.cubicCurveTo(x,       y0 - ch, x0 - cw, y,       x0, y );
+
+    }
+
+    return this;
+
+};
+
+/**
+ * @param {*} graphics_data
+ */
+Graphics.prototype.drawGraphicsData = function (graphics_data)
+{
+    // TODO
+};
+
+/**
+ * @param  {Vector} commands
+ * @param  {Vector} data
+ * @param  {string} winding
+ * @return {Graphics}
+ */
+Graphics.prototype.drawPath = function (commands, data, winding)
+{
+    if (this._$doFill || this._$doLine) {
+
+        var idx = 0;
+        var length = commands.length;
+        if (length) {
+
+            var no = 0;
+            while (length > no) {
+
+                switch (commands[no]) {
+
+                    case GraphicsPathCommand.NO_OP:
+
+                        break;
+
+                    case GraphicsPathCommand.MOVE_TO:
+
+                        this.moveTo(data[idx], data[idx + 1]);
+
+                        idx = (idx + 2)|0;
+
+                        break;
+
+                    case GraphicsPathCommand.LINE_TO:
+
+                        this.lineTo(data[idx], data[idx + 1]);
+
+                        idx = (idx + 2)|0;
+
+                        break;
+
+                    case GraphicsPathCommand.CURVE_TO:
+
+
+                        this.curveTo(data[idx], data[idx + 1], data[idx + 2], data[idx + 3]);
+
+                        idx = (idx + 4)|0;
+
+                        break;
+
+                    case GraphicsPathCommand.WIDE_MOVE_TO:
+
+                        break;
+
+                    case GraphicsPathCommand.WIDE_LINE_TO:
+
+                        break;
+
+                    case GraphicsPathCommand.CUBIC_CURVE_TO:
+
+                        this.cubicCurveTo(
+                            data[idx], data[idx + 1], data[idx + 2],
+                            data[idx + 3], data[idx + 4], data[idx + 5]
+                        );
+
+                        idx = (idx + 6)|0;
+
+                        break;
+
+                }
+
+                no = (no + 1)|0;
+            }
+
+            this.endFill();
+
+        }
+
+    }
+
+    return this;
+};
+
+/**
+ * @return {Graphics}
+ */
+Graphics.prototype.endFill = function ()
+{
+    if (this._$doFill) {
+        this._$fills[this._$fills.length] = [Graphics.END_FILL];
+    }
+
+    return this;
+};
+
+/**
  * @param   {number} x
  * @param   {number} y
  * @returns {Graphics}
@@ -546,14 +881,16 @@ Graphics.prototype.lineTo = function (x, y)
         this._$setBounds(x, y);
     }
 
+    var data = [Graphics.LINE_TO, x, y];
+
     // fills
     if (this._$doFill) {
-        this._$fills[this._$fills.length] = [Graphics.LINE_TO, x, y];
+        this._$fills[this._$fills.length] = data;
     }
 
     // lines
     if (this._$doLine) {
-        this._$lines[this._$lines.length] = [Graphics.LINE_TO, x, y];
+        this._$lines[this._$lines.length] = data;
     }
 
     return this;
@@ -581,14 +918,16 @@ Graphics.prototype.moveTo = function (x, y)
         this._$setBounds(x, y);
     }
 
+    var data = [Graphics.MOVE_TO, x, y];
+
     // fills
     if (this._$doFill) {
-        this._$fills[this._$fills.length] = [Graphics.MOVE_TO, x, y];
+        this._$fills[this._$fills.length] = data;
     }
 
     // lines
     if (this._$doLine) {
-        this._$lines[this._$lines.length] = [Graphics.MOVE_TO, x, y];
+        this._$lines[this._$lines.length] = data;
     }
 
     return this;

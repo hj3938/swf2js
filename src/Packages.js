@@ -11,6 +11,7 @@ var Packages = function (player)
  * @type {*}
  */
 Packages.prototype = {
+    "Vector": Vector,
     "adobe": {
         "utils": {
             "CustomActions": CustomActions,

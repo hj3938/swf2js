@@ -98,12 +98,12 @@ module.exports = function(config)
 
     // start these browsers
     // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
-    browsers: ['ChromeHeadless', 'FirefoxHeadless'],
+    browsers: ['myChromeHeadless', 'FirefoxHeadless'],
 
 
     // custom
     customLaunchers: {
-      ChromeHeadless: {
+      myChromeHeadless: {
         base: 'ChromeHeadless',
         flags: ['--disable-translate', '--disable-extensions', '--remote-debugging-port=9223']
       }
@@ -113,7 +113,7 @@ module.exports = function(config)
     // Continuous Integration mode
     // if true, Karma captures browsers, runs the tests and exits
     singleRun: false,
-      
+
 
     // Concurrency level
     // how many browser should be started simultaneous

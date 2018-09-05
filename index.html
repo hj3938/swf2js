@@ -13,20 +13,17 @@
     document.body.appendChild( stats.dom );
     // swf2js.load("develop", { quality: "high" });
 
-    var root = swf2js.createRootMovieClip(240, 240, 1);
+    // var root = swf2js.createRootMovieClip(240, 240, 1);
 
-    var Shape = root.stage.player.getPackage("flash.display.Shape");
-    var shape = new Shape();
-    shape
-        .graphics
-        .beginFill(0xff0000, 1)
-        .drawRect("a", "a", 100, 100)
-        .beginFill(0x00ff00, 1)
-        .drawRect(100, 100, 100, 100);
+    // var Shape = root.stage.player.getPackage("flash.display.Shape");
+    // var shape = new Shape();
+    // shape
+    //     .graphics
+    //     .beginFill(0x00FF00)
+    //     .drawPath([1, 2, 2, 2, 2], [66, 10, 23, 127, 122, 50, 10, 49, 109, 127]);
+    //
+    // root.addChild(shape);
 
-    root.addChild(shape);
-
-    console.log(root);
 
 </script>
 </body>

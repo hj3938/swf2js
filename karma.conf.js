@@ -72,10 +72,12 @@ module.exports = function(config)
     // available reporters: https://npmjs.org/browse/keyword/karma-reporter
     reporters: ['spec', 'coverage'],
 
+
     coverageReporter: {
       type: 'html',
       dir: 'coverage/'
     },
+
 
     // web server port
     port: 9876,
@@ -96,17 +98,22 @@ module.exports = function(config)
 
     // start these browsers
     // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
-    browsers: ['ChromeHeadless', 'MyHeadlessChrome', 'FirefoxHeadless'],
+    browsers: ['ChromeHeadless', 'FirefoxHeadless'],
 
-      customLaunchers: {
-          MyHeadlessChrome: {
-              base: 'ChromeHeadless',
-              flags: ['--disable-translate', '--disable-extensions', '--remote-debugging-port=9223']
-          }
-      },
+
+    // custom
+    customLaunchers: {
+      ChromeHeadless: {
+        base: 'ChromeHeadless',
+        flags: ['--disable-translate', '--disable-extensions', '--remote-debugging-port=9223']
+      }
+    },
+
+
     // Continuous Integration mode
     // if true, Karma captures browsers, runs the tests and exits
     singleRun: false,
+      
 
     // Concurrency level
     // how many browser should be started simultaneous

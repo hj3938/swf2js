@@ -26,7 +26,6 @@
     "karma-coverage": "^1.1.1",
     "karma-firefox-launcher": "^1.1.0",
     "karma-jasmine": "^1.1.1",
-    "karma-safari-launcher": "^1.0.0",
     "karma-spec-reporter": "0.0.32",
     "proxy-polyfill": "^0.3.0"
   }

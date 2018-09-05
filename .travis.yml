@@ -9,7 +9,6 @@ cache:
 addons:
   chrome: stable
   firefox: stable
-  safari: stable
 
 before_install:
   - npm install -g gulp karma

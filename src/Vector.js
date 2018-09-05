@@ -135,22 +135,31 @@ Object.defineProperties(Vector.prototype, {
          * @return void
          */
         set: function (length) {
+
             if (typeof length === "number") {
-                this._$array.length = length|0;
 
                 var idx = 0;
+                var arr = [];
                 while (length > idx) {
 
                     if (idx in this._$array) {
+
+                        arr[idx] = this._$array[idx];
+                        idx = (idx + 1)|0;
+
                         continue;
+
                     }
 
-                    this._$array[idx] = null;
+                    arr[idx] = 0;
 
                     idx = (idx + 1)|0;
                 }
 
+                this._$array = arr;
+
             }
+
         }
     },
     fixed: {

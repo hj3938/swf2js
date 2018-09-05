@@ -89,7 +89,6 @@ BitmapData.prototype.toString = function ()
     return "[object BitmapData]";
 };
 
-
 /**
  * @param   {BitmapData}   sourceBitmapData
  * @param   {Rectangle}    sourceRect

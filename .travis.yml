@@ -8,7 +8,7 @@ cache:
 
 addons:
   chrome: stable
-  firefox: stable
+  firefox: latest
 
 before_install:
   - npm install -g gulp karma

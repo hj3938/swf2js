@@ -1234,7 +1234,7 @@ Player.prototype.resize = function ()
 
 /**
  * @param   {string} path
- * @returns {Packages}
+ * @returns {*}
  */
 Player.prototype.getPackage = function (path)
 {

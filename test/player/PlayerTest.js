@@ -6,6 +6,7 @@ describe("Player.js packages test", function()
     // packages
     it("packages test", function()
     {
+        window.swf2js = new Swf2js();
         var player = new Player();
 
         var SWFVersion = player.getPackage("flash.display.SWFVersion");

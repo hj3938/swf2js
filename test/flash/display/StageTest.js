@@ -190,7 +190,7 @@ describe("Stage.js property test", function()
     it("contentsScaleFactor test success", function()
     {
         var player = new Player();
-        expect(player.stage.contentsScaleFactor).toBe(1);
+        expect(player.stage.contentsScaleFactor).toBe(2);
     });
 
     it("contentsScaleFactor test valid", function()
@@ -198,7 +198,7 @@ describe("Stage.js property test", function()
         var player = new Player();
         player.stage.contentsScaleFactor = 3;
 
-        expect(player.stage.contentsScaleFactor).toBe(1);
+        expect(player.stage.contentsScaleFactor).toBe(2);
     });
 
 

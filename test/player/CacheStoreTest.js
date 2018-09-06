@@ -2,11 +2,12 @@
 
 describe("CacheStore.js packages test", function()
 {
-    var cs = new CacheStore();
+
 
     // destroy
     it("destroy test canvas", function()
     {
+        var cs = new CacheStore();
         expect(cs._$pool.length).toBe(0);
 
         var canvas  = cs.getCanvas();
@@ -24,6 +25,7 @@ describe("CacheStore.js packages test", function()
     // cache and store
     it("cache and store test", function()
     {
+        var cs = new CacheStore();
         expect(cs._$store.length).toBe(0);
 
         var canvas  = cs.getCanvas();
@@ -49,6 +51,13 @@ describe("CacheStore.js packages test", function()
     // reset
     it("reset test", function()
     {
+        var cs = new CacheStore();
+
+        // cache set
+        var canvas  = cs.getCanvas();
+        var context = canvas.getContext("2d");
+        cs.setCache("test", context);
+
         cs.reset();
 
         expect(cs._$pool.length).toBe(1);
@@ -60,6 +69,7 @@ describe("CacheStore.js packages test", function()
     // generateKey
     it("generateKey test", function()
     {
+        var cs = new CacheStore();
         var key = cs.generateKey("unq", []);
 
         expect(key).toBe("unq");

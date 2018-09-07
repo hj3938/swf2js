@@ -16,7 +16,6 @@ module.exports = function(config)
 
     // list of files / patterns to load in the browser
     files: [
-        "node_modules/proxy-polyfill/proxy.min.js",
         "src/util/Setting.js",
         "src/util/CanvasToWebGL.js",
         "src/util/Util.js",

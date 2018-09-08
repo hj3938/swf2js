@@ -13,11 +13,11 @@ var GraphicsStroke = function (
     caps, joints, miterLimit, fill
 )
 {
-    this._thickness    = "";
-    this._pixelHinting = false;
-    this._scaleMode    = "normal";
-    this._caps         = "none";
-    this._joints       = "round";
-    this._miterLimit   = 3.0;
-    this._fill         = null;
+    this._$thickness    = "";
+    this._$pixelHinting = false;
+    this._$scaleMode    = "normal";
+    this._$caps         = "none";
+    this._$joints       = "round";
+    this._$miterLimit   = 3.0;
+    this._$fill         = null;
 };

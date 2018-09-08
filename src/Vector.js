@@ -19,6 +19,47 @@ var Vector = function (length, fixed)
     
     return new Proxy(this, {
         /**
+         * @param  {Vector} obj
+         * @param  {number} prop
+         * @return {*}
+         */
+        get: function (obj, prop) {
+
+            // properties
+            switch (obj.$isNaN(prop)) {
+
+                case true:
+
+                    return obj[prop];
+
+                default:
+
+                    prop = prop | 0;
+                    if (prop > -1 && (!obj.fixed || (obj.fixed && obj.length > prop))) {
+
+                        // TODO
+                        switch (obj._$type) {
+                            case "Number":
+                            case "int":
+
+                                return obj._$array[prop] | 0;
+
+                            default:
+
+                                // valid
+                                if (!(prop in obj._$array)) {
+                                    return null;
+                                }
+
+                                return obj._$array[prop];
+                        }
+
+                    }
+
+                    break
+            }
+        },
+        /**
          * @param {Vector} obj
          * @param {number} prop
          * @param {*}      value
@@ -26,23 +67,22 @@ var Vector = function (length, fixed)
         set: function(obj, prop, value) {
 
             // properties
-            switch (prop) {
+            switch (obj.$isNaN(prop)) {
 
-                case "length":
-                case "fixed":
-                case "_$array":
-                case "_$fixed":
-                case "_$type":
-                    return obj[prop] = value;
+                case true:
+
+                    obj[prop] = value;
+
+                    break;
 
                 default:
 
                     prop = prop|0;
-                    if (prop > -1 && (!this.fixed || (this.fixed && obj.length > prop))) {
+                    if (prop > -1 && (!obj.fixed || (obj.fixed && obj.length > prop))) {
 
                         // TODO
                         switch (obj._$type) {
-                            case "Int":
+                            case "Number":
                             case "int":
 
                                 obj._$array[prop|0] = value|0;
@@ -67,54 +107,6 @@ var Vector = function (length, fixed)
 
                     break;
             }
-
-        },
-        /**
-         * @param  {Vector} obj
-         * @param  {number} prop
-         * @return {*}
-         */
-        get: function (obj, prop) {
-
-            // properties
-            switch (prop) {
-
-                case "length":
-                case "fixed":
-                case "_$array":
-                case "_$fixed":
-                case "_$type":
-                case "toString":
-                case "concat":
-                    return obj[prop];
-
-                default:
-
-                    prop = prop|0;
-                    if (prop > -1 && (!this.fixed || (this.fixed && obj.length > prop))) {
-
-                        // TODO
-                        switch (obj._$type) {
-                            case "Int":
-                            case "int":
-
-                                return obj._$array[prop]|0;
-
-                            default:
-
-                                // valid
-                                if (!(prop in obj._$array)) {
-                                    return null;
-                                }
-
-                                return obj._$array[prop];
-                        }
-
-                    }
-
-                    break
-            }
-
         }
     });
 };
@@ -211,14 +203,8 @@ Vector.prototype.concat = function ()
 
         if (v instanceof Vector) {
 
-            var l = v.length|0;
-            var i = 0;
-            while (l > i) {
+            vector._$array = vector._$array.concat(v._$array);
 
-                vector._$array[vector._$array.length] = v._$array[i];
-
-                i = (i + 1)|0;
-            }
         }
 
         idx = (idx + 1)|0;

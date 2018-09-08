@@ -26,6 +26,39 @@ describe("Vector.js toString test", function()
 });
 
 
+describe("Vector.js property test", function() {
+
+    // property
+    it("property success case1", function () {
+        var v = new Vector();
+        v[0] = 1;
+        expect(v[0]).toBe(1);
+    });
+
+    it("property success case2", function () {
+        var v = new Vector();
+        v[0] = "1";
+        expect(v[0]).toBe(1);
+    });
+
+
+    it("property valid case1", function () {
+        var v = new Vector();
+        v[0] = "0a";
+        expect(v[0]).toBe(0);
+    });
+
+    it("property valid case2", function () {
+        var v = new Vector(1, true);
+        v[0] = 1;
+        v[1] = 2;
+        expect(v[0]).toBe(1);
+        expect(v[1]).toBe(undefined);
+    });
+
+});
+
+
 describe("Vector.js concat test", function()
 {
 
@@ -54,5 +87,13 @@ describe("Vector.js concat test", function()
         }
     });
 
-
 });
+
+
+
+
+
+
+
+
+

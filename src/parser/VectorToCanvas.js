@@ -3,10 +3,13 @@
  */
 var VectorToCanvas = function () {};
 
+
 /**
- * Function
+ * extends
+ * @type {Util}
  */
-VectorToCanvas.prototype.$Function = window.Function;
+VectorToCanvas.prototype = Object.create(Util.prototype);
+VectorToCanvas.prototype.constructor = VectorToCanvas;
 
 /**
  * @param   {object} src
@@ -453,71 +456,122 @@ VectorToCanvas.prototype.buildCommand = function (cache)
  */
 VectorToCanvas.prototype.toCanvas2D = function (cache)
 {
-    var length = cache.length|0;
-    var str    = "";
-    var i      = 0;
+    var length  = cache.length|0;
+    var str     = "";
+    var i       = 0;
+    var restore = [];
+
     while (i < length) {
         var a = cache[i];
         switch (a[0]) {
-            case 0:
+            case Graphics.MOVE_TO:
                 str += "ctx.moveTo(" + a[1] + "," + a[2] + ");";
                 break;
-            case 1:
+            case Graphics.CURVE_TO:
                 str += "ctx.quadraticCurveTo(" + a[1] + "," + a[2] + "," + a[3] + "," + a[4] + ");";
                 break;
-            case 2:
+            case Graphics.LINE_TO:
                 str += "ctx.lineTo(" + a[1] + "," + a[2] + ");";
                 break;
-            case 3:
+            case Graphics.CUBIC:
                 str += "ctx.bezierCurveTo(" + a[1] + "," + a[2] + "," + a[3] + "," + a[4] + "," + a[5] + "," + a[6] + ");";
                 break;
-            case 4:
+
+
+            // Graphics
+            case Graphics.ARC:
                 str += "ctx.moveTo(" + (a[1] + a[3]) + "," + a[2] + ");";
                 str += "ctx.arc(" + a[1] + "," + a[2] + "," + a[3] + ",0 , Math.PI*2, false);";
                 break;
-
-            // Graphics
-            case 5: // fillStyle
+            case Graphics.FILL_STYLE:
                 str += "var r =  Math.max(0, Math.min(("+ a[1] +" * ct[0]) + ct[4], 255))|0;";
                 str += "var g =  Math.max(0, Math.min(("+ a[2] +" * ct[1]) + ct[5], 255))|0;";
                 str += "var b =  Math.max(0, Math.min(("+ a[3] +" * ct[2]) + ct[6], 255))|0;";
                 str += "var a = +Math.max(0, Math.min(("+ a[4] +" * 255 * ct[3]) + ct[7], 255)) / 255;";
                 str += "ctx.fillStyle = 'rgba('+r+', '+g+', '+b+', '+a+')';";
                 break;
-            case 6: // strokeStyle
+            case Graphics.STROKE_STYLE:
                 str += "var r =  Math.max(0, Math.min(("+ a[1] +" * ct[0]) + ct[4], 255))|0;";
                 str += "var g =  Math.max(0, Math.min(("+ a[2] +" * ct[1]) + ct[5], 255))|0;";
                 str += "var b =  Math.max(0, Math.min(("+ a[3] +" * ct[2]) + ct[6], 255))|0;";
                 str += "var a = +Math.max(0, Math.min(("+ a[4] +" * 255 * ct[3]) + ct[7], 255)) / 255;";
                 str += "ctx.strokeStyle = 'rgba('+r+', '+g+', '+b+', '+a+')';";
                 break;
-            case 7: // fill
+            case Graphics.END_FILL:
                 str += "if (!is_clip) { ctx.fill(); }";
+                if (restore.length) {
+                    // delete
+                    restore.pop();
+                    str += "if (!is_clip) { ctx.restore(); }";
+                }
                 break;
-            case 8: // stroke
+            case Graphics.END_STROKE:
                 str += "if (!is_clip) { ctx.stroke(); }";
                 break;
-            case 9: // width
+            case Graphics.LINE_WIDTH:
                 str += "ctx.lineWidth = "+ a[1] +" * min_scale;";
                 break;
-            case 10: // lineCap
+            case Graphics.LINE_CAP:
                 str += "ctx.lineCap = '"+ a[1] +"';";
                 break;
-            case 11: // lineJoin
+            case Graphics.LINE_JOIN:
                 str += "ctx.lineJoin = '"+ a[1] +"';";
                 break;
-            case 12: // miterLimit
+            case Graphics.MITER_LIMIT:
                 str += "ctx.miterLimit = '"+ a[1] +"';";
                 break;
-            case 13: // beginPath
+            case Graphics.BEGIN_PATH:
                 str += "ctx.beginPath();";
+                break;
+            case Graphics.GRADIENT_FILL:
+                str += "if (!is_clip) {";
+
+                var matrix = a[1];
+                switch (a[2]) {
+
+                    case GradientType.LINEAR:
+
+                        var xy = this.$linearGradientXY(matrix);
+                        str += "var css = ctx.createLinearGradient("+ xy[0] +", "+ xy[1] +", "+ xy[2] +", "+ xy[3] +");";
+                        break;
+
+                    case GradientType.RADIAL:
+
+                        str += "ctx.save();";
+                        str += "ctx.transform("+ matrix[0] +", "+ matrix[1] +", "+ matrix[2] +", "+ matrix[3] +", "+ matrix[4] +", "+ matrix[5] +");";
+                        str += "var css = ctx.createRadialGradient(0, 0, 0, 0, 0, 16384);";
+
+                        restore[restore.length] = 1;
+                        break;
+                }
+
+                var len = a[3]|0;
+                var idx = 0;
+                var pt  = 4;
+                while (len > idx) {
+
+                    var color = this.$intToRGBA(a[pt], a[pt + 1]);
+                    str += "var r =  Math.max(0, Math.min(("+ color.R +" * ct[0]) + ct[4], 255))|0;";
+                    str += "var g =  Math.max(0, Math.min(("+ color.G +" * ct[1]) + ct[5], 255))|0;";
+                    str += "var b =  Math.max(0, Math.min(("+ color.B +" * ct[2]) + ct[6], 255))|0;";
+                    str += "var a = +Math.max(0, Math.min(("+ color.A +" * 255 * ct[3]) + ct[7], 255)) / 255;";
+                    str += "var rgba = 'rgba(' + r + ',' + g + ',' + b + ',' + a + ')';";
+                    str += "css.addColorStop("+ a[pt + 2] +", rgba);";
+
+                    pt  = (pt  + 3)|0;
+                    idx = (idx + 1)|0;
+                }
+
+                str += "ctx.fillStyle = css;";
+                str += "}";
+
                 break;
         }
 
         i = (i + 1)|0;
     }
 
-    return new this.$Function("ctx", "ct", "is_clip", "min_scale", str);
+    return new Function("ctx", "ct", "is_clip", "min_scale", str);
 };
 
 /**

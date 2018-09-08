@@ -5,6 +5,6 @@
  */
 var GraphicsSolidFill = function (color, alpha)
 {
-    this._color = 0;
-    this._alpha = 1.0;
+    this._$color = 0;
+    this._$alpha = 1.0;
 };

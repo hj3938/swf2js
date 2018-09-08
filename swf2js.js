@@ -9373,6 +9373,11 @@ Graphics.MITER_LIMIT = 12;
  */
 Graphics.BEGIN_PATH = 13;
 
+/**
+ * @type {number}
+ */
+Graphics.GRADIENT_FILL = 14;
+
 
 /**
  * extends
@@ -9491,27 +9496,14 @@ Graphics.prototype._$doDraw = function (ctx, min_scale, color_transform, is_clip
 
         }
 
-        ctx.beginPath();
+        // ctx.beginPath();
         this._$command(ctx, color_transform, is_clip, min_scale);
 
         // rendering
-        switch (is_clip) {
+        if (is_clip) {
 
-            case true:
-                ctx.clip();
-                break;
+            ctx.clip();
 
-            default:
-
-                if (this._$doFill) {
-                    ctx.fill();
-                }
-
-                if (this._$doLine) {
-                    ctx.stroke();
-                }
-
-                break;
         }
     }
 
@@ -9526,15 +9518,28 @@ Graphics.prototype._$doDraw = function (ctx, min_scale, color_transform, is_clip
  */
 Graphics.prototype._$buildCommand = function ()
 {
-    var length = this._$lines.length;
+    var length, idx;
+
+    // init fill style
+    if (this._$fillStyles.length) {
+
+        this._$fills[this._$fills.length] = this._$fillStyles.pop();
+
+        // reset
+        this._$fillStyles = [];
+
+        this.endFill();
+    }
+
+    length = this._$lines.length;
     if (length) {
 
-        var i = 0;
-        while (length > i) {
+        idx = 0;
+        while (length > idx) {
 
-            this._$fills[this._$fills.length] = this._$lines[i];
+            this._$fills[this._$fills.length] = this._$lines[idx];
 
-            i = (i + 1)|0;
+            idx = (idx + 1)|0;
         }
 
         this._$lines = [];
@@ -9565,7 +9570,7 @@ Graphics.prototype._$hit = function (x, y, matrix)
 
         }
 
-        ctx.beginPath();
+        // ctx.beginPath();
         this._$command(ctx, [1,1,1,1,0,0,0,0], false, this.$min(matrix[0], matrix[3]));
 
         hit = ctx.isPointInPath(x, y);
@@ -9638,6 +9643,24 @@ Graphics.prototype._$restart = function ()
 };
 
 /**
+ * @return void
+ */
+Graphics.prototype._$beginFill = function ()
+{
+
+    if (this._$fillStyles.length) {
+
+        this._$fills[this._$fills.length] = this._$fillStyles.pop();
+
+        // reset
+        this._$fillStyles = [];
+
+        this.endFill();
+    }
+
+};
+
+/**
  * @return {string}
  */
 Graphics.prototype.toString = function ()
@@ -9654,6 +9677,12 @@ Graphics.prototype.toString = function ()
  */
 Graphics.prototype.beginBitmapFill = function (bitmap, matrix, repeat, smooth)
 {
+    // init fill style
+    this._$beginFill();
+
+    // TODO
+
+
     // restart
     this._$restart();
 };
@@ -9665,6 +9694,7 @@ Graphics.prototype.beginBitmapFill = function (bitmap, matrix, repeat, smooth)
  */
 Graphics.prototype.beginFill = function (color, alpha)
 {
+
     if (typeof color === "string") {
         color = this.$colorStringToInt(color);
     }
@@ -9687,16 +9717,15 @@ Graphics.prototype.beginFill = function (color, alpha)
             break;
     }
 
-    if (this._$doFill) {
-        this._$fills[this._$fills.length] = [Graphics.END_FILL];
-    }
+    // init fill style
+    this._$beginFill();
 
     // beginPath
     this._$fills[this._$fills.length] = [Graphics.BEGIN_PATH];
 
     // add Fill Style
     var rgba = this.$intToRGBA(color, alpha);
-    this._$fills[this._$fills.length] = [Graphics.FILL_STYLE, rgba.R, rgba.G, rgba.B, rgba.A];
+    this._$fillStyles[this._$fillStyles.length] = [Graphics.FILL_STYLE, rgba.R, rgba.G, rgba.B, rgba.A];
 
     // restart
     this._$restart();
@@ -9708,7 +9737,6 @@ Graphics.prototype.beginFill = function (color, alpha)
 };
 
 /**
- * TODO
  * @param  {string} type
  * @param  {array}  colors
  * @param  {array}  alphas
@@ -9717,12 +9745,58 @@ Graphics.prototype.beginFill = function (color, alpha)
  * @param  {string} spread_method
  * @param  {string} interpolation_method
  * @param  {number} focal_point_ratio
- * @return void
+ * @return {Graphics}
  */
 Graphics.prototype.beginGradientFill = function (
     type, colors, alphas, ratios, matrix,
     spread_method, interpolation_method, focal_point_ratio
 ) {
+
+    if (!this.$isArray(colors) || !this.$isArray(alphas) || !this.$isArray(ratios)) {
+        return this;
+    }
+
+    // init fill style
+    this._$beginFill();
+
+    // beginPath
+    this._$fills[this._$fills.length] = [Graphics.BEGIN_PATH];
+
+    // start gradient
+    var data = [];
+    data[data.length] = Graphics.GRADIENT_FILL;
+
+    // matrix
+    data[data.length] = (matrix instanceof Matrix) ? matrix._$matrix : [1, 0, 0, 1, 0, 0];
+
+    // type
+    data[data.length] = type;
+
+    // length
+    var length = this.$min(this.$min(colors.length, alphas.length), ratios.length);
+    data[data.length] = length;
+
+    var idx = 0;
+    while (length > idx) {
+
+        data[data.length] = colors[idx];
+        data[data.length] = alphas[idx] * 100;
+        data[data.length] = ratios[idx] / 255;
+
+        idx = (idx + 1)|0;
+
+    }
+
+    // set style
+    this._$fillStyles[this._$fillStyles.length] = data;
+
+    // start
+    this._$doFill = true;
+
+    // restart
+    this._$restart();
+
+    return this;
 
 };
 
@@ -9733,6 +9807,9 @@ Graphics.prototype.beginGradientFill = function (
  */
 Graphics.prototype.beginShaderFill = function (shader, matrix)
 {
+    // init fill style
+    this._$beginFill();
+
     // TODO
 
     // restart
@@ -9745,11 +9822,13 @@ Graphics.prototype.beginShaderFill = function (shader, matrix)
 Graphics.prototype.clear = function ()
 {
     // origin param clear
-    this._$fills   = [];
-    this._$lines   = [];
-    this._$bounds  = null;
-    this._$doFill  = false;
-    this._$doLine  = false;
+    this._$fills        = [];
+    this._$lines        = [];
+    this._$fillStyles   = [];
+    this._$lineStyles   = [];
+    this._$bounds       = null;
+    this._$doFill       = false;
+    this._$doLine       = false;
 
     // restart
     this._$restart();
@@ -9797,32 +9876,32 @@ Graphics.prototype.cubicCurveTo = function (
     anchor_x, anchor_y
 ) {
 
-    if (typeof control_x1 !== "number") {
-        control_x1 = control_x1|0;
-    }
-
-    if (typeof control_y1 !== "number") {
-        control_y1 = control_y1|0;
-    }
-
-    if (typeof control_x2 !== "number") {
-        control_x2 = control_x2|0;
-    }
-
-    if (typeof control_y2 !== "number") {
-        control_y2 = control_y2|0;
-    }
-
-    if (typeof anchor_x !== "number") {
-        anchor_x = anchor_x|0;
-    }
-
-    if (typeof anchor_y !== "number") {
-        anchor_y = anchor_y|0;
-    }
-
-
     if (this._$doFill || this._$doLine) {
+
+        // valid
+        if (typeof control_x1 !== "number") {
+            control_x1 = control_x1|0;
+        }
+
+        if (typeof control_y1 !== "number") {
+            control_y1 = control_y1|0;
+        }
+
+        if (typeof control_x2 !== "number") {
+            control_x2 = control_x2|0;
+        }
+
+        if (typeof control_y2 !== "number") {
+            control_y2 = control_y2|0;
+        }
+
+        if (typeof anchor_x !== "number") {
+            anchor_x = anchor_x|0;
+        }
+
+        if (typeof anchor_y !== "number") {
+            anchor_y = anchor_y|0;
+        }
 
         control_x1 = +(control_x1 * 20);
         control_y1 = +(control_y1 * 20);
@@ -9849,6 +9928,9 @@ Graphics.prototype.cubicCurveTo = function (
         if (this._$doLine) {
             this._$lines[this._$lines.length] = data;
         }
+
+        // restart
+        this._$restart();
     }
 
     return this;
@@ -9864,23 +9946,24 @@ Graphics.prototype.cubicCurveTo = function (
 Graphics.prototype.curveTo = function (control_x, control_y, anchor_x, anchor_y)
 {
 
-    if (typeof control_x !== "number") {
-        control_x = control_x|0;
-    }
-
-    if (typeof control_y !== "number") {
-        control_y = control_y|0;
-    }
-
-    if (typeof anchor_x !== "number") {
-        anchor_x = anchor_x|0;
-    }
-
-    if (typeof anchor_y !== "number") {
-        anchor_y = anchor_y|0;
-    }
-
     if (this._$doFill || this._$doLine) {
+
+        // valid
+        if (typeof control_x !== "number") {
+            control_x = control_x|0;
+        }
+
+        if (typeof control_y !== "number") {
+            control_y = control_y|0;
+        }
+
+        if (typeof anchor_x !== "number") {
+            anchor_x = anchor_x|0;
+        }
+
+        if (typeof anchor_y !== "number") {
+            anchor_y = anchor_y|0;
+        }
 
         control_x = +(control_x * 20);
         control_y = +(control_y * 20);
@@ -9900,6 +9983,9 @@ Graphics.prototype.curveTo = function (control_x, control_y, anchor_x, anchor_y)
             this._$lines[this._$lines.length] = data;
         }
 
+        // restart
+        this._$restart();
+
     }
 
     return this;
@@ -9914,20 +10000,20 @@ Graphics.prototype.curveTo = function (control_x, control_y, anchor_x, anchor_y)
 Graphics.prototype.drawCircle = function (x, y, radius)
 {
 
-    // valid
-    if (typeof x !== "number") {
-        x = x|0;
-    }
-
-    if (typeof y !== "number") {
-        y = y|0;
-    }
-
-    if (typeof radius !== "number") {
-        radius = radius|0;
-    }
-
     if (this._$doFill || this._$doLine) {
+
+        // valid
+        if (typeof x !== "number") {
+            x = x|0;
+        }
+
+        if (typeof y !== "number") {
+            y = y|0;
+        }
+
+        if (typeof radius !== "number") {
+            radius = radius|0;
+        }
 
         x      = +(x * 20);
         y      = +(y * 20);
@@ -9948,50 +10034,12 @@ Graphics.prototype.drawCircle = function (x, y, radius)
             this._$lines[this._$lines.length] = data;
         }
 
-    }
-
-    return this;
-};
-
-/**
- * @param  {number} x
- * @param  {number} y
- * @param  {number} width
- * @param  {number} height
- * @return {Graphics}
- */
-Graphics.prototype.drawRect = function (x, y, width, height)
-{
-    // valid
-    if (typeof x !== "number") {
-        x = x|0;
-    }
-
-    if (typeof y !== "number") {
-        y = y|0;
-    }
-
-    if (typeof width !== "number") {
-        width = width|0;
-    }
-
-    if (typeof height !== "number") {
-        height = height|0;
-    }
-
-    if (this._$doFill || this._$doLine) {
-
-        this
-            .moveTo(x, y)
-            .lineTo(x + width, y)
-            .lineTo(x + width, y + height)
-            .lineTo(x, y + height)
-            .lineTo(x, y);
+        // restart
+        this._$restart();
 
     }
 
     return this;
-
 };
 
 /**
@@ -10004,24 +10052,24 @@ Graphics.prototype.drawRect = function (x, y, width, height)
 Graphics.prototype.drawEllipse = function (x, y, width, height)
 {
 
-    // valid
-    if (typeof x !== "number") {
-        x = x|0;
-    }
-
-    if (typeof y !== "number") {
-        y = y|0;
-    }
-
-    if (typeof width !== "number") {
-        width = width|0;
-    }
-
-    if (typeof height !== "number") {
-        height = height|0;
-    }
-
     if (this._$doFill || this._$doLine) {
+
+        // valid
+        if (typeof x !== "number") {
+            x = x|0;
+        }
+
+        if (typeof y !== "number") {
+            y = y|0;
+        }
+
+        if (typeof width !== "number") {
+            width = width|0;
+        }
+
+        if (typeof height !== "number") {
+            height = height|0;
+        }
 
         var hw = +(width  / 2); // half width
         var hh = +(height / 2); // half height
@@ -10061,7 +10109,23 @@ Graphics.prototype.drawGraphicsData = function (graphics_data)
  */
 Graphics.prototype.drawPath = function (commands, data, winding)
 {
-    if (this._$doFill || this._$doLine) {
+
+    if (commands instanceof Vector &&
+        data instanceof Vector &&
+        (this._$doFill || this._$doLine)
+    ) {
+
+        switch (winding) {
+
+            case GraphicsPathWinding.EVEN_ODD:
+            case GraphicsPathWinding.NON_ZERO:
+                break;
+
+            default:
+                winding = GraphicsPathWinding.EVEN_ODD;
+                break;
+
+        }
 
         var idx = 0;
         var length = commands.length;
@@ -10135,15 +10199,231 @@ Graphics.prototype.drawPath = function (commands, data, winding)
 };
 
 /**
+ * @param  {number} x
+ * @param  {number} y
+ * @param  {number} width
+ * @param  {number} height
+ * @return {Graphics}
+ */
+Graphics.prototype.drawRect = function (x, y, width, height)
+{
+    if (this._$doFill || this._$doLine) {
+
+        // valid
+        if (typeof x !== "number") {
+            x = x|0;
+        }
+
+        if (typeof y !== "number") {
+            y = y|0;
+        }
+
+        if (typeof width !== "number") {
+            width = width|0;
+        }
+
+        if (typeof height !== "number") {
+            height = height|0;
+        }
+
+        this
+            .moveTo(x, y)
+            .lineTo(x + width, y)
+            .lineTo(x + width, y + height)
+            .lineTo(x, y + height)
+            .lineTo(x, y);
+
+    }
+
+    return this;
+
+};
+
+/**
+ * @param  {number} x
+ * @param  {number} y
+ * @param  {number} width
+ * @param  {number} height
+ * @param  {number} ellipse_width
+ * @param  {number} ellipse_height
+ * @return {Graphics}
+ */
+Graphics.prototype.drawRoundRect = function (x, y, width, height, ellipse_width, ellipse_height)
+{
+
+    if (this._$doFill || this._$doLine) {
+
+        // valid
+        if (typeof x !== "number") {
+            x = x|0;
+        }
+
+        if (typeof y !== "number") {
+            y = y|0;
+        }
+
+        if (typeof width !== "number") {
+            width = width|0;
+        }
+
+        if (typeof height !== "number") {
+            height = height|0;
+        }
+
+        if (typeof ellipse_width !== "number") {
+            ellipse_width = ellipse_width|0;
+        }
+
+        if (typeof ellipse_height !== "number") {
+            ellipse_height = ellipse_height|0;
+        }
+
+        var hew = +(ellipse_width / 2);
+        var heh = +(ellipse_height / 2);
+        var c   = +(4 / 3 * (this.$SQRT2 - 1));
+        var cw  = +(c * hew);
+        var ch  = +(c * heh);
+
+        var dx0 = +(x   + hew);
+        var dx1 = +(x   + width);
+        var dx2 = +(dx1 - hew);
+
+        var dy0 = +(y   + heh);
+        var dy1 = +(y   + height);
+        var dy2 = +(dy1 - heh);
+
+        this.moveTo(dx0, y);
+        this.lineTo(dx2, y);
+        this.cubicCurveTo(dx2 + cw, y, dx1, dy0 - ch, dx1, dy0);
+        this.lineTo(dx1, dy2);
+        this.cubicCurveTo(dx1, dy2 + ch, dx2 + cw, dy1, dx2, dy1);
+        this.lineTo(dx0, dy1);
+        this.cubicCurveTo(dx0 - cw, dy1, x, dy2 + ch, x, dy2);
+        this.lineTo(x, dy0);
+        this.cubicCurveTo(x, dy0 - ch, dx0 - cw, y, dx0, y);
+
+    }
+
+    return this;
+
+};
+
+/**
+ * TODO
+ * @param  {Vector} vertices
+ * @param  {Vector} indices
+ * @param  {Vector} uvt_data
+ * @param  {string} culling
+ * @return {Graphics}
+ */
+Graphics.prototype.drawTriangles = function (vertices, indices, uvt_data, culling)
+{
+    if (vertice instanceof Vector && (this._$doFill || this._$doLine)) {
+
+        var length = vertices.length;
+        if (length && length % 3 === 0) {
+
+            var i = 0;
+            var count = 0;
+            if (indices) {
+
+                length = indices.length;
+                if (length && length % 3 === 0) {
+                    i = 0;
+                    while (i < length) {
+                        var idx = indices[i];
+                        if (count === 0) {
+                            this.moveTo(vertices[idx], vertices[idx + 1]);
+                        } else {
+                            this.lineTo(vertices[idx], vertices[idx + 1]);
+                        }
+
+                        count++;
+                        if (count % 3 === 0) {
+                            count = 0;
+                        }
+
+                        i = (i + 1) | 0;
+                    }
+                }
+
+            } else {
+
+                i = 0;
+                while (i < length) {
+                    if (count === 0) {
+                        this.moveTo(vertices[i++], vertices[i]);
+                    } else {
+                        this.lineTo(vertices[i++], vertices[i]);
+                    }
+
+                    count++;
+                    if (count % 3 === 0) {
+                        count = 0;
+                    }
+
+                    i = (i + 1) | 0;
+                }
+
+            }
+
+            // restart
+            this._$restart();
+        }
+    }
+
+    return this;
+
+};
+
+/**
  * @return {Graphics}
  */
 Graphics.prototype.endFill = function ()
 {
     if (this._$doFill) {
+
         this._$fills[this._$fills.length] = [Graphics.END_FILL];
+
+        // restart
+        this._$restart();
     }
 
     return this;
+};
+
+/**
+ * @param {BitmapData} bitmap
+ * @param {Matrix}     matrix
+ * @param {boolean}    repeat
+ * @param {boolean}    smooth
+ */
+Graphics.prototype.lineBitmapStyle = function (bitmap, matrix, repeat, smooth)
+{
+    // TODO
+
+    // restart
+    this._$restart();
+};
+
+/**
+ * @param {string} type
+ * @param {array}  colors
+ * @param {array}  alphas
+ * @param {array}  ratios
+ * @param {Matrix} matrix
+ * @param {string} spread_method
+ * @param {string} interpolation_method
+ * @param {number} focal_point_ratio
+ */
+Graphics.prototype.lineGradientStyle = function (
+    type, colors, alphas, ratios, matrix,
+    spread_method, interpolation_method, focal_point_ratio
+) {
+    // TODO
+
+    // restart
+    this._$restart();
 };
 
 /**
@@ -10153,31 +10433,36 @@ Graphics.prototype.endFill = function ()
  */
 Graphics.prototype.lineTo = function (x, y)
 {
-    // valid
-    if (typeof x !== "number") {
-        x = x|0;
-    }
-
-    if (typeof y !== "number") {
-        y = y|0;
-    }
 
     if (this._$doFill || this._$doLine) {
+
+        // valid
+        if (typeof x !== "number") {
+            x = x|0;
+        }
+
+        if (typeof y !== "number") {
+            y = y|0;
+        }
+
         x = +(x * 20);
         y = +(y * 20);
         this._$setBounds(x, y);
-    }
 
-    var data = [Graphics.LINE_TO, x, y];
+        var data = [Graphics.LINE_TO, x, y];
 
-    // fills
-    if (this._$doFill) {
-        this._$fills[this._$fills.length] = data;
-    }
+        // fills
+        if (this._$doFill) {
+            this._$fills[this._$fills.length] = data;
+        }
 
-    // lines
-    if (this._$doLine) {
-        this._$lines[this._$lines.length] = data;
+        // lines
+        if (this._$doLine) {
+            this._$lines[this._$lines.length] = data;
+        }
+
+        // restart
+        this._$restart();
     }
 
     return this;
@@ -10190,38 +10475,40 @@ Graphics.prototype.lineTo = function (x, y)
  */
 Graphics.prototype.moveTo = function (x, y)
 {
-    // valid
-    if (typeof x !== "number") {
-        x = x|0;
-    }
-
-    if (typeof y !== "number") {
-        y = y|0;
-    }
 
     if (this._$doFill || this._$doLine) {
+
+        // valid
+        if (typeof x !== "number") {
+            x = x|0;
+        }
+
+        if (typeof y !== "number") {
+            y = y|0;
+        }
+
         x = +(x * 20);
         y = +(y * 20);
         this._$setBounds(x, y);
-    }
 
-    var data = [Graphics.MOVE_TO, x, y];
+        var data = [Graphics.MOVE_TO, x, y];
 
-    // fills
-    if (this._$doFill) {
-        this._$fills[this._$fills.length] = data;
-    }
+        // fills
+        if (this._$doFill) {
+            this._$fills[this._$fills.length] = data;
+        }
 
-    // lines
-    if (this._$doLine) {
-        this._$lines[this._$lines.length] = data;
+        // lines
+        if (this._$doLine) {
+            this._$lines[this._$lines.length] = data;
+        }
+
+        // restart
+        this._$restart();
     }
 
     return this;
 };
-
-
-
 /**
  * @param bitmapData
  * @param matrix
@@ -10314,8 +10601,8 @@ var GraphicsShaderFill = function (shader, matrix)
  */
 var GraphicsSolidFill = function (color, alpha)
 {
-    this._color = 0;
-    this._alpha = 1.0;
+    this._$color = 0;
+    this._$alpha = 1.0;
 };
 /**
  * @param thickness
@@ -10332,13 +10619,13 @@ var GraphicsStroke = function (
     caps, joints, miterLimit, fill
 )
 {
-    this._thickness    = "";
-    this._pixelHinting = false;
-    this._scaleMode    = "normal";
-    this._caps         = "none";
-    this._joints       = "round";
-    this._miterLimit   = 3.0;
-    this._fill         = null;
+    this._$thickness    = "";
+    this._$pixelHinting = false;
+    this._$scaleMode    = "normal";
+    this._$caps         = "none";
+    this._$joints       = "round";
+    this._$miterLimit   = 3.0;
+    this._$fill         = null;
 };
 /**
  * @param vertices
@@ -12130,8 +12417,7 @@ Shape.prototype._$hit = function (x, y, matrix)
             var isStroke = (obj.Width !== undefined);
 
             ctx.beginPath();
-            var cmd = data.cmd;
-            cmd(ctx);
+            data.cmd(ctx);
 
             if (isStroke) {
                 ctx.lineWidth = this.$max(obj.Width, 1 / minScale);
@@ -22330,6 +22616,47 @@ var Vector = function (length, fixed)
     
     return new Proxy(this, {
         /**
+         * @param  {Vector} obj
+         * @param  {number} prop
+         * @return {*}
+         */
+        get: function (obj, prop) {
+
+            // properties
+            switch (obj.$isNaN(prop)) {
+
+                case true:
+
+                    return obj[prop];
+
+                default:
+
+                    prop = prop | 0;
+                    if (prop > -1 && (!obj.fixed || (obj.fixed && obj.length > prop))) {
+
+                        // TODO
+                        switch (obj._$type) {
+                            case "Number":
+                            case "int":
+
+                                return obj._$array[prop] | 0;
+
+                            default:
+
+                                // valid
+                                if (!(prop in obj._$array)) {
+                                    return null;
+                                }
+
+                                return obj._$array[prop];
+                        }
+
+                    }
+
+                    break
+            }
+        },
+        /**
          * @param {Vector} obj
          * @param {number} prop
          * @param {*}      value
@@ -22337,23 +22664,22 @@ var Vector = function (length, fixed)
         set: function(obj, prop, value) {
 
             // properties
-            switch (prop) {
+            switch (obj.$isNaN(prop)) {
 
-                case "length":
-                case "fixed":
-                case "_$array":
-                case "_$fixed":
-                case "_$type":
-                    return obj[prop] = value;
+                case true:
+
+                    obj[prop] = value;
+
+                    break;
 
                 default:
 
                     prop = prop|0;
-                    if (prop > -1 && (!this.fixed || (this.fixed && obj.length > prop))) {
+                    if (prop > -1 && (!obj.fixed || (obj.fixed && obj.length > prop))) {
 
                         // TODO
                         switch (obj._$type) {
-                            case "Int":
+                            case "Number":
                             case "int":
 
                                 obj._$array[prop|0] = value|0;
@@ -22378,54 +22704,6 @@ var Vector = function (length, fixed)
 
                     break;
             }
-
-        },
-        /**
-         * @param  {Vector} obj
-         * @param  {number} prop
-         * @return {*}
-         */
-        get: function (obj, prop) {
-
-            // properties
-            switch (prop) {
-
-                case "length":
-                case "fixed":
-                case "_$array":
-                case "_$fixed":
-                case "_$type":
-                case "toString":
-                case "concat":
-                    return obj[prop];
-
-                default:
-
-                    prop = prop|0;
-                    if (prop > -1 && (!this.fixed || (this.fixed && obj.length > prop))) {
-
-                        // TODO
-                        switch (obj._$type) {
-                            case "Int":
-                            case "int":
-
-                                return obj._$array[prop]|0;
-
-                            default:
-
-                                // valid
-                                if (!(prop in obj._$array)) {
-                                    return null;
-                                }
-
-                                return obj._$array[prop];
-                        }
-
-                    }
-
-                    break
-            }
-
         }
     });
 };
@@ -22522,14 +22800,8 @@ Vector.prototype.concat = function ()
 
         if (v instanceof Vector) {
 
-            var l = v.length|0;
-            var i = 0;
-            while (l > i) {
+            vector._$array = vector._$array.concat(v._$array);
 
-                vector._$array[vector._$array.length] = v._$array[i];
-
-                i = (i + 1)|0;
-            }
         }
 
         idx = (idx + 1)|0;
@@ -22537,6 +22809,8 @@ Vector.prototype.concat = function ()
 
     return vector;
 };
+
+
 
 
 /*jshint bitwise: false*/
@@ -29837,10 +30111,13 @@ SwfTag.prototype.parseDefineScalingGrid = function ()
  */
 var VectorToCanvas = function () {};
 
+
 /**
- * Function
+ * extends
+ * @type {Util}
  */
-VectorToCanvas.prototype.$Function = window.Function;
+VectorToCanvas.prototype = Object.create(Util.prototype);
+VectorToCanvas.prototype.constructor = VectorToCanvas;
 
 /**
  * @param   {object} src
@@ -30287,71 +30564,122 @@ VectorToCanvas.prototype.buildCommand = function (cache)
  */
 VectorToCanvas.prototype.toCanvas2D = function (cache)
 {
-    var length = cache.length|0;
-    var str    = "";
-    var i      = 0;
+    var length  = cache.length|0;
+    var str     = "";
+    var i       = 0;
+    var restore = [];
+
     while (i < length) {
         var a = cache[i];
         switch (a[0]) {
-            case 0:
+            case Graphics.MOVE_TO:
                 str += "ctx.moveTo(" + a[1] + "," + a[2] + ");";
                 break;
-            case 1:
+            case Graphics.CURVE_TO:
                 str += "ctx.quadraticCurveTo(" + a[1] + "," + a[2] + "," + a[3] + "," + a[4] + ");";
                 break;
-            case 2:
+            case Graphics.LINE_TO:
                 str += "ctx.lineTo(" + a[1] + "," + a[2] + ");";
                 break;
-            case 3:
+            case Graphics.CUBIC:
                 str += "ctx.bezierCurveTo(" + a[1] + "," + a[2] + "," + a[3] + "," + a[4] + "," + a[5] + "," + a[6] + ");";
                 break;
-            case 4:
+
+
+            // Graphics
+            case Graphics.ARC:
                 str += "ctx.moveTo(" + (a[1] + a[3]) + "," + a[2] + ");";
                 str += "ctx.arc(" + a[1] + "," + a[2] + "," + a[3] + ",0 , Math.PI*2, false);";
                 break;
-
-            // Graphics
-            case 5: // fillStyle
+            case Graphics.FILL_STYLE:
                 str += "var r =  Math.max(0, Math.min(("+ a[1] +" * ct[0]) + ct[4], 255))|0;";
                 str += "var g =  Math.max(0, Math.min(("+ a[2] +" * ct[1]) + ct[5], 255))|0;";
                 str += "var b =  Math.max(0, Math.min(("+ a[3] +" * ct[2]) + ct[6], 255))|0;";
                 str += "var a = +Math.max(0, Math.min(("+ a[4] +" * 255 * ct[3]) + ct[7], 255)) / 255;";
                 str += "ctx.fillStyle = 'rgba('+r+', '+g+', '+b+', '+a+')';";
                 break;
-            case 6: // strokeStyle
+            case Graphics.STROKE_STYLE:
                 str += "var r =  Math.max(0, Math.min(("+ a[1] +" * ct[0]) + ct[4], 255))|0;";
                 str += "var g =  Math.max(0, Math.min(("+ a[2] +" * ct[1]) + ct[5], 255))|0;";
                 str += "var b =  Math.max(0, Math.min(("+ a[3] +" * ct[2]) + ct[6], 255))|0;";
                 str += "var a = +Math.max(0, Math.min(("+ a[4] +" * 255 * ct[3]) + ct[7], 255)) / 255;";
                 str += "ctx.strokeStyle = 'rgba('+r+', '+g+', '+b+', '+a+')';";
                 break;
-            case 7: // fill
+            case Graphics.END_FILL:
                 str += "if (!is_clip) { ctx.fill(); }";
+                if (restore.length) {
+                    // delete
+                    restore.pop();
+                    str += "if (!is_clip) { ctx.restore(); }";
+                }
                 break;
-            case 8: // stroke
+            case Graphics.END_STROKE:
                 str += "if (!is_clip) { ctx.stroke(); }";
                 break;
-            case 9: // width
+            case Graphics.LINE_WIDTH:
                 str += "ctx.lineWidth = "+ a[1] +" * min_scale;";
                 break;
-            case 10: // lineCap
+            case Graphics.LINE_CAP:
                 str += "ctx.lineCap = '"+ a[1] +"';";
                 break;
-            case 11: // lineJoin
+            case Graphics.LINE_JOIN:
                 str += "ctx.lineJoin = '"+ a[1] +"';";
                 break;
-            case 12: // miterLimit
+            case Graphics.MITER_LIMIT:
                 str += "ctx.miterLimit = '"+ a[1] +"';";
                 break;
-            case 13: // beginPath
+            case Graphics.BEGIN_PATH:
                 str += "ctx.beginPath();";
+                break;
+            case Graphics.GRADIENT_FILL:
+                str += "if (!is_clip) {";
+
+                var matrix = a[1];
+                switch (a[2]) {
+
+                    case GradientType.LINEAR:
+
+                        var xy = this.$linearGradientXY(matrix);
+                        str += "var css = ctx.createLinearGradient("+ xy[0] +", "+ xy[1] +", "+ xy[2] +", "+ xy[3] +");";
+                        break;
+
+                    case GradientType.RADIAL:
+
+                        str += "ctx.save();";
+                        str += "ctx.transform("+ matrix[0] +", "+ matrix[1] +", "+ matrix[2] +", "+ matrix[3] +", "+ matrix[4] +", "+ matrix[5] +");";
+                        str += "var css = ctx.createRadialGradient(0, 0, 0, 0, 0, 16384);";
+
+                        restore[restore.length] = 1;
+                        break;
+                }
+
+                var len = a[3]|0;
+                var idx = 0;
+                var pt  = 4;
+                while (len > idx) {
+
+                    var color = this.$intToRGBA(a[pt], a[pt + 1]);
+                    str += "var r =  Math.max(0, Math.min(("+ color.R +" * ct[0]) + ct[4], 255))|0;";
+                    str += "var g =  Math.max(0, Math.min(("+ color.G +" * ct[1]) + ct[5], 255))|0;";
+                    str += "var b =  Math.max(0, Math.min(("+ color.B +" * ct[2]) + ct[6], 255))|0;";
+                    str += "var a = +Math.max(0, Math.min(("+ color.A +" * 255 * ct[3]) + ct[7], 255)) / 255;";
+                    str += "var rgba = 'rgba(' + r + ',' + g + ',' + b + ',' + a + ')';";
+                    str += "css.addColorStop("+ a[pt + 2] +", rgba);";
+
+                    pt  = (pt  + 3)|0;
+                    idx = (idx + 1)|0;
+                }
+
+                str += "ctx.fillStyle = css;";
+                str += "}";
+
                 break;
         }
 
         i = (i + 1)|0;
     }
 
-    return new this.$Function("ctx", "ct", "is_clip", "min_scale", str);
+    return new Function("ctx", "ct", "is_clip", "min_scale", str);
 };
 
 /**

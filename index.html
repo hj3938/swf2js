@@ -13,16 +13,30 @@
     document.body.appendChild( stats.dom );
     // swf2js.load("develop", { quality: "high" });
 
-    // var root = swf2js.createRootMovieClip(240, 240, 1);
+    var root = swf2js.createRootMovieClip(240, 240, 1);
 
-    // var Shape = root.stage.player.getPackage("flash.display.Shape");
-    // var shape = new Shape();
+    var Shape = root.stage.player.getPackage("flash.display.Shape");
+    var shape = new Shape();
+
     // shape
     //     .graphics
-    //     .beginFill(0x00FF00)
-    //     .drawPath([1, 2, 2, 2, 2], [66, 10, 23, 127, 122, 50, 10, 49, 109, 127]);
+    //     .beginFill("red", 10)
+    //     .beginFill("green", 10);
     //
-    // root.addChild(shape);
+    // shape.graphics._$buildCommand();
+
+    console.log(shape.graphics);
+
+    var Matrix = root.stage.player.getPackage("flash.geom.Matrix");
+    var matrix = new Matrix();
+    matrix.createGradientBox(20, 20, 0, 0, 0);
+
+    shape
+        .graphics
+        .beginGradientFill("linear", [0xFF0000, 0x0000FF], [1, 1], [0x00, 0xFF], matrix, "pad")
+        .drawRect(0,0,100,100);
+
+    root.addChild(shape);
 
 
 </script>

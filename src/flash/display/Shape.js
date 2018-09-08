@@ -522,8 +522,7 @@ Shape.prototype._$hit = function (x, y, matrix)
             var isStroke = (obj.Width !== undefined);
 
             ctx.beginPath();
-            var cmd = data.cmd;
-            cmd(ctx);
+            data.cmd(ctx);
 
             if (isStroke) {
                 ctx.lineWidth = this.$max(obj.Width, 1 / minScale);

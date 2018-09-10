@@ -78,7 +78,7 @@ Graphics.BEGIN_PATH = 9;
 /**
  * @type {number}
  */
-Graphics.GRADIENT_FILL = 10;
+Graphics.GRADIENT = 10;
 
 
 /**
@@ -265,11 +265,28 @@ Graphics.prototype._$buildCommand = function ()
 
 
     // line style
-    if (this._$lineStyles.length) {
+    length = this._$lineStyles.length;
+    if (length) {
 
-        recodes[recodes.length] = this._$lineStyles.pop();
+        idx = 0;
+        while (length > idx) {
 
-        recodes[recodes.length] = [Graphics.END_STROKE];
+            var lineStyle = this.$cloneArray(this._$lineStyles[idx]);
+
+            recodes[recodes.length] = lineStyle;
+
+            switch (lineStyle[0]) {
+
+                case Graphics.STROKE_STYLE:
+
+                    recodes[recodes.length] = [Graphics.END_STROKE];
+
+                    break;
+
+            }
+
+            idx = (idx + 1)|0;
+        }
 
         // reset
         this._$lineWidth  = 0;
@@ -387,15 +404,123 @@ Graphics.prototype._$restart = function ()
 Graphics.prototype._$beginFill = function ()
 {
 
-    if (this._$fillStyles.length) {
+    this.endFill();
 
-        this._$fills[this._$fills.length] = this._$fillStyles.pop();
+    this._$fillStyles = [];
 
-        // reset
-        this._$fillStyles = [];
+};
 
-        this.endFill();
+/**
+ * @return void
+ */
+Graphics.prototype._$beginLine = function ()
+{
+
+    var length = this._$lineStyles.length;
+
+    if (length) {
+
+        var idx = 0;
+        while (length > idx) {
+
+            var lineStyle = this.$cloneArray(this._$lineStyles[idx]);
+
+            this._$lines[this._$lines.length] = lineStyle;
+
+            switch (lineStyle[0]) {
+
+                case Graphics.STROKE_STYLE:
+
+                    this._$lines[this._$lines.length] = [Graphics.END_STROKE];
+
+                    break;
+
+            }
+
+            idx = (idx + 1)|0;
+        }
+
     }
+
+    this._$lineStyles = [];
+
+};
+
+/**
+ * @param  {string} style
+ * @param  {string} type
+ * @param  {array}  colors
+ * @param  {array}  alphas
+ * @param  {array}  ratios
+ * @param  {Matrix} matrix
+ * @param  {string} spread_method
+ * @param  {string} interpolation_method
+ * @param  {number} focal_point_ratio
+ * @return {array}
+ */
+Graphics.prototype._$beginGradient = function (
+    style, type, colors, alphas, ratios, matrix,
+    spread_method, interpolation_method, focal_point_ratio
+) {
+
+    // start gradient
+    var data = [];
+    data[data.length] = Graphics.GRADIENT;
+
+    // matrix
+    data[data.length] = (matrix instanceof Matrix) ? matrix._$matrix : [1, 0, 0, 1, 0, 0];
+
+    // focal point ratio
+    if (typeof focal_point_ratio !== "number") {
+        focal_point_ratio = 0;
+    }
+
+    if (focal_point_ratio > 1) {
+        focal_point_ratio = 1;
+    }
+
+    if (focal_point_ratio < -1) {
+        focal_point_ratio = -1;
+    }
+
+    // set focal point ratio
+    data[data.length] = focal_point_ratio;
+
+    // type
+    data[data.length] = type;
+
+    // style
+    data[data.length] = style;
+
+    // interpolation_method
+    switch (interpolation_method) {
+
+        case InterpolationMethod.LINEAR_RGB:
+            break;
+
+        default:
+            interpolation_method = InterpolationMethod.RGB;
+            break;
+    }
+
+    data[data.length] = interpolation_method;
+
+    // length
+    var length = this.$min(this.$min(colors.length, alphas.length), ratios.length);
+    data[data.length] = length;
+
+    var idx = 0;
+    while (length > idx) {
+
+        data[data.length] = colors[idx];
+        data[data.length] = alphas[idx] * 100;
+        data[data.length] = ratios[idx] / 255;
+
+        idx = (idx + 1)|0;
+
+    }
+
+    return data;
 
 };
 
@@ -501,33 +626,12 @@ Graphics.prototype.beginGradientFill = function (
     // beginPath
     this._$fills[this._$fills.length] = [Graphics.BEGIN_PATH];
 
-    // start gradient
-    var data = [];
-    data[data.length] = Graphics.GRADIENT_FILL;
-
-    // matrix
-    data[data.length] = (matrix instanceof Matrix) ? matrix._$matrix : [1, 0, 0, 1, 0, 0];
-
-    // type
-    data[data.length] = type;
-
-    // length
-    var length = this.$min(this.$min(colors.length, alphas.length), ratios.length);
-    data[data.length] = length;
-
-    var idx = 0;
-    while (length > idx) {
-
-        data[data.length] = colors[idx];
-        data[data.length] = alphas[idx] * 100;
-        data[data.length] = ratios[idx] / 255;
-
-        idx = (idx + 1)|0;
-
-    }
-
-    // set style
-    this._$fillStyles[this._$fillStyles.length] = data;
+    // build gradient data
+    this._$fillStyles[this._$fillStyles.length] = this._$beginGradient(
+        "fill",
+        type, colors, alphas, ratios, matrix,
+        spread_method, interpolation_method, focal_point_ratio
+    );
 
     // start
     this._$doFill = true;
@@ -1143,10 +1247,21 @@ Graphics.prototype.endFill = function ()
     if (this._$doFill) {
 
         if (this._$fillStyles.length) {
-            this._$fills[this._$fills.length] = this._$fillStyles.pop();
-        }
 
-        this._$fills[this._$fills.length] = [Graphics.END_FILL];
+            var fillStyle = this._$fillStyles.pop();
+
+            this._$fills[this._$fills.length] = fillStyle;
+
+            switch (fillStyle[0]) {
+
+                case Graphics.FILL_STYLE:
+
+                    this._$fills[this._$fills.length] = [Graphics.END_FILL];
+
+                    break;
+
+            }
+        }
 
         // restart
         this._$restart();
@@ -1183,10 +1298,29 @@ Graphics.prototype.lineGradientStyle = function (
     type, colors, alphas, ratios, matrix,
     spread_method, interpolation_method, focal_point_ratio
 ) {
-    // TODO
+
+    if (!this.$isArray(colors) || !this.$isArray(alphas) || !this.$isArray(ratios)) {
+        return this;
+    }
+
+    // beginPath
+    this._$doLine = true;
+    this._$lines[this._$lines.length] = [Graphics.BEGIN_PATH];
+    this._$lines[this._$lines.length] = [Graphics.MOVE_TO, this._$pointer.x, this._$pointer.y];
+    this._$setBounds(this._$pointer.x, this._$pointer.y);
+
+    // build gradient data
+    this._$lineStyles[this._$lineStyles.length] = this._$beginGradient(
+        "line",
+        type, colors, alphas, ratios, matrix,
+        spread_method, interpolation_method, focal_point_ratio
+    );
 
     // restart
     this._$restart();
+
+    return this;
+
 };
 
 /**
@@ -1210,9 +1344,8 @@ Graphics.prototype.lineStyle = function (
         // end line style
         case 0:
 
-            // set data
-            this._$lines[this._$lines.length] = this._$lineStyles.pop();
-            this._$lines[this._$lines.length] = [Graphics.END_STROKE];
+            // init
+            this._$beginLine();
 
             // reset
             this._$lineWidth  = 0;
@@ -1224,13 +1357,8 @@ Graphics.prototype.lineStyle = function (
         // start line style
         default:
 
-            // prev style
-            if (this._$lineStyles.length) {
-
-                this._$lines[this._$lines.length] = this._$lineStyles.pop();
-                this._$lines[this._$lines.length] = [Graphics.END_STROKE];
-
-            }
+            // init
+            this._$beginLine();
 
 
             if (typeof color === "string") {

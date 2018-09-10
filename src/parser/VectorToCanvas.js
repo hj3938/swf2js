@@ -459,7 +459,6 @@ VectorToCanvas.prototype.toCanvas2D = function (cache)
     var length  = cache.length|0;
     var str     = "";
     var i       = 0;
-    var restore = [];
 
     while (i < length) {
         var a = cache[i];
@@ -496,18 +495,13 @@ VectorToCanvas.prototype.toCanvas2D = function (cache)
                 str += "var b =  Math.max(0, Math.min(("+ a[3] +" * ct[2]) + ct[6], 255))|0;";
                 str += "var a = +Math.max(0, Math.min(("+ a[4] +" * 255 * ct[3]) + ct[7], 255)) / 255;";
                 str += "ctx.strokeStyle = 'rgba('+r+', '+g+', '+b+', '+a+')';";
-                str += "ctx.lineWidth = "+ a[5] +";";
-                str += "ctx.lineCap = '"+ a[6] +"';";
-                str += "ctx.lineJoin = '"+ a[7] +"';";
-                str += "ctx.miterLimit = '"+ a[8] +"';";
+                str += "ctx.lineWidth   = Math.max("+ a[5] +", 1 / min_scale);";
+                str += "ctx.lineCap     = '"+ a[6] +"';";
+                str += "ctx.lineJoin    = '"+ a[7] +"';";
+                str += "ctx.miterLimit  = '"+ a[8] +"';";
                 break;
             case Graphics.END_FILL:
                 str += "if (!is_clip) { ctx.fill(); }";
-                if (restore.length) {
-                    // delete
-                    restore.pop();
-                    str += "if (!is_clip) { ctx.restore(); }";
-                }
                 break;
             case Graphics.END_STROKE:
                 str += "if (!is_clip) { ctx.stroke(); }";
@@ -515,11 +509,13 @@ VectorToCanvas.prototype.toCanvas2D = function (cache)
             case Graphics.BEGIN_PATH:
                 str += "ctx.beginPath();";
                 break;
-            case Graphics.GRADIENT_FILL:
+            case Graphics.GRADIENT:
                 str += "if (!is_clip) {";
 
+                var doRestore = false;
                 var matrix = a[1];
-                switch (a[2]) {
+                var pointRatio = a[2];
+                switch (a[3]) {
 
                     case GradientType.LINEAR:
 
@@ -530,31 +526,79 @@ VectorToCanvas.prototype.toCanvas2D = function (cache)
                     case GradientType.RADIAL:
 
                         str += "ctx.save();";
-                        str += "ctx.transform("+ matrix[0] +", "+ matrix[1] +", "+ matrix[2] +", "+ matrix[3] +", "+ matrix[4] +", "+ matrix[5] +");";
+                        str += "ctx.transform("+ matrix[0] +", "+ matrix[1] +", "+ matrix[2] +", "+ matrix[3] +", "+ (matrix[4]+(matrix[4] / 2 * pointRatio)) +", "+ matrix[5] +");";
                         str += "var css = ctx.createRadialGradient(0, 0, 0, 0, 0, 16384);";
 
-                        restore[restore.length] = 1;
+                        doRestore = true;
                         break;
                 }
 
-                var len = a[3]|0;
+                var style = a[4];
+                var interpolation = a[5];
+
+                var len = a[6]|0;
                 var idx = 0;
-                var pt  = 4;
+                var pt  = 7; // offset
                 while (len > idx) {
 
                     var color = this.$intToRGBA(a[pt], a[pt + 1]);
-                    str += "var r =  Math.max(0, Math.min(("+ color.R +" * ct[0]) + ct[4], 255))|0;";
-                    str += "var g =  Math.max(0, Math.min(("+ color.G +" * ct[1]) + ct[5], 255))|0;";
-                    str += "var b =  Math.max(0, Math.min(("+ color.B +" * ct[2]) + ct[6], 255))|0;";
-                    str += "var a = +Math.max(0, Math.min(("+ color.A +" * 255 * ct[3]) + ct[7], 255)) / 255;";
-                    str += "var rgba = 'rgba(' + r + ',' + g + ',' + b + ',' + a + ')';";
-                    str += "css.addColorStop("+ a[pt + 2] +", rgba);";
+
+                    switch (interpolation) {
+
+                        case InterpolationMethod.RGB:
+
+                            str += "var r =  Math.max(0, Math.min(("+ color.R +" * ct[0]) + ct[4], 255))|0;";
+                            str += "var g =  Math.max(0, Math.min(("+ color.G +" * ct[1]) + ct[5], 255))|0;";
+                            str += "var b =  Math.max(0, Math.min(("+ color.B +" * ct[2]) + ct[6], 255))|0;";
+                            str += "var a = +Math.max(0, Math.min(("+ color.A +" * 255 * ct[3]) + ct[7], 255)) / 255;";
+                            str += "css.addColorStop("+ a[pt + 2] +", 'rgba(' + r + ',' + g + ',' + b + ',' + a + ')');";
+
+                            break;
+
+                        case InterpolationMethod.LINEAR_RGB:
+
+                            var HSL = this.$rgbToHSL(color.R, color.G, color.B);
+
+                            str += "css.addColorStop("+ a[pt + 2] +", 'hsla("+ HSL.H +", "+ HSL.S +"%, "+ HSL.L +"%, "+ color.A +")');";
+
+                            break;
+                    }
 
                     pt  = (pt  + 3)|0;
                     idx = (idx + 1)|0;
                 }
 
-                str += "ctx.fillStyle = css;";
+                // set css
+                switch (style) {
+
+                    case "fill":
+
+                        str += "ctx.fillStyle = css;";
+                        str += "ctx.fill();";
+
+                        break;
+
+                    case "line":
+
+                        str += "ctx.strokeStyle = css;";
+
+                        if (doRestore) {
+
+                            var xScale = +(this.$sqrt(matrix[0] * matrix[0] + matrix[1] * matrix[1]));
+                            var yScale = +(this.$sqrt(matrix[2] * matrix[2] + matrix[3] * matrix[3]));
+
+                            str += "ctx.lineWidth = ctx.lineWidth / "+ this.$max(xScale, yScale) +";";
+                        }
+
+                        str += "ctx.stroke();";
+
+                        break;
+                }
+
+                if (doRestore) {
+                    str += "ctx.restore();";
+                }
+
                 str += "}";
 
                 break;

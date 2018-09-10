@@ -293,23 +293,30 @@ Shape.prototype._$doDraw = function (ctx, min_scale, color_transform, is_clip)
                 case 0x10:
                 case 0x12:
                 case 0x13:
+
                     // matrix
                     matrix = styleObj.gradientMatrix;
 
                     var type = styleObj.fillStyleType|0;
-                    if (type !== 16) {
 
-                        ctx.save();
-                        ctx.transform(matrix[0], matrix[1], matrix[2], matrix[3], matrix[4], matrix[5]);
+                    switch (type) {
 
-                        css = ctx.createRadialGradient(0, 0, 0, 0, 0, 16384);
+                        case 0x10:
 
-                    } else {
+                            var xy = this.$linearGradientXY(matrix);
+                            css = ctx.createLinearGradient(xy[0], xy[1], xy[2], xy[3]);
 
-                        var xy = this.$linearGradientXY(matrix);
-                        css = ctx.createLinearGradient(xy[0], xy[1], xy[2], xy[3]);
+                            break;
 
+                        default:
+
+                            ctx.save();
+                            ctx.transform(matrix[0], matrix[1], matrix[2], matrix[3], matrix[4], matrix[5]);
+                            css = ctx.createRadialGradient(0, 0, 0, 0, 0, 16384);
+
+                            break;
                     }
+
 
                     var records = styleObj.gradient.GradientRecords;
                     var rLength = records.length|0;
@@ -329,7 +336,28 @@ Shape.prototype._$doDraw = function (ctx, min_scale, color_transform, is_clip)
                     if (isStroke) {
 
                         ctx.strokeStyle = css;
-                        ctx.lineWidth   = this.$max(obj.Width, 1 / min_scale);
+
+                        switch (type) {
+
+                            case 0x10:
+
+                                ctx.lineWidth = this.$max(obj.Width, 1 / min_scale);
+
+                                break;
+
+                            default:
+
+                                var xScale = +(this.$sqrt(matrix[0] * matrix[0] + matrix[1] * matrix[1]));
+                                var yScale = +(this.$sqrt(matrix[2] * matrix[2] + matrix[3] * matrix[3]));
+
+                                ctx.lineWidth = this.$max(
+                                    obj.Width / this.$max(xScale, yScale),
+                                    1 / min_scale / this.$max(xScale, yScale)
+                                );
+
+                                break;
+                        }
+
                         ctx.lineCap     = "round";
                         ctx.lineJoin    = "round";
                         ctx.stroke();
@@ -341,9 +369,13 @@ Shape.prototype._$doDraw = function (ctx, min_scale, color_transform, is_clip)
 
                     }
 
-                    if (type !== 16) {
+                    // restore
+                    switch (type) {
 
-                        ctx.restore();
+                        case 0x12:
+                        case 0x13:
+                            ctx.restore();
+                            break;
 
                     }
 

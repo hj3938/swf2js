@@ -6,8 +6,16 @@ var Graphics = function ()
     OriginalObject.call(this);
 
     // origin param
-    this._$id   = graphicsId++;
-    this._$keys = [];
+    this._$id           = graphicsId++;
+    this._$keys         = [];
+    this._$fills        = [];
+    this._$lines        = [];
+    this._$fillStyles   = [];
+    this._$lineStyles   = [];
+    this._$bounds       = null;
+    this._$doFill       = false;
+    this._$doLine       = false;
+    this._$pointer      = {x: 0, y:0};
 
     // reset
     this.clear();
@@ -64,32 +72,12 @@ Graphics.END_STROKE = 8;
 /**
  * @type {number}
  */
-Graphics.LINE_WIDTH = 9;
+Graphics.BEGIN_PATH = 9;
 
 /**
  * @type {number}
  */
-Graphics.LINE_CAP = 10;
-
-/**
- * @type {number}
- */
-Graphics.LINE_JOIN = 11;
-
-/**
- * @type {number}
- */
-Graphics.MITER_LIMIT = 12;
-
-/**
- * @type {number}
- */
-Graphics.BEGIN_PATH = 13;
-
-/**
- * @type {number}
- */
-Graphics.GRADIENT_FILL = 14;
+Graphics.GRADIENT_FILL = 10;
 
 
 /**
@@ -108,6 +96,9 @@ Graphics.prototype.constructor = Graphics;
  */
 Graphics.prototype._$draw = function (matrix, color_transform, is_clip, visible)
 {
+    if (this._$getBounds() === null) {
+        return ;
+    }
 
     var ctx = this._$displayObject.stage.player.preContext;
 
@@ -200,30 +191,23 @@ Graphics.prototype._$draw = function (matrix, color_transform, is_clip, visible)
 Graphics.prototype._$doDraw = function (ctx, min_scale, color_transform, is_clip)
 {
 
-    if (this._$getBounds() !== null) {
+    // build command
+    if (this._$command === null) {
 
-        // build command
-        if (this._$command === null) {
+        this._$command = this._$buildCommand();
 
-            this._$command = this._$buildCommand();
-
-        }
-
-        // ctx.beginPath();
-        this._$command(ctx, color_transform, is_clip, min_scale);
-
-        // rendering
-        if (is_clip) {
-
-            ctx.clip();
-
-        }
     }
 
-    var resetCss    = "rgba(0,0,0,1)";
-    ctx.strokeStyle = resetCss;
-    ctx.fillStyle   = resetCss;
-    ctx.globalAlpha = 1;
+    // ctx.beginPath();
+    this._$command(ctx, color_transform, is_clip, min_scale);
+
+    // rendering
+    if (is_clip) {
+
+        ctx.clip();
+
+    }
+
 };
 
 /**
@@ -231,26 +215,48 @@ Graphics.prototype._$doDraw = function (ctx, min_scale, color_transform, is_clip
  */
 Graphics.prototype._$buildCommand = function ()
 {
+
     var length, idx;
 
-    // init fill style
+    var recodes = [];
+
+    // fill recode
+    length = this._$fills.length;
+    if (length) {
+
+        idx = 0;
+        while (length > idx) {
+
+            recodes[recodes.length] = this._$fills[idx];
+
+            idx = (idx + 1)|0;
+        }
+
+        this._$fills = [];
+
+    }
+
+    // fill style
     if (this._$fillStyles.length) {
 
-        this._$fills[this._$fills.length] = this._$fillStyles.pop();
+        recodes[recodes.length] = this._$fillStyles.pop();
+
+        recodes[recodes.length] = [Graphics.END_FILL];
 
         // reset
         this._$fillStyles = [];
 
-        this.endFill();
     }
 
+
+    // line recode
     length = this._$lines.length;
     if (length) {
 
         idx = 0;
         while (length > idx) {
 
-            this._$fills[this._$fills.length] = this._$lines[idx];
+            recodes[recodes.length] = this._$lines[idx];
 
             idx = (idx + 1)|0;
         }
@@ -258,7 +264,22 @@ Graphics.prototype._$buildCommand = function ()
         this._$lines = [];
     }
 
-    return this.$vtc.buildCommand(this._$fills);
+
+    // line style
+    if (this._$lineStyles.length) {
+
+        recodes[recodes.length] = this._$lineStyles.pop();
+
+        recodes[recodes.length] = [Graphics.END_STROKE];
+
+        // reset
+        this._$lineStyles = [];
+
+    }
+
+    this._$pointer = {x:0, y:0};
+
+    return this.$vtc.buildCommand(recodes);
 };
 
 /**
@@ -337,7 +358,6 @@ Graphics.prototype._$setBounds = function (x, y)
  */
 Graphics.prototype._$restart = function ()
 {
-    // command restart
     this._$command = null;
 
     // cache restart
@@ -542,6 +562,7 @@ Graphics.prototype.clear = function ()
     this._$bounds       = null;
     this._$doFill       = false;
     this._$doLine       = false;
+    this._$pointer      = {x:0, y:0};
 
     // restart
     this._$restart();
@@ -557,16 +578,25 @@ Graphics.prototype.copyFrom = function (source_graphics)
 
         this.clear();
 
-        // command
-        this._$command = source_graphics._$buildCommand();
-        this._$fills   = this.$cloneArray(source_graphics._$fills);
+        // recodes
+        this._$fills        = this.$cloneArray(source_graphics._$fills);
+        this._$lines        = this.$cloneArray(source_graphics._$lines);
+        this._$fillStyles   = this.$cloneArray(source_graphics._$fillStyles);
+        this._$lineStyles   = this.$cloneArray(source_graphics._$lineStyles);
 
         // bounds
-        this._$bounds = {};
-        this._$bounds.xMin = source_graphics._$bounds.xMin;
-        this._$bounds.xMax = source_graphics._$bounds.xMax;
-        this._$bounds.yMin = source_graphics._$bounds.yMin;
-        this._$bounds.yMax = source_graphics._$bounds.yMax;
+        if (source_graphics._$bounds) {
+            this._$bounds = {
+                xMin: source_graphics._$bounds.xMin,
+                xMax: source_graphics._$bounds.xMax,
+                yMin: source_graphics._$bounds.yMin,
+                yMax: source_graphics._$bounds.yMax
+            };
+        }
+
+        // pointer
+        this._$pointer.x = source_graphics._$pointer.x;
+        this._$pointer.y = source_graphics._$pointer.y;
 
         // flag
         this._$doFill = source_graphics._$doFill;
@@ -639,8 +669,11 @@ Graphics.prototype.cubicCurveTo = function (
         }
 
         if (this._$doLine) {
+            this._$lines[this._$lines.length] = [Graphics.MOVE_TO, this._$pointer.x, this._$pointer.y];
             this._$lines[this._$lines.length] = data;
         }
+
+        this._$pointer = {x: anchor_x, y: anchor_y};
 
         // restart
         this._$restart();
@@ -693,8 +726,11 @@ Graphics.prototype.curveTo = function (control_x, control_y, anchor_x, anchor_y)
         }
 
         if (this._$doLine) {
+            this._$lines[this._$lines.length] = [Graphics.MOVE_TO, this._$pointer.x, this._$pointer.y];
             this._$lines[this._$lines.length] = data;
         }
+
+        this._$pointer = {x: anchor_x, y: anchor_y};
 
         // restart
         this._$restart();
@@ -746,6 +782,8 @@ Graphics.prototype.drawCircle = function (x, y, radius)
         if (this._$doLine) {
             this._$lines[this._$lines.length] = data;
         }
+
+        this._$pointer = {x: x, y: y};
 
         // restart
         this._$restart();
@@ -909,6 +947,7 @@ Graphics.prototype.drawPath = function (commands, data, winding)
     }
 
     return this;
+
 };
 
 /**
@@ -940,11 +979,11 @@ Graphics.prototype.drawRect = function (x, y, width, height)
         }
 
         this
-            .moveTo(x, y)
+            .moveTo(x,         y)
             .lineTo(x + width, y)
             .lineTo(x + width, y + height)
-            .lineTo(x, y + height)
-            .lineTo(x, y);
+            .lineTo(x,         y + height)
+            .lineTo(x,         y);
 
     }
 
@@ -1096,6 +1135,10 @@ Graphics.prototype.endFill = function ()
 {
     if (this._$doFill) {
 
+        if (this._$fillStyles.length) {
+            this._$fills[this._$fills.length] = this._$fillStyles.pop();
+        }
+
         this._$fills[this._$fills.length] = [Graphics.END_FILL];
 
         // restart
@@ -1140,6 +1183,49 @@ Graphics.prototype.lineGradientStyle = function (
 };
 
 /**
+ * @param  {number}  thickness
+ * @param  {number}  color
+ * @param  {number}  alpha
+ * @param  {boolean} pixelHinting
+ * @param  {string}  scaleMode
+ * @param  {string}  caps
+ * @param  {string}  joints
+ * @param  {number}  miterLimit
+ * @return {Graphics}
+ */
+Graphics.prototype.lineStyle = function (
+    thickness, color, alpha,  pixelHinting,
+    scaleMode, caps,  joints, miterLimit
+) {
+
+    switch (arguments.length) {
+
+        case 0:
+
+            this._$doLine = false;
+
+            this._$lineStyles[this._$lineStyles.length] = [Graphics.END_STROKE];
+
+            break;
+
+        default:
+
+
+
+
+
+            this._$doLine = true;
+
+            break;
+    }
+
+    // restart
+    this._$restart();
+
+    return this;
+};
+
+/**
  * @param   {number} x
  * @param   {number} y
  * @returns {Graphics}
@@ -1171,8 +1257,11 @@ Graphics.prototype.lineTo = function (x, y)
 
         // lines
         if (this._$doLine) {
+            this._$lines[this._$lines.length] = [Graphics.MOVE_TO, this._$pointer.x, this._$pointer.y];
             this._$lines[this._$lines.length] = data;
         }
+
+        this._$pointer = {x: x, y: y};
 
         // restart
         this._$restart();
@@ -1215,6 +1304,8 @@ Graphics.prototype.moveTo = function (x, y)
         if (this._$doLine) {
             this._$lines[this._$lines.length] = data;
         }
+
+        this._$pointer = {x: x, y: y};
 
         // restart
         this._$restart();

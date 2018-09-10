@@ -496,7 +496,7 @@ VectorToCanvas.prototype.toCanvas2D = function (cache)
                 str += "var b =  Math.max(0, Math.min(("+ a[3] +" * ct[2]) + ct[6], 255))|0;";
                 str += "var a = +Math.max(0, Math.min(("+ a[4] +" * 255 * ct[3]) + ct[7], 255)) / 255;";
                 str += "ctx.strokeStyle = 'rgba('+r+', '+g+', '+b+', '+a+')';";
-                str += "ctx.lineWidth = "+ a[5] +" * min_scale;";
+                str += "ctx.lineWidth = "+ a[5] +";";
                 str += "ctx.lineCap = '"+ a[6] +"';";
                 str += "ctx.lineJoin = '"+ a[7] +"';";
                 str += "ctx.miterLimit = '"+ a[8] +"';";
@@ -512,18 +512,6 @@ VectorToCanvas.prototype.toCanvas2D = function (cache)
             case Graphics.END_STROKE:
                 str += "if (!is_clip) { ctx.stroke(); }";
                 break;
-            // case Graphics.LINE_WIDTH:
-            //     str += "ctx.lineWidth = "+ a[1] +" * min_scale;";
-            //     break;
-            // case Graphics.LINE_CAP:
-            //     str += "ctx.lineCap = '"+ a[1] +"';";
-            //     break;
-            // case Graphics.LINE_JOIN:
-            //     str += "ctx.lineJoin = '"+ a[1] +"';";
-            //     break;
-            // case Graphics.MITER_LIMIT:
-            //     str += "ctx.miterLimit = '"+ a[1] +"';";
-            //     break;
             case Graphics.BEGIN_PATH:
                 str += "ctx.beginPath();";
                 break;

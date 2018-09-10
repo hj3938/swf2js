@@ -840,3 +840,112 @@ describe("Graphics.js drawRoundRect test", function()
 });
 
 
+describe("Graphics.js lineStyle test", function()
+{
+
+    it("lineStyle test success case1", function ()
+    {
+        var g = new Graphics();
+
+        g
+            .beginFill(0xff0000, 1.0)
+            .moveTo(20.0 , 20.0)
+            .lineTo(120.0 ,  20.0 )
+            .lineStyle(10, 0x00ff00, 1.0, false, "normal", null, "miter", 1)
+            .lineTo(120.0 ,  120.0 );
+
+        // line width
+        expect(g._$lineWidth).toBe(10*20);
+
+        // line style
+        expect(g._$lineStyles[0][0]).toBe(Graphics.STROKE_STYLE);
+        expect(g._$lineStyles[0][1]).toBe(0);
+        expect(g._$lineStyles[0][2]).toBe(255);
+        expect(g._$lineStyles[0][3]).toBe(0);
+        expect(g._$lineStyles[0][4]).toBe(1);
+        expect(g._$lineStyles[0][5]).toBe(g._$lineWidth);
+        expect(g._$lineStyles[0][6]).toBe(CapsStyle.ROUND);
+        expect(g._$lineStyles[0][7]).toBe(JointStyle.MITER);
+        expect(g._$lineStyles[0][8]).toBe(1);
+
+
+        g
+            .lineStyle()
+            .lineTo(20.0 ,  120.0 );
+
+        expect(g._$lineWidth).toBe(0);
+        expect(g._$lineStyles.length).toBe(0);
+
+        g
+            .lineStyle(20, 0x0000ff, 0.5, false, "normal", CapsStyle.NONE, JointStyle.BEVEL, 255)
+            .lineTo(20.0 ,  20.0 )
+            .endFill();
+
+        // line width
+        expect(g._$lineWidth).toBe(20*20);
+
+        // line style
+        expect(g._$lineStyles[0][0]).toBe(Graphics.STROKE_STYLE);
+        expect(g._$lineStyles[0][1]).toBe(0);
+        expect(g._$lineStyles[0][2]).toBe(0);
+        expect(g._$lineStyles[0][3]).toBe(255);
+        expect(g._$lineStyles[0][4]).toBe(0.5);
+        expect(g._$lineStyles[0][5]).toBe(g._$lineWidth);
+        expect(g._$lineStyles[0][6]).toBe("butt");
+        expect(g._$lineStyles[0][7]).toBe(JointStyle.BEVEL);
+        expect(g._$lineStyles[0][8]).toBe(255);
+
+    });
+
+
+    it("lineStyle test success case2", function ()
+    {
+        var g = new Graphics();
+
+        g
+            .beginFill(0xff0000, 1.0)
+            .moveTo(20.0 , 20.0)
+            .lineTo(120.0 ,  20.0 )
+            .lineStyle(10, 0x00ff00, 1.0, false, "normal", null, "miter", 1)
+            .lineTo(120.0 ,  120.0 );
+
+        // line width
+        expect(g._$lineWidth).toBe(10*20);
+
+        // line style
+        expect(g._$lineStyles[0][0]).toBe(Graphics.STROKE_STYLE);
+        expect(g._$lineStyles[0][1]).toBe(0);
+        expect(g._$lineStyles[0][2]).toBe(255);
+        expect(g._$lineStyles[0][3]).toBe(0);
+        expect(g._$lineStyles[0][4]).toBe(1);
+        expect(g._$lineStyles[0][5]).toBe(g._$lineWidth);
+        expect(g._$lineStyles[0][6]).toBe(CapsStyle.ROUND);
+        expect(g._$lineStyles[0][7]).toBe(JointStyle.MITER);
+        expect(g._$lineStyles[0][8]).toBe(1);
+
+
+        g
+            .lineStyle(20, 0x0000ff, 0.5, false, "normal", CapsStyle.NONE, JointStyle.BEVEL, 255)
+            .lineTo(20.0 ,  120.0 )
+            .lineTo(20.0 ,  20.0 )
+            .endFill();
+
+        // line width
+        expect(g._$lineWidth).toBe(20*20);
+
+        // line style
+        expect(g._$lineStyles[0][0]).toBe(Graphics.STROKE_STYLE);
+        expect(g._$lineStyles[0][1]).toBe(0);
+        expect(g._$lineStyles[0][2]).toBe(0);
+        expect(g._$lineStyles[0][3]).toBe(255);
+        expect(g._$lineStyles[0][4]).toBe(0.5);
+        expect(g._$lineStyles[0][5]).toBe(g._$lineWidth);
+        expect(g._$lineStyles[0][6]).toBe("butt");
+        expect(g._$lineStyles[0][7]).toBe(JointStyle.BEVEL);
+        expect(g._$lineStyles[0][8]).toBe(255);
+
+    });
+
+});
+
+

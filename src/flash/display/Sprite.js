@@ -243,19 +243,17 @@ Sprite.prototype._$getBounds = function (matrix)
     var xMin = 0;
     var yMin = 0;
 
-    // var graphics = this.graphics;
-    // var isDraw = graphics.isDraw;
-    //
-    // if (isDraw) {
-    //     var maxWidth  = graphics.maxWidth;
-    //     var halfWidth = maxWidth / 2;
-    //     var gBounds   = this.boundsMatrix(graphics.bounds, matrix);
-    //     var twips = (matrix) ? 20 : 1;
-    //     xMin = +((gBounds.xMin - halfWidth) / twips);
-    //     xMax = +((gBounds.xMax + halfWidth) / twips);
-    //     yMin = +((gBounds.yMin - halfWidth) / twips);
-    //     yMax = +((gBounds.yMax + halfWidth) / twips);
-    // }
+    if (this.graphics._$getBounds() !== null) {
+
+        var gBounds = (matrix)
+            ? this.$boundsMatrix(this.graphics._$getBounds(), matrix, null)
+            : this.graphics._$getBounds();
+
+        xMin = +gBounds.xMin;
+        xMax = +gBounds.xMax;
+        yMin = +gBounds.yMin;
+        yMax = +gBounds.yMax;
+    }
 
     var instances  = this._$instances;
 

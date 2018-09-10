@@ -8569,19 +8569,17 @@ Sprite.prototype._$getBounds = function (matrix)
     var xMin = 0;
     var yMin = 0;
 
-    // var graphics = this.graphics;
-    // var isDraw = graphics.isDraw;
-    //
-    // if (isDraw) {
-    //     var maxWidth  = graphics.maxWidth;
-    //     var halfWidth = maxWidth / 2;
-    //     var gBounds   = this.boundsMatrix(graphics.bounds, matrix);
-    //     var twips = (matrix) ? 20 : 1;
-    //     xMin = +((gBounds.xMin - halfWidth) / twips);
-    //     xMax = +((gBounds.xMax + halfWidth) / twips);
-    //     yMin = +((gBounds.yMin - halfWidth) / twips);
-    //     yMax = +((gBounds.yMax + halfWidth) / twips);
-    // }
+    if (this.graphics._$getBounds() !== null) {
+
+        var gBounds = (matrix)
+            ? this.$boundsMatrix(this.graphics._$getBounds(), matrix, null)
+            : this.graphics._$getBounds();
+
+        xMin = +gBounds.xMin;
+        xMax = +gBounds.xMax;
+        yMin = +gBounds.yMin;
+        yMax = +gBounds.yMax;
+    }
 
     var instances  = this._$instances;
 
@@ -9293,8 +9291,17 @@ var Graphics = function ()
     OriginalObject.call(this);
 
     // origin param
-    this._$id   = graphicsId++;
-    this._$keys = [];
+    this._$id           = graphicsId++;
+    this._$keys         = [];
+    this._$fills        = [];
+    this._$lines        = [];
+    this._$fillStyles   = [];
+    this._$lineStyles   = [];
+    this._$lineWidth    = 0;
+    this._$bounds       = null;
+    this._$doFill       = false;
+    this._$doLine       = false;
+    this._$pointer      = {x: 0, y:0};
 
     // reset
     this.clear();
@@ -9351,32 +9358,12 @@ Graphics.END_STROKE = 8;
 /**
  * @type {number}
  */
-Graphics.LINE_WIDTH = 9;
+Graphics.BEGIN_PATH = 9;
 
 /**
  * @type {number}
  */
-Graphics.LINE_CAP = 10;
-
-/**
- * @type {number}
- */
-Graphics.LINE_JOIN = 11;
-
-/**
- * @type {number}
- */
-Graphics.MITER_LIMIT = 12;
-
-/**
- * @type {number}
- */
-Graphics.BEGIN_PATH = 13;
-
-/**
- * @type {number}
- */
-Graphics.GRADIENT_FILL = 14;
+Graphics.GRADIENT_FILL = 10;
 
 
 /**
@@ -9395,6 +9382,9 @@ Graphics.prototype.constructor = Graphics;
  */
 Graphics.prototype._$draw = function (matrix, color_transform, is_clip, visible)
 {
+    if (this._$getBounds() === null) {
+        return ;
+    }
 
     var ctx = this._$displayObject.stage.player.preContext;
 
@@ -9487,30 +9477,22 @@ Graphics.prototype._$draw = function (matrix, color_transform, is_clip, visible)
 Graphics.prototype._$doDraw = function (ctx, min_scale, color_transform, is_clip)
 {
 
-    if (this._$getBounds() !== null) {
+    // build command
+    if (this._$command === null) {
 
-        // build command
-        if (this._$command === null) {
+        this._$command = this._$buildCommand();
 
-            this._$command = this._$buildCommand();
-
-        }
-
-        // ctx.beginPath();
-        this._$command(ctx, color_transform, is_clip, min_scale);
-
-        // rendering
-        if (is_clip) {
-
-            ctx.clip();
-
-        }
     }
 
-    var resetCss    = "rgba(0,0,0,1)";
-    ctx.strokeStyle = resetCss;
-    ctx.fillStyle   = resetCss;
-    ctx.globalAlpha = 1;
+    this._$command(ctx, color_transform, is_clip, min_scale);
+
+    // rendering
+    if (is_clip) {
+
+        ctx.clip();
+
+    }
+
 };
 
 /**
@@ -9518,26 +9500,47 @@ Graphics.prototype._$doDraw = function (ctx, min_scale, color_transform, is_clip
  */
 Graphics.prototype._$buildCommand = function ()
 {
+
     var length, idx;
 
-    // init fill style
+    var recodes = [];
+
+    // fill recode
+    length = this._$fills.length;
+    if (length) {
+
+        idx = 0;
+        while (length > idx) {
+
+            recodes[recodes.length] = this._$fills[idx];
+
+            idx = (idx + 1)|0;
+        }
+
+        this._$fills = [];
+
+    }
+
+    // fill style
     if (this._$fillStyles.length) {
 
-        this._$fills[this._$fills.length] = this._$fillStyles.pop();
+        recodes[recodes.length] = this._$fillStyles.pop();
+
+        recodes[recodes.length] = [Graphics.END_FILL];
 
         // reset
         this._$fillStyles = [];
 
-        this.endFill();
     }
 
+    // line recode
     length = this._$lines.length;
     if (length) {
 
         idx = 0;
         while (length > idx) {
 
-            this._$fills[this._$fills.length] = this._$lines[idx];
+            recodes[recodes.length] = this._$lines[idx];
 
             idx = (idx + 1)|0;
         }
@@ -9545,7 +9548,25 @@ Graphics.prototype._$buildCommand = function ()
         this._$lines = [];
     }
 
-    return this.$vtc.buildCommand(this._$fills);
+
+    // line style
+    if (this._$lineStyles.length) {
+
+        recodes[recodes.length] = this._$lineStyles.pop();
+
+        recodes[recodes.length] = [Graphics.END_STROKE];
+
+        // reset
+        this._$lineWidth  = 0;
+        this._$lineStyles = [];
+
+    }
+
+    // reset
+    this._$pointer = {x:0, y:0};
+
+    return this.$vtc.buildCommand(recodes);
+
 };
 
 /**
@@ -9570,8 +9591,7 @@ Graphics.prototype._$hit = function (x, y, matrix)
 
         }
 
-        // ctx.beginPath();
-        this._$command(ctx, [1,1,1,1,0,0,0,0], false, this.$min(matrix[0], matrix[3]));
+        this._$command(ctx, [1,1,1,1,0,0,0,0], true, this.$min(matrix[0], matrix[3]));
 
         hit = ctx.isPointInPath(x, y);
         if (hit) {
@@ -9612,11 +9632,16 @@ Graphics.prototype._$setBounds = function (x, y)
 
     }
 
+    var half = 0;
+    if (this._$doLine) {
+          half = this._$lineWidth / 2;
+    }
+
     var bounds  = this._$bounds;
-    bounds.xMin = this.$min(bounds.xMin, x);
-    bounds.xMax = this.$max(bounds.xMax, x);
-    bounds.yMin = this.$min(bounds.yMin, y);
-    bounds.yMax = this.$max(bounds.yMax, y);
+    bounds.xMin = this.$min(bounds.xMin, -half + x);
+    bounds.xMax = this.$max(bounds.xMax, x + half);
+    bounds.yMin = this.$min(bounds.yMin, -half + y);
+    bounds.yMax = this.$max(bounds.yMax, y + half);
 };
 
 /**
@@ -9624,7 +9649,6 @@ Graphics.prototype._$setBounds = function (x, y)
  */
 Graphics.prototype._$restart = function ()
 {
-    // command restart
     this._$command = null;
 
     // cache restart
@@ -9826,9 +9850,11 @@ Graphics.prototype.clear = function ()
     this._$lines        = [];
     this._$fillStyles   = [];
     this._$lineStyles   = [];
+    this._$lineWidth    = 0;
     this._$bounds       = null;
     this._$doFill       = false;
     this._$doLine       = false;
+    this._$pointer      = {x:0, y:0};
 
     // restart
     this._$restart();
@@ -9844,16 +9870,27 @@ Graphics.prototype.copyFrom = function (source_graphics)
 
         this.clear();
 
-        // command
-        this._$command = source_graphics._$buildCommand();
-        this._$fills   = this.$cloneArray(source_graphics._$fills);
+        // recodes
+        this._$fills        = this.$cloneArray(source_graphics._$fills);
+        this._$lines        = this.$cloneArray(source_graphics._$lines);
+        this._$fillStyles   = this.$cloneArray(source_graphics._$fillStyles);
+        this._$lineStyles   = this.$cloneArray(source_graphics._$lineStyles);
+        this._$lineWidth    = source_graphics._$lineWidth;
+
 
         // bounds
-        this._$bounds = {};
-        this._$bounds.xMin = source_graphics._$bounds.xMin;
-        this._$bounds.xMax = source_graphics._$bounds.xMax;
-        this._$bounds.yMin = source_graphics._$bounds.yMin;
-        this._$bounds.yMax = source_graphics._$bounds.yMax;
+        if (source_graphics._$bounds) {
+            this._$bounds = {
+                xMin: source_graphics._$bounds.xMin,
+                xMax: source_graphics._$bounds.xMax,
+                yMin: source_graphics._$bounds.yMin,
+                yMax: source_graphics._$bounds.yMax
+            };
+        }
+
+        // pointer
+        this._$pointer.x = source_graphics._$pointer.x;
+        this._$pointer.y = source_graphics._$pointer.y;
 
         // flag
         this._$doFill = source_graphics._$doFill;
@@ -9929,6 +9966,8 @@ Graphics.prototype.cubicCurveTo = function (
             this._$lines[this._$lines.length] = data;
         }
 
+        this._$pointer = {x: anchor_x, y: anchor_y};
+
         // restart
         this._$restart();
     }
@@ -9983,6 +10022,8 @@ Graphics.prototype.curveTo = function (control_x, control_y, anchor_x, anchor_y)
             this._$lines[this._$lines.length] = data;
         }
 
+        this._$pointer = {x: anchor_x, y: anchor_y};
+
         // restart
         this._$restart();
 
@@ -10033,6 +10074,8 @@ Graphics.prototype.drawCircle = function (x, y, radius)
         if (this._$doLine) {
             this._$lines[this._$lines.length] = data;
         }
+
+        this._$pointer = {x: x, y: y};
 
         // restart
         this._$restart();
@@ -10196,6 +10239,7 @@ Graphics.prototype.drawPath = function (commands, data, winding)
     }
 
     return this;
+
 };
 
 /**
@@ -10227,11 +10271,11 @@ Graphics.prototype.drawRect = function (x, y, width, height)
         }
 
         this
-            .moveTo(x, y)
+            .moveTo(x,         y)
             .lineTo(x + width, y)
             .lineTo(x + width, y + height)
-            .lineTo(x, y + height)
-            .lineTo(x, y);
+            .lineTo(x,         y + height)
+            .lineTo(x,         y);
 
     }
 
@@ -10383,6 +10427,10 @@ Graphics.prototype.endFill = function ()
 {
     if (this._$doFill) {
 
+        if (this._$fillStyles.length) {
+            this._$fills[this._$fills.length] = this._$fillStyles.pop();
+        }
+
         this._$fills[this._$fills.length] = [Graphics.END_FILL];
 
         // restart
@@ -10427,6 +10475,174 @@ Graphics.prototype.lineGradientStyle = function (
 };
 
 /**
+ * @param  {number}  thickness
+ * @param  {number}  color
+ * @param  {number}  alpha
+ * @param  {boolean} pixel_hinting
+ * @param  {string}  scale_mode
+ * @param  {string}  caps
+ * @param  {string}  joints
+ * @param  {number}  miter_limit
+ * @return {Graphics}
+ */
+Graphics.prototype.lineStyle = function (
+    thickness, color, alpha,  pixel_hinting,
+    scale_mode, caps,  joints, miter_limit
+) {
+
+    switch (arguments.length) {
+
+        // end line style
+        case 0:
+
+            // set data
+            this._$lines[this._$lines.length] = this._$lineStyles.pop();
+            this._$lines[this._$lines.length] = [Graphics.END_STROKE];
+
+            // reset
+            this._$lineWidth  = 0;
+            this._$lineStyles = [];
+            this._$doLine     = false;
+
+            break;
+
+        // start line style
+        default:
+
+            // prev style
+            if (this._$lineStyles.length) {
+
+                this._$lines[this._$lines.length] = this._$lineStyles.pop();
+                this._$lines[this._$lines.length] = [Graphics.END_STROKE];
+
+            }
+
+
+            if (typeof color === "string") {
+                color = this.$colorStringToInt(color);
+            }
+
+            // alpha
+            alpha = +alpha;
+            switch (typeof alpha) {
+                case "number":
+
+                    alpha = alpha * 100;
+                    if (alpha > 100) {
+                        alpha = 100;
+                    }
+
+                    break;
+
+                default:
+
+                    alpha = 100;
+                    break;
+            }
+
+            // build rgba
+            var rgba = this.$intToRGBA(color, alpha);
+
+
+            // line width
+            if (typeof thickness !== "number") {
+                thickness = thickness|0;
+            }
+
+            if (thickness < 0) {
+                thickness = 0;
+            }
+
+            if (thickness > 255) {
+                thickness = 255;
+            }
+            thickness = thickness * 20;
+
+
+            // line cap
+            switch (caps) {
+                case CapsStyle.NONE:
+                    caps = "butt";
+                    break;
+                case CapsStyle.ROUND:
+                case CapsStyle.SQUARE:
+                    break;
+                default:
+                    caps = CapsStyle.ROUND;
+                    break;
+            }
+
+
+            // line join
+            switch (joints) {
+                case JointStyle.BEVEL:
+                case JointStyle.MITER:
+                case JointStyle.ROUND:
+                    break;
+                default:
+                    joints = JointStyle.ROUND;
+                    break;
+            }
+
+
+            // miter limit
+            if (miter_limit === undefined) {
+                miter_limit = 10;
+            }
+
+            if (typeof miter_limit !== "number") {
+                miter_limit = miter_limit|0;
+            }
+
+            if (miter_limit < 1) {
+                miter_limit = 1;
+            }
+
+            if (miter_limit > 255) {
+                miter_limit = 255;
+            }
+
+
+            // scale flag
+            switch (scale_mode) {
+                case LineScaleMode.HORIZONTAL:
+                case LineScaleMode.NONE:
+                case LineScaleMode.NORMAL:
+                case LineScaleMode.VERTICAL:
+                    break;
+                default:
+                    scale_mode = LineScaleMode.NORMAL;
+                    break;
+            }
+
+
+            // set data
+            var data = [Graphics.STROKE_STYLE,
+                    rgba.R, rgba.G, rgba.B, rgba.A,
+                    thickness, caps, joints, miter_limit
+            ];
+
+
+            // set style
+            this._$lineWidth = thickness;
+            this._$lineStyles[this._$lineStyles.length] = data;
+
+            // init line
+            this._$doLine = true;
+            this._$lines[this._$lines.length] = [Graphics.BEGIN_PATH];
+            this._$lines[this._$lines.length] = [Graphics.MOVE_TO, this._$pointer.x, this._$pointer.y];
+            this._$setBounds(this._$pointer.x, this._$pointer.y);
+
+            break;
+    }
+
+    // restart
+    this._$restart();
+
+    return this;
+};
+
+/**
  * @param   {number} x
  * @param   {number} y
  * @returns {Graphics}
@@ -10460,6 +10676,8 @@ Graphics.prototype.lineTo = function (x, y)
         if (this._$doLine) {
             this._$lines[this._$lines.length] = data;
         }
+
+        this._$pointer = {x: x, y: y};
 
         // restart
         this._$restart();
@@ -10503,11 +10721,27 @@ Graphics.prototype.moveTo = function (x, y)
             this._$lines[this._$lines.length] = data;
         }
 
+        this._$pointer = {x: x, y: y};
+
         // restart
         this._$restart();
     }
 
     return this;
+};
+
+/**
+ * TODO
+ * @param  {boolean} recurse
+ * @return {Vector}
+ */
+Graphics.prototype.readGraphicsData = function (recurse)
+{
+    if (typeof recurse !== "boolean") {
+        recurse = true;
+    }
+
+    return new Vector();
 };
 /**
  * @param bitmapData
@@ -11241,7 +11475,6 @@ MovieClip.prototype._$draw = function (matrix, color_transform, is_clip, visible
 
     // set param
     var frame   = this.currentFrame|0;
-    var version = this.root.actionScriptVersion|0;
 
 
     // build controller
@@ -11427,19 +11660,17 @@ MovieClip.prototype._$getBounds = function (matrix)
     var xMin = 0;
     var yMin = 0;
 
-    // var graphics = this.graphics;
-    // var isDraw = graphics.isDraw;
-    //
-    // if (isDraw) {
-    //     var maxWidth  = graphics.maxWidth;
-    //     var halfWidth = maxWidth / 2;
-    //     var gBounds   = this.boundsMatrix(graphics.bounds, matrix);
-    //     var twips = (matrix) ? 20 : 1;
-    //     xMin = +((gBounds.xMin - halfWidth) / twips);
-    //     xMax = +((gBounds.xMax + halfWidth) / twips);
-    //     yMin = +((gBounds.yMin - halfWidth) / twips);
-    //     yMax = +((gBounds.yMax + halfWidth) / twips);
-    // }
+    if (this.graphics._$getBounds() !== null) {
+
+        var gBounds = (matrix)
+            ? this.$boundsMatrix(this.graphics._$getBounds(), matrix, null)
+            : this.graphics._$getBounds();
+
+        xMin = +gBounds.xMin;
+        xMax = +gBounds.xMax;
+        yMin = +gBounds.yMin;
+        yMax = +gBounds.yMax;
+    }
 
     var frame     = this.currentFrame|0;
     var instances = this._$instances;
@@ -30604,6 +30835,10 @@ VectorToCanvas.prototype.toCanvas2D = function (cache)
                 str += "var b =  Math.max(0, Math.min(("+ a[3] +" * ct[2]) + ct[6], 255))|0;";
                 str += "var a = +Math.max(0, Math.min(("+ a[4] +" * 255 * ct[3]) + ct[7], 255)) / 255;";
                 str += "ctx.strokeStyle = 'rgba('+r+', '+g+', '+b+', '+a+')';";
+                str += "ctx.lineWidth = "+ a[5] +";";
+                str += "ctx.lineCap = '"+ a[6] +"';";
+                str += "ctx.lineJoin = '"+ a[7] +"';";
+                str += "ctx.miterLimit = '"+ a[8] +"';";
                 break;
             case Graphics.END_FILL:
                 str += "if (!is_clip) { ctx.fill(); }";
@@ -30615,18 +30850,6 @@ VectorToCanvas.prototype.toCanvas2D = function (cache)
                 break;
             case Graphics.END_STROKE:
                 str += "if (!is_clip) { ctx.stroke(); }";
-                break;
-            case Graphics.LINE_WIDTH:
-                str += "ctx.lineWidth = "+ a[1] +" * min_scale;";
-                break;
-            case Graphics.LINE_CAP:
-                str += "ctx.lineCap = '"+ a[1] +"';";
-                break;
-            case Graphics.LINE_JOIN:
-                str += "ctx.lineJoin = '"+ a[1] +"';";
-                break;
-            case Graphics.MITER_LIMIT:
-                str += "ctx.miterLimit = '"+ a[1] +"';";
                 break;
             case Graphics.BEGIN_PATH:
                 str += "ctx.beginPath();";

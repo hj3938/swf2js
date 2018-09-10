@@ -13,28 +13,35 @@
     document.body.appendChild( stats.dom );
     // swf2js.load("develop", { quality: "high" });
 
-    var root = swf2js.createRootMovieClip(240, 240, 1);
+    var root = swf2js.createRootMovieClip(500, 500, 1);
 
     var Shape = root.stage.player.getPackage("flash.display.Shape");
     var shape = new Shape();
 
-    // shape
-    //     .graphics
-    //     .beginFill("red", 10)
-    //     .beginFill("green", 10);
-    //
-    // shape.graphics._$buildCommand();
+    var g = shape.graphics;
+
+    g.beginFill(0xff0000, 1.0);
+    g.moveTo(60.0 , 60.0);
+    g.lineTo(160.0 ,  60.0 );
+    g.lineStyle(10, 0x00ff00, 1.0, false, "normal", null, "miter", 1);
+    g.lineTo(160.0 ,  160.0 );
+    // g.lineStyle();
+    g.lineStyle(20, 0x0000ff, 0.5, false, "normal", "none", "bevel", 255);
+    g.lineTo(60.0 ,  160.0 );
+
+    g.lineTo(60.0 ,  60.0 );
+    g.endFill();
 
     console.log(shape.graphics);
 
-    var Matrix = root.stage.player.getPackage("flash.geom.Matrix");
-    var matrix = new Matrix();
-    matrix.createGradientBox(20, 20, 0, 0, 0);
-
-    shape
-        .graphics
-        .beginGradientFill("linear", [0xFF0000, 0x0000FF], [1, 1], [0x00, 0xFF], matrix, "pad")
-        .drawRect(0,0,100,100);
+    // var Matrix = root.stage.player.getPackage("flash.geom.Matrix");
+    // var matrix = new Matrix();
+    // matrix.createGradientBox(20, 20, 0, 0, 0);
+    //
+    // shape
+    //     .graphics
+    //     .beginGradientFill("linear", [0xFF0000, 0x0000FF], [1, 1], [0x00, 0xFF], matrix, "pad")
+    //     .drawRect(0,0,100,100);
 
     root.addChild(shape);
 

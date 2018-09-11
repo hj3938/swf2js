@@ -2,14 +2,14 @@
   "name": "swf2js",
   "description": "Flash™ runtime written in pure JavaScript.",
   "version": "0.8.0",
-  "author": "Toshiyuki Ienaga",
+  "author": "Toshiyuki Ienaga <ienaga@tvon.jp>",
   "license": "MIT",
   "main": "index.js",
   "directories": {
     "test": "test"
   },
   "scripts": {
-    "test": "gulp test"
+    "test": "gulp test --browsers Firefox,Chrome"
   },
   "keywords": [
     "swf",

@@ -9,7 +9,7 @@
     "test": "test"
   },
   "scripts": {
-    "test": "gulp test --browsers Firefox,Chrome"
+    "test": "gulp test"
   },
   "keywords": [
     "swf",

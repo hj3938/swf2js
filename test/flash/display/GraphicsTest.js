@@ -947,10 +947,3 @@ describe("Graphics.js lineStyle test", function()
     });
 
 });
-
-
-describe("Graphics.js rendering test", function()
-{
-
-
-});

@@ -13,7 +13,7 @@
     document.body.appendChild( stats.dom );
     // swf2js.load("develop", { quality: "high" });
 
-    var root = swf2js.createRootMovieClip(500, 500, 1);
+    var root = swf2js.createRootMovieClip(500, 500, 1, {width: 500, height: 500});
 
     var Shape = root.stage.player.getPackage("flash.display.Shape");
     var shape = new Shape();
@@ -81,13 +81,6 @@
     }
 
     root.addChild(shape);
-
-    // root.stage.player.resize();
-    // root.stage.player.loaded();
-    // root.stage.player.loadStatus = 4;
-    // root.stage.player.draw();
-    //
-    // console.log(root.stage.player.canvas.toDataURL());
 
 
 </script>

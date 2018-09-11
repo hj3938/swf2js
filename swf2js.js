@@ -9579,6 +9579,7 @@ Graphics.prototype._$buildCommand = function ()
 
     }
 
+
     // fill style
     if (this._$fillStyles.length) {
 
@@ -9590,6 +9591,7 @@ Graphics.prototype._$buildCommand = function ()
         this._$fillStyles = [];
 
     }
+
 
     // line recode
     length = this._$lines.length;
@@ -9887,8 +9889,6 @@ Graphics.prototype.beginBitmapFill = function (bitmap, matrix, repeat, smooth)
     // init fill style
     this._$beginFill();
 
-    // TODO
-
 
     // restart
     this._$restart();
@@ -9987,6 +9987,7 @@ Graphics.prototype.beginGradientFill = function (
 };
 
 /**
+ * TODO
  * @param  {Shader} shader
  * @param  {Matrix} matrix
  * @return void
@@ -9996,7 +9997,7 @@ Graphics.prototype.beginShaderFill = function (shader, matrix)
     // init fill style
     this._$beginFill();
 
-    // TODO
+
 
     // restart
     this._$restart();
@@ -10299,11 +10300,11 @@ Graphics.prototype.drawEllipse = function (x, y, width, height)
 };
 
 /**
+ * TODO
  * @param {*} graphics_data
  */
 Graphics.prototype.drawGraphicsData = function (graphics_data)
 {
-    // TODO
 };
 
 /**
@@ -10511,7 +10512,6 @@ Graphics.prototype.drawRoundRect = function (x, y, width, height, ellipse_width,
     }
 
     return this;
-
 };
 
 /**
@@ -10614,6 +10614,7 @@ Graphics.prototype.endFill = function ()
 };
 
 /**
+ * TODO
  * @param {BitmapData} bitmap
  * @param {Matrix}     matrix
  * @param {boolean}    repeat
@@ -10621,7 +10622,8 @@ Graphics.prototype.endFill = function ()
  */
 Graphics.prototype.lineBitmapStyle = function (bitmap, matrix, repeat, smooth)
 {
-    // TODO
+
+
 
     // restart
     this._$restart();

@@ -144,3 +144,25 @@ describe("Matrix.js deltaTransformPoint test", function()
         );
     });
 });
+
+
+describe("Matrix.js pattern test", function()
+{
+
+    it("pattern test case1", function()
+    {
+        var matrix = new Matrix();
+
+        // 単位行列化
+        matrix.identity();
+        // 拡大縮小成分を乗算
+        matrix.scale( 256/1638.4 , 256/1638.4 );
+        // 角度成分を乗算
+        matrix.rotate( 0.0 * (Math.PI / 180) );
+        // 移動成分を乗算
+        matrix.translate( 128.0 , 128.0 );
+
+        expect(matrix.toString()).toBe("(a=0.15625, b=0, c=0, d=0.15625, tx=128, ty=128)");
+    });
+
+});

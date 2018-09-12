@@ -8,6 +8,7 @@ var InteractiveObject = function ()
 
 /**
  * extends
+ * @type {DisplayObject}
  */
 InteractiveObject.prototype = Object.create(DisplayObject.prototype);
 InteractiveObject.prototype.constructor = InteractiveObject;

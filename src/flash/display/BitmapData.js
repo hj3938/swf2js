@@ -13,6 +13,12 @@ var BitmapData = function (width, height, transparent, fill_color)
     this._$rect        = new Rectangle(0, 0, width|0, height|0);
     this._$transparent = (typeof transparent === "boolean") ? transparent : true;
 
+    // origin param
+    this._$lock       = false;
+    this._$fillColor = fill_color|0;
+
+
+
     // create canvas
     if (this._$rect._$width && this._$rect._$height) {
 
@@ -44,8 +50,6 @@ var BitmapData = function (width, height, transparent, fill_color)
         this._$context.fill();
     }
 
-    // origin param
-    this._$lock = false;
 };
 
 /**
@@ -122,6 +126,7 @@ BitmapData.prototype.toString = function ()
 };
 
 /**
+ * TODO
  * @param   {BitmapData}   source_bitmap_data
  * @param   {Rectangle}    source_rect
  * @param   {Point}        dest_point
@@ -134,6 +139,7 @@ BitmapData.prototype.applyFilter = function (source_bitmap_data, source_rect, de
 };
 
 /**
+ * TODO
  * @returns {BitmapData}
  */
 BitmapData.prototype.clone = function ()
@@ -142,6 +148,7 @@ BitmapData.prototype.clone = function ()
 };
 
 /**
+ * TODO
  * @param   {Rectangle}      rect
  * @param   {ColorTransform} color_transform
  * @returns void
@@ -152,6 +159,7 @@ BitmapData.prototype.colorTransform = function (rect, color_transform)
 };
 
 /**
+ * TODO
  * @param   {BitmapData} other_bitmap_data
  * @returns {object}
  */
@@ -161,7 +169,7 @@ BitmapData.prototype.compare = function (other_bitmap_data)
 };
 
 /**
- *
+ * TODO
  * @param   {BitmapData} source_bitmap_data
  * @param   {Rectangle}  source_rect
  * @param   {Point}      dest_point
@@ -177,6 +185,7 @@ BitmapData.prototype.copyChannel = function (
 };
 
 /**
+ * TODO
  * @param   {BitmapData} source_bitmap_data
  * @param   {Rectangle}  source_rect
  * @param   {Point}      dest_point
@@ -193,6 +202,7 @@ BitmapData.prototype.copyPixels = function (
 };
 
 /**
+ * TODO
  * @returns void
  */
 BitmapData.prototype.dispose = function ()
@@ -201,6 +211,7 @@ BitmapData.prototype.dispose = function ()
 };
 
 /**
+ * TODO
  * @param   {BitmapData}     source
  * @param   {Matrix}         matrix
  * @param   {ColorTransform} color_transform
@@ -217,6 +228,7 @@ BitmapData.prototype.draw = function (
 };
 
 /**
+ * TODO
  * @param   {Rectangle} rect
  * @param   {number}    color
  * @returns void
@@ -227,6 +239,7 @@ BitmapData.prototype.fillRect = function (rect, color)
 };
 
 /**
+ * TODO
  * @param   {number} x
  * @param   {number} y
  * @param   {number} color
@@ -238,6 +251,7 @@ BitmapData.prototype.floodFill = function (x, y, color)
 };
 
 /**
+ * TODO
  * @param   {Rectangle}    source_rect
  * @param   {BitmapFilter} filter
  * @returns Rectangle
@@ -248,6 +262,7 @@ BitmapData.prototype.generateFilterRect = function (source_rect, filter)
 };
 
 /**
+ * TODO
  * @param   {number}  mask
  * @param   {number}  color
  * @param   {boolean} find_color
@@ -259,6 +274,7 @@ BitmapData.prototype.getColorBoundsRect = function (mask, color, find_color)
 };
 
 /**
+ * TODO
  * @param   {number} x
  * @param   {number} y
  * @returns {number}
@@ -269,6 +285,7 @@ BitmapData.prototype.getPixel = function (x, y)
 };
 
 /**
+ * TODO
  * @param   {number} x
  * @param   {number} y
  * @returns {number}
@@ -279,6 +296,7 @@ BitmapData.prototype.getPixel32 = function (x, y)
 };
 
 /**
+ * TODO
  * @param   {Rectangle} rect
  * @returns {Array}
  */
@@ -288,6 +306,7 @@ BitmapData.prototype.getPixels = function (rect)
 };
 
 /**
+ * TODO
  * @param   {Rectangle} rect
  * @returns {Vector}
  */
@@ -297,6 +316,7 @@ BitmapData.prototype.getVector = function (rect)
 };
 
 /**
+ * TODO
  * @param   {Rectangle} hRect
  * @returns {Vector}
  */
@@ -306,6 +326,7 @@ BitmapData.prototype.histogram = function (hRect)
 };
 
 /**
+ * TODO
  * @param   {Point}  first_point
  * @param   {number} first_alpha_threshold
  * @param   {object} second_object
@@ -325,10 +346,11 @@ BitmapData.prototype.hitTest = function (
  */
 BitmapData.prototype.lock = function ()
 {
-
+    this._$lock = true;
 };
 
 /**
+ * TODO
  * @param   {BitmapData} source_bitmap_data
  * @param   {Rectangle}  source_rect
  * @param   {Point}      dest_point
@@ -346,6 +368,7 @@ BitmapData.prototype.merge = function (
 };
 
 /**
+ * TODO
  * @param   {number}  randomSeed
  * @param   {number}  low
  * @param   {number}  high
@@ -359,6 +382,7 @@ BitmapData.prototype.noise = function (randomSeed, low, high, channelOptions, gr
 };
 
 /**
+ * TODO
  * @param   {BitmapData} source_bitmap_data
  * @param   {Rectangle}  source_rect
  * @param   {Point}      dest_point
@@ -376,6 +400,7 @@ BitmapData.prototype.paletteMap = function (
 };
 
 /**
+ * TODO
  * @param   {number}  base_x
  * @param   {number}  base_y
  * @param   {number}  num_octaves
@@ -395,6 +420,7 @@ BitmapData.prototype.perlinNoise = function (
 };
 
 /**
+ * TODO
  * @param   {BitmapData} source_bitmap_data
  * @param   {Rectangle}  source_rect
  * @param   {Point}      dest_point
@@ -411,6 +437,7 @@ BitmapData.prototype.pixelDissolve = function (
 };
 
 /**
+ * TODO
  * @param   {number} x
  * @param   {number} y
  * @returns void
@@ -421,6 +448,7 @@ BitmapData.prototype.scroll = function (x, y)
 };
 
 /**
+ * TODO
  * @param   {number} x
  * @param   {number} y
  * @param   {number} color
@@ -432,6 +460,7 @@ BitmapData.prototype.setPixel = function (x, y, color)
 };
 
 /**
+ * TODO
  * @param   {number} x
  * @param   {number} y
  * @param   {number} color
@@ -443,6 +472,7 @@ BitmapData.prototype.setPixel32 = function (x, y, color)
 };
 
 /**
+ * TODO
  * @param {Rectangle} rect
  * @param {array}     input_byte_array
  * @returns void
@@ -453,6 +483,7 @@ BitmapData.prototype.setPixels = function (rect, input_byte_array)
 };
 
 /**
+ * TODO
  * @param   {Rectangle} rect
  * @param   {Vector}    input_vector
  * @returns void
@@ -463,6 +494,7 @@ BitmapData.prototype.setVector = function (rect, input_vector)
 };
 
 /**
+ * TODO
  * @param   {BitmapData} source_bitmap_data
  * @param   {Rectangle}  source_rect
  * @param   {Point}      dest_point
@@ -481,10 +513,11 @@ BitmapData.prototype.threshold = function (
 };
 
 /**
+ * TODO
  * @param   {Rectangle} change_rect
  * @returns void
  */
 BitmapData.prototype.unlock = function (change_rect)
 {
-
+    this._$lock = false;
 };

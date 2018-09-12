@@ -560,6 +560,20 @@ Util.prototype.$intToRGBA = function (int, alpha)
 };
 
 /**
+ * @param  {number} uint
+ * @return {{A: number, R: number, G: number, B: number}}
+ */
+Util.prototype.$uintToARGB = function (uint)
+{
+    return {
+        A: (uint >>> 24) / 255,
+        R: (uint & 0xff0000) >> 16,
+        G: (uint & 0x00ff00) >> 8,
+        B: (uint & 0x0000ff)
+    };
+};
+
+/**
  * @param   {number|string} rgb
  * @returns {number}
  */
@@ -8721,18 +8735,23 @@ var ActionScriptVersion = {
 /**
  * @constructor
  */
-var Bitmap = function (bitmapData, pixelSnapping, smoothing)
+var Bitmap = function (bitmap_data, pixel_snapping, smoothing)
 {
     DisplayObject.call(this);
 
+    // default
+    this._$bitmapData    = new BitmapData(0, 0, true, 0x00000000);
+    this._$pixelSnapping = PixelSnapping.AUTO;
+    this._$smoothing     = false;
+
     // init
-    this._bitmapData    = bitmapData||null;
-    this._pixelSnapping = pixelSnapping||"auto";
-    this._smoothing     = smoothing||false;
+    this.bitmapData    = bitmap_data;
+    this.pixelSnapping = pixel_snapping;
+    this.smoothing     = smoothing;
 };
 
 /**
- * extends
+ * @type {DisplayObject}
  */
 Bitmap.prototype = Object.create(DisplayObject.prototype);
 Bitmap.prototype.constructor = Bitmap;
@@ -8742,30 +8761,141 @@ Bitmap.prototype.constructor = Bitmap;
  */
 Object.defineProperties(Bitmap.prototype, {
     bitmapData: {
+        /**
+         * @return {BitmapData}
+         */
         get: function () {
-            return this._bitmapData;
+            return this._$bitmapData;
         },
-        set: function (bitmapData) {
-            this._bitmapData = bitmapData;
+        /**
+         * @param {BitmapData} bitmap_data
+         */
+        set: function (bitmap_data) {
+            if (bitmap_data instanceof BitmapData) {
+                this._$bitmapData = bitmap_data;
+            }
         }
     },
     pixelSnapping: {
+        /**
+         * @return {string}
+         */
         get: function () {
-            return this._pixelSnapping;
+            return this._$pixelSnapping;
         },
-        set: function (pixelSnapping) {
-            this._pixelSnapping = pixelSnapping;
+        /**
+         *
+         * @param {string} pixel_snapping
+         */
+        set: function (pixel_snapping) {
+
+            switch (pixel_snapping) {
+
+                case PixelSnapping.ALWAYS:
+                case PixelSnapping.NEVER:
+
+                    this._$pixelSnapping = pixel_snapping;
+
+                    break;
+
+                default:
+
+                    this._$pixelSnapping = PixelSnapping.AUTO;
+
+                    break;
+            }
+
         }
     },
     smoothing: {
+        /**
+         * @return {boolean}
+         */
         get: function () {
-            return this._smoothing;
+            return this._$smoothing;
         },
+        /**
+         * @param {boolean} smoothing
+         */
         set: function (smoothing) {
-            this._smoothing = smoothing;
+            if (typeof smoothing === "boolean") {
+                this._$smoothing = smoothing;
+            }
         }
     }
 });
+
+/**
+ * @returns {string}
+ */
+Bitmap.prototype.toString = function ()
+{
+    return "[object Bitmap]";
+};
+
+/**
+ * @param   {array}   matrix
+ * @param   {array}   color_transform
+ * @param   {boolean} is_clip
+ * @param   {boolean} visible
+ * @returns void
+ */
+Bitmap.prototype._$draw = function (matrix, color_transform, is_clip, visible)
+{
+
+    // not set
+    if (!this.bitmapData) {
+        return ;
+    }
+
+    // bitmap data
+    var image  = this.bitmapData._$context;
+    var width  = image.canvas.width|0;
+    var height = image.canvas.height|0;
+
+    var alpha = +(color_transform[3] + (color_transform[7] / 255));
+    if (visible && alpha && width && height) {
+
+        var ctx = this.parent.stage.player.preContext;
+
+        // color transform
+        if (color_transform[0] !== 1 ||
+            color_transform[1] !== 1 ||
+            color_transform[2] !== 1 ||
+            color_transform[4] ||
+            color_transform[5] ||
+            color_transform[6]
+        ) {
+
+            var canvas       = this.$cacheStore.getCanvas();
+            canvas.width     = width|0;
+            canvas.height    = height|0;
+
+            var context = canvas.getContext("2d");
+            context.drawImage(image.canvas, 0, 0, width, height);
+
+            image = this.$generateImageTransform(context, color_transform);
+
+        }
+
+        if ("imageSmoothingEnabled" in ctx) {
+            ctx.imageSmoothingEnabled = this.smoothing;
+        }
+
+        ctx.setTransform(matrix[0], matrix[1], matrix[2], matrix[3], matrix[4], matrix[5]);
+        ctx.drawImage(image.canvas, 0, 0, width, height);
+
+        if (is_clip) {
+            ctx.clip();
+        }
+
+        // reset
+        if ("imageSmoothingEnabled" in ctx) {
+            ctx.imageSmoothingEnabled = false;
+        }
+    }
+
+};
 /**
  * @param {number}  width
  * @param {number}  height
@@ -8777,11 +8907,42 @@ var BitmapData = function (width, height, transparent, fill_color)
 {
     OriginalObject.call(this);
 
-    this._$width       = width|0;
-    this._$height      = height|0;
+    // init
+    this._$rect        = new Rectangle(0, 0, width|0, height|0);
     this._$transparent = (typeof transparent === "boolean") ? transparent : true;
-    this._$fillColor   = (typeof fill_color === "number") ? fill_color : 0xFFFFFFFF;
-    this._$rect        = new Rectangle(0, 0, this.width, this.height);
+
+    // int to rgba
+    var color;
+    switch (this._$transparent) {
+
+        case true:
+
+            color = this.$uintToARGB(fill_color|0);
+
+            break;
+
+        default:
+
+            color = this.$intToRGBA(fill_color|0, 100);
+
+            break;
+    }
+    this._$rgba = "rgba("+ color.R +","+ color.G +","+ color.B +","+ color.A +")";
+
+    // create canvas
+    var canvas     = this.$cacheStore.getCanvas();
+    canvas.width   = this._$rect._$width;
+    canvas.height  = this._$rect._$height;
+    this._$context = canvas.getContext("2d");
+
+    if (canvas.width && canvas.height) {
+        this._$context.fillStyle = this._$rgba;
+        this._$context.fillRect(0, 0, canvas.width, canvas.height);
+        this._$context.fill();
+    }
+
+    // origin param
+    this._$lock = false;
 };
 
 /**
@@ -8800,7 +8961,7 @@ Object.defineProperties(BitmapData.prototype, {
          * @return {number}
          */
         get: function () {
-            return this._$height;
+            return this._$rect.height;
         },
         /**
          * readonly
@@ -8839,7 +9000,7 @@ Object.defineProperties(BitmapData.prototype, {
          * @return {number}
          */
         get: function () {
-            return this._$width;
+            return this._$rect.width;
         },
         /**
          * readonly
@@ -8858,13 +9019,13 @@ BitmapData.prototype.toString = function ()
 };
 
 /**
- * @param   {BitmapData}   sourceBitmapData
- * @param   {Rectangle}    sourceRect
- * @param   {Point}        destPoint
+ * @param   {BitmapData}   source_bitmap_data
+ * @param   {Rectangle}    source_rect
+ * @param   {Point}        dest_point
  * @param   {BitmapFilter} filter
  * @returns void
  */
-BitmapData.prototype.applyFilter = function (sourceBitmapData, sourceRect, destPoint, filter)
+BitmapData.prototype.applyFilter = function (source_bitmap_data, source_rect, dest_point, filter)
 {
 
 };
@@ -8874,53 +9035,57 @@ BitmapData.prototype.applyFilter = function (sourceBitmapData, sourceRect, destP
  */
 BitmapData.prototype.clone = function ()
 {
-    return new BitmapData();
+    return new BitmapData(this.width, this.height, this.transparent, this._$fillColor);
 };
 
 /**
  * @param   {Rectangle}      rect
- * @param   {ColorTransform} colorTransform
+ * @param   {ColorTransform} color_transform
  * @returns void
  */
-BitmapData.prototype.colorTransform = function (rect, colorTransform)
+BitmapData.prototype.colorTransform = function (rect, color_transform)
 {
 
 };
 
 /**
- * @param   {BitmapData} otherBitmapData
+ * @param   {BitmapData} other_bitmap_data
  * @returns {object}
  */
-BitmapData.prototype.compare = function (otherBitmapData)
+BitmapData.prototype.compare = function (other_bitmap_data)
 {
     return {};
 };
 
 /**
  *
- * @param   {BitmapData} sourceBitmapData
- * @param   {Rectangle}  sourceRect
- * @param   {Point}      destPoint
- * @param   {number}     sourceChannel
- * @param   {number}     destChannel
+ * @param   {BitmapData} source_bitmap_data
+ * @param   {Rectangle}  source_rect
+ * @param   {Point}      dest_point
+ * @param   {number}     source_channel
+ * @param   {number}     dest_channel
  * @returns void
  */
-BitmapData.prototype.copyChannel = function (sourceBitmapData, sourceRect, destPoint, sourceChannel, destChannel)
-{
+BitmapData.prototype.copyChannel = function (
+    source_bitmap_data, source_rect, dest_point,
+    source_channel, dest_channel
+) {
 
 };
 
 /**
- * @param   {BitmapData} sourceBitmapData
- * @param   {Rectangle}  sourceRect
- * @param   {Point}      destPoint
- * @param   {BitmapData} alphaBitmapData
- * @param   {Point}      alphaPoint
- * @param   {boolean}    mergeAlpha
+ * @param   {BitmapData} source_bitmap_data
+ * @param   {Rectangle}  source_rect
+ * @param   {Point}      dest_point
+ * @param   {BitmapData} alpha_bitmap_data
+ * @param   {Point}      alpha_point
+ * @param   {boolean}    merge_alpha
  * @returns void
  */
-BitmapData.prototype.copyPixels = function (sourceBitmapData, sourceRect, destPoint, alphaBitmapData, alphaPoint, mergeAlpha)
-{
+BitmapData.prototype.copyPixels = function (
+    source_bitmap_data, source_rect, dest_point,
+    alpha_bitmap_data, alpha_point, merge_alpha
+) {
 
 };
 
@@ -8933,16 +9098,18 @@ BitmapData.prototype.dispose = function ()
 };
 
 /**
- * @param   {BitmapData} source
- * @param   {Matrix} matrix
- * @param   {ColorTransform} colorTransform
- * @param   {string} blendMode
- * @param   {Rectangle} clipRect
- * @param   {boolean} smoothing
+ * @param   {BitmapData}     source
+ * @param   {Matrix}         matrix
+ * @param   {ColorTransform} color_transform
+ * @param   {string}         blend_mode
+ * @param   {Rectangle}      clip_rect
+ * @param   {boolean}        smoothing
  * @returns void
  */
-BitmapData.prototype.draw = function (source, matrix, colorTransform, blendMode, clipRect, smoothing)
-{
+BitmapData.prototype.draw = function (
+    source, matrix, color_transform,
+    blend_mode, clip_rect, smoothing
+) {
 
 };
 
@@ -8957,7 +9124,6 @@ BitmapData.prototype.fillRect = function (rect, color)
 };
 
 /**
- *
  * @param   {number} x
  * @param   {number} y
  * @param   {number} color
@@ -8969,11 +9135,11 @@ BitmapData.prototype.floodFill = function (x, y, color)
 };
 
 /**
- * @param   {Rectangle}    sourceRect
+ * @param   {Rectangle}    source_rect
  * @param   {BitmapFilter} filter
  * @returns Rectangle
  */
-BitmapData.prototype.generateFilterRect = function (sourceRect, filter)
+BitmapData.prototype.generateFilterRect = function (source_rect, filter)
 {
     return new Rectangle();
 };
@@ -8981,10 +9147,10 @@ BitmapData.prototype.generateFilterRect = function (sourceRect, filter)
 /**
  * @param   {number}  mask
  * @param   {number}  color
- * @param   {boolean} findColor
+ * @param   {boolean} find_color
  * @returns {Rectangle}
  */
-BitmapData.prototype.getColorBoundsRect = function (mask, color, findColor)
+BitmapData.prototype.getColorBoundsRect = function (mask, color, find_color)
 {
     return new Rectangle();
 };
@@ -9037,15 +9203,17 @@ BitmapData.prototype.histogram = function (hRect)
 };
 
 /**
- * @param   {Point}  firstPoint
- * @param   {number} firstAlphaThreshold
- * @param   {object} secondObject
- * @param   {Point}  secondBitmapDataPoint
- * @param   {number} secondAlphaThreshold
+ * @param   {Point}  first_point
+ * @param   {number} first_alpha_threshold
+ * @param   {object} second_object
+ * @param   {Point}  second_bitmap_data_point
+ * @param   {number} second_alpha_threshold
  * @returns {boolean}
  */
-BitmapData.prototype.hitTest = function (firstPoint, firstAlphaThreshold, secondObject, secondBitmapDataPoint, secondAlphaThreshold)
-{
+BitmapData.prototype.hitTest = function (
+    first_point, first_alpha_threshold, second_object,
+    second_bitmap_data_point, second_alpha_threshold
+) {
     return true;
 };
 
@@ -9058,17 +9226,19 @@ BitmapData.prototype.lock = function ()
 };
 
 /**
- * @param   {BitmapData} sourceBitmapData
- * @param   {Rectangle}  sourceRect
- * @param   {Point}      destPoint
- * @param   {number}     redMultiplier
- * @param   {number}     greenMultiplier
- * @param   {number}     blueMultiplier
- * @param   {number}     alphaMultiplier
+ * @param   {BitmapData} source_bitmap_data
+ * @param   {Rectangle}  source_rect
+ * @param   {Point}      dest_point
+ * @param   {number}     red_multiplier
+ * @param   {number}     green_multiplier
+ * @param   {number}     blue_multiplier
+ * @param   {number}     alpha_multiplier
  * @returns void
  */
-BitmapData.prototype.merge = function (sourceBitmapData, sourceRect, destPoint, redMultiplier, greenMultiplier, blueMultiplier, alphaMultiplier)
-{
+BitmapData.prototype.merge = function (
+    source_bitmap_data, source_rect, dest_point,
+    red_multiplier, green_multiplier, blue_multiplier, alpha_multiplier
+) {
 
 };
 
@@ -9086,48 +9256,54 @@ BitmapData.prototype.noise = function (randomSeed, low, high, channelOptions, gr
 };
 
 /**
- * @param   {BitmapData} sourceBitmapData
- * @param   {Rectangle}  sourceRect
- * @param   {Point}      destPoint
- * @param   {array}      redArray
- * @param   {array}      greenArray
- * @param   {array}      blueArray
- * @param   {array}      alphaArray
+ * @param   {BitmapData} source_bitmap_data
+ * @param   {Rectangle}  source_rect
+ * @param   {Point}      dest_point
+ * @param   {array}      red_array
+ * @param   {array}      green_array
+ * @param   {array}      blue_array
+ * @param   {array}      alpha_array
  * @returns void
  */
-BitmapData.prototype.paletteMap = function (sourceBitmapData, sourceRect, destPoint, redArray, greenArray, blueArray, alphaArray)
-{
+BitmapData.prototype.paletteMap = function (
+    source_bitmap_data, source_rect, dest_point,
+    red_array, green_array, blue_array, alpha_array
+) {
 
 };
 
 /**
- * @param   {number}  baseX
- * @param   {number}  baseY
- * @param   {number}  numOctaves
- * @param   {number}  randomSeed
+ * @param   {number}  base_x
+ * @param   {number}  base_y
+ * @param   {number}  num_octaves
+ * @param   {number}  random_seed
  * @param   {boolean} stitch
- * @param   {boolean} fractalNoise
- * @param   {number}  channelOptions
- * @param   {boolean} grayScale
+ * @param   {boolean} fractal_noise
+ * @param   {number}  channel_options
+ * @param   {boolean} gray_scale
  * @param   {array}   offsets
  * @returns void
  */
-BitmapData.prototype.perlinNoise = function (baseX, baseY, numOctaves, randomSeed, stitch, fractalNoise, channelOptions, grayScale, offsets)
-{
+BitmapData.prototype.perlinNoise = function (
+    base_x, base_y, num_octaves, random_seed, stitch,
+    fractal_noise, channel_options, gray_scale, offsets
+) {
 
 };
 
 /**
- * @param   {BitmapData} sourceBitmapData
- * @param   {Rectangle}  sourceRect
- * @param   {Point}      destPoint
- * @param   {number}     randomSeed
- * @param   {number}     numPixels
- * @param   {number}     fillColor
+ * @param   {BitmapData} source_bitmap_data
+ * @param   {Rectangle}  source_rect
+ * @param   {Point}      dest_point
+ * @param   {number}     random_seed
+ * @param   {number}     num_pixels
+ * @param   {number}     fill_color
  * @returns {number}
  */
-BitmapData.prototype.pixelDissolve = function (sourceBitmapData, sourceRect, destPoint, randomSeed, numPixels, fillColor)
-{
+BitmapData.prototype.pixelDissolve = function (
+    source_bitmap_data, source_rect, dest_point,
+    random_seed, num_pixels, fill_color
+) {
     return 0;
 };
 
@@ -9165,45 +9341,47 @@ BitmapData.prototype.setPixel32 = function (x, y, color)
 
 /**
  * @param {Rectangle} rect
- * @param {array} inputByteArray
+ * @param {array}     input_byte_array
  * @returns void
  */
-BitmapData.prototype.setPixels = function (rect, inputByteArray)
+BitmapData.prototype.setPixels = function (rect, input_byte_array)
 {
 
 };
 
 /**
  * @param   {Rectangle} rect
- * @param   {Vector}    inputVector
+ * @param   {Vector}    input_vector
  * @returns void
  */
-BitmapData.prototype.setVector = function (rect, inputVector)
+BitmapData.prototype.setVector = function (rect, input_vector)
 {
 
 };
 
 /**
- * @param   {BitmapData} sourceBitmapData
- * @param   {Rectangle}  sourceRect
- * @param   {Point}      destPoint
+ * @param   {BitmapData} source_bitmap_data
+ * @param   {Rectangle}  source_rect
+ * @param   {Point}      dest_point
  * @param   {string}     operation
  * @param   {number}     threshold
  * @param   {number}     color
  * @param   {number}     mask
- * @param   {boolean}    copySource
+ * @param   {boolean}    copy_source
  * @returns {number}
  */
-BitmapData.prototype.threshold = function (sourceBitmapData, sourceRect, destPoint, operation, threshold, color, mask, copySource)
-{
+BitmapData.prototype.threshold = function (
+    source_bitmap_data, source_rect, dest_point,
+    operation, threshold, color, mask, copy_source
+) {
     return 0;
 };
 
 /**
- * @param   {Rectangle} changeRect
+ * @param   {Rectangle} change_rect
  * @returns void
  */
-BitmapData.prototype.unlock = function (changeRect)
+BitmapData.prototype.unlock = function (change_rect)
 {
 
 };
@@ -32472,23 +32650,26 @@ Player.prototype.initializeCanvas = function ()
     style.MozTransform                   = "scale(" + 1 / self.ratio + ")";
 
     // main canvas
-    self.context = canvas.getContext("2d");
-    self.context.imageSmoothingEnabled = this.$canWebGL;
     self.canvas  = canvas;
+    self.context = canvas.getContext("2d");
+    if ("imageSmoothingEnabled" in self.context) {
+        self.context.imageSmoothingEnabled = false;
+    }
 
     // pre canvas
     var preCanvas    = self.$cacheStore.getCanvas();
     preCanvas.width  = 1;
     preCanvas.height = 1;
     self.preContext  = preCanvas.getContext("2d");
-    self.preContext.imageSmoothingEnabled = this.$canWebGL;
+    if ("imageSmoothingEnabled" in self.preContext) {
+        self.preContext.imageSmoothingEnabled = false;
+    }
 
     // hit canvas
     var hitCanvas    = self.$cacheStore.getCanvas();
     hitCanvas.width  = 1;
     hitCanvas.height = 1;
     self.hitContext  = hitCanvas.getContext("2d");
-    self.hitContext.imageSmoothingEnabled = false;
 };
 
 /**

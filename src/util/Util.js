@@ -255,6 +255,20 @@ Util.prototype.$intToRGBA = function (int, alpha)
 };
 
 /**
+ * @param  {number} uint
+ * @return {{A: number, R: number, G: number, B: number}}
+ */
+Util.prototype.$uintToARGB = function (uint)
+{
+    return {
+        A: (uint >>> 24) / 255,
+        R: (uint & 0xff0000) >> 16,
+        G: (uint & 0x00ff00) >> 8,
+        B: (uint & 0x0000ff)
+    };
+};
+
+/**
  * @param   {number|string} rgb
  * @returns {number}
  */

@@ -1138,23 +1138,26 @@ Player.prototype.initializeCanvas = function ()
     style.MozTransform                   = "scale(" + 1 / self.ratio + ")";
 
     // main canvas
-    self.context = canvas.getContext("2d");
-    self.context.imageSmoothingEnabled = this.$canWebGL;
     self.canvas  = canvas;
+    self.context = canvas.getContext("2d");
+    if ("imageSmoothingEnabled" in self.context) {
+        self.context.imageSmoothingEnabled = false;
+    }
 
     // pre canvas
     var preCanvas    = self.$cacheStore.getCanvas();
     preCanvas.width  = 1;
     preCanvas.height = 1;
     self.preContext  = preCanvas.getContext("2d");
-    self.preContext.imageSmoothingEnabled = this.$canWebGL;
+    if ("imageSmoothingEnabled" in self.preContext) {
+        self.preContext.imageSmoothingEnabled = false;
+    }
 
     // hit canvas
     var hitCanvas    = self.$cacheStore.getCanvas();
     hitCanvas.width  = 1;
     hitCanvas.height = 1;
     self.hitContext  = hitCanvas.getContext("2d");
-    self.hitContext.imageSmoothingEnabled = false;
 };
 
 /**

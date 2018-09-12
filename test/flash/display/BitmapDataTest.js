@@ -73,3 +73,17 @@ describe("BitmapData.js property test", function()
     });
 
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+

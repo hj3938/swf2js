@@ -37,19 +37,14 @@ describe("Bitmap.js property test", function()
     it("bitmapData test valid case1", function()
     {
         var bitmap = new Bitmap({});
-        expect(bitmap.bitmapData instanceof BitmapData).toBe(true);
-        expect(bitmap.bitmapData.width).toBe(0);
-        expect(bitmap.bitmapData.height).toBe(0);
+        expect(bitmap.bitmapData).toBe(null);
     });
 
     it("bitmapData test valid case2", function()
     {
         var bitmap = new Bitmap(new BitmapData(100, 200));
         bitmap.bitmapData = {};
-
-        expect(bitmap.bitmapData instanceof BitmapData).toBe(true);
-        expect(bitmap.bitmapData.width).toBe(100);
-        expect(bitmap.bitmapData.height).toBe(200);
+        expect(bitmap.bitmapData).toBe(null);
     });
 
 

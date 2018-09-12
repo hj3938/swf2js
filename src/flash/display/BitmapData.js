@@ -13,32 +13,33 @@ var BitmapData = function (width, height, transparent, fill_color)
     this._$rect        = new Rectangle(0, 0, width|0, height|0);
     this._$transparent = (typeof transparent === "boolean") ? transparent : true;
 
-    // int to rgba
-    var color;
-    switch (this._$transparent) {
-
-        case true:
-
-            color = this.$uintToARGB(fill_color|0);
-
-            break;
-
-        default:
-
-            color = this.$intToRGBA(fill_color|0, 100);
-
-            break;
-    }
-    this._$rgba = "rgba("+ color.R +","+ color.G +","+ color.B +","+ color.A +")";
-
     // create canvas
-    var canvas     = this.$cacheStore.getCanvas();
-    canvas.width   = this._$rect._$width;
-    canvas.height  = this._$rect._$height;
-    this._$context = canvas.getContext("2d");
+    if (this._$rect._$width && this._$rect._$height) {
 
-    if (canvas.width && canvas.height) {
-        this._$context.fillStyle = this._$rgba;
+        var canvas     = this.$cacheStore.getCanvas();
+        canvas.width   = this._$rect._$width;
+        canvas.height  = this._$rect._$height;
+        this._$context = canvas.getContext("2d");
+
+        // fill style
+        var color;
+        switch (this._$transparent) {
+
+            case true:
+
+                color = this.$uintToARGB(fill_color|0);
+
+                break;
+
+            default:
+
+                color = this.$intToRGBA(fill_color|0, 100);
+
+                break;
+        }
+        this._$context.fillStyle = "rgba("+ color.R +","+ color.G +","+ color.B +","+ color.A +")";
+
+
         this._$context.fillRect(0, 0, canvas.width, canvas.height);
         this._$context.fill();
     }

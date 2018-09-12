@@ -8740,7 +8740,7 @@ var Bitmap = function (bitmap_data, pixel_snapping, smoothing)
     DisplayObject.call(this);
 
     // default
-    this._$bitmapData    = new BitmapData(0, 0, true, 0x00000000);
+    this._$bitmapData    = null;
     this._$pixelSnapping = PixelSnapping.AUTO;
     this._$smoothing     = false;
 
@@ -8762,7 +8762,7 @@ Bitmap.prototype.constructor = Bitmap;
 Object.defineProperties(Bitmap.prototype, {
     bitmapData: {
         /**
-         * @return {BitmapData}
+         * @return {BitmapData|null}
          */
         get: function () {
             return this._$bitmapData;
@@ -8771,9 +8771,14 @@ Object.defineProperties(Bitmap.prototype, {
          * @param {BitmapData} bitmap_data
          */
         set: function (bitmap_data) {
+
+            // reset
+            this._$bitmapData = null;
+
             if (bitmap_data instanceof BitmapData) {
                 this._$bitmapData = bitmap_data;
             }
+
         }
     },
     pixelSnapping: {
@@ -8911,32 +8916,33 @@ var BitmapData = function (width, height, transparent, fill_color)
     this._$rect        = new Rectangle(0, 0, width|0, height|0);
     this._$transparent = (typeof transparent === "boolean") ? transparent : true;
 
-    // int to rgba
-    var color;
-    switch (this._$transparent) {
-
-        case true:
-
-            color = this.$uintToARGB(fill_color|0);
-
-            break;
-
-        default:
-
-            color = this.$intToRGBA(fill_color|0, 100);
-
-            break;
-    }
-    this._$rgba = "rgba("+ color.R +","+ color.G +","+ color.B +","+ color.A +")";
-
     // create canvas
-    var canvas     = this.$cacheStore.getCanvas();
-    canvas.width   = this._$rect._$width;
-    canvas.height  = this._$rect._$height;
-    this._$context = canvas.getContext("2d");
+    if (this._$rect._$width && this._$rect._$height) {
 
-    if (canvas.width && canvas.height) {
-        this._$context.fillStyle = this._$rgba;
+        var canvas     = this.$cacheStore.getCanvas();
+        canvas.width   = this._$rect._$width;
+        canvas.height  = this._$rect._$height;
+        this._$context = canvas.getContext("2d");
+
+        // fill style
+        var color;
+        switch (this._$transparent) {
+
+            case true:
+
+                color = this.$uintToARGB(fill_color|0);
+
+                break;
+
+            default:
+
+                color = this.$intToRGBA(fill_color|0, 100);
+
+                break;
+        }
+        this._$context.fillStyle = "rgba("+ color.R +","+ color.G +","+ color.B +","+ color.A +")";
+
+
         this._$context.fillRect(0, 0, canvas.width, canvas.height);
         this._$context.fill();
     }

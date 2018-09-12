@@ -6,7 +6,7 @@ var Bitmap = function (bitmap_data, pixel_snapping, smoothing)
     DisplayObject.call(this);
 
     // default
-    this._$bitmapData    = new BitmapData(0, 0, true, 0x00000000);
+    this._$bitmapData    = null;
     this._$pixelSnapping = PixelSnapping.AUTO;
     this._$smoothing     = false;
 
@@ -28,7 +28,7 @@ Bitmap.prototype.constructor = Bitmap;
 Object.defineProperties(Bitmap.prototype, {
     bitmapData: {
         /**
-         * @return {BitmapData}
+         * @return {BitmapData|null}
          */
         get: function () {
             return this._$bitmapData;
@@ -37,9 +37,14 @@ Object.defineProperties(Bitmap.prototype, {
          * @param {BitmapData} bitmap_data
          */
         set: function (bitmap_data) {
+
+            // reset
+            this._$bitmapData = null;
+
             if (bitmap_data instanceof BitmapData) {
                 this._$bitmapData = bitmap_data;
             }
+
         }
     },
     pixelSnapping: {

@@ -223,6 +223,11 @@ Sprite.prototype._$draw = function (matrix, color_transform, is_clip, visible)
 
     }
 
+    // Graphics
+    if (this.graphics._$getBounds() !== null) {
+        this.graphics._$draw(preMatrix, color_transform, is_clip, visible);
+    }
+
     // add button
     if (this.buttonMode) {
         this.stage.player.addEventObject(this, matrix, this._$getBounds(null));
@@ -230,6 +235,7 @@ Sprite.prototype._$draw = function (matrix, color_transform, is_clip, visible)
 
     // filter and blend
     this._$postDraw(matrix, preMatrix, color_transform);
+
 };
 
 /**
@@ -268,7 +274,7 @@ Sprite.prototype._$getBounds = function (matrix)
         var transform = instance.transform;
 
         var bounds  = instance._$getBounds(
-            matrix ? this.$multiplicationMatrix(matrix, transform.matrix._$matrix) : transform.matrix._$matrix
+            matrix ? this.$multiplicationMatrix(matrix, transform.matrix._$matrix) : null
         );
 
         xMin = +this.$min(xMin, bounds.xMin);

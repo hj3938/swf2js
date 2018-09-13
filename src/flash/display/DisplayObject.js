@@ -322,9 +322,10 @@ DisplayObject.prototype._$preDraw = function (matrix)
         // reset
         this.stage.player._$preContext = null;
 
-        var player = this.stage.player;
-        var xScale = +(player.scale * player.ratio);
-        var yScale = +(player.scale * player.ratio);
+        var xScale = +(this.$sqrt(matrix[0] * matrix[0] + matrix[1] * matrix[1]));
+        var yScale = +(this.$sqrt(matrix[2] * matrix[2] + matrix[3] * matrix[3]));
+        xScale = +(this.$pow(this.$SQRT2, this.$ceil(this.$log(xScale) / this.$LN2_2 - this.$LOG1P)));
+        yScale = +(this.$pow(this.$SQRT2, this.$ceil(this.$log(yScale) / this.$LN2_2 - this.$LOG1P)));
 
         var bounds = this._$getBounds(null);
         var xMax   = +bounds.xMax;
@@ -343,16 +344,13 @@ DisplayObject.prototype._$preDraw = function (matrix)
         // start context
         var context = canvas.getContext("2d");
 
-        var x = xMin * xScale;
-        var y = yMin * yScale;
-
         // offset
         context._$offsetX = 0;
         context._$offsetY = 0;
 
         this.stage.player._$preContext = context;
 
-        return [matrix[0], matrix[1], matrix[2], matrix[3], -x, -y];
+        return [xScale, 0, 0, yScale, -xMin * xScale, -yMin * yScale];
 
     }
 
@@ -369,36 +367,38 @@ DisplayObject.prototype._$postDraw = function (matrix, pre_matrix, color_transfo
 {
     if (this._$poolContext) {
 
-        var ctx    = this.stage.player._$preContext;
-        var width  = ctx.canvas.width|0;
-        var height = ctx.canvas.height|0;
-
-        var offsetX = 0;
-        var offsetY = 0;
+        var ctx = this.stage.player._$preContext;
 
 
         // filter
-        var length = this.filters.length;
+        var offsetX = 0;
+        var offsetY = 0;
+
+        var length  = this.filters.length;
         if (length) {
+
             var idx = 0;
             while (length > idx) {
 
                 var filter = this.filters[idx];
 
-                ctx = filter._$applyFilter(ctx, color_transform, this.stage.player);
+                ctx = filter._$applyFilter(ctx, pre_matrix, color_transform, this.stage.player);
 
                 idx = (idx + 1)|0;
             }
 
             offsetX = ctx._$offsetX;
             offsetY = ctx._$offsetY;
+
         }
 
-
         // blend
-        if (this.blendMode !== BlendMode.NORMAL) {
+        var width  = ctx.canvas.width|0;
+        var height = ctx.canvas.height|0;
 
-            ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.setTransform(1,0,0,1,0,0);
+        ctx.globalAlpha = 1;
+        if (this.blendMode !== BlendMode.NORMAL) {
 
             var operation = "source-over";
             switch (this.blendMode) {
@@ -474,19 +474,21 @@ DisplayObject.prototype._$postDraw = function (matrix, pre_matrix, color_transfo
 
             }
 
-            ctx.globalAlpha = 1;
             ctx.globalCompositeOperation = operation;
 
         }
 
+        var xScale = pre_matrix[0];
+        var yScale = pre_matrix[3];
 
+        // draw
         var m = this.$multiplicationMatrix(
-            [1, 0, 0, 1, -pre_matrix[4] + offsetX, -pre_matrix[5] + offsetY],
-            matrix
+            matrix, [1 / xScale, 0, 0, 1 / yScale, -pre_matrix[4]/xScale, -pre_matrix[5]/yScale]
         );
 
-        this._$poolContext.setTransform(1, 0, 0, 1, m[4], m[5]);
-        this._$poolContext.drawImage(ctx.canvas, 0, 0, width, height);
+        this._$poolContext.setTransform(m[0], m[1], m[2], m[3], m[4], m[5]);
+        this._$poolContext.drawImage(ctx.canvas, -offsetX, -offsetY, width, height);
+
 
         this.stage.player._$preContext = this._$poolContext;
 

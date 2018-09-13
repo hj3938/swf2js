@@ -257,6 +257,8 @@ DisplayObjectContainer.prototype._$addChild = function (child, index)
     // set param
     child.stage   = this.stage;
     child.parent  = this;
+    child._$index = index;
+
 
     if (child instanceof DisplayObjectContainer) {
 

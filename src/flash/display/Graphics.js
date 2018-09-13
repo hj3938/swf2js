@@ -130,11 +130,8 @@ Graphics.prototype._$draw = function (matrix, color_transform, is_clip, visible)
 
         if (width > 0 || height > 0) {
 
-            // matrix
-            var m = null;
-
             // get cache
-            var cacheKey = this.$cacheStore.generateKey(this._$id, color_transform);
+            var cacheKey = this.$cacheStore.generateKey("g_"+ this._$id, color_transform);
             var cache    = this.$cacheStore.getCache(cacheKey);
 
             // cache is small
@@ -150,34 +147,31 @@ Graphics.prototype._$draw = function (matrix, color_transform, is_clip, visible)
                 canvas.height = height;
                 cache         = canvas.getContext("2d");
 
+                // execute
                 cache.setTransform(xScale, 0, 0, yScale, -xMin * xScale, -yMin * yScale);
-
                 this._$doDraw(cache, this.$min(xScale, yScale), color_transform, false);
 
+                // set cache
                 this._$keys[cacheKey] = 1;
                 this.$cacheStore.setCache(cacheKey, cache);
 
             }
 
-            if (cache) {
+            // draw
+            var m = this.$multiplicationMatrix(matrix, [1 / xScale, 0, 0, 1 / yScale, xMin, yMin]);
+            ctx.setTransform(m[0], m[1], m[2], m[3], m[4], m[5]);
 
-                m = this.$multiplicationMatrix(matrix, [1 / xScale, 0, 0, 1 / yScale, xMin, yMin]);
+            if (this.$isAndroid4x && !this.$isChrome) {
 
-                ctx.setTransform(m[0], m[1], m[2], m[3], m[4], m[5]);
-
-                if (this.$isAndroid4x && !this.$isChrome) {
-                    ctx.fillStyle = stage.context.createPattern(cache.canvas, "no-repeat");
-                    ctx.fillRect(0, 0, width, height);
-                } else {
-                    ctx.drawImage(cache.canvas, 0, 0, width, height);
-                }
+                ctx.fillStyle = stage.context.createPattern(cache.canvas, "no-repeat");
+                ctx.fillRect(0, 0, width, height);
 
             } else {
 
-                ctx.setTransform(matrix[0], matrix[1], matrix[2], matrix[3], matrix[4], matrix[5]);
-                this._$doDraw(ctx, this.$min(matrix[0], matrix[3]), color_transform, false);
+                ctx.drawImage(cache.canvas, 0, 0, width, height);
 
             }
+
         }
     }
 };
@@ -199,13 +193,13 @@ Graphics.prototype._$doDraw = function (ctx, min_scale, color_transform, is_clip
 
     }
 
+    // execute
     this._$command(ctx, color_transform, is_clip, min_scale);
 
-    // rendering
+    // clip or filter and blend
     if (is_clip) {
 
         ctx.clip();
-
     }
 
 };
@@ -311,7 +305,6 @@ Graphics.prototype._$buildCommand = function ()
  */
 Graphics.prototype._$hit = function (x, y, matrix)
 {
-    var hit = false;
     if (this._$getBounds() !== null) {
 
         var ctx = this._$displayObject.stage.player.hitContext;
@@ -327,21 +320,19 @@ Graphics.prototype._$hit = function (x, y, matrix)
 
         this._$command(ctx, [1,1,1,1,0,0,0,0], true, this.$min(matrix[0], matrix[3]));
 
-        hit = ctx.isPointInPath(x, y);
-        if (hit) {
-            return hit;
+        if (ctx.isPointInPath(x, y)) {
+            return true;
         }
 
         if ("isPointInStroke" in ctx) {
-            hit = ctx.isPointInStroke(x, y);
-            if (hit) {
-                return hit;
+            if (ctx.isPointInStroke(x, y)) {
+                return true;
             }
         }
 
     }
 
-    return hit;
+    return false;
 };
 
 /**

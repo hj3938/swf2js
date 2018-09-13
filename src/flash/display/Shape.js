@@ -128,18 +128,23 @@ Shape.prototype._$build = function (parent, index, tag, should_action)
  */
 Shape.prototype._$draw = function (matrix, color_transform, is_clip, visible)
 {
-
     // pre context
-    var ctx = this.parent.stage.player.preContext;
+    var ctx = this.stage.player.preContext;
 
     // Graphics
     if (this.graphics._$getBounds() !== null) {
 
-        this.graphics._$draw(matrix, color_transform, is_clip, visible);
+        var preMatrix = this._$preDraw(matrix);
+
+        this.graphics._$draw(preMatrix, color_transform, is_clip, visible);
+
+        this._$postDraw(matrix, preMatrix, color_transform);
 
         return ;
     }
 
+
+    // mask
     if (is_clip || this._$clipDepth) {
 
         ctx.setTransform(matrix[0], matrix[1], matrix[2], matrix[3], matrix[4], matrix[5]);
@@ -148,6 +153,8 @@ Shape.prototype._$draw = function (matrix, color_transform, is_clip, visible)
         return ;
     }
 
+
+    // normal
     var alpha = +(color_transform[3] + (color_transform[7] / 255));
     if (visible && alpha) {
 
@@ -166,9 +173,6 @@ Shape.prototype._$draw = function (matrix, color_transform, is_clip, visible)
         var height = this.$abs(this.$ceil((yMax - yMin) * yScale))|0;
 
         if (width > 0 || height > 0) {
-
-            // matrix
-            var m = null;
 
             // get cache
             var cacheKey = this.$cacheStore.generateKey(this.characterId, color_transform);
@@ -195,23 +199,18 @@ Shape.prototype._$draw = function (matrix, color_transform, is_clip, visible)
 
             }
 
-            if (cache) {
+            // draw
+            var m = this.$multiplicationMatrix(matrix, [1 / xScale, 0, 0, 1 / yScale, xMin, yMin]);
+            ctx.setTransform(m[0], m[1], m[2], m[3], m[4], m[5]);
 
-                m = this.$multiplicationMatrix(matrix, [1 / xScale, 0, 0, 1 / yScale, xMin, yMin]);
+            if (this.$isAndroid4x && !this.$isChrome) {
 
-                ctx.setTransform(m[0], m[1], m[2], m[3], m[4], m[5]);
-
-                if (this.$isAndroid4x && !this.$isChrome) {
-                    ctx.fillStyle = stage.context.createPattern(cache.canvas, "no-repeat");
-                    ctx.fillRect(0, 0, width, height);
-                } else {
-                    ctx.drawImage(cache.canvas, 0, 0, width, height);
-                }
+                ctx.fillStyle = stage.context.createPattern(cache.canvas, "no-repeat");
+                ctx.fillRect(0, 0, width, height);
 
             } else {
 
-                ctx.setTransform(matrix[0], matrix[1], matrix[2], matrix[3], matrix[4], matrix[5]);
-                this._$doDraw(ctx, this.$min(matrix[0], matrix[3]), color_transform, false);
+                ctx.drawImage(cache.canvas, 0, 0, width, height);
 
             }
         }
@@ -528,7 +527,6 @@ Shape.prototype._$doDraw = function (ctx, min_scale, color_transform, is_clip)
  */
 Shape.prototype._$hit = function (x, y, matrix)
 {
-    var hit = false;
 
     // Graphics
     if (this.graphics._$getBounds() !== null) {
@@ -540,7 +538,7 @@ Shape.prototype._$hit = function (x, y, matrix)
     var shapes = this._$data;
     if (shapes) {
 
-        var ctx = this.parent.stage.player.hitContext;
+        var ctx = this.stage.player.hitContext;
 
         ctx.setTransform(matrix[0], matrix[1], matrix[2], matrix[3], matrix[4], matrix[5]);
 
@@ -562,15 +560,13 @@ Shape.prototype._$hit = function (x, y, matrix)
                 ctx.lineJoin  = "round";
             }
 
-            hit = ctx.isPointInPath(x, y);
-            if (hit) {
-                return hit;
+            if (ctx.isPointInPath(x, y)) {
+                return true;
             }
 
             if ("isPointInStroke" in ctx) {
-                hit = ctx.isPointInStroke(x, y);
-                if (hit) {
-                    return hit;
+                if (ctx.isPointInStroke(x, y)) {
+                    return true;
                 }
             }
 
@@ -579,5 +575,5 @@ Shape.prototype._$hit = function (x, y, matrix)
 
     }
 
-    return hit;
+    return false;
 };

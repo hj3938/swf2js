@@ -5246,17 +5246,10 @@ var BlurFilter = function ()
 {
     BitmapFilter.call(this);
 
-    this.filterId = 1;
-
-    // default
-    this._$blurX    = 4;
-    this._$blurY    = 4;
-    this._$quality  = 1;
-
     // init
-    this.blurX   = arguments[0];
-    this.blurY   = arguments[1];
-    this.quality = arguments[2];
+    this.blurX   = arguments[0] || 4;
+    this.blurY   = arguments[1] || 4;
+    this.quality = arguments[2] || 1;
 };
 
 /**
@@ -5282,6 +5275,7 @@ Object.defineProperties(BlurFilter.prototype, {
          * @return void
          */
         set: function (blur_x) {
+
             if (typeof blur_x === "number") {
 
                 if (blur_x < 0) {
@@ -5292,8 +5286,9 @@ Object.defineProperties(BlurFilter.prototype, {
                     blur_x = 255;
                 }
 
-                this._$blurX = +blur_x;
             }
+
+            this._$blurX = +blur_x;
         }
     },
     blurY: {
@@ -5308,6 +5303,7 @@ Object.defineProperties(BlurFilter.prototype, {
          * @return void
          */
         set: function (blur_y) {
+
             if (typeof blur_y === "number") {
 
                 if (blur_y < 0) {
@@ -5318,8 +5314,9 @@ Object.defineProperties(BlurFilter.prototype, {
                     blur_y = 255;
                 }
 
-                this._$blurY = +blur_y;
             }
+
+            this._$blurY = +blur_y;
         }
     },
     quality: {
@@ -5334,6 +5331,7 @@ Object.defineProperties(BlurFilter.prototype, {
          * @return void
          */
         set: function (quality) {
+
             if (typeof quality === "number") {
 
                 if (quality < 0) {
@@ -5344,19 +5342,58 @@ Object.defineProperties(BlurFilter.prototype, {
                     quality = 15;
                 }
 
-                this._$quality = quality|0;
             }
+
+            this._$quality = quality|0;
         }
     }
 });
 
 /**
+ * @return {string}
+ */
+BlurFilter.prototype.toString = function ()
+{
+    return "[object BlurFilter]";
+};
+
+/**
+ *
+ * @param  {Rectangle} rect
+ * @return {Rectangle}
+ */
+BlurFilter.prototype._$generateFilterRect = function (rect)
+{
+    var clone = rect.clone();
+
+    if (!this.blurX && !this.blurY) {
+        return clone;
+    }
+
+    var STEP   = [0.5, 1.05, 1.35, 1.55, 1.75, 1.9, 2, 2.1, 2.2, 2.3, 2.5, 3, 3, 3.5, 3.5];
+    var stepNo = STEP[this.quality - 1] * 2;
+
+    var blurX  = this.$round(this.blurX * stepNo / 2)|0;
+    var blurY  = this.$round(this.blurY * stepNo / 2)|0;
+
+
+    clone.left   = clone.left   - blurX;
+    clone.top    = clone.top    - blurY;
+    clone.right  = clone.right  - blurX;
+    clone.bottom = clone.bottom - blurY;
+
+
+    return clone;
+};
+
+/**
  * @param  {CanvasRenderingContext2D} context
- * @param  {array} colorTransform
+ * @param  {array} matrix
+ * @param  {array} color_transform
  * @param  {Player} player
  * @return {CanvasRenderingContext2D}
  */
-BlurFilter.prototype._$applyFilter = function (context, colorTransform, player)
+BlurFilter.prototype._$applyFilter = function (context, matrix, color_transform, player)
 {
 
     if (!this.blurX && !this.blurY) {
@@ -5367,12 +5404,11 @@ BlurFilter.prototype._$applyFilter = function (context, colorTransform, player)
     var STEP   = [0.5, 1.05, 1.35, 1.55, 1.75, 1.9, 2, 2.1, 2.2, 2.3, 2.5, 3, 3, 3.5, 3.5];
     var stepNo = STEP[this.quality - 1] * 2;
 
-    var blurX  = this.$ceil(this.blurX * stepNo * player.scale * player.ratio)|0;
-    var blurY  = this.$ceil(this.blurY * stepNo * player.scale * player.ratio)|0;
+    var blurX  = this.$round(this.blurX * stepNo * player.scale * player.ratio)|0;
+    var blurY  = this.$round(this.blurY * stepNo * player.scale * player.ratio)|0;
 
-    var width  = this.$ceil(context.canvas.width  + (blurX * 2) + 1)|0;
-    var height = this.$ceil(context.canvas.height + (blurY * 2) + 1)|0;
-
+    var width  = this.$ceil(context.canvas.width  + (blurX * 2))|0;
+    var height = this.$ceil(context.canvas.height + (blurY * 2))|0;
 
     // new canvas
     var canvas    = this.$cacheStore.getCanvas();
@@ -5380,19 +5416,15 @@ BlurFilter.prototype._$applyFilter = function (context, colorTransform, player)
     canvas.height = height|0;
 
     var ctx       = canvas.getContext("2d");
-    var offsetX   = blurX|0;
-    var offsetY   = blurY|0;
-
     ctx._$offsetX = +(blurX + context._$offsetX);
     ctx._$offsetY = +(blurY + context._$offsetY);
-    ctx.drawImage(context.canvas, offsetX, offsetY);
-
+    ctx.drawImage(context.canvas, blurX, blurY);
 
     var imgData = ctx.getImageData(0, 0, width, height);
     var px      = imgData.data;
 
-    var radiusX = (offsetX) >> 1;
-    var radiusY = (offsetY) >> 1;
+    var radiusX = (blurX) >> 1;
+    var radiusY = (blurY) >> 1;
 
     var MUL = [1, 171, 205, 293, 57, 373, 79, 137, 241, 27, 391, 357, 41, 19, 283, 265, 497, 469, 443, 421, 25, 191, 365, 349, 335, 161, 155, 149, 9, 278, 269, 261, 505, 245, 475, 231, 449, 437, 213, 415, 405, 395, 193, 377, 369, 361, 353, 345, 169, 331, 325, 319, 313, 307, 301, 37, 145, 285, 281, 69, 271, 267, 263, 259, 509, 501, 493, 243, 479, 118, 465, 459, 113, 446, 55, 435, 429, 423, 209, 413, 51, 403, 199, 393, 97, 3, 379, 375, 371, 367, 363, 359, 355, 351, 347, 43, 85, 337, 333, 165, 327, 323, 5, 317, 157, 311, 77, 305, 303, 75, 297, 294, 73, 289, 287, 71, 141, 279, 277, 275, 68, 135, 67, 133, 33, 262, 260, 129, 511, 507, 503, 499, 495, 491, 61, 121, 481, 477, 237, 235, 467, 232, 115, 457, 227, 451, 7, 445, 221, 439, 218, 433, 215, 427, 425, 211, 419, 417, 207, 411, 409, 203, 202, 401, 399, 396, 197, 49, 389, 387, 385, 383, 95, 189, 47, 187, 93, 185, 23, 183, 91, 181, 45, 179, 89, 177, 11, 175, 87, 173, 345, 343, 341, 339, 337, 21, 167, 83, 331, 329, 327, 163, 81, 323, 321, 319, 159, 79, 315, 313, 39, 155, 309, 307, 153, 305, 303, 151, 75, 299, 149, 37, 295, 147, 73, 291, 145, 289, 287, 143, 285, 71, 141, 281, 35, 279, 139, 69, 275, 137, 273, 17, 271, 135, 269, 267, 133, 265, 33, 263, 131, 261, 130, 259, 129, 257, 1];
     var SHG = [0, 9, 10, 11, 9, 12, 10, 11, 12, 9, 13, 13, 10, 9, 13, 13, 14, 14, 14, 14, 10, 13, 14, 14, 14, 13, 13, 13, 9, 14, 14, 14, 15, 14, 15, 14, 15, 15, 14, 15, 15, 15, 14, 15, 15, 15, 15, 15, 14, 15, 15, 15, 15, 15, 15, 12, 14, 15, 15, 13, 15, 15, 15, 15, 16, 16, 16, 15, 16, 14, 16, 16, 14, 16, 13, 16, 16, 16, 15, 16, 13, 16, 15, 16, 14, 9, 16, 16, 16, 16, 16, 16, 16, 16, 16, 13, 14, 16, 16, 15, 16, 16, 10, 16, 15, 16, 14, 16, 16, 14, 16, 16, 14, 16, 16, 14, 15, 16, 16, 16, 14, 15, 14, 15, 13, 16, 16, 15, 17, 17, 17, 17, 17, 17, 14, 15, 17, 17, 16, 16, 17, 16, 15, 17, 16, 17, 11, 17, 16, 17, 16, 17, 16, 17, 17, 16, 17, 17, 16, 17, 17, 16, 16, 17, 17, 17, 16, 14, 17, 17, 17, 17, 15, 16, 14, 16, 15, 16, 13, 16, 15, 16, 14, 16, 15, 16, 12, 16, 15, 16, 17, 17, 17, 17, 17, 13, 16, 15, 17, 17, 17, 16, 15, 17, 17, 17, 16, 15, 17, 17, 14, 16, 17, 17, 16, 17, 17, 16, 15, 17, 16, 14, 17, 16, 15, 17, 16, 17, 17, 16, 17, 15, 16, 17, 14, 17, 16, 15, 17, 16, 17, 13, 17, 16, 17, 17, 16, 17, 14, 17, 16, 17, 16, 17, 16, 17, 9];
@@ -5636,9 +5668,6 @@ BlurFilter.prototype._$applyFilter = function (context, colorTransform, player)
     }
 
     ctx.putImageData(imgData, 0, 0);
-
-    // destroy
-    this.$cacheStore.destroy(context);
 
     return ctx;
 };
@@ -7721,9 +7750,10 @@ DisplayObject.prototype._$preDraw = function (matrix)
         // reset
         this.stage.player._$preContext = null;
 
-        var player = this.stage.player;
-        var xScale = +(player.scale * player.ratio);
-        var yScale = +(player.scale * player.ratio);
+        var xScale = +(this.$sqrt(matrix[0] * matrix[0] + matrix[1] * matrix[1]));
+        var yScale = +(this.$sqrt(matrix[2] * matrix[2] + matrix[3] * matrix[3]));
+        xScale = +(this.$pow(this.$SQRT2, this.$ceil(this.$log(xScale) / this.$LN2_2 - this.$LOG1P)));
+        yScale = +(this.$pow(this.$SQRT2, this.$ceil(this.$log(yScale) / this.$LN2_2 - this.$LOG1P)));
 
         var bounds = this._$getBounds(null);
         var xMax   = +bounds.xMax;
@@ -7742,16 +7772,13 @@ DisplayObject.prototype._$preDraw = function (matrix)
         // start context
         var context = canvas.getContext("2d");
 
-        var x = xMin * xScale;
-        var y = yMin * yScale;
-
         // offset
         context._$offsetX = 0;
         context._$offsetY = 0;
 
         this.stage.player._$preContext = context;
 
-        return [matrix[0], matrix[1], matrix[2], matrix[3], -x, -y];
+        return [xScale, 0, 0, yScale, -xMin * xScale, -yMin * yScale];
 
     }
 
@@ -7768,36 +7795,38 @@ DisplayObject.prototype._$postDraw = function (matrix, pre_matrix, color_transfo
 {
     if (this._$poolContext) {
 
-        var ctx    = this.stage.player._$preContext;
-        var width  = ctx.canvas.width|0;
-        var height = ctx.canvas.height|0;
-
-        var offsetX = 0;
-        var offsetY = 0;
+        var ctx = this.stage.player._$preContext;
 
 
         // filter
-        var length = this.filters.length;
+        var offsetX = 0;
+        var offsetY = 0;
+
+        var length  = this.filters.length;
         if (length) {
+
             var idx = 0;
             while (length > idx) {
 
                 var filter = this.filters[idx];
 
-                ctx = filter._$applyFilter(ctx, color_transform, this.stage.player);
+                ctx = filter._$applyFilter(ctx, pre_matrix, color_transform, this.stage.player);
 
                 idx = (idx + 1)|0;
             }
 
             offsetX = ctx._$offsetX;
             offsetY = ctx._$offsetY;
+
         }
 
-
         // blend
-        if (this.blendMode !== BlendMode.NORMAL) {
+        var width  = ctx.canvas.width|0;
+        var height = ctx.canvas.height|0;
 
-            ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.setTransform(1,0,0,1,0,0);
+        ctx.globalAlpha = 1;
+        if (this.blendMode !== BlendMode.NORMAL) {
 
             var operation = "source-over";
             switch (this.blendMode) {
@@ -7873,19 +7902,21 @@ DisplayObject.prototype._$postDraw = function (matrix, pre_matrix, color_transfo
 
             }
 
-            ctx.globalAlpha = 1;
             ctx.globalCompositeOperation = operation;
 
         }
 
+        var xScale = pre_matrix[0];
+        var yScale = pre_matrix[3];
 
+        // draw
         var m = this.$multiplicationMatrix(
-            [1, 0, 0, 1, -pre_matrix[4] + offsetX, -pre_matrix[5] + offsetY],
-            matrix
+            matrix, [1 / xScale, 0, 0, 1 / yScale, -pre_matrix[4]/xScale, -pre_matrix[5]/yScale]
         );
 
-        this._$poolContext.setTransform(1, 0, 0, 1, m[4], m[5]);
-        this._$poolContext.drawImage(ctx.canvas, 0, 0, width, height);
+        this._$poolContext.setTransform(m[0], m[1], m[2], m[3], m[4], m[5]);
+        this._$poolContext.drawImage(ctx.canvas, -offsetX, -offsetY, width, height);
+
 
         this.stage.player._$preContext = this._$poolContext;
 
@@ -7903,6 +7934,7 @@ var InteractiveObject = function ()
 
 /**
  * extends
+ * @type {DisplayObject}
  */
 InteractiveObject.prototype = Object.create(DisplayObject.prototype);
 InteractiveObject.prototype.constructor = InteractiveObject;
@@ -8165,6 +8197,8 @@ DisplayObjectContainer.prototype._$addChild = function (child, index)
     // set param
     child.stage   = this.stage;
     child.parent  = this;
+    child._$index = index;
+
 
     if (child instanceof DisplayObjectContainer) {
 
@@ -8621,6 +8655,11 @@ Sprite.prototype._$draw = function (matrix, color_transform, is_clip, visible)
 
     }
 
+    // Graphics
+    if (this.graphics._$getBounds() !== null) {
+        this.graphics._$draw(preMatrix, color_transform, is_clip, visible);
+    }
+
     // add button
     if (this.buttonMode) {
         this.stage.player.addEventObject(this, matrix, this._$getBounds(null));
@@ -8628,6 +8667,7 @@ Sprite.prototype._$draw = function (matrix, color_transform, is_clip, visible)
 
     // filter and blend
     this._$postDraw(matrix, preMatrix, color_transform);
+
 };
 
 /**
@@ -8666,7 +8706,7 @@ Sprite.prototype._$getBounds = function (matrix)
         var transform = instance.transform;
 
         var bounds  = instance._$getBounds(
-            matrix ? this.$multiplicationMatrix(matrix, transform.matrix._$matrix) : transform.matrix._$matrix
+            matrix ? this.$multiplicationMatrix(matrix, transform.matrix._$matrix) : null
         );
 
         xMin = +this.$min(xMin, bounds.xMin);
@@ -9161,7 +9201,7 @@ BitmapData.prototype.floodFill = function (x, y, color)
  */
 BitmapData.prototype.generateFilterRect = function (source_rect, filter)
 {
-    return new Rectangle();
+    return filter._$generateFilterRect(source_rect);
 };
 
 /**
@@ -9690,11 +9730,8 @@ Graphics.prototype._$draw = function (matrix, color_transform, is_clip, visible)
 
         if (width > 0 || height > 0) {
 
-            // matrix
-            var m = null;
-
             // get cache
-            var cacheKey = this.$cacheStore.generateKey(this._$id, color_transform);
+            var cacheKey = this.$cacheStore.generateKey("g_"+ this._$id, color_transform);
             var cache    = this.$cacheStore.getCache(cacheKey);
 
             // cache is small
@@ -9710,34 +9747,31 @@ Graphics.prototype._$draw = function (matrix, color_transform, is_clip, visible)
                 canvas.height = height;
                 cache         = canvas.getContext("2d");
 
+                // execute
                 cache.setTransform(xScale, 0, 0, yScale, -xMin * xScale, -yMin * yScale);
-
                 this._$doDraw(cache, this.$min(xScale, yScale), color_transform, false);
 
+                // set cache
                 this._$keys[cacheKey] = 1;
                 this.$cacheStore.setCache(cacheKey, cache);
 
             }
 
-            if (cache) {
+            // draw
+            var m = this.$multiplicationMatrix(matrix, [1 / xScale, 0, 0, 1 / yScale, xMin, yMin]);
+            ctx.setTransform(m[0], m[1], m[2], m[3], m[4], m[5]);
 
-                m = this.$multiplicationMatrix(matrix, [1 / xScale, 0, 0, 1 / yScale, xMin, yMin]);
+            if (this.$isAndroid4x && !this.$isChrome) {
 
-                ctx.setTransform(m[0], m[1], m[2], m[3], m[4], m[5]);
-
-                if (this.$isAndroid4x && !this.$isChrome) {
-                    ctx.fillStyle = stage.context.createPattern(cache.canvas, "no-repeat");
-                    ctx.fillRect(0, 0, width, height);
-                } else {
-                    ctx.drawImage(cache.canvas, 0, 0, width, height);
-                }
+                ctx.fillStyle = stage.context.createPattern(cache.canvas, "no-repeat");
+                ctx.fillRect(0, 0, width, height);
 
             } else {
 
-                ctx.setTransform(matrix[0], matrix[1], matrix[2], matrix[3], matrix[4], matrix[5]);
-                this._$doDraw(ctx, this.$min(matrix[0], matrix[3]), color_transform, false);
+                ctx.drawImage(cache.canvas, 0, 0, width, height);
 
             }
+
         }
     }
 };
@@ -9759,13 +9793,13 @@ Graphics.prototype._$doDraw = function (ctx, min_scale, color_transform, is_clip
 
     }
 
+    // execute
     this._$command(ctx, color_transform, is_clip, min_scale);
 
-    // rendering
+    // clip or filter and blend
     if (is_clip) {
 
         ctx.clip();
-
     }
 
 };
@@ -9871,7 +9905,6 @@ Graphics.prototype._$buildCommand = function ()
  */
 Graphics.prototype._$hit = function (x, y, matrix)
 {
-    var hit = false;
     if (this._$getBounds() !== null) {
 
         var ctx = this._$displayObject.stage.player.hitContext;
@@ -9887,21 +9920,19 @@ Graphics.prototype._$hit = function (x, y, matrix)
 
         this._$command(ctx, [1,1,1,1,0,0,0,0], true, this.$min(matrix[0], matrix[3]));
 
-        hit = ctx.isPointInPath(x, y);
-        if (hit) {
-            return hit;
+        if (ctx.isPointInPath(x, y)) {
+            return true;
         }
 
         if ("isPointInStroke" in ctx) {
-            hit = ctx.isPointInStroke(x, y);
-            if (hit) {
-                return hit;
+            if (ctx.isPointInStroke(x, y)) {
+                return true;
             }
         }
 
     }
 
-    return hit;
+    return false;
 };
 
 /**
@@ -12659,18 +12690,23 @@ Shape.prototype._$build = function (parent, index, tag, should_action)
  */
 Shape.prototype._$draw = function (matrix, color_transform, is_clip, visible)
 {
-
     // pre context
-    var ctx = this.parent.stage.player.preContext;
+    var ctx = this.stage.player.preContext;
 
     // Graphics
     if (this.graphics._$getBounds() !== null) {
 
-        this.graphics._$draw(matrix, color_transform, is_clip, visible);
+        var preMatrix = this._$preDraw(matrix);
+
+        this.graphics._$draw(preMatrix, color_transform, is_clip, visible);
+
+        this._$postDraw(matrix, preMatrix, color_transform);
 
         return ;
     }
 
+
+    // mask
     if (is_clip || this._$clipDepth) {
 
         ctx.setTransform(matrix[0], matrix[1], matrix[2], matrix[3], matrix[4], matrix[5]);
@@ -12679,6 +12715,8 @@ Shape.prototype._$draw = function (matrix, color_transform, is_clip, visible)
         return ;
     }
 
+
+    // normal
     var alpha = +(color_transform[3] + (color_transform[7] / 255));
     if (visible && alpha) {
 
@@ -12697,9 +12735,6 @@ Shape.prototype._$draw = function (matrix, color_transform, is_clip, visible)
         var height = this.$abs(this.$ceil((yMax - yMin) * yScale))|0;
 
         if (width > 0 || height > 0) {
-
-            // matrix
-            var m = null;
 
             // get cache
             var cacheKey = this.$cacheStore.generateKey(this.characterId, color_transform);
@@ -12726,23 +12761,18 @@ Shape.prototype._$draw = function (matrix, color_transform, is_clip, visible)
 
             }
 
-            if (cache) {
+            // draw
+            var m = this.$multiplicationMatrix(matrix, [1 / xScale, 0, 0, 1 / yScale, xMin, yMin]);
+            ctx.setTransform(m[0], m[1], m[2], m[3], m[4], m[5]);
 
-                m = this.$multiplicationMatrix(matrix, [1 / xScale, 0, 0, 1 / yScale, xMin, yMin]);
+            if (this.$isAndroid4x && !this.$isChrome) {
 
-                ctx.setTransform(m[0], m[1], m[2], m[3], m[4], m[5]);
-
-                if (this.$isAndroid4x && !this.$isChrome) {
-                    ctx.fillStyle = stage.context.createPattern(cache.canvas, "no-repeat");
-                    ctx.fillRect(0, 0, width, height);
-                } else {
-                    ctx.drawImage(cache.canvas, 0, 0, width, height);
-                }
+                ctx.fillStyle = stage.context.createPattern(cache.canvas, "no-repeat");
+                ctx.fillRect(0, 0, width, height);
 
             } else {
 
-                ctx.setTransform(matrix[0], matrix[1], matrix[2], matrix[3], matrix[4], matrix[5]);
-                this._$doDraw(ctx, this.$min(matrix[0], matrix[3]), color_transform, false);
+                ctx.drawImage(cache.canvas, 0, 0, width, height);
 
             }
         }
@@ -13059,7 +13089,6 @@ Shape.prototype._$doDraw = function (ctx, min_scale, color_transform, is_clip)
  */
 Shape.prototype._$hit = function (x, y, matrix)
 {
-    var hit = false;
 
     // Graphics
     if (this.graphics._$getBounds() !== null) {
@@ -13071,7 +13100,7 @@ Shape.prototype._$hit = function (x, y, matrix)
     var shapes = this._$data;
     if (shapes) {
 
-        var ctx = this.parent.stage.player.hitContext;
+        var ctx = this.stage.player.hitContext;
 
         ctx.setTransform(matrix[0], matrix[1], matrix[2], matrix[3], matrix[4], matrix[5]);
 
@@ -13093,15 +13122,13 @@ Shape.prototype._$hit = function (x, y, matrix)
                 ctx.lineJoin  = "round";
             }
 
-            hit = ctx.isPointInPath(x, y);
-            if (hit) {
-                return hit;
+            if (ctx.isPointInPath(x, y)) {
+                return true;
             }
 
             if ("isPointInStroke" in ctx) {
-                hit = ctx.isPointInStroke(x, y);
-                if (hit) {
-                    return hit;
+                if (ctx.isPointInStroke(x, y)) {
+                    return true;
                 }
             }
 
@@ -13110,7 +13137,7 @@ Shape.prototype._$hit = function (x, y, matrix)
 
     }
 
-    return hit;
+    return false;
 };
 /**
  * @param {DisplayObject|null} upState

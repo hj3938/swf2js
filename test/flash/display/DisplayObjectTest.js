@@ -94,5 +94,91 @@ describe("DisplayObject.js property test", function()
     });
 
 
+    // alpha
+    it("alpha test success case1", function () {
+        var player = new Player();
+        var obj    = player.stage.addChild(new DisplayObject());
+        obj.alpha  = 0.5;
+        expect(obj.alpha).toBe(0.5);
+    });
+
+    it("alpha test success case2", function () {
+        var player = new Player();
+        var obj    = player.stage.addChild(new DisplayObject());
+        obj.alpha  = "0.2";
+        expect(obj.alpha).toBe(0.2);
+    });
+
+    it("alpha test success case3", function () {
+        var player = new Player();
+        var obj    = player.stage.addChild(new DisplayObject());
+        obj.alpha  = 2;
+        expect(obj.alpha).toBe(2);
+    });
+
+    it("alpha test success case4", function () {
+        var player = new Player();
+        var obj    = player.stage.addChild(new DisplayObject());
+        obj.alpha  = -1;
+        expect(obj.alpha).toBe(-1);
+    });
+
+    it("alpha test success valid", function () {
+        var player = new Player();
+        var obj    = player.stage.addChild(new DisplayObject());
+        obj.alpha  = "abc";
+        expect(obj.alpha).toBe(0);
+    });
+
+
+    // _alpha
+    it("_alpha test success case1", function () {
+        var player = new Player();
+        var obj    = player.stage.addChild(new DisplayObject());
+        obj._alpha  = 50;
+        expect(obj._alpha).toBe(50);
+    });
+
+    it("_alpha test success case2", function () {
+        var player = new Player();
+        var obj    = player.stage.addChild(new DisplayObject());
+        obj._alpha  = "20";
+        expect(obj._alpha).toBe(20);
+    });
+
+    it("_alpha test success case3", function () {
+        var player = new Player();
+        var obj    = player.stage.addChild(new DisplayObject());
+        obj._alpha  = 200;
+        expect(obj._alpha).toBe(200);
+    });
+
+    it("_alpha test success case4", function () {
+        var player = new Player();
+        var obj    = player.stage.addChild(new DisplayObject());
+        obj._alpha  = -100;
+        expect(obj._alpha).toBe(-100);
+    });
+
+    it("_alpha test success valid", function () {
+        var player = new Player();
+        var obj    = player.stage.addChild(new DisplayObject());
+        obj._alpha  = "abc";
+        expect(obj._alpha).toBe(0);
+    });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 });

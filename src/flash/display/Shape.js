@@ -7,19 +7,12 @@ var Shape = function ()
 
     // origin param
     this._$data     = null;
+    this._$bounds   = null;
 
     // Graphics
     var graphics = new Graphics();
     graphics._$displayObject = this;
     this._$graphics = graphics;
-
-    var no = this.$Number.MAX_VALUE;
-    this._$bounds = {
-        xMin: no,
-        xMax: -no,
-        yMin: no,
-        yMax: -no
-    };
 };
 
 /**
@@ -156,7 +149,7 @@ Shape.prototype._$draw = function (matrix, color_transform, is_clip, visible)
 
     // normal
     var alpha = +(color_transform[3] + (color_transform[7] / 255));
-    if (visible && alpha) {
+    if (visible && alpha > 0) {
 
         var xScale = +(this.$sqrt(matrix[0] * matrix[0] + matrix[1] * matrix[1]));
         var yScale = +(this.$sqrt(matrix[2] * matrix[2] + matrix[3] * matrix[3]));

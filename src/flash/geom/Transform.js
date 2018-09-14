@@ -163,12 +163,12 @@ Transform.prototype.getRelativeMatrix3D = function (relativeTo)
 
 /**
  * @param  {array|null}  matrix
- * @param  {array|null}  colorTransform
+ * @param  {array|null}  color_transform
  * @param  {array|null}  filters
- * @param  {string|null} blendMode
+ * @param  {string|null} blend_mode
  * @return void
  */
-Transform.prototype._$transform = function (matrix, colorTransform, filters, blendMode)
+Transform.prototype._$transform = function (matrix, color_transform, filters, blend_mode)
 {
     var placeObject = this._$displayObject._$getPlaceObject();
 
@@ -197,13 +197,13 @@ Transform.prototype._$transform = function (matrix, colorTransform, filters, ble
 
 
     // ColorTransform
-    if (colorTransform) {
+    if (color_transform) {
 
         if (!this._$colorTransform) {
             this._$colorTransform = new ColorTransform();
         }
 
-        this._$colorTransform._$colorTransform = colorTransform;
+        this._$colorTransform._$colorTransform = color_transform;
 
     } else if (!this._$colorTransform) {
 
@@ -241,9 +241,9 @@ Transform.prototype._$transform = function (matrix, colorTransform, filters, ble
 
 
     // BlendMode
-    if (blendMode) {
+    if (blend_mode) {
 
-        this._$blendMode = blendMode;
+        this._$blendMode = blend_mode;
 
     } else if (!this._$blendMode) {
 

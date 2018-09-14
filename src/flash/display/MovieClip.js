@@ -598,7 +598,6 @@ MovieClip.prototype._$draw = function (matrix, color_transform, is_clip, visible
         // Transform
         var transform = instance.transform;
 
-
         // next draw
         instance._$draw(
             this.$multiplicationMatrix(preMatrix, transform.matrix._$matrix),
@@ -645,6 +644,10 @@ MovieClip.prototype._$draw = function (matrix, color_transform, is_clip, visible
         ctx.restore();
     }
 
+    // Graphics
+    if (this.graphics._$getBounds() !== null) {
+        this.graphics._$draw(preMatrix, color_transform, is_clip, visible);
+    }
 
     // filter and blend
     this._$postDraw(matrix, preMatrix, color_transform);

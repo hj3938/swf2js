@@ -150,6 +150,52 @@ Object.defineProperties(DisplayObject.prototype, {
             }
         }
     },
+    alpha: {
+        /**
+         * @returns {number}
+         */
+        get: function () {
+            var colorTransform = this.transform.colorTransform._$colorTransform;
+            return +(colorTransform[3] + (colorTransform[7] / 255));
+        },
+        /**
+         * @param   {number} alpha
+         * @returns void
+         */
+        set: function (alpha) {
+
+            if (typeof alpha !== "number") {
+                alpha = +alpha;
+            }
+
+            if (this.$isNaN(alpha)) {
+                alpha = 0;
+            }
+
+            // clone
+            var colorTransform = this.transform.colorTransform._$clone();
+
+            // set
+            colorTransform._$colorTransform[3] = alpha;
+            colorTransform._$colorTransform[7] = 0;
+
+            this.transform.colorTransform = colorTransform;
+        }
+    },
+    _alpha: {
+        /**
+         * @return {number}
+         */
+        get: function () {
+            return +(this.alpha * 100);
+        },
+        /**
+         * @param {number} alpha
+         */
+        set: function (alpha) {
+            this.alpha = +(alpha / 100);
+        }
+    },
     blendMode: {
         /**
          * @return {string}
@@ -161,18 +207,6 @@ Object.defineProperties(DisplayObject.prototype, {
                 return this.transform._$blendMode;
 
             }
-
-            // switch (this.parent.toString()) {
-            //
-            //     case "[object SimpleButton]":
-            //
-            //         var button = this.parent;
-            //         return button[button._$status + "State"].blendMode;
-            //
-            //     default:
-            //
-            //         break;
-            // }
 
             var placeObject = this._$getPlaceObject();
             if (placeObject) {
@@ -193,18 +227,26 @@ Object.defineProperties(DisplayObject.prototype, {
             this.transform._$transform(null, null, null, blend_mode);
         }
     },
-    name: {
+    // TODO
+    blendShader: {
         /**
-         * @returns {string}
+         * @return void
          */
+        get: function () {},
+        /**
+         * @param {Shader} blend_shader
+         */
+        set: function (blend_shader) {
+
+        }
+    },
+    // TODO
+    cacheAsBitmap: {
         get: function () {
-            return this._$name + "";
+
         },
-        /**
-         * @param {string} name
-         */
-        set: function (name) {
-            this._$name = name + "";
+        set: function (cache_as_bitmap) {
+
         }
     },
     filters: {
@@ -218,18 +260,6 @@ Object.defineProperties(DisplayObject.prototype, {
                 return this.transform._$filters;
 
             }
-
-            // switch (this.parent.toString()) {
-            //
-            //     case "[object SimpleButton]":
-            //
-            //         var button = this.parent;
-            //         return button[button._$status + "State"].filters;
-            //
-            //     default:
-            //
-            //         break;
-            // }
 
             var placeObject = this._$getPlaceObject();
             if (placeObject) {
@@ -250,6 +280,55 @@ Object.defineProperties(DisplayObject.prototype, {
             this.transform._$transform(null, null, filters, null);
         }
     },
+    height: {
+        /**
+         * @return {number}
+         */
+        get: function () {
+            var bounds = this._$getBounds(this.transform.matrix._$matrix);
+            return this.$abs(bounds.yMax - bounds.yMin);
+        },
+        /**
+         * @param  {number} height
+         * @return void
+         */
+        set: function (height) {
+
+
+            height = +height;
+            if (!this.$isNaN(height)) {
+                var _matrix = this.getOriginMatrix();
+                var bounds  = this.getBounds(_matrix);
+                var _height = +this.$abs(bounds.yMax - bounds.yMin);
+                var yScale  = +(height * _matrix[3] / _height);
+
+                if (this.$isNaN(yScale)) {
+                    yScale = 0;
+                }
+
+                _matrix    = this.getMatrix();
+                var matrix = this.cloneArray(_matrix);
+                matrix[3]  = yScale;
+
+                this.setMatrix(matrix);
+            }
+        }
+    },
+    name: {
+        /**
+         * @returns {string}
+         */
+        get: function () {
+            return this._$name + "";
+        },
+        /**
+         * @param {string} name
+         */
+        set: function (name) {
+            this._$name = name + "";
+        }
+    },
+
     transform: {
         /**
          * @returns {Transform}
@@ -268,6 +347,7 @@ Object.defineProperties(DisplayObject.prototype, {
         }
     }
 });
+
 
 /**
  * @return {PlaceObject|null}

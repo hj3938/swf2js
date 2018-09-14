@@ -258,7 +258,7 @@ BitmapData.prototype.floodFill = function (x, y, color)
  */
 BitmapData.prototype.generateFilterRect = function (source_rect, filter)
 {
-    return new Rectangle();
+    return filter._$generateFilterRect(source_rect);
 };
 
 /**

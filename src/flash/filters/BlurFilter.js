@@ -123,6 +123,7 @@ BlurFilter.prototype.toString = function ()
  */
 BlurFilter.prototype._$generateFilterRect = function (rect)
 {
+
     var clone = rect.clone();
 
     if (!this.blurX && !this.blurY) {
@@ -135,12 +136,10 @@ BlurFilter.prototype._$generateFilterRect = function (rect)
     var blurX  = this.$round(this.blurX * stepNo / 2)|0;
     var blurY  = this.$round(this.blurY * stepNo / 2)|0;
 
-
     clone.left   = clone.left   - blurX;
     clone.top    = clone.top    - blurY;
     clone.right  = clone.right  - blurX;
     clone.bottom = clone.bottom - blurY;
-
 
     return clone;
 };

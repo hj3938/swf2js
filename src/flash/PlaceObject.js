@@ -156,3 +156,27 @@ PlaceObject.prototype.getBlendName = function (blend_mode)
     }
     return mode;
 };
+
+/**
+ * @return {PlaceObject}
+ */
+PlaceObject.prototype.clone = function ()
+{
+    var placeObject = new PlaceObject();
+
+    placeObject.matrix         = this.matrix._$clone();
+    placeObject.colorTransform = this.colorTransform._$clone();
+    placeObject.blendMode      = this.blendMode;
+
+    var length = this.filters;
+    var idx    = 0;
+    while (length > idx) {
+
+        var filter = this.filters[idx];
+        placeObject.filters[idx] = filter.clone();
+
+        idx = (idx + 1)|0;
+    }
+
+    return placeObject;
+};

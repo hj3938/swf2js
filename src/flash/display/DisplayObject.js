@@ -50,7 +50,8 @@ Object.defineProperties(DisplayObject.prototype, {
             return this._$id;
         },
         /**
-         * @param {number} id
+         * @param  {number} id
+         * @return void
          */
         set: function (id) {
             if (typeof id === "number") {
@@ -66,7 +67,8 @@ Object.defineProperties(DisplayObject.prototype, {
             return this._$characterId;
         },
         /**
-         * @param {number} character_id
+         * @param  {number} character_id
+         * @return void
          */
         set: function (character_id) {
             if (typeof character_id === "number") {
@@ -82,7 +84,8 @@ Object.defineProperties(DisplayObject.prototype, {
             return (this._$containerId !== null) ? this.$stages[this._$containerId] : this._$containerId;
         },
         /**
-         * @param {Stage} stage
+         * @param  {Stage} stage
+         * @return void
          */
         set: function (stage) {
             if (this._$containerId === null && stage instanceof Stage) {
@@ -98,41 +101,14 @@ Object.defineProperties(DisplayObject.prototype, {
             return (this._$stageId !== null) ? this.$stages[this._$stageId] : this._$stageId;
         },
         /**
-         * @param {Stage} stage
+         * @param  {Stage} stage
+         * @return void
          */
         set: function (stage) {
             if (this._$stageId === null && stage instanceof Stage) {
                 this._$stageId = stage.id;
             }
         }
-    },
-    parent: {
-        /**
-         * @returns {DisplayObject}
-         */
-        get: function () {
-            return this._$parent;
-        },
-        /**
-         * @param {DisplayObject} parent
-         */
-        set: function (parent) {
-            if (parent instanceof DisplayObject) {
-                this._$parent = parent;
-            }
-        }
-    },
-    root: {
-        /**
-         * @returns {MainTimeline}
-         */
-        get: function () {
-            return this.stage._root;
-        },
-        /**
-         * readonly
-         */
-        set: function () {}
     },
     accessibilityProperties: {
         /**
@@ -142,7 +118,8 @@ Object.defineProperties(DisplayObject.prototype, {
             return this._$accessibilityProperties;
         },
         /**
-         * @param {AccessibilityProperties} accessibility_properties
+         * @param  {AccessibilityProperties} accessibility_properties
+         * @return void
          */
         set: function (accessibility_properties) {
             if (accessibility_properties instanceof AccessibilityProperties) {
@@ -173,7 +150,7 @@ Object.defineProperties(DisplayObject.prototype, {
             }
 
             // clone
-            var colorTransform = this.transform.colorTransform._$clone();
+            var colorTransform = this.transform.colorTransform;
 
             // set
             colorTransform._$colorTransform[3] = alpha;
@@ -190,7 +167,8 @@ Object.defineProperties(DisplayObject.prototype, {
             return +(this.alpha * 100);
         },
         /**
-         * @param {number} alpha
+         * @param  {number} alpha
+         * @return void
          */
         set: function (alpha) {
             this.alpha = +(alpha / 100);
@@ -294,25 +272,89 @@ Object.defineProperties(DisplayObject.prototype, {
          */
         set: function (height) {
 
+            if (typeof height !== "number") {
+                height = +height;
+            }
 
-            height = +height;
             if (!this.$isNaN(height)) {
-                var _matrix = this.getOriginMatrix();
-                var bounds  = this.getBounds(_matrix);
-                var _height = +this.$abs(bounds.yMax - bounds.yMin);
-                var yScale  = +(height * _matrix[3] / _height);
 
-                if (this.$isNaN(yScale)) {
-                    yScale = 0;
-                }
+                var matrix = this.transform.matrix;
+                var bounds = this._$getBounds(matrix._$matrix);
 
-                _matrix    = this.getMatrix();
-                var matrix = this.cloneArray(_matrix);
-                matrix[3]  = yScale;
+                // set
+                matrix.d = +(height * matrix.d / this.$abs(bounds.yMax - bounds.yMin));
 
-                this.setMatrix(matrix);
+                this.transform.matrix = matrix;
+
             }
         }
+    },
+    // TODO
+    loaderInfo: {
+        get: function () {
+
+        },
+        set: function () {}
+    },
+    // TODO
+    mask: {
+        get: function () {
+
+        },
+        set: function () {
+
+        }
+    },
+    // TODO
+    metaData: {
+        get: function () {
+
+        },
+        set: function () {
+
+        }
+    },
+    mouseX:{
+        // TODO
+        get: function () {
+
+        },
+        /**
+         * readonly
+         * @return void
+         */
+        set: function () {}
+    },
+    _xmouse:{
+        get: function () {
+            return this.mouseX;
+        },
+        /**
+         * readonly
+         * @return void
+         */
+        set: function () {}
+    },
+    mouseY:{
+        // TODO
+        get: function () {
+
+        },
+        /**
+         * readonly
+         * @return void
+         */
+        set: function () {}
+    },
+    _ymouse:{
+        get: function () {
+            return this.mouseY;
+        },
+        /**
+         * readonly
+         * @return void
+         */
+        set: function () {}
     },
     name: {
         /**
@@ -322,12 +364,152 @@ Object.defineProperties(DisplayObject.prototype, {
             return this._$name + "";
         },
         /**
-         * @param {string} name
+         * @param  {string} name
+         * @return void
          */
         set: function (name) {
             this._$name = name + "";
         }
     },
+    _name: {
+        /**
+         * @returns {string}
+         */
+        get: function () {
+            return this.name;
+        },
+        /**
+         * @param  {string} name
+         * @return void
+         */
+        set: function (name) {
+            this.name = name + "";
+        }
+    },
+    // TODO
+    opaqueBackground: {
+        get: function () {
+
+        },
+        set: function () {
+
+        }
+    },
+    parent: {
+        /**
+         * @returns {DisplayObject}
+         */
+        get: function () {
+            return this._$parent;
+        },
+        /**
+         * @param {DisplayObject} parent
+         */
+        set: function (parent) {
+            if (parent instanceof DisplayObject) {
+                this._$parent = parent;
+            }
+        }
+    },
+    _parent: {
+        /**
+         * @returns {DisplayObject}
+         */
+        get: function () {
+            return this.parent;
+        },
+        /**
+         * @param {DisplayObject} parent
+         */
+        set: function (parent) {
+            this.parent = parent;
+        }
+    },
+    root: {
+        /**
+         * @returns {MainTimeline}
+         */
+        get: function () {
+            return this.stage._root;
+        },
+        /**
+         * readonly
+         * @return void
+         */
+        set: function () {}
+    },
+    _root: {
+        /**
+         * @returns {MainTimeline}
+         */
+        get: function () {
+            return this.root;
+        },
+        /**
+         * readonly
+         * @return void
+         */
+        set: function () {}
+    },
+    rotation: {
+        /**
+         * @return {number}
+         */
+        get: function () {
+            var matrix = this.transform.matrix;
+            return this.$atan2(matrix.b, matrix.a) * 180 / this.$PI;
+        },
+        /**
+         * @param  {number} rotation
+         * @return void
+         */
+        set: function (rotation) {
+
+            if (typeof rotation !== "number") {
+                rotation = +rotation;
+            }
+
+            if (!this.$isNaN(rotation)) {
+
+                var matrix  = this.transform.matrix;
+
+                var radianX = this.$atan2(matrix.b,  matrix.a);
+                var radianY = this.$atan2(-matrix.c, matrix.d);
+                var ScaleX  = this.$sqrt(matrix.a * matrix.a + matrix.b * matrix.b);
+                var ScaleY  = this.$sqrt(matrix.c * matrix.c + matrix.d * matrix.d);
+
+                rotation    = rotation * this.$PI / 180;
+                radianY     = radianY + rotation - radianX;
+                radianX     = rotation;
+
+                matrix.a    = ScaleX  * this.$cos(radianX);
+                matrix.b    = ScaleX  * this.$sin(radianX);
+                matrix.c    = -ScaleY * this.$sin(radianY);
+                matrix.d    = ScaleY  * this.$cos(radianY);
+
+                this.transform.matrix = matrix;
+
+            }
+        }
+    },
+    _rotation: {
+        /**
+         * @return {number}
+         */
+        get: function () {
+            return this.rotation;
+        },
+        /**
+         * @param  {number} rotation
+         * @return void
+         */
+        set: function (rotation) {
+            this.rotation = rotation;
+        }
+    },
+
+
+
 
     transform: {
         /**
@@ -347,7 +529,6 @@ Object.defineProperties(DisplayObject.prototype, {
         }
     }
 });
-
 
 /**
  * @return {PlaceObject|null}

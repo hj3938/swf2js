@@ -1995,6 +1995,29 @@ PlaceObject.prototype.getBlendName = function (blend_mode)
 };
 
 /**
+ * @return {PlaceObject}
+ */
+PlaceObject.prototype.clone = function ()
+{
+    var placeObject = new PlaceObject();
+
+    placeObject.matrix         = this.matrix._$clone();
+    placeObject.colorTransform = this.colorTransform._$clone();
+    placeObject.blendMode      = this.blendMode;
+
+    var length = this.filters;
+    var idx    = 0;
+    while (length > idx) {
+
+        var filter = this.filters[idx];
+        placeObject.filters[idx] = filter.clone();
+
+        idx = (idx + 1)|0;
+    }
+
+    return placeObject;
+};
+/**
  * @constructor
  */
 var SharedObject = function ()
@@ -4430,100 +4453,89 @@ Transform.prototype.getRelativeMatrix3D = function (relativeTo)
 
 /**
  * @param  {array|null}  matrix
- * @param  {array|null}  colorTransform
+ * @param  {array|null}  color_transform
  * @param  {array|null}  filters
- * @param  {string|null} blendMode
+ * @param  {string|null} blend_mode
  * @return void
  */
-Transform.prototype._$transform = function (matrix, colorTransform, filters, blendMode)
+Transform.prototype._$transform = function (matrix, color_transform, filters, blend_mode)
 {
     var placeObject = this._$displayObject._$getPlaceObject();
 
     // Matrix
-    if (matrix) {
+    switch (!matrix) {
 
-        if (!this._$matrix) {
-            this._$matrix = new Matrix();
-        }
+        case true:
 
-        this._$matrix._$matrix = matrix;
+            this._$matrix = (!placeObject) ? new Matrix() : placeObject.matrix._$clone();
 
-    } else if (!this._$matrix) {
+            break;
 
-        if (!placeObject) {
+        default:
 
-            this._$matrix = new Matrix();
+            this._$matrix = new Matrix(matrix[0], matrix[1], matrix[2], matrix[3], matrix[4], matrix[5]);
 
-        } else {
-
-            this._$matrix = placeObject.matrix._$clone();
-
-        }
-
+            break;
     }
 
 
     // ColorTransform
-    if (colorTransform) {
+    switch (!color_transform) {
 
-        if (!this._$colorTransform) {
-            this._$colorTransform = new ColorTransform();
-        }
+        case true:
 
-        this._$colorTransform._$colorTransform = colorTransform;
+            this._$colorTransform = (!placeObject) ?  new ColorTransform() : placeObject.colorTransform._$clone();
 
-    } else if (!this._$colorTransform) {
+            break;
 
-        if (!placeObject) {
+        default:
 
-            this._$colorTransform = new ColorTransform();
+            this._$colorTransform = new ColorTransform(
+                color_transform[0],
+                color_transform[1],
+                color_transform[2],
+                color_transform[3],
+                color_transform[4],
+                color_transform[5],
+                color_transform[6],
+                color_transform[7]
+            );
 
-        } else {
-
-            this._$colorTransform = placeObject.colorTransform._$clone();
-
-        }
-
+            break;
     }
 
 
     // Filter
-    if (this.$isArray(filters)) {
+    switch (this.$isArray(filters)) {
 
-        this._$filters = filters;
+        case true:
 
-    } else if (!this._$filters) {
+            this._$filters = filters;
 
-        if (!placeObject) {
+            break;
 
-            this._$filters = [];
+        default:
 
-        } else {
+            this._$filters = (!placeObject) ? [] : placeObject.filters;
 
-            this._$filters = placeObject.filters;
-
-        }
-
+            break;
     }
 
 
     // BlendMode
-    if (blendMode) {
+    switch (!blend_mode) {
 
-        this._$blendMode = blendMode;
+        case true:
 
-    } else if (!this._$blendMode) {
+            this._$blendMode = (!placeObject) ? BlendMode.NORMAL : placeObject.blendMode;
 
-        if (!placeObject) {
+            break;
 
-            this._$blendMode = "normal";
+        default:
 
-        } else {
+            this._$blendMode = blend_mode;
 
-            this._$blendMode = placeObject.blendMode;
-
-        }
-
+            break;
     }
 
 };
@@ -5364,6 +5376,7 @@ BlurFilter.prototype.toString = function ()
  */
 BlurFilter.prototype._$generateFilterRect = function (rect)
 {
+
     var clone = rect.clone();
 
     if (!this.blurX && !this.blurY) {
@@ -5376,12 +5389,10 @@ BlurFilter.prototype._$generateFilterRect = function (rect)
     var blurX  = this.$round(this.blurX * stepNo / 2)|0;
     var blurY  = this.$round(this.blurY * stepNo / 2)|0;
 
-
     clone.left   = clone.left   - blurX;
     clone.top    = clone.top    - blurY;
     clone.right  = clone.right  - blurX;
     clone.bottom = clone.bottom - blurY;
-
 
     return clone;
 };
@@ -7478,7 +7489,8 @@ Object.defineProperties(DisplayObject.prototype, {
             return this._$id;
         },
         /**
-         * @param {number} id
+         * @param  {number} id
+         * @return void
          */
         set: function (id) {
             if (typeof id === "number") {
@@ -7494,7 +7506,8 @@ Object.defineProperties(DisplayObject.prototype, {
             return this._$characterId;
         },
         /**
-         * @param {number} character_id
+         * @param  {number} character_id
+         * @return void
          */
         set: function (character_id) {
             if (typeof character_id === "number") {
@@ -7510,7 +7523,8 @@ Object.defineProperties(DisplayObject.prototype, {
             return (this._$containerId !== null) ? this.$stages[this._$containerId] : this._$containerId;
         },
         /**
-         * @param {Stage} stage
+         * @param  {Stage} stage
+         * @return void
          */
         set: function (stage) {
             if (this._$containerId === null && stage instanceof Stage) {
@@ -7526,41 +7540,14 @@ Object.defineProperties(DisplayObject.prototype, {
             return (this._$stageId !== null) ? this.$stages[this._$stageId] : this._$stageId;
         },
         /**
-         * @param {Stage} stage
+         * @param  {Stage} stage
+         * @return void
          */
         set: function (stage) {
             if (this._$stageId === null && stage instanceof Stage) {
                 this._$stageId = stage.id;
             }
         }
-    },
-    parent: {
-        /**
-         * @returns {DisplayObject}
-         */
-        get: function () {
-            return this._$parent;
-        },
-        /**
-         * @param {DisplayObject} parent
-         */
-        set: function (parent) {
-            if (parent instanceof DisplayObject) {
-                this._$parent = parent;
-            }
-        }
-    },
-    root: {
-        /**
-         * @returns {MainTimeline}
-         */
-        get: function () {
-            return this.stage._root;
-        },
-        /**
-         * readonly
-         */
-        set: function () {}
     },
     accessibilityProperties: {
         /**
@@ -7570,12 +7557,60 @@ Object.defineProperties(DisplayObject.prototype, {
             return this._$accessibilityProperties;
         },
         /**
-         * @param {AccessibilityProperties} accessibility_properties
+         * @param  {AccessibilityProperties} accessibility_properties
+         * @return void
          */
         set: function (accessibility_properties) {
             if (accessibility_properties instanceof AccessibilityProperties) {
                 this._$accessibilityProperties = accessibility_properties;
             }
+        }
+    },
+    alpha: {
+        /**
+         * @returns {number}
+         */
+        get: function () {
+            var colorTransform = this.transform.colorTransform._$colorTransform;
+            return +(colorTransform[3] + (colorTransform[7] / 255));
+        },
+        /**
+         * @param   {number} alpha
+         * @returns void
+         */
+        set: function (alpha) {
+
+            if (typeof alpha !== "number") {
+                alpha = +alpha;
+            }
+
+            if (this.$isNaN(alpha)) {
+                alpha = 0;
+            }
+
+            // clone
+            var colorTransform = this.transform.colorTransform;
+
+            // set
+            colorTransform._$colorTransform[3] = alpha;
+            colorTransform._$colorTransform[7] = 0;
+
+            this.transform.colorTransform = colorTransform;
+        }
+    },
+    _alpha: {
+        /**
+         * @return {number}
+         */
+        get: function () {
+            return +(this.alpha * 100);
+        },
+        /**
+         * @param  {number} alpha
+         * @return void
+         */
+        set: function (alpha) {
+            this.alpha = +(alpha / 100);
         }
     },
     blendMode: {
@@ -7589,18 +7624,6 @@ Object.defineProperties(DisplayObject.prototype, {
                 return this.transform._$blendMode;
 
             }
-
-            // switch (this.parent.toString()) {
-            //
-            //     case "[object SimpleButton]":
-            //
-            //         var button = this.parent;
-            //         return button[button._$status + "State"].blendMode;
-            //
-            //     default:
-            //
-            //         break;
-            // }
 
             var placeObject = this._$getPlaceObject();
             if (placeObject) {
@@ -7621,18 +7644,26 @@ Object.defineProperties(DisplayObject.prototype, {
             this.transform._$transform(null, null, null, blend_mode);
         }
     },
-    name: {
+    // TODO
+    blendShader: {
         /**
-         * @returns {string}
+         * @return void
          */
+        get: function () {},
+        /**
+         * @param {Shader} blend_shader
+         */
+        set: function (blend_shader) {
+
+        }
+    },
+    // TODO
+    cacheAsBitmap: {
         get: function () {
-            return this._$name + "";
+
         },
-        /**
-         * @param {string} name
-         */
-        set: function (name) {
-            this._$name = name + "";
+        set: function (cache_as_bitmap) {
+
         }
     },
     filters: {
@@ -7646,18 +7677,6 @@ Object.defineProperties(DisplayObject.prototype, {
                 return this.transform._$filters;
 
             }
-
-            // switch (this.parent.toString()) {
-            //
-            //     case "[object SimpleButton]":
-            //
-            //         var button = this.parent;
-            //         return button[button._$status + "State"].filters;
-            //
-            //     default:
-            //
-            //         break;
-            // }
 
             var placeObject = this._$getPlaceObject();
             if (placeObject) {
@@ -7678,6 +7697,259 @@ Object.defineProperties(DisplayObject.prototype, {
             this.transform._$transform(null, null, filters, null);
         }
     },
+    height: {
+        /**
+         * @return {number}
+         */
+        get: function () {
+            var bounds = this._$getBounds(this.transform.matrix._$matrix);
+            return this.$abs(bounds.yMax - bounds.yMin);
+        },
+        /**
+         * @param  {number} height
+         * @return void
+         */
+        set: function (height) {
+
+            if (typeof height !== "number") {
+                height = +height;
+            }
+
+            if (!this.$isNaN(height)) {
+
+                var matrix = this.transform.matrix;
+                var bounds = this._$getBounds(matrix._$matrix);
+
+                // set
+                matrix.d = +(height * matrix.d / this.$abs(bounds.yMax - bounds.yMin));
+
+                this.transform.matrix = matrix;
+
+            }
+        }
+    },
+    // TODO
+    loaderInfo: {
+        get: function () {
+
+        },
+        set: function () {}
+    },
+    // TODO
+    mask: {
+        get: function () {
+
+        },
+        set: function () {
+
+        }
+    },
+    // TODO
+    metaData: {
+        get: function () {
+
+        },
+        set: function () {
+
+        }
+    },
+    mouseX:{
+        // TODO
+        get: function () {
+
+        },
+        /**
+         * readonly
+         * @return void
+         */
+        set: function () {}
+    },
+    _xmouse:{
+        get: function () {
+            return this.mouseX;
+        },
+        /**
+         * readonly
+         * @return void
+         */
+        set: function () {}
+    },
+    mouseY:{
+        // TODO
+        get: function () {
+
+        },
+        /**
+         * readonly
+         * @return void
+         */
+        set: function () {}
+    },
+    _ymouse:{
+        get: function () {
+            return this.mouseY;
+        },
+        /**
+         * readonly
+         * @return void
+         */
+        set: function () {}
+    },
+    name: {
+        /**
+         * @returns {string}
+         */
+        get: function () {
+            return this._$name + "";
+        },
+        /**
+         * @param  {string} name
+         * @return void
+         */
+        set: function (name) {
+            this._$name = name + "";
+        }
+    },
+    _name: {
+        /**
+         * @returns {string}
+         */
+        get: function () {
+            return this.name;
+        },
+        /**
+         * @param  {string} name
+         * @return void
+         */
+        set: function (name) {
+            this.name = name + "";
+        }
+    },
+    // TODO
+    opaqueBackground: {
+        get: function () {
+
+        },
+        set: function () {
+
+        }
+    },
+    parent: {
+        /**
+         * @returns {DisplayObject}
+         */
+        get: function () {
+            return this._$parent;
+        },
+        /**
+         * @param {DisplayObject} parent
+         */
+        set: function (parent) {
+            if (parent instanceof DisplayObject) {
+                this._$parent = parent;
+            }
+        }
+    },
+    _parent: {
+        /**
+         * @returns {DisplayObject}
+         */
+        get: function () {
+            return this.parent;
+        },
+        /**
+         * @param {DisplayObject} parent
+         */
+        set: function (parent) {
+            this.parent = parent;
+        }
+    },
+    root: {
+        /**
+         * @returns {MainTimeline}
+         */
+        get: function () {
+            return this.stage._root;
+        },
+        /**
+         * readonly
+         * @return void
+         */
+        set: function () {}
+    },
+    _root: {
+        /**
+         * @returns {MainTimeline}
+         */
+        get: function () {
+            return this.root;
+        },
+        /**
+         * readonly
+         * @return void
+         */
+        set: function () {}
+    },
+    rotation: {
+        /**
+         * @return {number}
+         */
+        get: function () {
+            var matrix = this.transform.matrix;
+            return this.$atan2(matrix.b, matrix.a) * 180 / this.$PI;
+        },
+        /**
+         * @param  {number} rotation
+         * @return void
+         */
+        set: function (rotation) {
+
+            if (typeof rotation !== "number") {
+                rotation = +rotation;
+            }
+
+            if (!this.$isNaN(rotation)) {
+
+                var matrix  = this.transform.matrix;
+
+                var radianX = this.$atan2(matrix.b,  matrix.a);
+                var radianY = this.$atan2(-matrix.c, matrix.d);
+                var ScaleX  = this.$sqrt(matrix.a * matrix.a + matrix.b * matrix.b);
+                var ScaleY  = this.$sqrt(matrix.c * matrix.c + matrix.d * matrix.d);
+
+                rotation    = rotation * this.$PI / 180;
+                radianY     = radianY + rotation - radianX;
+                radianX     = rotation;
+
+                matrix.a    = ScaleX  * this.$cos(radianX);
+                matrix.b    = ScaleX  * this.$sin(radianX);
+                matrix.c    = -ScaleY * this.$sin(radianY);
+                matrix.d    = ScaleY  * this.$cos(radianY);
+
+                this.transform.matrix = matrix;
+
+            }
+        }
+    },
+    _rotation: {
+        /**
+         * @return {number}
+         */
+        get: function () {
+            return this.rotation;
+        },
+        /**
+         * @param  {number} rotation
+         * @return void
+         */
+        set: function (rotation) {
+            this.rotation = rotation;
+        }
+    },
+
+
+
+    
     transform: {
         /**
          * @returns {Transform}
@@ -7696,6 +7968,7 @@ Object.defineProperties(DisplayObject.prototype, {
         }
     }
 });
+
 
 /**
  * @return {PlaceObject|null}
@@ -9712,7 +9985,7 @@ Graphics.prototype._$draw = function (matrix, color_transform, is_clip, visible)
     }
 
     var alpha = +(color_transform[3] + (color_transform[7] / 255));
-    if (visible && alpha) {
+    if (visible && alpha > 0) {
 
         var xScale = +(this.$sqrt(matrix[0] * matrix[0] + matrix[1] * matrix[1]));
         var yScale = +(this.$sqrt(matrix[2] * matrix[2] + matrix[3] * matrix[3]));
@@ -11746,7 +12019,7 @@ MovieClip.prototype._$addSound = function (frame, sound)
  */
 MovieClip.prototype._$build = function (parent, index, tag, should_action)
 {
-    var length, frame;
+    var length, frame, idx;
 
     var mc = new MovieClip();
 
@@ -11815,7 +12088,13 @@ MovieClip.prototype._$build = function (parent, index, tag, should_action)
     /**
      * clone PlaceObjects
      */
-    mc._$placeObjects = this.$cloneArray(this._$placeObjects);
+    length = this._$placeObjects.length|0;
+    idx    = 0;
+    while (length > idx) {
+        mc._$placeObjects[idx] = this._$placeObjects[idx].clone();
+
+        idx = (idx + 1)|0;
+    }
 
     frame  = 1;
     length = this._$placeController.length|0;
@@ -11857,12 +12136,12 @@ MovieClip.prototype._$build = function (parent, index, tag, should_action)
     /**
      * clone dictionary
      */
-    var id  = 0;
+    idx    = 0;
     length = this._$dictionary.length|0;
-    while (length > id) {
+    while (length > idx) {
         mc._$dictionary = this.$cloneArray(this._$dictionary);
 
-        id = (id + 1)|0;
+        idx = (idx + 1)|0;
     }
 
 
@@ -11978,7 +12257,6 @@ MovieClip.prototype._$draw = function (matrix, color_transform, is_clip, visible
         // Transform
         var transform = instance.transform;
 
-
         // next draw
         instance._$draw(
             this.$multiplicationMatrix(preMatrix, transform.matrix._$matrix),
@@ -12025,6 +12303,10 @@ MovieClip.prototype._$draw = function (matrix, color_transform, is_clip, visible
         ctx.restore();
     }
 
+    // Graphics
+    if (this.graphics._$getBounds() !== null) {
+        this.graphics._$draw(preMatrix, color_transform, is_clip, visible);
+    }
 
     // filter and blend
     this._$postDraw(matrix, preMatrix, color_transform);
@@ -12343,20 +12625,12 @@ MovieClip.prototype._$goToFrame = function (frame, scene)
 
             idx = (idx + 1)|0;
 
-            switch (instance.toString()) {
+            if (instance._$startFrame === 1 && instance._$endFrame === 0) {
+                continue;
+            }
 
-                case "[object MovieClip]":
-
-                    if (instance._$startFrame === 1 && instance._$endFrame === 0) {
-                        continue;
-                    }
-
-                    if (instance._$startFrame > frame || instance._$endFrame < frame) {
-                        this._$createInstance(instance.id, false);
-                    }
-
-                    break;
-
+            if (instance._$startFrame > frame || instance._$endFrame < frame) {
+                this._$createInstance(instance.id, false);
             }
 
         }
@@ -12569,19 +12843,12 @@ var Shape = function ()
 
     // origin param
     this._$data     = null;
+    this._$bounds   = null;
 
     // Graphics
     var graphics = new Graphics();
     graphics._$displayObject = this;
     this._$graphics = graphics;
-
-    var no = this.$Number.MAX_VALUE;
-    this._$bounds = {
-        xMin: no,
-        xMax: -no,
-        yMin: no,
-        yMax: -no
-    };
 };
 
 /**
@@ -12718,7 +12985,7 @@ Shape.prototype._$draw = function (matrix, color_transform, is_clip, visible)
 
     // normal
     var alpha = +(color_transform[3] + (color_transform[7] / 255));
-    if (visible && alpha) {
+    if (visible && alpha > 0) {
 
         var xScale = +(this.$sqrt(matrix[0] * matrix[0] + matrix[1] * matrix[1]));
         var yScale = +(this.$sqrt(matrix[2] * matrix[2] + matrix[3] * matrix[3]));

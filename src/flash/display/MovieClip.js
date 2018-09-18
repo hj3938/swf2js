@@ -366,7 +366,7 @@ MovieClip.prototype._$addSound = function (frame, sound)
  */
 MovieClip.prototype._$build = function (parent, index, tag, should_action)
 {
-    var length, frame;
+    var length, frame, idx;
 
     var mc = new MovieClip();
 
@@ -435,7 +435,13 @@ MovieClip.prototype._$build = function (parent, index, tag, should_action)
     /**
      * clone PlaceObjects
      */
-    mc._$placeObjects = this.$cloneArray(this._$placeObjects);
+    length = this._$placeObjects.length|0;
+    idx    = 0;
+    while (length > idx) {
+        mc._$placeObjects[idx] = this._$placeObjects[idx].clone();
+
+        idx = (idx + 1)|0;
+    }
 
     frame  = 1;
     length = this._$placeController.length|0;
@@ -477,12 +483,12 @@ MovieClip.prototype._$build = function (parent, index, tag, should_action)
     /**
      * clone dictionary
      */
-    var id  = 0;
+    idx    = 0;
     length = this._$dictionary.length|0;
-    while (length > id) {
+    while (length > idx) {
         mc._$dictionary = this.$cloneArray(this._$dictionary);
 
-        id = (id + 1)|0;
+        idx = (idx + 1)|0;
     }
 
 
@@ -966,20 +972,12 @@ MovieClip.prototype._$goToFrame = function (frame, scene)
 
             idx = (idx + 1)|0;
 
-            switch (instance.toString()) {
+            if (instance._$startFrame === 1 && instance._$endFrame === 0) {
+                continue;
+            }
 
-                case "[object MovieClip]":
-
-                    if (instance._$startFrame === 1 && instance._$endFrame === 0) {
-                        continue;
-                    }
-
-                    if (instance._$startFrame > frame || instance._$endFrame < frame) {
-                        this._$createInstance(instance.id, false);
-                    }
-
-                    break;
-
+            if (instance._$startFrame > frame || instance._$endFrame < frame) {
+                this._$createInstance(instance.id, false);
             }
 
         }

@@ -173,90 +173,79 @@ Transform.prototype._$transform = function (matrix, color_transform, filters, bl
     var placeObject = this._$displayObject._$getPlaceObject();
 
     // Matrix
-    if (matrix) {
+    switch (!matrix) {
 
-        if (!this._$matrix) {
-            this._$matrix = new Matrix();
-        }
+        case true:
 
-        this._$matrix._$matrix = matrix;
+            this._$matrix = (!placeObject) ? new Matrix() : placeObject.matrix._$clone();
 
-    } else if (!this._$matrix) {
+            break;
 
-        if (!placeObject) {
+        default:
 
-            this._$matrix = new Matrix();
+            this._$matrix = new Matrix(matrix[0], matrix[1], matrix[2], matrix[3], matrix[4], matrix[5]);
 
-        } else {
-
-            this._$matrix = placeObject.matrix._$clone();
-
-        }
-
+            break;
     }
 
 
     // ColorTransform
-    if (color_transform) {
+    switch (!color_transform) {
 
-        if (!this._$colorTransform) {
-            this._$colorTransform = new ColorTransform();
-        }
+        case true:
 
-        this._$colorTransform._$colorTransform = color_transform;
+            this._$colorTransform = (!placeObject) ?  new ColorTransform() : placeObject.colorTransform._$clone();
 
-    } else if (!this._$colorTransform) {
+            break;
 
-        if (!placeObject) {
+        default:
 
-            this._$colorTransform = new ColorTransform();
+            this._$colorTransform = new ColorTransform(
+                color_transform[0],
+                color_transform[1],
+                color_transform[2],
+                color_transform[3],
+                color_transform[4],
+                color_transform[5],
+                color_transform[6],
+                color_transform[7]
+            );
 
-        } else {
-
-            this._$colorTransform = placeObject.colorTransform._$clone();
-
-        }
-
+            break;
     }
 
 
     // Filter
-    if (this.$isArray(filters)) {
+    switch (this.$isArray(filters)) {
 
-        this._$filters = filters;
+        case true:
 
-    } else if (!this._$filters) {
+            this._$filters = filters;
 
-        if (!placeObject) {
+            break;
 
-            this._$filters = [];
+        default:
 
-        } else {
+            this._$filters = (!placeObject) ? [] : placeObject.filters;
 
-            this._$filters = placeObject.filters;
-
-        }
-
+            break;
     }
 
 
     // BlendMode
-    if (blend_mode) {
+    switch (!blend_mode) {
 
-        this._$blendMode = blend_mode;
+        case true:
 
-    } else if (!this._$blendMode) {
+            this._$blendMode = (!placeObject) ? BlendMode.NORMAL : placeObject.blendMode;
 
-        if (!placeObject) {
+            break;
 
-            this._$blendMode = "normal";
+        default:
 
-        } else {
+            this._$blendMode = blend_mode;
 
-            this._$blendMode = placeObject.blendMode;
-
-        }
-
+            break;
     }
 
 };

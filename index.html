@@ -13,16 +13,32 @@
     document.body.appendChild( stats.dom );
     // swf2js.load("develop", { quality: "high" });
 
-    var root = swf2js.createRootMovieClip(500, 500, 1);
+    var root = swf2js.createRootMovieClip(550, 400, 1);
 
+    var Shape      = root.stage.player.getPackage("flash.display.Shape");
+    var Sprite     = root.stage.player.getPackage("flash.display.Sprite");
     var BitmapData = root.stage.player.getPackage("flash.display.BitmapData");
-    var bitmapData = new BitmapData(100, 100, true, 0xffFFCC88);
+    var BlurFilter = root.stage.player.getPackage("flash.filters.BlurFilter");
 
+    // var source      = new BitmapData( 64 , 64 , true , 0xff884400 );
+    // var blur_filter = new BlurFilter( 8 , 8 , 1 );
+    // var filter_rect = source.generateFilterRect( source.rect , blur_filter );
+    // console.log(filter_rect.toString());
 
-    var Bitmap = root.stage.player.getPackage("flash.display.Bitmap");
-    var bitmap = new Bitmap(bitmapData);
+    var shape = new Shape();
 
-    root.addChild(bitmap);
+    shape
+        .graphics
+        .beginFill("red")
+        .drawRect(100, 100, 100, 100)
+        .endFill();
+
+    shape.alpha = -100;
+
+    root.addChild(shape);
+
+    console.log(root);
+
 
 </script>
 </body>

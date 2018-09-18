@@ -113,7 +113,7 @@ describe("DisplayObject.js property test", function()
         var player = new Player();
         var obj    = player.stage.addChild(new DisplayObject());
         obj.alpha  = 2;
-        expect(obj.alpha).toBe(2);
+        expect(obj.alpha).toBe(1);
     });
 
     it("alpha test success case4", function () {
@@ -150,7 +150,7 @@ describe("DisplayObject.js property test", function()
         var player = new Player();
         var obj    = player.stage.addChild(new DisplayObject());
         obj._alpha  = 200;
-        expect(obj._alpha).toBe(200);
+        expect(obj._alpha).toBe(100);
     });
 
     it("_alpha test success case4", function () {
@@ -168,6 +168,21 @@ describe("DisplayObject.js property test", function()
     });
 
 
+    // rotation
+    it("rotation test success case1", function () {
+        var player = new Player();
+        var obj    = player.stage.addChild(new DisplayObject());
+        expect(obj.rotation).toBe(0);
+    });
+
+    it("rotation test success case2", function () {
+        var player   = new Player();
+        var obj      = player.stage.addChild(new DisplayObject());
+        obj.rotation = 15;
+        expect(obj.rotation).toBe(15);
+    });
+
+    // _rotation
 
 
 

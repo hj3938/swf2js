@@ -471,8 +471,19 @@ Object.defineProperties(DisplayObject.prototype, {
 
             if (!this.$isNaN(rotation)) {
 
-                var matrix  = this.transform.matrix;
+                var sign = 1;
+                if (rotation < 0) {
+                    sign = -1;
+                }
 
+                while (360 <= rotation) {
+                    rotation = rotation - 360;
+                }
+
+                rotation = rotation * sign;
+
+
+                var matrix  = this.transform.matrix;
                 var radianX = this.$atan2(matrix.b,  matrix.a);
                 var radianY = this.$atan2(-matrix.c, matrix.d);
                 var ScaleX  = this.$sqrt(matrix.a * matrix.a + matrix.b * matrix.b);
@@ -507,6 +518,12 @@ Object.defineProperties(DisplayObject.prototype, {
             this.rotation = rotation;
         }
     },
+
+
+
+
+
+
 
 
 

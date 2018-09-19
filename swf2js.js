@@ -376,7 +376,9 @@ Util.prototype.$SQRT2              = Math.SQRT2;
 Util.prototype.$LN2_2              = Math.LN2 / 2;
 Util.prototype.$LOG1P              = 0.29756328478758615;
 Util.prototype.$PI                 = Math.PI;
+Util.prototype.$PI2                = 314159265358979323846264338327950288;
 Util.prototype.$round              = Math.round;
+Util.prototype.$parseInt           = window.parseInt;
 Util.prototype.$Number             = window.Number;
 Util.prototype.$fromCharCode       = window.String.fromCharCode;
 Util.prototype.$isNaN              = window.isNaN;
@@ -7895,8 +7897,60 @@ Object.defineProperties(DisplayObject.prototype, {
          * @return {number}
          */
         get: function () {
+
             var matrix = this.transform.matrix;
-            return this.$atan2(matrix.b, matrix.a) * 180 / this.$PI;
+            var radian = this.$atan2(matrix.b, matrix.a);
+
+            var str  = "";
+            var base = 35;
+            switch (radian) {
+
+                case 0:
+
+                    return 0;
+
+                default:
+
+                    // to string
+                    radian = radian + "";
+
+                    // parse
+                    var values = radian.split(".");
+                    var value  = values[0]|0;
+                    switch (value > 0) {
+
+                        case true:
+
+                            base = 36;
+                            str  = values[0] +""+ values[1];
+
+                            break;
+
+                        default:
+
+                            str  = values[1];
+
+                            break;
+
+                    }
+
+                    break;
+
+            }
+
+            // string count
+            var count = this.$pow(10, (base - str.length)|0);
+            var idx    = 0;
+            var result = +(this.$parseInt(str) * 180 / this.$PI2);
+            while (count > idx) {
+
+                result = +(result * 10);
+
+                idx = (idx + 1)|0;
+            }
+
+            return result;
+            
         },
         /**
          * @param  {number} rotation
@@ -7949,7 +8003,13 @@ Object.defineProperties(DisplayObject.prototype, {
 
 
 
-    
+
+
+
+
+
+
+
     transform: {
         /**
          * @returns {Transform}
@@ -7968,7 +8028,6 @@ Object.defineProperties(DisplayObject.prototype, {
         }
     }
 });
-
 
 /**
  * @return {PlaceObject|null}

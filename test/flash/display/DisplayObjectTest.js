@@ -178,10 +178,25 @@ describe("DisplayObject.js property test", function()
     it("rotation test success case2", function () {
         var player   = new Player();
         var obj      = player.stage.addChild(new DisplayObject());
-        obj.rotation = 15;
-        expect(obj.rotation).toBe(15);
-    });
 
+        for (var i = 0; i <= 360; i++) {
+
+            obj.rotation = i;
+
+            if (i > 180) {
+
+                expect(Math.round(obj.rotation)).toBe(i - 360);
+
+            } else {
+
+                expect(Math.round(obj.rotation)).toBe(i);
+
+            }
+
+        }
+
+    });
+    
     // _rotation
 
 

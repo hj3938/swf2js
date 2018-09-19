@@ -72,6 +72,7 @@ Util.prototype.$LN2_2              = Math.LN2 / 2;
 Util.prototype.$LOG1P              = 0.29756328478758615;
 Util.prototype.$PI                 = Math.PI;
 Util.prototype.$round              = Math.round;
+Util.prototype.$parseFloat         = window.parseFloat;
 Util.prototype.$Number             = window.Number;
 Util.prototype.$fromCharCode       = window.String.fromCharCode;
 Util.prototype.$isNaN              = window.isNaN;

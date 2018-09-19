@@ -39,7 +39,7 @@ Object.defineProperties(Matrix.prototype, {
          * @return {number}
          */
         get: function () {
-            return +this._$matrix[0];
+            return this._$matrix[0];
         },
         /**
          * @param  {number} a
@@ -56,7 +56,7 @@ Object.defineProperties(Matrix.prototype, {
          * @return {number}
          */
         get: function () {
-            return +this._$matrix[1];
+            return this._$matrix[1];
         },
         /**
          * @param  {number} b
@@ -73,7 +73,7 @@ Object.defineProperties(Matrix.prototype, {
          * @return {number}
          */
         get: function () {
-            return +this._$matrix[2];
+            return this._$matrix[2];
         },
         /**
          * @param  {number} c
@@ -107,7 +107,7 @@ Object.defineProperties(Matrix.prototype, {
          * @return {number}
          */
         get: function () {
-            return +(this._$matrix[4] / 20);
+            return (this._$matrix[4] / 20);
         },
         /**
          * @param  {number} tx
@@ -124,7 +124,7 @@ Object.defineProperties(Matrix.prototype, {
          * @return {number}
          */
         get: function () {
-            return +(this._$matrix[5] / 20);
+            return (this._$matrix[5] / 20);
         },
         /**
          * @param  {number} ty

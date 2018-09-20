@@ -180,28 +180,247 @@ describe("DisplayObject.js property test", function()
         var obj      = player.stage.addChild(new DisplayObject());
 
         for (var i = 0; i <= 360; i++) {
-
             obj.rotation = i;
-
             if (i > 180) {
-
                 expect(Math.round(obj.rotation)).toBe(i - 360);
-
             } else {
-
                 expect(Math.round(obj.rotation)).toBe(i);
-
             }
-
         }
-
     });
-    
+
+    it("rotation test success case3", function () {
+        var player   = new Player();
+        var obj      = player.stage.addChild(new DisplayObject());
+
+        for (var i = 0; i <= 360; i++) {
+            var value = i * -1;
+
+            obj.rotation = value;
+            if (i > 180) {
+                expect(Math.round(obj.rotation)).toBe(360 - i);
+            } else {
+                expect(Math.round(obj.rotation)).toBe(value);
+            }
+        }
+    });
+
+    it("rotation test valid case1", function () {
+        var player = new Player();
+        var obj    = player.stage.addChild(new DisplayObject());
+        obj.rotation = "abc";
+        expect(obj.rotation).toBe(0);
+    });
+
+
     // _rotation
+    it("_rotation test success case1", function () {
+        var player = new Player();
+        var obj    = player.stage.addChild(new DisplayObject());
+        expect(obj._rotation).toBe(0);
+    });
+
+    it("_rotation test success case2", function () {
+        var player   = new Player();
+        var obj      = player.stage.addChild(new DisplayObject());
+
+        for (var i = 0; i <= 360; i++) {
+            obj._rotation = i;
+            if (i > 180) {
+                expect(Math.round(obj._rotation)).toBe(i - 360);
+            } else {
+                expect(Math.round(obj._rotation)).toBe(i);
+            }
+        }
+    });
+
+    it("_rotation test success case3", function () {
+        var player   = new Player();
+        var obj      = player.stage.addChild(new DisplayObject());
+
+        for (var i = 0; i <= 360; i++) {
+            var value = i * -1;
+
+            obj._rotation = value;
+            if (i > 180) {
+                expect(Math.round(obj._rotation)).toBe(360 - i);
+            } else {
+                expect(Math.round(obj._rotation)).toBe(value);
+            }
+        }
+    });
+
+    it("_rotation test valid case1", function () {
+        var player = new Player();
+        var obj    = player.stage.addChild(new DisplayObject());
+        obj._rotation = "abc";
+        expect(obj._rotation).toBe(0);
+    });
 
 
+    // scaleX
+    it("scaleX test success case1", function () {
+        var player = new Player();
+        var obj    = player.stage.addChild(new DisplayObject());
+        expect(obj.scaleX).toBe(1);
+    });
+
+    it("scaleX test success case2", function () {
+        var player = new Player();
+        var obj    = player.stage.addChild(new DisplayObject());
+        obj.scaleX = 15;
+        expect(obj.scaleX).toBe(15);
+    });
+
+    it("scaleX test success case3", function () {
+        var player = new Player();
+        var obj    = player.stage.addChild(new DisplayObject());
+        obj.scaleX = -11;
+        expect(obj.scaleX).toBe(-11);
+    });
+
+    it("scaleX test valid case1", function () {
+        var player = new Player();
+        var obj    = player.stage.addChild(new DisplayObject());
+        obj.scaleX = "abc";
+        expect(obj.scaleX).toBe(1);
+    });
 
 
+    // _xscale
+    it("_xscale test success case1", function () {
+        var player = new Player();
+        var obj    = player.stage.addChild(new DisplayObject());
+        expect(obj._xscale).toBe(100);
+    });
+
+    it("_xscale test success case2", function () {
+        var player  = new Player();
+        var obj     = player.stage.addChild(new DisplayObject());
+        obj._xscale = 15;
+        expect(obj._xscale).toBe(15);
+    });
+
+    it("_xscale test success case3", function () {
+        var player  = new Player();
+        var obj     = player.stage.addChild(new DisplayObject());
+        obj._xscale = -11;
+        expect(obj._xscale).toBe(-11);
+    });
+
+    it("_xscale test success case4", function () {
+        var player  = new Player();
+        var obj     = player.stage.addChild(new DisplayObject());
+        obj._xscale = 250;
+        expect(obj._xscale).toBe(250);
+    });
+
+    it("_xscale test success case5", function () {
+        var player  = new Player();
+        var obj     = player.stage.addChild(new DisplayObject());
+        obj._xscale = -360;
+        expect(obj._xscale).toBe(-360);
+    });
+
+    it("_xscale test valid case1", function () {
+        var player  = new Player();
+        var obj     = player.stage.addChild(new DisplayObject());
+        obj._xscale = "abc";
+        expect(obj._xscale).toBe(100);
+    });
+
+
+    // scaleY
+    it("scaleY test success case1", function () {
+        var player = new Player();
+        var obj    = player.stage.addChild(new DisplayObject());
+        expect(obj.scaleY).toBe(1);
+    });
+
+    it("scaleY test success case2", function () {
+        var player = new Player();
+        var obj    = player.stage.addChild(new DisplayObject());
+        obj.scaleY = 15;
+        expect(obj.scaleY).toBe(15);
+    });
+
+    it("scaleY test success case3", function () {
+        var player = new Player();
+        var obj    = player.stage.addChild(new DisplayObject());
+        obj.scaleY = -11;
+        expect(obj.scaleY).toBe(-11);
+    });
+
+    it("scaleY test valid case1", function () {
+        var player = new Player();
+        var obj    = player.stage.addChild(new DisplayObject());
+        obj.scaleY = "abc";
+        expect(obj.scaleY).toBe(1);
+    });
+
+
+    // _yscale
+    it("_yscale test success case1", function () {
+        var player = new Player();
+        var obj    = player.stage.addChild(new DisplayObject());
+        expect(obj._yscale).toBe(100);
+    });
+
+    it("_yscale test success case2", function () {
+        var player  = new Player();
+        var obj     = player.stage.addChild(new DisplayObject());
+        obj._yscale = 15;
+        expect(obj._yscale).toBe(15);
+    });
+
+    it("_yscale test success case3", function () {
+        var player  = new Player();
+        var obj     = player.stage.addChild(new DisplayObject());
+        obj._yscale = -11;
+        expect(obj._yscale).toBe(-11);
+    });
+
+    it("_yscale test success case4", function () {
+        var player  = new Player();
+        var obj     = player.stage.addChild(new DisplayObject());
+        obj._yscale = 250;
+        expect(obj._yscale).toBe(250);
+    });
+
+    it("_yscale test success case5", function () {
+        var player  = new Player();
+        var obj     = player.stage.addChild(new DisplayObject());
+        obj._yscale = -360;
+        expect(obj._yscale).toBe(-360);
+    });
+
+    it("_yscale test valid case1", function () {
+        var player  = new Player();
+        var obj     = player.stage.addChild(new DisplayObject());
+        obj._yscale = "abc";
+        expect(obj._yscale).toBe(100);
+    });
+
+
+    // scaleX and scaleY
+    it("scaleX and scaleY test success case1", function () {
+        var player = new Player();
+        var obj    = player.stage.addChild(new DisplayObject());
+        obj.scaleX = 2;
+        obj.scaleY = 5;
+        expect(obj.scaleX).toBe(2);
+        expect(obj.scaleY).toBe(5);
+    });
+
+    // _xscale and _yscale
+    it("_xscale and _yscale test success case2", function () {
+        var player = new Player();
+        var obj    = player.stage.addChild(new DisplayObject());
+        obj._xscale = 200;
+        obj._yscale = 50;
+        expect(obj._xscale).toBe(200);
+        expect(obj._yscale).toBe(50);
+    });
 
 
 

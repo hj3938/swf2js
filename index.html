@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1.0" />
     <title>swf2js</title>
     <script type="text/javascript" src="./fps/stats.js"></script>
-    <script type="text/javascript" src="https://umyuu.github.io/GenshinCalculator/vendor/decimal.js?ver=v9.0.1"></script>
     <script type="text/javascript" src="swf2js.js"></script>
 </head>
 <body style="margin: 0; padding: 0; background-color: #fff;">
@@ -20,30 +19,34 @@
     var Sprite     = root.stage.player.getPackage("flash.display.Sprite");
     var BitmapData = root.stage.player.getPackage("flash.display.BitmapData");
     var BlurFilter = root.stage.player.getPackage("flash.filters.BlurFilter");
+    var MovieClip  = root.stage.player.getPackage("flash.display.MovieClip");
 
     // var source      = new BitmapData( 64 , 64 , true , 0xff884400 );
     // var blur_filter = new BlurFilter( 8 , 8 , 1 );
     // var filter_rect = source.generateFilterRect( source.rect , blur_filter );
     // console.log(filter_rect.toString());
 
-    // var shape = new Shape();
-    //
-    // shape
+    // var mc = new MovieClip();
+
+    var shape1  = new MovieClip();
+    shape1
+        .graphics
+        .beginFill("red")
+        .drawRect(0, 0, 50, 50)
+        .endFill();
+
+    // var shape2  = new MovieClip();
+    // shape2
     //     .graphics
     //     .beginFill("red")
-    //     .drawRect(100, 100, 100, 100)
+    //     .drawRect(25, 25, 50, 50)
     //     .endFill();
     //
-    // shape.alpha = -100;
-    //
-    // root.addChild(shape);
+    // mc.addChild(shape1);
+    // mc.addChild(shape2);
 
-
-
-    var dec = new Decimal(0.05235987755982989);
-
-
-    console.log(dec.times(180).div(Math.PI).toNumber());
+    shape1.x = 100;
+    console.log(shape1.x);
 
 
 

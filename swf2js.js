@@ -376,9 +376,8 @@ Util.prototype.$SQRT2              = Math.SQRT2;
 Util.prototype.$LN2_2              = Math.LN2 / 2;
 Util.prototype.$LOG1P              = 0.29756328478758615;
 Util.prototype.$PI                 = Math.PI;
-Util.prototype.$PI2                = 314159265358979323846264338327950288;
 Util.prototype.$round              = Math.round;
-Util.prototype.$parseInt           = window.parseInt;
+Util.prototype.$parseFloat         = window.parseFloat;
 Util.prototype.$Number             = window.Number;
 Util.prototype.$fromCharCode       = window.String.fromCharCode;
 Util.prototype.$isNaN              = window.isNaN;
@@ -1036,23 +1035,15 @@ Util.prototype.$isArray = function (source)
 /**
  * @param  {{xMin: number, xMax: number, yMin: number, yMax: number}} bounds
  * @param  {array} matrix
- * @param  {{xMin: number, xMax: number, yMin: number, yMax: number}|null}object
  * @return {{xMin: number, xMax: number, yMin: number, yMax: number}}
  */
-Util.prototype.$boundsMatrix = function (bounds, matrix, object)
+Util.prototype.$boundsMatrix = function (bounds, matrix)
 {
     var no   = this.$Number.MAX_VALUE;
     var xMax = -no;
     var yMax = -no;
     var xMin = no;
     var yMin = no;
-
-    if (object) {
-        xMin = +object.xMin;
-        xMax = +object.xMax;
-        yMin = +object.yMin;
-        yMax = +object.yMax;
-    }
 
     var x0 = +(bounds.xMax * matrix[0] + bounds.yMax * matrix[2] + matrix[4]);
     var x1 = +(bounds.xMax * matrix[0] + bounds.yMin * matrix[2] + matrix[4]);
@@ -3283,15 +3274,16 @@ Object.defineProperties(Matrix.prototype, {
          * @return {number}
          */
         get: function () {
-            return +this._$matrix[0];
+            return this._$matrix[0];
         },
         /**
          * @param  {number} a
          * @return void
          */
         set: function (a) {
-            if (typeof a === "number") {
-                this._$matrix[0] = +a;
+            a = +a;
+            if (!this.$isNaN(a)) {
+                this._$matrix[0] = a;
             }
         }
     },
@@ -3300,15 +3292,16 @@ Object.defineProperties(Matrix.prototype, {
          * @return {number}
          */
         get: function () {
-            return +this._$matrix[1];
+            return this._$matrix[1];
         },
         /**
          * @param  {number} b
          * @return void
          */
         set: function (b) {
-            if (typeof b === "number") {
-                this._$matrix[1] = +b;
+            b = +b;
+            if (!this.$isNaN(b)) {
+                this._$matrix[1] = b;
             }
         }
     },
@@ -3317,15 +3310,16 @@ Object.defineProperties(Matrix.prototype, {
          * @return {number}
          */
         get: function () {
-            return +this._$matrix[2];
+            return this._$matrix[2];
         },
         /**
          * @param  {number} c
          * @return void
          */
         set: function (c) {
-            if (typeof c === "number") {
-                this._$matrix[2] = +c;
+            c = +c;
+            if (!this.$isNaN(c)) {
+                this._$matrix[2] = c;
             }
         }
     },
@@ -3341,7 +3335,8 @@ Object.defineProperties(Matrix.prototype, {
          * @return void
          */
         set: function (d) {
-            if (typeof d === "number") {
+            d = +d;
+            if (!this.$isNaN(d)) {
                 this._$matrix[3] = +d;
             }
         }
@@ -3358,7 +3353,8 @@ Object.defineProperties(Matrix.prototype, {
          * @return void
          */
         set: function (tx) {
-            if (typeof tx === "number") {
+            tx = +tx;
+            if (!this.$isNaN(tx)) {
                 this._$matrix[4] = +(tx * 20);
             }
         }
@@ -3375,7 +3371,8 @@ Object.defineProperties(Matrix.prototype, {
          * @return void
          */
         set: function (ty) {
-            if (typeof ty === "number") {
+            ty = +ty;
+            if (!this.$isNaN(ty)) {
                 this._$matrix[5] = +(ty * 20);
             }
         }
@@ -4475,7 +4472,8 @@ Transform.prototype._$transform = function (matrix, color_transform, filters, bl
 
         default:
 
-            this._$matrix = new Matrix(matrix[0], matrix[1], matrix[2], matrix[3], matrix[4], matrix[5]);
+            this._$matrix = new Matrix();
+            this._$matrix._$matrix = this.$cloneArray(matrix);
 
             break;
     }
@@ -7469,6 +7467,7 @@ var DisplayObject = function ()
     this._$accessibilityProperties = new AccessibilityProperties();
     this._$name                    = "";
     this._$transform               = new Transform(this);
+    this._$visible                 = true;
 
 };
 
@@ -7534,23 +7533,6 @@ Object.defineProperties(DisplayObject.prototype, {
             }
         }
     },
-    stage: {
-        /**
-         * @returns {Stage}
-         */
-        get: function () {
-            return (this._$stageId !== null) ? this.$stages[this._$stageId] : this._$stageId;
-        },
-        /**
-         * @param  {Stage} stage
-         * @return void
-         */
-        set: function (stage) {
-            if (this._$stageId === null && stage instanceof Stage) {
-                this._$stageId = stage.id;
-            }
-        }
-    },
     accessibilityProperties: {
         /**
          * @returns {AccessibilityProperties}
@@ -7582,10 +7564,7 @@ Object.defineProperties(DisplayObject.prototype, {
          */
         set: function (alpha) {
 
-            if (typeof alpha !== "number") {
-                alpha = +alpha;
-            }
-
+            alpha = +alpha;
             if (this.$isNaN(alpha)) {
                 alpha = 0;
             }
@@ -7713,9 +7692,7 @@ Object.defineProperties(DisplayObject.prototype, {
          */
         set: function (height) {
 
-            if (typeof height !== "number") {
-                height = +height;
-            }
+            height = +height;
 
             if (!this.$isNaN(height)) {
 
@@ -7728,6 +7705,21 @@ Object.defineProperties(DisplayObject.prototype, {
                 this.transform.matrix = matrix;
 
             }
+        }
+    },
+    _height: {
+        /**
+         * @return {number}
+         */
+        get: function () {
+            return this.height;
+        },
+        /**
+         * @param  {number} height
+         * @return void
+         */
+        set: function (height) {
+            this.height = height;
         }
     },
     // TODO
@@ -7844,7 +7836,8 @@ Object.defineProperties(DisplayObject.prototype, {
             return this._$parent;
         },
         /**
-         * @param {DisplayObject} parent
+         * @param  {DisplayObject} parent
+         * @return void
          */
         set: function (parent) {
             if (parent instanceof DisplayObject) {
@@ -7860,7 +7853,8 @@ Object.defineProperties(DisplayObject.prototype, {
             return this.parent;
         },
         /**
-         * @param {DisplayObject} parent
+         * @param  {DisplayObject} parent
+         * @return void
          */
         set: function (parent) {
             this.parent = parent;
@@ -7897,60 +7891,8 @@ Object.defineProperties(DisplayObject.prototype, {
          * @return {number}
          */
         get: function () {
-
             var matrix = this.transform.matrix;
-            var radian = this.$atan2(matrix.b, matrix.a);
-
-            var str  = "";
-            var base = 35;
-            switch (radian) {
-
-                case 0:
-
-                    return 0;
-
-                default:
-
-                    // to string
-                    radian = radian + "";
-
-                    // parse
-                    var values = radian.split(".");
-                    var value  = values[0]|0;
-                    switch (value > 0) {
-
-                        case true:
-
-                            base = 36;
-                            str  = values[0] +""+ values[1];
-
-                            break;
-
-                        default:
-
-                            str  = values[1];
-
-                            break;
-
-                    }
-
-                    break;
-
-            }
-
-            // string count
-            var count = this.$pow(10, (base - str.length)|0);
-            var idx    = 0;
-            var result = +(this.$parseInt(str) * 180 / this.$PI2);
-            while (count > idx) {
-
-                result = +(result * 10);
-
-                idx = (idx + 1)|0;
-            }
-
-            return result;
-            
+            return this.$atan2(matrix.b, matrix.a) * 180 / this.$PI;
         },
         /**
          * @param  {number} rotation
@@ -7958,22 +7900,36 @@ Object.defineProperties(DisplayObject.prototype, {
          */
         set: function (rotation) {
 
-            if (typeof rotation !== "number") {
-                rotation = +rotation;
-            }
+            rotation = +rotation;
 
             if (!this.$isNaN(rotation)) {
 
-                var matrix  = this.transform.matrix;
+                var sign = 1;
+                if (rotation < 0) {
+                    sign = -1;
+                }
 
+                // clamp
+                var value = this.$abs(rotation);
+                if (value >= 360) {
+
+                    while (value >= 360) {
+                        value = value - 360;
+                    }
+
+                    rotation = value * sign;
+
+                }
+
+                var matrix  = this.transform.matrix;
                 var radianX = this.$atan2(matrix.b,  matrix.a);
                 var radianY = this.$atan2(-matrix.c, matrix.d);
                 var ScaleX  = this.$sqrt(matrix.a * matrix.a + matrix.b * matrix.b);
                 var ScaleY  = this.$sqrt(matrix.c * matrix.c + matrix.d * matrix.d);
 
-                rotation    = rotation * this.$PI / 180;
-                radianY     = radianY + rotation - radianX;
-                radianX     = rotation;
+                var angle   = rotation * this.$PI / 180;
+                radianY     = radianY + angle - radianX;
+                radianX     = angle;
 
                 matrix.a    = ScaleX  * this.$cos(radianX);
                 matrix.b    = ScaleX  * this.$sin(radianX);
@@ -8000,16 +7956,163 @@ Object.defineProperties(DisplayObject.prototype, {
             this.rotation = rotation;
         }
     },
+    // TODO
+    rotationX: {
+        get: function () {
+        },
+        set: function () {
+        }
+    },
+    // TODO
+    rotationY: {
+        get: function () {
+        },
+        set: function () {
+        }
+    },
+    // TODO
+    rotationZ: {
+        get: function () {
+        },
+        set: function () {
+        }
+    },
+    // TODO
+    scale9Grid: {
+        get: function () {
+        },
+        set: function () {
+        }
+    },
+    scaleX: {
+        /**
+         * @return {number}
+         */
+        get: function () {
+            var matrix = this.transform.matrix;
+            var xScale = this.$sqrt(matrix.a * matrix.a + matrix.b * matrix.b);
+            return (0 < matrix.a) ? xScale : -xScale;
+        },
+        /**
+         * @param  {number} scale_x
+         * @return void
+         */
+        set: function (scale_x) {
 
+            scale_x = +scale_x;
 
+            if (!this.$isNaN(scale_x)) {
 
+                var matrix  = this.transform.matrix;
+                var radianX = this.$atan2(matrix.b, matrix.a);
 
+                matrix.a = scale_x * this.$cos(radianX);
+                matrix.b = scale_x * this.$sin(radianX);
 
+                this.transform.matrix = matrix;
+            }
+        }
+    },
+    _xscale: {
+        /**
+         * @return {number}
+         */
+        get: function () {
+            return this.scaleX * 100;
+        },
+        /**
+         * @param  {number} x_scale
+         * @return void
+         */
+        set: function (x_scale) {
 
+            x_scale = +x_scale;
 
+            if (!this.$isNaN(x_scale)) {
+                this.scaleX = x_scale / 100;
+            }
+        }
+    },
+    scaleY: {
+        /**
+         * @return {number}
+         */
+        get: function () {
+            var matrix = this.transform.matrix;
+            var yScale = this.$sqrt(matrix.c * matrix.c + matrix.d * matrix.d);
+            return (0 < matrix.d) ? yScale : -yScale;
+        },
+        /**
+         * @param  scale_y
+         * @return void
+         */
+        set: function (scale_y) {
 
+            scale_y = +scale_y;
 
+            if (!this.$isNaN(scale_y)) {
 
+                var matrix  = this.transform.matrix;
+                var radianY = this.$atan2(-matrix.c, matrix.d);
+
+                matrix.c = -scale_y * this.$sin(radianY);
+                matrix.d = scale_y  * this.$cos(radianY);
+
+                this.transform.matrix = matrix;
+            }
+        }
+    },
+    _yscale: {
+        /**
+         * @return {number}
+         */
+        get: function () {
+            return this.scaleY * 100;
+        },
+        /**
+         * @param  y_scale
+         * @return void
+         */
+        set: function (y_scale) {
+
+            y_scale = +y_scale;
+
+            if (!this.$isNaN(y_scale)) {
+                this.scaleY = y_scale / 100;
+            }
+        }
+    },
+    // TODO
+    scaleZ: {
+        get: function () {
+        },
+        set: function () {
+        }
+    },
+    // TODO
+    scrollRect: {
+        get: function () {
+        },
+        set: function () {
+        }
+    },
+    stage: {
+        /**
+         * @returns {Stage}
+         */
+        get: function () {
+            return (this._$stageId !== null) ? this.$stages[this._$stageId] : this._$stageId;
+        },
+        /**
+         * @param  {Stage} stage
+         * @return void
+         */
+        set: function (stage) {
+            if (this._$stageId === null && stage instanceof Stage) {
+                this._$stageId = stage.id;
+            }
+        }
+    },
     transform: {
         /**
          * @returns {Transform}
@@ -8025,6 +8128,166 @@ Object.defineProperties(DisplayObject.prototype, {
             if (transform instanceof Transform) {
                 this._$transform = transform;
             }
+        }
+    },
+    visible: {
+        /**
+         * @return {boolean}
+         */
+        get: function () {
+            return this._$visible;
+        },
+        /**
+         * @param  {boolean} visible
+         * @return void
+         */
+        set: function (visible) {
+            if (typeof visible === "boolean") {
+                this._$visible = visible;
+            }
+        }
+    },
+    _visible: {
+        /**
+         * @return {boolean}
+         */
+        get: function () {
+            return this.visible;
+        },
+        /**
+         * @param  {boolean} visible
+         * @return void
+         */
+        set: function (visible) {
+            this.visible = visible;
+        }
+    },
+    width: {
+        /**
+         * @return {number}
+         */
+        get: function () {
+            var bounds = this._$getBounds(this.transform.matrix._$matrix);
+            return this.$abs(bounds.xMax - bounds.xMin);
+        },
+        /**
+         * @param  {number} width
+         * @return void
+         */
+        set: function (width) {
+
+            width = +width;
+
+            if (!this.$isNaN(width)) {
+                var matrix = this.transform.matrix;
+                var bounds = this._$getBounds(matrix._$matrix);
+                var xScale = width * matrix.a / this.$abs(bounds.xMax - bounds.xMin);
+
+                if (this.$isNaN(xScale)) {
+                    xScale = 0;
+                }
+
+                matrix.a = xScale;
+
+                this.transform.matrix = matrix;
+            }
+        }
+    },
+    _width: {
+        /**
+         * @return {number}
+         */
+        get: function () {
+            return this.width;
+        },
+        /**
+         * @param  {number} width
+         * @return void
+         */
+        set: function (width) {
+            this.width = width;
+        }
+    },
+    x: {
+        /**
+         * @return {number}
+         */
+        get: function () {
+            return this.transform.matrix.tx;
+        },
+        /**
+         * @param  {number} x
+         * @return void
+         */
+        set: function (x) {
+
+            x = +x;
+
+            if (!this.$isNaN(x)) {
+                var matrix = this.transform.matrix;
+                matrix.tx  = x;
+                this.transform.matrix = matrix;
+            }
+        }
+    },
+    _x: {
+        /**
+         * @return {number}
+         */
+        get: function () {
+            return this.x;
+        },
+        /**
+         * @param  {number} x
+         * @return void
+         */
+        set: function (x) {
+            this.x = x;
+        }
+    },
+    y: {
+        /**
+         * @return {number}
+         */
+        get: function () {
+            return this.transform.matrix.ty;
+        },
+        /**
+         * @param  {number} y
+         * @return void
+         */
+        set: function (y) {
+
+            y = +y;
+
+            if (!this.$isNaN(y)) {
+                var matrix = this.transform.matrix;
+                matrix.ty  = y;
+                this.transform.matrix = matrix;
+            }
+        }
+    },
+    _y: {
+        /**
+         * @return {number}
+         */
+        get: function () {
+            return this.y;
+        },
+        /**
+         * @param  {number} y
+         * @return void
+         *
+         */
+        set: function (y) {
+            this.y = y;
+        }
+    },
+    // TODO
+    z: {
+        get: function () {
+        },
+        set: function () {
         }
     }
 });
@@ -9016,7 +9279,7 @@ Sprite.prototype._$getBounds = function (matrix)
     if (this.graphics._$getBounds() !== null) {
 
         var gBounds = (matrix)
-            ? this.$boundsMatrix(this.graphics._$getBounds(), matrix, null)
+            ? this.$boundsMatrix(this.graphics._$getBounds(), matrix)
             : this.graphics._$getBounds();
 
         xMin = +gBounds.xMin;
@@ -12440,8 +12703,19 @@ MovieClip.prototype._$getBounds = function (matrix)
     if (this.graphics._$getBounds() !== null) {
 
         var gBounds = (matrix)
-            ? this.$boundsMatrix(this.graphics._$getBounds(), matrix, null)
+            ? this.$boundsMatrix(this.graphics._$getBounds(), matrix)
             : this.graphics._$getBounds();
+
+        if (matrix) {
+            for (var name in gBounds) {
+
+                if (!gBounds.hasOwnProperty(name)) {
+                    continue;
+                }
+
+                gBounds[name] = +(gBounds[name] / 20);
+            }
+        }
 
         xMin = +gBounds.xMin;
         xMax = +gBounds.xMax;
@@ -12464,7 +12738,7 @@ MovieClip.prototype._$getBounds = function (matrix)
             var transform = instance.transform;
 
             var bounds  = instance._$getBounds(
-                matrix ? this.$multiplicationMatrix(matrix, transform.matrix._$matrix) : transform.matrix._$matrix
+                (matrix) ? this.$multiplicationMatrix(matrix, transform.matrix._$matrix) : null
             );
 
             xMin = +this.$min(xMin, bounds.xMin);
@@ -12952,8 +13226,8 @@ Shape.prototype._$getBounds = function (matrix)
     if (matrix) {
 
         var bounds = (this.graphics._$getBounds() === null)
-            ? this.$boundsMatrix(this._$bounds, matrix, null)
-            : this.$boundsMatrix(this.graphics._$getBounds(), matrix, null);
+            ? this.$boundsMatrix(this._$bounds, matrix)
+            : this.$boundsMatrix(this.graphics._$getBounds(), matrix);
 
         for (var name in bounds) {
 
@@ -12961,8 +13235,7 @@ Shape.prototype._$getBounds = function (matrix)
                 continue;
             }
 
-            var value    = +bounds[name];
-            bounds[name] = +(value / 20);
+            bounds[name] = +(bounds[name] / 20);
         }
 
         return bounds;

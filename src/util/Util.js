@@ -730,23 +730,15 @@ Util.prototype.$isArray = function (source)
 /**
  * @param  {{xMin: number, xMax: number, yMin: number, yMax: number}} bounds
  * @param  {array} matrix
- * @param  {{xMin: number, xMax: number, yMin: number, yMax: number}|null}object
  * @return {{xMin: number, xMax: number, yMin: number, yMax: number}}
  */
-Util.prototype.$boundsMatrix = function (bounds, matrix, object)
+Util.prototype.$boundsMatrix = function (bounds, matrix)
 {
     var no   = this.$Number.MAX_VALUE;
     var xMax = -no;
     var yMax = -no;
     var xMin = no;
     var yMin = no;
-
-    if (object) {
-        xMin = +object.xMin;
-        xMax = +object.xMax;
-        yMin = +object.yMin;
-        yMax = +object.yMax;
-    }
 
     var x0 = +(bounds.xMax * matrix[0] + bounds.yMax * matrix[2] + matrix[4]);
     var x1 = +(bounds.xMax * matrix[0] + bounds.yMin * matrix[2] + matrix[4]);

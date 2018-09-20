@@ -268,6 +268,21 @@ Object.defineProperties(DisplayObject.prototype, {
             }
         }
     },
+    _height: {
+        /**
+         * @return {number}
+         */
+        get: function () {
+            return this.height;
+        },
+        /**
+         * @param  {number} height
+         * @return void
+         */
+        set: function (height) {
+            this.height = height;
+        }
+    },
     // TODO
     loaderInfo: {
         get: function () {
@@ -382,7 +397,8 @@ Object.defineProperties(DisplayObject.prototype, {
             return this._$parent;
         },
         /**
-         * @param {DisplayObject} parent
+         * @param  {DisplayObject} parent
+         * @return void
          */
         set: function (parent) {
             if (parent instanceof DisplayObject) {
@@ -398,7 +414,8 @@ Object.defineProperties(DisplayObject.prototype, {
             return this.parent;
         },
         /**
-         * @param {DisplayObject} parent
+         * @param  {DisplayObject} parent
+         * @return void
          */
         set: function (parent) {
             this.parent = parent;
@@ -538,7 +555,8 @@ Object.defineProperties(DisplayObject.prototype, {
             return (0 < matrix.a) ? xScale : -xScale;
         },
         /**
-         * @param {number} scale_x
+         * @param  {number} scale_x
+         * @return void
          */
         set: function (scale_x) {
 
@@ -564,7 +582,8 @@ Object.defineProperties(DisplayObject.prototype, {
             return this.scaleX * 100;
         },
         /**
-         * @param {number} x_scale
+         * @param  {number} x_scale
+         * @return void
          */
         set: function (x_scale) {
 
@@ -585,7 +604,8 @@ Object.defineProperties(DisplayObject.prototype, {
             return (0 < matrix.d) ? yScale : -yScale;
         },
         /**
-         * @param scale_y
+         * @param  scale_y
+         * @return void
          */
         set: function (scale_y) {
 
@@ -611,7 +631,8 @@ Object.defineProperties(DisplayObject.prototype, {
             return this.scaleY * 100;
         },
         /**
-         * @param y_scale
+         * @param  y_scale
+         * @return void
          */
         set: function (y_scale) {
 
@@ -678,7 +699,8 @@ Object.defineProperties(DisplayObject.prototype, {
             return this._$visible;
         },
         /**
-         * @param {boolean} visible
+         * @param  {boolean} visible
+         * @return void
          */
         set: function (visible) {
             if (typeof visible === "boolean") {
@@ -694,7 +716,8 @@ Object.defineProperties(DisplayObject.prototype, {
             return this.visible;
         },
         /**
-         * @param {boolean} visible
+         * @param  {boolean} visible
+         * @return void
          */
         set: function (visible) {
             this.visible = visible;
@@ -709,7 +732,8 @@ Object.defineProperties(DisplayObject.prototype, {
             return this.$abs(bounds.xMax - bounds.xMin);
         },
         /**
-         * @param {number} width
+         * @param  {number} width
+         * @return void
          */
         set: function (width) {
 
@@ -738,24 +762,89 @@ Object.defineProperties(DisplayObject.prototype, {
             return this.width;
         },
         /**
-         * @param {number} width
+         * @param  {number} width
+         * @return void
          */
         set: function (width) {
             this.width = width;
         }
     },
     x: {
+        /**
+         * @return {number}
+         */
         get: function () {
+            return this.transform.matrix.tx;
         },
-        set: function () {
+        /**
+         * @param  {number} x
+         * @return void
+         */
+        set: function (x) {
+
+            x = +x;
+
+            if (!this.$isNaN(x)) {
+                var matrix = this.transform.matrix;
+                matrix.tx  = x;
+                this.transform.matrix = matrix;
+            }
+        }
+    },
+    _x: {
+        /**
+         * @return {number}
+         */
+        get: function () {
+            return this.x;
+        },
+        /**
+         * @param  {number} x
+         * @return void
+         */
+        set: function (x) {
+            this.x = x;
         }
     },
     y: {
+        /**
+         * @return {number}
+         */
         get: function () {
+            return this.transform.matrix.ty;
         },
-        set: function () {
+        /**
+         * @param  {number} y
+         * @return void
+         */
+        set: function (y) {
+
+            y = +y;
+
+            if (!this.$isNaN(y)) {
+                var matrix = this.transform.matrix;
+                matrix.ty  = y;
+                this.transform.matrix = matrix;
+            }
         }
     },
+    _y: {
+        /**
+         * @return {number}
+         */
+        get: function () {
+            return this.y;
+        },
+        /**
+         * @param  {number} y
+         * @return void
+         *
+         */
+        set: function (y) {
+            this.y = y;
+        }
+    },
+    // TODO
     z: {
         get: function () {
         },

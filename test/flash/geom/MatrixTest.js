@@ -1,6 +1,43 @@
 
 describe("Matrix.js property valid test and clone test", function()
 {
+
+    it("property success case1", function()
+    {
+        var m = new Matrix();
+        m.a   = 1.2;
+        m.b   = 0.765;
+        m.c   = -0.872;
+        m.d   = -1.5;
+        m.tx  = 10;
+        m.ty  = -10;
+
+        expect(m.a).toBe(1.2);
+        expect(m.b).toBe(0.765);
+        expect(m.c).toBe(-0.872);
+        expect(m.d).toBe(-1.5);
+        expect(m.tx).toBe(10);
+        expect(m.ty).toBe(-10);
+    });
+
+    it("property success case2", function()
+    {
+        var m = new Matrix();
+        m.a   = "1.2";
+        m.b   = "0.765";
+        m.c   = "-0.872";
+        m.d   = "-1.5";
+        m.tx  = "10";
+        m.ty  = "-10";
+
+        expect(m.a).toBe(1.2);
+        expect(m.b).toBe(0.765);
+        expect(m.c).toBe(-0.872);
+        expect(m.d).toBe(-1.5);
+        expect(m.tx).toBe(10);
+        expect(m.ty).toBe(-10);
+    });
+
     it("valid and clone test", function()
     {
         // valid

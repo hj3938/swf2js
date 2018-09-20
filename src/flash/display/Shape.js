@@ -57,8 +57,8 @@ Shape.prototype._$getBounds = function (matrix)
     if (matrix) {
 
         var bounds = (this.graphics._$getBounds() === null)
-            ? this.$boundsMatrix(this._$bounds, matrix, null)
-            : this.$boundsMatrix(this.graphics._$getBounds(), matrix, null);
+            ? this.$boundsMatrix(this._$bounds, matrix)
+            : this.$boundsMatrix(this.graphics._$getBounds(), matrix);
 
         for (var name in bounds) {
 
@@ -66,8 +66,7 @@ Shape.prototype._$getBounds = function (matrix)
                 continue;
             }
 
-            var value    = +bounds[name];
-            bounds[name] = +(value / 20);
+            bounds[name] = +(bounds[name] / 20);
         }
 
         return bounds;

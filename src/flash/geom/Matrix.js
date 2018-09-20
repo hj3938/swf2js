@@ -46,8 +46,9 @@ Object.defineProperties(Matrix.prototype, {
          * @return void
          */
         set: function (a) {
-            if (typeof a === "number") {
-                this._$matrix[0] = +a;
+            a = +a;
+            if (!this.$isNaN(a)) {
+                this._$matrix[0] = a;
             }
         }
     },
@@ -63,8 +64,9 @@ Object.defineProperties(Matrix.prototype, {
          * @return void
          */
         set: function (b) {
-            if (typeof b === "number") {
-                this._$matrix[1] = +b;
+            b = +b;
+            if (!this.$isNaN(b)) {
+                this._$matrix[1] = b;
             }
         }
     },
@@ -80,8 +82,9 @@ Object.defineProperties(Matrix.prototype, {
          * @return void
          */
         set: function (c) {
-            if (typeof c === "number") {
-                this._$matrix[2] = +c;
+            c = +c;
+            if (!this.$isNaN(c)) {
+                this._$matrix[2] = c;
             }
         }
     },
@@ -97,7 +100,8 @@ Object.defineProperties(Matrix.prototype, {
          * @return void
          */
         set: function (d) {
-            if (typeof d === "number") {
+            d = +d;
+            if (!this.$isNaN(d)) {
                 this._$matrix[3] = +d;
             }
         }
@@ -107,14 +111,15 @@ Object.defineProperties(Matrix.prototype, {
          * @return {number}
          */
         get: function () {
-            return (this._$matrix[4] / 20);
+            return +(this._$matrix[4] / 20);
         },
         /**
          * @param  {number} tx
          * @return void
          */
         set: function (tx) {
-            if (typeof tx === "number") {
+            tx = +tx;
+            if (!this.$isNaN(tx)) {
                 this._$matrix[4] = +(tx * 20);
             }
         }
@@ -124,14 +129,15 @@ Object.defineProperties(Matrix.prototype, {
          * @return {number}
          */
         get: function () {
-            return (this._$matrix[5] / 20);
+            return +(this._$matrix[5] / 20);
         },
         /**
          * @param  {number} ty
          * @return void
          */
         set: function (ty) {
-            if (typeof ty === "number") {
+            ty = +ty;
+            if (!this.$isNaN(ty)) {
                 this._$matrix[5] = +(ty * 20);
             }
         }

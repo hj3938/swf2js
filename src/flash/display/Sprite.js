@@ -252,7 +252,7 @@ Sprite.prototype._$getBounds = function (matrix)
     if (this.graphics._$getBounds() !== null) {
 
         var gBounds = (matrix)
-            ? this.$boundsMatrix(this.graphics._$getBounds(), matrix, null)
+            ? this.$boundsMatrix(this.graphics._$getBounds(), matrix)
             : this.graphics._$getBounds();
 
         xMin = +gBounds.xMin;

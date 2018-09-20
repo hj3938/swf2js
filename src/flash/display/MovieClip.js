@@ -728,8 +728,19 @@ MovieClip.prototype._$getBounds = function (matrix)
     if (this.graphics._$getBounds() !== null) {
 
         var gBounds = (matrix)
-            ? this.$boundsMatrix(this.graphics._$getBounds(), matrix, null)
+            ? this.$boundsMatrix(this.graphics._$getBounds(), matrix)
             : this.graphics._$getBounds();
+
+        if (matrix) {
+            for (var name in gBounds) {
+
+                if (!gBounds.hasOwnProperty(name)) {
+                    continue;
+                }
+
+                gBounds[name] = +(gBounds[name] / 20);
+            }
+        }
 
         xMin = +gBounds.xMin;
         xMax = +gBounds.xMax;
@@ -752,7 +763,7 @@ MovieClip.prototype._$getBounds = function (matrix)
             var transform = instance.transform;
 
             var bounds  = instance._$getBounds(
-                matrix ? this.$multiplicationMatrix(matrix, transform.matrix._$matrix) : transform.matrix._$matrix
+                (matrix) ? this.$multiplicationMatrix(matrix, transform.matrix._$matrix) : null
             );
 
             xMin = +this.$min(xMin, bounds.xMin);

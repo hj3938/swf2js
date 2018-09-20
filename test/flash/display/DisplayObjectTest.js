@@ -423,11 +423,547 @@ describe("DisplayObject.js property test", function()
     });
 
 
+    // height
+    it("height test success case1", function () {
+
+        var mc = new MovieClip();
+
+        var shape1  = new Shape();
+        shape1
+            .graphics
+            .beginFill("red")
+            .drawRect(0, 0, 50, 40)
+            .endFill();
+
+        var shape2  = new Shape();
+        shape2
+            .graphics
+            .beginFill("red")
+            .drawRect(25, 25, 50, 60)
+            .endFill();
+
+        mc.addChild(shape1);
+        mc.addChild(shape2);
+
+        expect(mc.height).toBe(85);
+    });
+
+    it("height test success case2", function () {
+
+        var mc = new MovieClip();
+
+        var shape1  = new Shape();
+        shape1
+            .graphics
+            .beginFill("red")
+            .drawRect(0, 0, 50, 40)
+            .endFill();
+
+        var shape2  = new Shape();
+        shape2
+            .graphics
+            .beginFill("red")
+            .drawRect(25, 25, 50, 60)
+            .endFill();
+
+        mc.addChild(shape1);
+        mc.addChild(shape2);
+
+        mc.height = 100;
+
+        expect(mc.height).toBe(100);
+    });
+
+    it("height test success case3", function () {
+
+        var mc = new MovieClip();
+
+        var shape1  = new Shape();
+        shape1
+            .graphics
+            .beginFill("red")
+            .drawRect(0, 0, 50, 40)
+            .endFill();
+
+        var shape2  = new Shape();
+        shape2
+            .graphics
+            .beginFill("red")
+            .drawRect(25, 25, 50, 60)
+            .endFill();
+
+        mc.addChild(shape1);
+        mc.addChild(shape2);
+
+        mc.height = "123";
+
+        expect(mc.height).toBe(123);
+    });
+
+    it("height test valid case1", function () {
+
+        var mc = new MovieClip();
+
+        var shape1  = new Shape();
+        shape1
+            .graphics
+            .beginFill("red")
+            .drawRect(0, 0, 50, 40)
+            .endFill();
+
+        var shape2  = new Shape();
+        shape2
+            .graphics
+            .beginFill("red")
+            .drawRect(25, 25, 50, 60)
+            .endFill();
+
+        mc.addChild(shape1);
+        mc.addChild(shape2);
+
+        mc.height = "abc";
+
+        expect(mc.height).toBe(85);
+    });
 
 
+    // _height
+    it("_height test success case1", function () {
+
+        var mc = new MovieClip();
+
+        var shape1  = new Shape();
+        shape1
+            .graphics
+            .beginFill("red")
+            .drawRect(0, 0, 50, 40)
+            .endFill();
+
+        var shape2  = new Shape();
+        shape2
+            .graphics
+            .beginFill("red")
+            .drawRect(25, 25, 50, 60)
+            .endFill();
+
+        mc.addChild(shape1);
+        mc.addChild(shape2);
+
+        expect(mc._height).toBe(85);
+    });
+
+    it("_height test success case2", function () {
+
+        var mc = new MovieClip();
+
+        var shape1  = new Shape();
+        shape1
+            .graphics
+            .beginFill("red")
+            .drawRect(0, 0, 50, 40)
+            .endFill();
+
+        var shape2  = new Shape();
+        shape2
+            .graphics
+            .beginFill("red")
+            .drawRect(25, 25, 50, 60)
+            .endFill();
+
+        mc.addChild(shape1);
+        mc.addChild(shape2);
+
+        mc._height = 100;
+
+        expect(mc._height).toBe(100);
+    });
+
+    it("_height test success case3", function () {
+
+        var mc = new MovieClip();
+
+        var shape1  = new Shape();
+        shape1
+            .graphics
+            .beginFill("red")
+            .drawRect(0, 0, 50, 40)
+            .endFill();
+
+        var shape2  = new Shape();
+        shape2
+            .graphics
+            .beginFill("red")
+            .drawRect(25, 25, 50, 60)
+            .endFill();
+
+        mc.addChild(shape1);
+        mc.addChild(shape2);
+
+        mc._height = "321";
+
+        expect(mc._height).toBe(321);
+    });
+
+    it("_height test valid case1", function () {
+
+        var mc = new MovieClip();
+
+        var shape1  = new Shape();
+        shape1
+            .graphics
+            .beginFill("red")
+            .drawRect(0, 0, 50, 40)
+            .endFill();
+
+        var shape2  = new Shape();
+        shape2
+            .graphics
+            .beginFill("red")
+            .drawRect(25, 25, 50, 60)
+            .endFill();
+
+        mc.addChild(shape1);
+        mc.addChild(shape2);
+
+        mc._height = "abc";
+
+        expect(mc._height).toBe(85);
+    });
 
 
+    // width
+    it("width test success case1", function () {
 
+        var mc = new MovieClip();
+
+        var shape1  = new Shape();
+        shape1
+            .graphics
+            .beginFill("red")
+            .drawRect(0, 0, 50, 40)
+            .endFill();
+
+        var shape2  = new Shape();
+        shape2
+            .graphics
+            .beginFill("red")
+            .drawRect(25, 25, 50, 60)
+            .endFill();
+
+        mc.addChild(shape1);
+        mc.addChild(shape2);
+
+        expect(mc.width).toBe(75);
+    });
+
+    it("width test success case2", function () {
+
+        var mc = new MovieClip();
+
+        var shape1  = new Shape();
+        shape1
+            .graphics
+            .beginFill("red")
+            .drawRect(0, 0, 50, 40)
+            .endFill();
+
+        var shape2  = new Shape();
+        shape2
+            .graphics
+            .beginFill("red")
+            .drawRect(25, 25, 50, 60)
+            .endFill();
+
+        mc.addChild(shape1);
+        mc.addChild(shape2);
+
+        mc.width = 100;
+
+        expect(mc.width).toBe(100);
+    });
+
+    it("width test success case3", function () {
+
+        var mc = new MovieClip();
+
+        var shape1  = new Shape();
+        shape1
+            .graphics
+            .beginFill("red")
+            .drawRect(0, 0, 50, 40)
+            .endFill();
+
+        var shape2  = new Shape();
+        shape2
+            .graphics
+            .beginFill("red")
+            .drawRect(25, 25, 50, 60)
+            .endFill();
+
+        mc.addChild(shape1);
+        mc.addChild(shape2);
+
+        mc.width = "312";
+
+        expect(mc.width).toBe(312);
+    });
+
+    it("width test valid case1", function () {
+
+        var mc = new MovieClip();
+
+        var shape1  = new Shape();
+        shape1
+            .graphics
+            .beginFill("red")
+            .drawRect(0, 0, 50, 40)
+            .endFill();
+
+        var shape2  = new Shape();
+        shape2
+            .graphics
+            .beginFill("red")
+            .drawRect(25, 25, 50, 60)
+            .endFill();
+
+        mc.addChild(shape1);
+        mc.addChild(shape2);
+
+        mc.width = "abc";
+
+        expect(mc.width).toBe(75);
+    });
+
+
+    // _width
+    it("_width test success case1", function () {
+
+        var mc = new MovieClip();
+
+        var shape1  = new Shape();
+        shape1
+            .graphics
+            .beginFill("red")
+            .drawRect(0, 0, 50, 40)
+            .endFill();
+
+        var shape2  = new Shape();
+        shape2
+            .graphics
+            .beginFill("red")
+            .drawRect(25, 25, 50, 60)
+            .endFill();
+
+        mc.addChild(shape1);
+        mc.addChild(shape2);
+
+        expect(mc._width).toBe(75);
+    });
+
+    it("_width test success case2", function () {
+
+        var mc = new MovieClip();
+
+        var shape1  = new Shape();
+        shape1
+            .graphics
+            .beginFill("red")
+            .drawRect(0, 0, 50, 40)
+            .endFill();
+
+        var shape2  = new Shape();
+        shape2
+            .graphics
+            .beginFill("red")
+            .drawRect(25, 25, 50, 60)
+            .endFill();
+
+        mc.addChild(shape1);
+        mc.addChild(shape2);
+
+        mc._width = 100;
+
+        expect(mc._width).toBe(100);
+    });
+
+    it("_width test success case3", function () {
+
+        var mc = new MovieClip();
+
+        var shape1  = new Shape();
+        shape1
+            .graphics
+            .beginFill("red")
+            .drawRect(0, 0, 50, 40)
+            .endFill();
+
+        var shape2  = new Shape();
+        shape2
+            .graphics
+            .beginFill("red")
+            .drawRect(25, 25, 50, 60)
+            .endFill();
+
+        mc.addChild(shape1);
+        mc.addChild(shape2);
+
+        mc._width = "456";
+
+        expect(mc._width).toBe(456);
+    });
+
+    it("_width test valid case1", function () {
+
+        var mc = new MovieClip();
+
+        var shape1  = new Shape();
+        shape1
+            .graphics
+            .beginFill("red")
+            .drawRect(0, 0, 50, 40)
+            .endFill();
+
+        var shape2  = new Shape();
+        shape2
+            .graphics
+            .beginFill("red")
+            .drawRect(25, 25, 50, 60)
+            .endFill();
+
+        mc.addChild(shape1);
+        mc.addChild(shape2);
+
+        mc._width = "abc";
+
+        expect(mc._width).toBe(75);
+    });
+
+    // x
+    it("x test success case1", function () {
+        var player = new Player();
+        var obj    = player.stage.addChild(new DisplayObject());
+        expect(obj.x).toBe(0);
+    });
+
+    it("x test success case2", function () {
+        var player = new Player();
+        var obj    = player.stage.addChild(new DisplayObject());
+
+        obj.x = 100;
+        expect(obj.x).toBe(100);
+    });
+
+    it("x test success case2", function () {
+        var player = new Player();
+        var obj    = player.stage.addChild(new DisplayObject());
+
+        obj.x = "158";
+        expect(obj.x).toBe(158);
+    });
+
+    it("x test valid case1", function () {
+        var player = new Player();
+        var obj    = player.stage.addChild(new DisplayObject());
+
+        obj.x = "abc";
+        expect(obj.x).toBe(0);
+    });
+
+
+    // _x
+    it("_x test success case1", function () {
+        var player = new Player();
+        var obj    = player.stage.addChild(new DisplayObject());
+        expect(obj._x).toBe(0);
+    });
+
+    it("_x test success case2", function () {
+        var player = new Player();
+        var obj    = player.stage.addChild(new DisplayObject());
+
+        obj._x = 100;
+        expect(obj._x).toBe(100);
+    });
+
+    it("_x test success case2", function () {
+        var player = new Player();
+        var obj    = player.stage.addChild(new DisplayObject());
+
+        obj._x = "158";
+        expect(obj._x).toBe(158);
+    });
+
+    it("_x test valid case1", function () {
+        var player = new Player();
+        var obj    = player.stage.addChild(new DisplayObject());
+
+        obj._x = "abc";
+        expect(obj._x).toBe(0);
+    });
+
+
+    // y
+    it("y test success case1", function () {
+        var player = new Player();
+        var obj    = player.stage.addChild(new DisplayObject());
+        expect(obj.y).toBe(0);
+    });
+
+    it("y test success case2", function () {
+        var player = new Player();
+        var obj    = player.stage.addChild(new DisplayObject());
+
+        obj.y = 100;
+        expect(obj.y).toBe(100);
+    });
+
+    it("y test success case2", function () {
+        var player = new Player();
+        var obj    = player.stage.addChild(new DisplayObject());
+
+        obj.y = "158";
+        expect(obj.y).toBe(158);
+    });
+
+    it("y test valid case1", function () {
+        var player = new Player();
+        var obj    = player.stage.addChild(new DisplayObject());
+
+        obj.y = "abc";
+        expect(obj.y).toBe(0);
+    });
+
+
+    // _y
+    it("_y test success case1", function () {
+        var player = new Player();
+        var obj    = player.stage.addChild(new DisplayObject());
+        expect(obj._y).toBe(0);
+    });
+
+    it("_y test success case2", function () {
+        var player = new Player();
+        var obj    = player.stage.addChild(new DisplayObject());
+
+        obj._y = 100;
+        expect(obj._y).toBe(100);
+    });
+
+    it("_y test success case2", function () {
+        var player = new Player();
+        var obj    = player.stage.addChild(new DisplayObject());
+
+        obj._y = "158";
+        expect(obj._y).toBe(158);
+    });
+
+    it("_y test valid case1", function () {
+        var player = new Player();
+        var obj    = player.stage.addChild(new DisplayObject());
+
+        obj._y = "abc";
+        expect(obj._y).toBe(0);
+    });
 
 
 });

@@ -183,7 +183,8 @@ Transform.prototype._$transform = function (matrix, color_transform, filters, bl
 
         default:
 
-            this._$matrix = new Matrix(matrix[0], matrix[1], matrix[2], matrix[3], matrix[4], matrix[5]);
+            this._$matrix = new Matrix();
+            this._$matrix._$matrix = this.$cloneArray(matrix);
 
             break;
     }

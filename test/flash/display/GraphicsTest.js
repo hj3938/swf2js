@@ -460,7 +460,8 @@ describe("Graphics.js clear test", function()
 
         expect(g._$fills.length).toBe(0);
         expect(g._$lines.length).toBe(0);
-        expect(g._$bounds).toBe(null);
+        expect(g._$fillBounds).toBe(null);
+        expect(g._$lineBounds).toBe(null);
         expect(g._$doFill).toBe(false);
         expect(g._$doLine).toBe(false);
         expect(g._$command).toBe(null);
@@ -866,7 +867,7 @@ describe("Graphics.js lineStyle test", function()
         expect(g._$lineStyles[0][5]).toBe(g._$lineWidth);
         expect(g._$lineStyles[0][6]).toBe(CapsStyle.ROUND);
         expect(g._$lineStyles[0][7]).toBe(JointStyle.MITER);
-        expect(g._$lineStyles[0][8]).toBe(1);
+        expect(g._$lineStyles[0][8]).toBe(1*20);
 
 
         g
@@ -893,7 +894,7 @@ describe("Graphics.js lineStyle test", function()
         expect(g._$lineStyles[0][5]).toBe(g._$lineWidth);
         expect(g._$lineStyles[0][6]).toBe("butt");
         expect(g._$lineStyles[0][7]).toBe(JointStyle.BEVEL);
-        expect(g._$lineStyles[0][8]).toBe(255);
+        expect(g._$lineStyles[0][8]).toBe(255*20);
 
     });
 
@@ -921,7 +922,7 @@ describe("Graphics.js lineStyle test", function()
         expect(g._$lineStyles[0][5]).toBe(g._$lineWidth);
         expect(g._$lineStyles[0][6]).toBe(CapsStyle.ROUND);
         expect(g._$lineStyles[0][7]).toBe(JointStyle.MITER);
-        expect(g._$lineStyles[0][8]).toBe(1);
+        expect(g._$lineStyles[0][8]).toBe(1*20);
 
 
         g
@@ -942,7 +943,7 @@ describe("Graphics.js lineStyle test", function()
         expect(g._$lineStyles[0][5]).toBe(g._$lineWidth);
         expect(g._$lineStyles[0][6]).toBe("butt");
         expect(g._$lineStyles[0][7]).toBe(JointStyle.BEVEL);
-        expect(g._$lineStyles[0][8]).toBe(255);
+        expect(g._$lineStyles[0][8]).toBe(255*20);
 
     });
 

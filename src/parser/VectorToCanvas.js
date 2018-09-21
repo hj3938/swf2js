@@ -498,7 +498,7 @@ VectorToCanvas.prototype.toCanvas2D = function (cache)
                 str += "ctx.lineWidth   = Math.max("+ a[5] +", 1 / min_scale);";
                 str += "ctx.lineCap     = '"+ a[6] +"';";
                 str += "ctx.lineJoin    = '"+ a[7] +"';";
-                str += "ctx.miterLimit  = '"+ a[8] +"';";
+                str += "ctx.miterLimit  = "+ a[8] +";";
                 break;
             case Graphics.END_FILL:
                 str += "if (!is_clip) { ctx.fill(); }";
@@ -508,6 +508,9 @@ VectorToCanvas.prototype.toCanvas2D = function (cache)
                 break;
             case Graphics.BEGIN_PATH:
                 str += "ctx.beginPath();";
+                break;
+            case Graphics.CLOSE_PATH:
+                str += "ctx.closePath();";
                 break;
             case Graphics.GRADIENT:
                 str += "if (!is_clip) {";

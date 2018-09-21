@@ -255,6 +255,18 @@ Sprite.prototype._$getBounds = function (matrix)
             ? this.$boundsMatrix(this.graphics._$getBounds(), matrix)
             : this.graphics._$getBounds();
 
+
+        if (matrix) {
+            for (var name in gBounds) {
+
+                if (!gBounds.hasOwnProperty(name)) {
+                    continue;
+                }
+
+                gBounds[name] = +(gBounds[name] / 20);
+            }
+        }
+
         xMin = +gBounds.xMin;
         xMax = +gBounds.xMax;
         yMin = +gBounds.yMin;
@@ -274,7 +286,7 @@ Sprite.prototype._$getBounds = function (matrix)
         var transform = instance.transform;
 
         var bounds  = instance._$getBounds(
-            matrix ? this.$multiplicationMatrix(matrix, transform.matrix._$matrix) : null
+            (matrix) ? this.$multiplicationMatrix(matrix, transform.matrix._$matrix) : null
         );
 
         xMin = +this.$min(xMin, bounds.xMin);

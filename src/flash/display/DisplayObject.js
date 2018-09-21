@@ -24,11 +24,15 @@ var DisplayObject = function ()
     // clip
     this._$clipDepth = 0;
 
+
     // property
     this._$accessibilityProperties = new AccessibilityProperties();
     this._$name                    = "";
     this._$transform               = new Transform(this);
     this._$visible                 = true;
+    this._$scrollRect              = null;
+    this._$opaqueBackground        = null;
+    this._$mask                    = null;
 
 };
 
@@ -188,13 +192,9 @@ Object.defineProperties(DisplayObject.prototype, {
     },
     // TODO
     blendShader: {
-        /**
-         * @return void
-         */
-        get: function () {},
-        /**
-         * @param {Shader} blend_shader
-         */
+        get: function () {
+
+        },
         set: function (blend_shader) {
 
         }
@@ -288,15 +288,26 @@ Object.defineProperties(DisplayObject.prototype, {
         get: function () {
 
         },
-        set: function () {}
+        set: function () {
+
+        }
     },
     // TODO
     mask: {
+        /**
+         * @return {DisplayObject|null}
+         */
         get: function () {
-
+            return this._$mask;
         },
-        set: function () {
-
+        /**
+         * @param  {DisplayObject|null} mask
+         * @return void
+         */
+        set: function (mask) {
+            if (mask === null || mask instanceof DisplayObject) {
+                this._$mask = mask;
+            }
         }
     },
     // TODO
@@ -382,11 +393,24 @@ Object.defineProperties(DisplayObject.prototype, {
     },
     // TODO
     opaqueBackground: {
+        /**
+         * @returns {number|null}
+         */
         get: function () {
-
+            return this._$opaqueBackground;
         },
-        set: function () {
+        /**
+         * @param  {number|null} opaque_background
+         * @return void
+         */
+        set: function (opaque_background) {
+            if (typeof opaque_background === "string") {
+                opaque_background = this.$colorStringToInt(opaque_background);
+            }
 
+            if (typeof opaque_background === "number" || opaque_background === null) {
+                this._$opaqueBackground = opaque_background;
+            }
         }
     },
     parent: {
@@ -488,9 +512,9 @@ Object.defineProperties(DisplayObject.prototype, {
                 var ScaleX  = this.$sqrt(matrix.a * matrix.a + matrix.b * matrix.b);
                 var ScaleY  = this.$sqrt(matrix.c * matrix.c + matrix.d * matrix.d);
 
-                var angle   = rotation * this.$PI / 180;
-                radianY     = radianY + angle - radianX;
-                radianX     = angle;
+                var radian  = rotation * this.$PI / 180;
+                radianY     = radianY + radian - radianX;
+                radianX     = radian;
 
                 matrix.a    = ScaleX  * this.$cos(radianX);
                 matrix.b    = ScaleX  * this.$sin(radianX);
@@ -652,9 +676,20 @@ Object.defineProperties(DisplayObject.prototype, {
     },
     // TODO
     scrollRect: {
+        /**
+         * @return {Rectangle}
+         */
         get: function () {
+            return this._$scrollRect;
         },
-        set: function () {
+        /**
+         * @param  {Rectangle} scroll_rect
+         * @return void
+         */
+        set: function (scroll_rect) {
+            if (scroll_rect instanceof Rectangle) {
+                this._$scrollRect = scroll_rect;
+            }
         }
     },
     stage: {
@@ -1080,3 +1115,50 @@ DisplayObject.prototype._$postDraw = function (matrix, pre_matrix, color_transfo
         this._$poolContext = null;
     }
 };
+
+/**
+ * @param  {DisplayObject} target_coordinate_space
+ * @return {Rectangle}
+ */
+DisplayObject.prototype.getBounds = function (target_coordinate_space)
+{
+    var rectangle = new Rectangle(0, 0, 0, 0);
+
+    if (target_coordinate_space instanceof DisplayObject) {
+
+        var bounds = target_coordinate_space._$getBounds(
+            target_coordinate_space.transform.matrix._$matrix
+        );
+
+        // set
+        rectangle.x      = bounds.xMin;
+        rectangle.y      = bounds.yMin;
+        rectangle.width  = this.$abs(bounds.xMax - bounds.xMin);
+        rectangle.height = this.$abs(bounds.yMax - bounds.yMin);
+    }
+
+    return rectangle;
+};
+
+DisplayObject.prototype.getRect = function ()
+{
+
+};
+
+DisplayObject.prototype.globalToLocal = function ()
+{};
+
+DisplayObject.prototype.globalToLocal3D = function ()
+{};
+
+DisplayObject.prototype.hitTestObject = function ()
+{};
+
+DisplayObject.prototype.hitTestPoint = function ()
+{};
+
+DisplayObject.prototype.local3DToGlobal = function ()
+{};
+
+DisplayObject.prototype.localToGlobal = function ()
+{};

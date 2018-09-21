@@ -966,4 +966,81 @@ describe("DisplayObject.js property test", function()
     });
 
 
+    // visible
+    it("visible test success case1", function () {
+        var player = new Player();
+        var obj    = player.stage.addChild(new DisplayObject());
+        expect(obj.visible).toBe(true);
+    });
+
+    it("visible test success case2", function () {
+        var player  = new Player();
+        var obj     = player.stage.addChild(new DisplayObject());
+        obj.visible = false;
+        expect(obj.visible).toBe(false);
+    });
+
+    it("visible test valid case1", function () {
+        var player  = new Player();
+        var obj     = player.stage.addChild(new DisplayObject());
+        obj.visible = "1";
+        expect(obj.visible).toBe(true);
+    });
+
+
+    // _visible
+    it("_visible test success case1", function () {
+        var player = new Player();
+        var obj    = player.stage.addChild(new DisplayObject());
+        expect(obj._visible).toBe(true);
+    });
+
+    it("_visible test success case2", function () {
+        var player  = new Player();
+        var obj     = player.stage.addChild(new DisplayObject());
+        obj._visible = false;
+        expect(obj._visible).toBe(false);
+    });
+
+    it("_visible test valid case1", function () {
+        var player  = new Player();
+        var obj     = player.stage.addChild(new DisplayObject());
+        obj._visible = "1";
+        expect(obj._visible).toBe(true);
+    });
+
+
+
+
+
+
+
+});
+
+
+describe("DisplayObject.js getBounds test", function()
+{
+
+    it("getBounds test success case1", function () {
+        var player = new Player();
+
+        var sprite = new Sprite();
+        sprite.x = 100;
+        sprite.y = 100;
+        player.root.addChild(sprite);
+
+        var shape = new Shape();
+        shape.graphics.drawCircle(0, 0, 100);
+        sprite.addChild(shape);
+
+        var bounds1 = shape.getBounds(shape);
+        var bounds2 = shape.getBounds(sprite);
+
+        expect(bounds1.toString()).toBe("(x=-100, y=-100, w=200, h=200)");
+        expect(bounds2.toString()).toBe("(x=0, y=0, w=200, h=200)");
+    });
+
+
+
+
 });

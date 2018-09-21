@@ -7,7 +7,7 @@ var Shape = function ()
 
     // origin param
     this._$data     = null;
-    this._$bounds   = null;
+    this._$bounds   = { xMin: 0, xMax: 0, yMin: 0, yMax: 0 };
 
     // Graphics
     var graphics = new Graphics();

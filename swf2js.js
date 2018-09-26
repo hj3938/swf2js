@@ -10517,8 +10517,9 @@ Graphics.prototype._$doDraw = function (ctx, min_scale, color_transform, is_clip
 
     // execute
     this._$command(ctx, color_transform, is_clip, min_scale);
+    console.log(ctx.canvas.toDataURL())
 
-    
+
     // clip or filter and blend
     if (is_clip) {
 
@@ -10863,6 +10864,7 @@ Graphics.prototype._$setLineBounds = function (x, y)
     // vector
     var radian1 = this.$atan2(y - this._$pointer.y, x - this._$pointer.x);
     var radian2 = this.$atan2(this._$pointer.y - y, this._$pointer.x - x);
+    console.log(radian1 * 180 / this.$PI)
 
     // point
     var half      = this._$lineWidth / 2;

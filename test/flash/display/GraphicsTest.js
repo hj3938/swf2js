@@ -867,7 +867,7 @@ describe("Graphics.js lineStyle test", function()
         expect(g._$lineStyles[0][5]).toBe(g._$lineWidth);
         expect(g._$lineStyles[0][6]).toBe(CapsStyle.ROUND);
         expect(g._$lineStyles[0][7]).toBe(JointStyle.MITER);
-        expect(g._$lineStyles[0][8]).toBe(1*20);
+        expect(g._$lineStyles[0][8]).toBe(1);
 
 
         g
@@ -894,7 +894,7 @@ describe("Graphics.js lineStyle test", function()
         expect(g._$lineStyles[0][5]).toBe(g._$lineWidth);
         expect(g._$lineStyles[0][6]).toBe("butt");
         expect(g._$lineStyles[0][7]).toBe(JointStyle.BEVEL);
-        expect(g._$lineStyles[0][8]).toBe(255*20);
+        expect(g._$lineStyles[0][8]).toBe(255);
 
     });
 
@@ -922,7 +922,7 @@ describe("Graphics.js lineStyle test", function()
         expect(g._$lineStyles[0][5]).toBe(g._$lineWidth);
         expect(g._$lineStyles[0][6]).toBe(CapsStyle.ROUND);
         expect(g._$lineStyles[0][7]).toBe(JointStyle.MITER);
-        expect(g._$lineStyles[0][8]).toBe(1*20);
+        expect(g._$lineStyles[0][8]).toBe(1);
 
 
         g
@@ -943,7 +943,75 @@ describe("Graphics.js lineStyle test", function()
         expect(g._$lineStyles[0][5]).toBe(g._$lineWidth);
         expect(g._$lineStyles[0][6]).toBe("butt");
         expect(g._$lineStyles[0][7]).toBe(JointStyle.BEVEL);
-        expect(g._$lineStyles[0][8]).toBe(255*20);
+        expect(g._$lineStyles[0][8]).toBe(255);
+
+    });
+
+});
+
+
+describe("Graphics.js getBounds test", function()
+{
+
+    it("line point zero test case 90", function ()
+    {
+        var shape = new Shape();
+
+        shape
+            .graphics
+            .lineStyle(20, 0x000000, 1.0, true, LineScaleMode.NORMAL, CapsStyle.SQUARE, JointStyle.BEVEL, 10)
+            .moveTo(0, 0)
+            .lineTo(0, 10);
+
+        expect(shape.getBounds(shape).toString())
+            .toBe("(x=-10, y=-10.000000000000002, w=20, h=30.000000000000007)");
+
+    });
+
+    it("line point zero test case 45", function ()
+    {
+        var shape = new Shape();
+
+        shape
+            .graphics
+            .lineStyle(20, 0x000000, 1.0, true, LineScaleMode.NORMAL, CapsStyle.SQUARE, JointStyle.BEVEL, 10)
+            .moveTo(0, 0)
+            .lineTo(10, 10);
+
+        // flash bag (x=-10, y=-10, w=30, h=30)
+        expect(shape.getBounds(shape).toString())
+            .toBe("(x=-14.142135623730947, y=-14.142135623730951, w=38.2842712474619, h=38.2842712474619)");
+
+    });
+
+    it("line point zero test case 0", function ()
+    {
+        var shape = new Shape();
+
+        shape
+            .graphics
+            .lineStyle(20, 0x000000, 1.0, true, LineScaleMode.NORMAL, CapsStyle.SQUARE, JointStyle.BEVEL, 10)
+            .moveTo(0, 0)
+            .lineTo(10, 0);
+
+        expect(shape.getBounds(shape).toString())
+            .toBe("(x=-10.000000000000002, y=-10, w=30, h=20)");
+
+    });
+
+    it("line point zero test case -45", function ()
+    {
+        var shape = new Shape();
+
+        shape
+            .graphics
+            .lineStyle(20, 0x000000, 1.0, true, LineScaleMode.NORMAL, CapsStyle.SQUARE, JointStyle.BEVEL, 10)
+            .moveTo(0, 0)
+            .lineTo(10, -10);
+
+        // flash bag (x=-10, y=-20, w=30, h=30)
+        expect(shape.getBounds(shape).toString())
+            .toBe("(x=-14.142135623730951, y=-24.14213562373095, w=38.2842712474619, h=38.2842712474619)");
 
     });
 

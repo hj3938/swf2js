@@ -1006,10 +1006,11 @@ SwfTag.prototype.parseDefineShape = function (tag_type)
     var characterId = this.bitio.getUI16()|0;
     var bounds      = this.rect();
 
+    var edgeBounds = null;
     if (tag_type === 83) {
         var obj = {};
 
-        obj.EdgeBounds = this.rect();
+        edgeBounds = this.rect();
 
         // Reserved
         this.bitio.getUIBits(5);
@@ -1023,10 +1024,11 @@ SwfTag.prototype.parseDefineShape = function (tag_type)
     var data  = this.$vtc.convert(this.shapeWithStyle(tag_type), false);
 
     // build shape object
-    var shape         = new Shape();
-    shape._$data      = data;
-    shape._$bounds    = bounds;
-    shape.characterId = characterId;
+    var shape          = new Shape();
+    shape._$data       = data;
+    shape._$bounds     = bounds;
+    shape._$edgeBounds = edgeBounds;
+    shape.characterId  = characterId;
 
     // set
     this.setCharacter(characterId, shape);

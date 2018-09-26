@@ -6,8 +6,9 @@ var Shape = function ()
     DisplayObject.call(this);
 
     // origin param
-    this._$data     = null;
-    this._$bounds   = { xMin: 0, xMax: 0, yMin: 0, yMax: 0 };
+    this._$data       = null;
+    this._$bounds     = { xMin: 0, xMax: 0, yMin: 0, yMax: 0 };
+    this._$edgeBounds = null;
 
     // Graphics
     var graphics = new Graphics();
@@ -82,6 +83,29 @@ Shape.prototype._$getBounds = function (matrix)
 };
 
 /**
+ * @param  {array} matrix
+ * @return {{xMin: number, xMax: number, yMin: number, yMax: number}}
+ */
+Shape.prototype._$getRect = function (matrix)
+{
+
+    var bounds = (this.graphics._$getRect() === null)
+        ? this.$boundsMatrix(this._$edgeBounds || this._$bounds, matrix)
+        : this.$boundsMatrix(this.graphics._$getRect(), matrix);
+
+    for (var name in bounds) {
+
+        if (!bounds.hasOwnProperty(name)) {
+            continue;
+        }
+
+        bounds[name] = +(bounds[name] / 20);
+    }
+
+    return bounds;
+};
+
+/**
  * @param   {MovieClip} parent
  * @param   {number}    index
  * @param   {object}    tag
@@ -93,12 +117,13 @@ Shape.prototype._$build = function (parent, index, tag, should_action)
     var shape = new Shape();
 
     // init
-    shape.id          = index;
-    shape.characterId = this.characterId;
-    shape.parent      = parent;
-    shape.stage       = parent.stage;
-    shape._$data      = this._$data;
-    shape._$bounds    = this._$bounds;
+    shape.id           = index;
+    shape.characterId  = this.characterId;
+    shape.parent       = parent;
+    shape.stage        = parent.stage;
+    shape._$data       = this._$data;
+    shape._$bounds     = this._$bounds;
+    shape._$edgeBounds = this._$edgeBounds;
 
     // mask
     if (tag.PlaceFlagHasClipDepth === 1) {

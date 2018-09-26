@@ -31,20 +31,22 @@
     var pixelHinting = true;
     var scaleMode = LineScaleMode.NORMAL;
     var caps = CapsStyle.SQUARE;
-    var joints = JointStyle.MITER;
-    triangle.graphics.lineStyle(width, color, alpha, pixelHinting, scaleMode, caps, joints, 2);
+    var joints = JointStyle.BEVEL;
+    triangle.graphics.lineStyle(width, color, alpha, pixelHinting, scaleMode, caps, joints);
 
-    var triangleSide = 100;
     triangle.graphics.moveTo(0, 0);
-    triangle.graphics.lineTo(0, triangleSide);
-    triangle.graphics.lineTo(triangleSide, triangleSide);
-    triangle.graphics.lineTo(0, 0);
-    // triangle.x = 100;
-    // triangle.y = 100;
+    triangle.graphics.lineTo(10, 10);
+    // triangle.graphics.lineTo(triangleSide, triangleSide);
+    // triangle.graphics.lineTo(0, 0);
+    // triangle.x = 60;
+    // triangle.y = 60;
     root.addChild(triangle);
 
     var bounds = triangle.getBounds(root);
     console.log(bounds.toString());
+
+    // var rect = triangle.getRect(root);
+    // console.log(rect.toString());
 
 </script>
 </body>

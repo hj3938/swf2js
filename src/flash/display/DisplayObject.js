@@ -1126,7 +1126,31 @@ DisplayObject.prototype.getBounds = function (target_coordinate_space)
 
     if (target_coordinate_space instanceof DisplayObject) {
 
-        var bounds = target_coordinate_space._$getBounds(
+        var bounds = this._$getBounds(
+            target_coordinate_space.transform.matrix._$matrix
+        );
+
+        // set
+        rectangle.x      = this.x + bounds.xMin;
+        rectangle.y      = this.y + bounds.yMin;
+        rectangle.width  = this.$abs(bounds.xMax - bounds.xMin);
+        rectangle.height = this.$abs(bounds.yMax - bounds.yMin);
+    }
+
+    return rectangle;
+};
+
+/**
+ * @param  {DisplayObject} target_coordinate_space
+ * @return {Rectangle}
+ */
+DisplayObject.prototype.getRect = function (target_coordinate_space)
+{
+    var rectangle = new Rectangle(0, 0, 0, 0);
+
+    if (target_coordinate_space instanceof DisplayObject) {
+
+        var bounds = this._$getRect(
             target_coordinate_space.transform.matrix._$matrix
         );
 
@@ -1138,11 +1162,6 @@ DisplayObject.prototype.getBounds = function (target_coordinate_space)
     }
 
     return rectangle;
-};
-
-DisplayObject.prototype.getRect = function ()
-{
-
 };
 
 DisplayObject.prototype.globalToLocal = function ()

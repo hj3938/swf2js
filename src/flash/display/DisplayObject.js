@@ -1122,22 +1122,25 @@ DisplayObject.prototype._$postDraw = function (matrix, pre_matrix, color_transfo
  */
 DisplayObject.prototype.getBounds = function (target_coordinate_space)
 {
-    var rectangle = new Rectangle(0, 0, 0, 0);
 
-    if (target_coordinate_space instanceof DisplayObject) {
+    var bounds = this._$getBounds();
 
-        var bounds = this._$getBounds(
-            target_coordinate_space.transform.matrix._$matrix
+    if (target_coordinate_space !== this) {
+
+        var matrix = this.$multiplicationMatrix(
+            target_coordinate_space.transform.matrix._$matrix,
+            this.transform.matrix._$matrix
         );
 
-        // set
-        rectangle.x      = this.x + bounds.xMin;
-        rectangle.y      = this.y + bounds.yMin;
-        rectangle.width  = this.$abs(bounds.xMax - bounds.xMin);
-        rectangle.height = this.$abs(bounds.yMax - bounds.yMin);
+        bounds = this.$boundsMatrix(bounds, matrix);
     }
 
-    return rectangle;
+    return new Rectangle(
+        bounds.xMin / 20,
+        bounds.yMin / 20,
+        this.$abs(bounds.xMax - bounds.xMin) / 20,
+        this.$abs(bounds.yMax - bounds.yMin) / 20
+    );
 };
 
 /**
@@ -1146,22 +1149,25 @@ DisplayObject.prototype.getBounds = function (target_coordinate_space)
  */
 DisplayObject.prototype.getRect = function (target_coordinate_space)
 {
-    var rectangle = new Rectangle(0, 0, 0, 0);
 
-    if (target_coordinate_space instanceof DisplayObject) {
+    var rect = this._$getRect();
 
-        var bounds = this._$getRect(
-            target_coordinate_space.transform.matrix._$matrix
+    if (target_coordinate_space !== this) {
+
+        var matrix = this.$multiplicationMatrix(
+            target_coordinate_space.transform.matrix._$matrix,
+            this.transform.matrix._$matrix
         );
 
-        // set
-        rectangle.x      = bounds.xMin;
-        rectangle.y      = bounds.yMin;
-        rectangle.width  = this.$abs(bounds.xMax - bounds.xMin);
-        rectangle.height = this.$abs(bounds.yMax - bounds.yMin);
+        rect = this.$boundsMatrix(rect, matrix);
     }
 
-    return rectangle;
+    return new Rectangle(
+        rect.xMin,
+        rect.yMin,
+        this.$abs(rect.xMax - rect.xMin),
+        this.$abs(rect.yMax - rect.yMin)
+    );
 };
 
 DisplayObject.prototype.globalToLocal = function ()

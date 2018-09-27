@@ -1022,6 +1022,7 @@ describe("DisplayObject.js getBounds test", function()
 {
 
     it("getBounds test success case1", function () {
+
         var player = new Player();
 
         var sprite = new Sprite();
@@ -1040,6 +1041,187 @@ describe("DisplayObject.js getBounds test", function()
         expect(bounds2.toString()).toBe("(x=0, y=0, w=200, h=200)");
     });
 
+    it("line point zero test case 0", function ()
+    {
+        var shape = new Shape();
+
+        shape
+            .graphics
+            .lineStyle(20, 0x000000, 1.0, true, LineScaleMode.NORMAL, CapsStyle.SQUARE, JointStyle.BEVEL, 10)
+            .moveTo(0, 0)
+            .lineTo(10, 0);
+
+        expect(shape.getBounds(shape).toString()).toBe("(x=-10, y=-10, w=30, h=20)");
+
+    });
+
+    it("line point zero test case 45", function ()
+    {
+        var shape = new Shape();
+
+        shape
+            .graphics
+            .lineStyle(20, 0x000000, 1.0, true, LineScaleMode.NORMAL, CapsStyle.SQUARE, JointStyle.BEVEL, 10)
+            .moveTo(0, 0)
+            .lineTo(10, 10);
+
+        expect(shape.getBounds(shape).toString()).toBe("(x=-10, y=-10, w=30, h=30)");
+
+    });
+
+    it("line point zero test case 90", function ()
+    {
+        var shape = new Shape();
+
+        shape
+            .graphics
+            .lineStyle(20, 0x000000, 1.0, true, LineScaleMode.NORMAL, CapsStyle.SQUARE, JointStyle.BEVEL, 10)
+            .moveTo(0, 0)
+            .lineTo(0, 10);
+
+        expect(shape.getBounds(shape).toString()).toBe("(x=-10, y=-10, w=20, h=30)");
+
+    });
+
+    it("line point zero test case 135", function ()
+    {
+        var shape = new Shape();
+
+        shape
+            .graphics
+            .lineStyle(20, 0x000000, 1.0, true, LineScaleMode.NORMAL, CapsStyle.SQUARE, JointStyle.BEVEL, 10)
+            .moveTo(0, 0)
+            .lineTo(-10, 10);
+
+        expect(shape.getBounds(shape).toString()).toBe("(x=-20, y=-10, w=30, h=30)");
+
+    });
+
+    it("line point zero test case 180", function ()
+    {
+        var shape = new Shape();
+
+        shape
+            .graphics
+            .lineStyle(20, 0x000000, 1.0, true, LineScaleMode.NORMAL, CapsStyle.SQUARE, JointStyle.BEVEL, 10)
+            .moveTo(0, 0)
+            .lineTo(-10, 0);
+
+        expect(shape.getBounds(shape).toString()).toBe("(x=-20, y=-10, w=30, h=20)");
+
+    });
+
+    it("line point zero test case -45", function ()
+    {
+        var shape = new Shape();
+
+        shape
+            .graphics
+            .lineStyle(20, 0x000000, 1.0, true, LineScaleMode.NORMAL, CapsStyle.SQUARE, JointStyle.BEVEL, 10)
+            .moveTo(0, 0)
+            .lineTo(10, -10);
+
+        expect(shape.getBounds(shape).toString()).toBe("(x=-10, y=-20, w=30, h=30)");
+
+    });
+
+    it("line point zero test case -90", function ()
+    {
+        var shape = new Shape();
+
+        shape
+            .graphics
+            .lineStyle(20, 0x000000, 1.0, true, LineScaleMode.NORMAL, CapsStyle.SQUARE, JointStyle.BEVEL, 10)
+            .moveTo(0, 0)
+            .lineTo(0, -10);
+
+        expect(shape.getBounds(shape).toString()).toBe("(x=-10, y=-20, w=20, h=30)");
+
+    });
+
+    it("line point zero test case -135", function ()
+    {
+        var shape = new Shape();
+
+        shape
+            .graphics
+            .lineStyle(20, 0x000000, 1.0, true, LineScaleMode.NORMAL, CapsStyle.SQUARE, JointStyle.BEVEL, 10)
+            .moveTo(0, 0)
+            .lineTo(-10, -10);
+
+        expect(shape.getBounds(shape).toString()).toBe("(x=-20, y=-20, w=30, h=30)");
+
+    });
+
+    it("line MITER test case1", function ()
+    {
+        var shape = new Shape();
+
+        shape
+            .graphics
+            .lineStyle(20, 0x000000, 1.0, true, LineScaleMode.NORMAL, CapsStyle.SQUARE, JointStyle.MITER, 10)
+            .moveTo(0, 0)
+            .lineTo(0, 100)
+            .lineTo(100, 100)
+            .lineTo(0, 0);
+
+
+        var bounds = shape.getBounds(shape);
+
+        expect(bounds.x|0).toBe(-10);
+        expect(bounds.y|0).toBe(-24);
+        expect(bounds.width|0).toBe(134);
+        expect(bounds.height|0).toBe(134);
+
+    });
+
+    it("line MITER test case2", function ()
+    {
+        var shape = new Shape();
+
+        shape
+            .graphics
+            .lineStyle(20, 0x000000, 1.0, true, LineScaleMode.NORMAL, CapsStyle.SQUARE, JointStyle.MITER, 10)
+            .moveTo(0, 0)
+            .lineTo(0, 100)
+            .lineTo(100, 100)
+            .lineTo(0, 0);
+
+        shape.x = 60;
+        shape.y = 60;
+
+        var bounds = shape.getBounds(shape);
+
+        expect(bounds.x|0).toBe(-10);
+        expect(bounds.y|0).toBe(-24);
+        expect(bounds.width|0).toBe(134);
+        expect(bounds.height|0).toBe(134);
+
+    });
+
+    it("line MITER test case3", function ()
+    {
+        var shape = new Shape();
+
+        shape
+            .graphics
+            .lineStyle(20, 0x000000, 1.0, true, LineScaleMode.NORMAL, CapsStyle.SQUARE, JointStyle.MITER, 10)
+            .moveTo(0, 0)
+            .lineTo(0, 100)
+            .lineTo(100, 100)
+            .lineTo(0, 0);
+
+        shape.x = 60;
+        shape.y = 60;
+
+        var bounds = shape.getBounds(new Shape());
+
+        expect(bounds.x|0).toBe(50);
+        expect(bounds.y|0).toBe(35);
+        expect(bounds.width|0).toBe(134);
+        expect(bounds.height|0).toBe(134);
+
+    });
 
 
 

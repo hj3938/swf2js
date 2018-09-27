@@ -3,7 +3,7 @@
  * version: 0.8.0
  * author: Toshiyuki Ienaga <ienaga@tvon.jp>
  * homepage: https://swf2js.wordpress.com/
- * copyright: (c) 2013 Toshiyuki Ienaga.
+ * copyright: (c) 2013-2018 Toshiyuki Ienaga.
  */
 /*jshint bitwise: false*/
 if (!("swf2js" in window)) {
@@ -3567,9 +3567,8 @@ Matrix.prototype.rotate = function (rotation)
     this.b = scaleY  * this.$sin(radianY);
     this.d = scaleY  * this.$cos(radianY);
 
-    var tx = this.a * this.tx + this.c * this.ty;
-    var ty = this.b * this.tx + this.d * this.ty;
-
+    var tx  = this.a * this.tx + this.c * this.ty;
+    var ty  = this.b * this.tx + this.d * this.ty;
     this.tx = tx;
     this.ty = ty;
 };
@@ -8563,22 +8562,25 @@ DisplayObject.prototype._$postDraw = function (matrix, pre_matrix, color_transfo
  */
 DisplayObject.prototype.getBounds = function (target_coordinate_space)
 {
-    var rectangle = new Rectangle(0, 0, 0, 0);
 
-    if (target_coordinate_space instanceof DisplayObject) {
+    var bounds = this._$getBounds();
 
-        var bounds = this._$getBounds(
-            target_coordinate_space.transform.matrix._$matrix
+    if (target_coordinate_space !== this) {
+
+        var matrix = this.$multiplicationMatrix(
+            target_coordinate_space.transform.matrix._$matrix,
+            this.transform.matrix._$matrix
         );
 
-        // set
-        rectangle.x      = this.x + bounds.xMin;
-        rectangle.y      = this.y + bounds.yMin;
-        rectangle.width  = this.$abs(bounds.xMax - bounds.xMin);
-        rectangle.height = this.$abs(bounds.yMax - bounds.yMin);
+        bounds = this.$boundsMatrix(bounds, matrix);
     }
 
-    return rectangle;
+    return new Rectangle(
+        bounds.xMin / 20,
+        bounds.yMin / 20,
+        this.$abs(bounds.xMax - bounds.xMin) / 20,
+        this.$abs(bounds.yMax - bounds.yMin) / 20
+    );
 };
 
 /**
@@ -8587,22 +8589,25 @@ DisplayObject.prototype.getBounds = function (target_coordinate_space)
  */
 DisplayObject.prototype.getRect = function (target_coordinate_space)
 {
-    var rectangle = new Rectangle(0, 0, 0, 0);
 
-    if (target_coordinate_space instanceof DisplayObject) {
+    var rect = this._$getRect();
 
-        var bounds = this._$getRect(
-            target_coordinate_space.transform.matrix._$matrix
+    if (target_coordinate_space !== this) {
+
+        var matrix = this.$multiplicationMatrix(
+            target_coordinate_space.transform.matrix._$matrix,
+            this.transform.matrix._$matrix
         );
 
-        // set
-        rectangle.x      = bounds.xMin;
-        rectangle.y      = bounds.yMin;
-        rectangle.width  = this.$abs(bounds.xMax - bounds.xMin);
-        rectangle.height = this.$abs(bounds.yMax - bounds.yMin);
+        rect = this.$boundsMatrix(rect, matrix);
     }
 
-    return rectangle;
+    return new Rectangle(
+        rect.xMin,
+        rect.yMin,
+        this.$abs(rect.xMax - rect.xMin),
+        this.$abs(rect.yMax - rect.yMin)
+    );
 };
 
 DisplayObject.prototype.globalToLocal = function ()
@@ -9384,7 +9389,6 @@ Sprite.prototype._$getBounds = function (matrix)
         var gBounds = (matrix)
             ? this.$boundsMatrix(this.graphics._$getBounds(), matrix)
             : this.graphics._$getBounds();
-
 
         if (matrix) {
             for (var name in gBounds) {
@@ -10517,7 +10521,6 @@ Graphics.prototype._$doDraw = function (ctx, min_scale, color_transform, is_clip
 
     // execute
     this._$command(ctx, color_transform, is_clip, min_scale);
-    console.log(ctx.canvas.toDataURL())
 
 
     // clip or filter and blend
@@ -10713,27 +10716,13 @@ Graphics.prototype._$setEdgeBounds = function (x, y)
                 root = 1;
             }
 
-            // console.log("angle", this.$acos(a / root) * 180 / this.$PI);
             var distance = (this._$lineWidth / 2) / this.$tan(this.$acos(a / root) / 2);
-
-
-            var radian = this.$atan2(y2 - y1, x2 - x1) * 2;
-            var angle  = radian * 180 / this.$PI;
-            var sign   = (angle < 0) ? -1 : 1;
-            // console.log("vec", angle);
+            var radian   = this.$atan2(y2 - y1, x2 - x1) * 2;
+            var angle    = radian * 180 / this.$PI;
+            var sign     = (angle < 0) ? -1 : 1;
 
             var mx = x2 + this.$cos(radian) * distance;
             var my = y2 + this.$sin(radian) * distance * sign;
-            // console.log(
-            //     "cos", this.$cos(radian),
-            //     "sin", this.$sin(radian),
-            //     "x1", x1/20, "x2", x2/20, "mx", mx/20,
-            //     "y1", y1/20, "y2", y2/20, "my", my/20,
-            //     "radian", radian,
-            //     "distance", distance/20,
-            //     "sign", sign
-            // );
-
 
             // set edge bounds
             if (this._$lineBounds === null) {
@@ -10861,41 +10850,118 @@ Graphics.prototype._$setLineBounds = function (x, y)
 
     }
 
+    // point
+    var half     = this._$lineWidth / 2;
+    var radian90 = 0.5 * this.$PI;
+
     // vector
     var radian1 = this.$atan2(y - this._$pointer.y, x - this._$pointer.x);
     var radian2 = this.$atan2(this._$pointer.y - y, this._$pointer.x - x);
-    console.log(radian1 * 180 / this.$PI)
-
-    // point
-    var half      = this._$lineWidth / 2;
-    var radian270 = 270 * this.$PI / 180;
-    var radian90  = 90  * this.$PI / 180;
 
     // default
-    var pointX1 = x;
-    var pointY1 = y;
-    var pointX2 = this._$pointer.x;
-    var pointY2 = this._$pointer.y;
+    this._$lineBounds = {
+        xMin: this.$min(this._$lineBounds.xMin, this.$min(x, this._$pointer.x)),
+        xMax: this.$max(this._$lineBounds.xMax, this.$max(x, this._$pointer.x)),
+        yMin: this.$min(this._$lineBounds.yMin, this.$min(y, this._$pointer.y)),
+        yMax: this.$max(this._$lineBounds.yMax, this.$max(y, this._$pointer.y))
+    };
 
-    // square
-    if (this._$caps === CapsStyle.SQUARE) {
-        pointX1 = x + this.$cos(radian1) * half;
-        pointY1 = y + this.$sin(radian1) * half;
-        pointX2 = this._$pointer.x + this.$cos(radian2) * half;
-        pointY2 = this._$pointer.y + this.$sin(radian2) * half;
+    // case
+    switch (this._$caps) {
+
+        case CapsStyle.ROUND:
+
+            var rx1 = 0;
+            var ry1 = 0;
+            var rx2 = 0;
+            var ry2 = 0;
+
+            if (this.$abs(radian1) % radian90 !== 0) {
+                rx1 = x + this.$cos(radian1) * half;
+            }
+
+            if (radian1 && this.$abs(radian1) % this.$PI !== 0) {
+                ry1 = y + this.$sin(radian1) * half;
+            }
+
+            if (this.$abs(radian2) % radian90 !== 0) {
+                rx2 = this._$pointer.x + this.$cos(radian2) * half;
+            }
+
+            if (radian2 && this.$abs(radian2) % this.$PI !== 0) {
+                ry2 = this._$pointer.y + this.$sin(radian2) * half;
+            }
+
+            this._$lineBounds = {
+                xMin: this.$min(this._$lineBounds.xMin, this.$min(rx1, rx2)),
+                xMax: this.$max(this._$lineBounds.xMax, this.$max(rx1, rx2)),
+                yMin: this.$min(this._$lineBounds.yMin, this.$min(ry1, ry2)),
+                yMax: this.$max(this._$lineBounds.yMax, this.$max(ry1, ry2))
+            };
+
+            break;
+
     }
 
     // correction
-    var x1 = pointX1 + this.$cos(radian1 + radian270) * half;
-    var x2 = pointX1 + this.$cos(radian1 + radian90)  * half;
-    var y1 = pointY1 + this.$sin(radian1 + radian270) * half * -1;
-    var y2 = pointY1 + this.$sin(radian1 + radian90)  * half * -1;
-    var x3 = pointX2 + this.$cos(radian2 + radian270) * half;
-    var x4 = pointX2 + this.$cos(radian2 + radian90)  * half;
-    var y3 = pointY2 + this.$sin(radian2 + radian270) * half * -1;
-    var y4 = pointY2 + this.$sin(radian2 + radian90)  * half * -1;
+    var radian3 = radian1 + radian90;
+    var radian4 = radian1 - radian90;
+    var radian5 = radian2 + radian90;
+    var radian6 = radian2 - radian90;
 
-    // set
+    // init
+    var x1 = x + half;
+    var x2 = -half + x;
+    var x3 = this._$pointer.x + half;
+    var x4 = -half + this._$pointer.x;
+    var y1 = y + half;
+    var y2 = -half + y;
+    var y3 = this._$pointer.y + half;
+    var y4 = -half + this._$pointer.y;
+
+    this._$lineBounds = {
+        xMin: this.$min(this._$lineBounds.xMin, this.$min(x1, this.$min(x2, this.$min(x3, x4)))),
+        xMax: this.$max(this._$lineBounds.xMax, this.$max(x1, this.$max(x2, this.$max(x3, x4)))),
+        yMin: this.$min(this._$lineBounds.yMin, this.$min(y1, this.$min(y2, this.$min(y3, y4)))),
+        yMax: this.$max(this._$lineBounds.yMax, this.$max(y1, this.$max(y2, this.$max(y3, y4))))
+    };
+
+    // pointer x
+    if (this.$abs(radian3) % radian90 !== 0) {
+        x1 = x + this.$cos(radian3) * half;
+    }
+
+    if (this.$abs(radian4) % radian90 !== 0) {
+        x2 = x + this.$cos(radian4) * half;
+    }
+
+    if (this.$abs(radian5) % radian90 !== 0) {
+        x3 = this._$pointer.x + this.$cos(radian5) * half;
+    }
+
+    if (this.$abs(radian6) % radian90 !== 0) {
+        x4 = this._$pointer.x + this.$cos(radian6) * half;
+    }
+
+
+    // pointer y
+    if (radian3 && this.$abs(radian3) % this.$PI !== 0) {
+        y1 = y + this.$sin(radian3) * half;
+    }
+
+    if (radian4 && this.$abs(radian4) % this.$PI !== 0) {
+        y2 = y + this.$sin(radian4) * half;
+    }
+
+    if (radian5 && this.$abs(radian5) % this.$PI !== 0) {
+        y3 = this._$pointer.y + this.$sin(radian5) * half;
+    }
+
+    if (radian6 && this.$abs(radian6) % this.$PI !== 0) {
+        y4 = this._$pointer.y + this.$sin(radian6) * half;
+    }
+
+    // set line bounds
     this._$lineBounds = {
         xMin: this.$min(this._$lineBounds.xMin, this.$min(x1, this.$min(x2, this.$min(x3, x4)))),
         xMax: this.$max(this._$lineBounds.xMax, this.$max(x1, this.$max(x2, this.$max(x3, x4)))),

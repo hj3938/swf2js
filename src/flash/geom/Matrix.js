@@ -330,9 +330,8 @@ Matrix.prototype.rotate = function (rotation)
     this.b = scaleY  * this.$sin(radianY);
     this.d = scaleY  * this.$cos(radianY);
 
-    var tx = this.a * this.tx + this.c * this.ty;
-    var ty = this.b * this.tx + this.d * this.ty;
-
+    var tx  = this.a * this.tx + this.c * this.ty;
+    var ty  = this.b * this.tx + this.d * this.ty;
     this.tx = tx;
     this.ty = ty;
 };

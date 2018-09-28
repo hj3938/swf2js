@@ -26,10 +26,7 @@ describe("Graphics.js beginFill test", function()
 
         // fill style
         expect(g._$fillStyles[0][0]).toBe(Graphics.FILL_STYLE);
-        expect(g._$fillStyles[0][1]).toBe(153);
-        expect(g._$fillStyles[0][2]).toBe(0);
-        expect(g._$fillStyles[0][3]).toBe(0);
-        expect(g._$fillStyles[0][4]).toBe(1);
+        expect(g._$fillStyles[0][1] instanceof GraphicsSolidFill).toBe(true);
 
         // restart check
         expect(g._$command).toBe(null);
@@ -55,10 +52,7 @@ describe("Graphics.js beginFill test", function()
 
         // fill style
         expect(g._$fillStyles[0][0]).toBe(Graphics.FILL_STYLE);
-        expect(g._$fillStyles[0][1]).toBe(255);
-        expect(g._$fillStyles[0][2]).toBe(0);
-        expect(g._$fillStyles[0][3]).toBe(0);
-        expect(g._$fillStyles[0][4]).toBe(0.2);
+        expect(g._$fillStyles[0][1] instanceof GraphicsSolidFill).toBe(true);
 
         // restart check
         expect(g._$command).toBe(null);
@@ -84,10 +78,7 @@ describe("Graphics.js beginFill test", function()
 
         // fill style
         expect(g._$fillStyles[0][0]).toBe(Graphics.FILL_STYLE);
-        expect(g._$fillStyles[0][1]).toBe(255);
-        expect(g._$fillStyles[0][2]).toBe(0);
-        expect(g._$fillStyles[0][3]).toBe(0);
-        expect(g._$fillStyles[0][4]).toBe(1);
+        expect(g._$fillStyles[0][1] instanceof GraphicsSolidFill).toBe(true);
 
         // restart check
         expect(g._$command).toBe(null);
@@ -262,10 +253,7 @@ describe("Graphics.js endFill test", function()
 
         // fill style
         expect(g._$fills[1][0]).toBe(Graphics.FILL_STYLE);
-        expect(g._$fills[1][1]).toBe(255);
-        expect(g._$fills[1][2]).toBe(0);
-        expect(g._$fills[1][3]).toBe(0);
-        expect(g._$fills[1][4]).toBe(1);
+        expect(g._$fills[1][1] instanceof GraphicsSolidFill).toBe(true);
 
         // end fill
         expect(g._$fills[2][0]).toBe(Graphics.END_FILL);
@@ -301,20 +289,14 @@ describe("Graphics.js endFill test", function()
 
         // fill style
         expect(g._$fills[6][0]).toBe(Graphics.FILL_STYLE);
-        expect(g._$fills[6][1]).toBe(255);
-        expect(g._$fills[6][2]).toBe(0);
-        expect(g._$fills[6][3]).toBe(0);
-        expect(g._$fills[6][4]).toBe(1);
+        expect(g._$fills[6][1] instanceof GraphicsSolidFill).toBe(true);
 
         // end fill
         expect(g._$fills[7][0]).toBe(Graphics.END_FILL);
 
         // fill style
         expect(g._$fills[14][0]).toBe(Graphics.FILL_STYLE);
-        expect(g._$fills[14][1]).toBe(0);
-        expect(g._$fills[14][2]).toBe(255);
-        expect(g._$fills[14][3]).toBe(0);
-        expect(g._$fills[14][4]).toBe(1);
+        expect(g._$fills[14][1] instanceof GraphicsSolidFill).toBe(true);
 
         // end fill
         expect(g._$fills[15][0]).toBe(Graphics.END_FILL);

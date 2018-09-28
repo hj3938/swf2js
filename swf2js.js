@@ -10647,8 +10647,8 @@ Graphics.prototype._$buildCommand = function ()
     }
 
     // reset
-    this._$pointer   = {x:0, y:0};
-    this._$lineStart = {x:0, y:0};
+    this._$pointer   = { x: 0, y: 0 };
+    this._$lineStart = { x: 0, y: 0 };
 
     return this.$vtc.buildCommand(recodes);
 
@@ -10675,7 +10675,7 @@ Graphics.prototype._$hit = function (x, y, matrix)
 
         }
 
-        this._$command(ctx, [1,1,1,1,0,0,0,0], true, this.$min(matrix[0], matrix[3]));
+        this._$command(ctx, [1, 1, 1, 1, 0, 0, 0, 0], true, this.$min(matrix[0], matrix[3]));
 
         if (ctx.isPointInPath(x, y)) {
             return true;
@@ -11222,29 +11222,6 @@ Graphics.prototype.beginBitmapFill = function (bitmap, matrix, repeat, smooth)
  */
 Graphics.prototype.beginFill = function (color, alpha)
 {
-
-    if (typeof color === "string") {
-        color = this.$colorStringToInt(color);
-    }
-
-    // alpha
-    alpha = +alpha;
-    switch (typeof alpha) {
-        case "number":
-
-            alpha = alpha * 100;
-            if (alpha > 100) {
-                alpha = 100;
-            }
-
-            break;
-
-        default:
-
-            alpha = 100;
-            break;
-    }
-
     // init fill style
     this._$beginFill();
 
@@ -11252,8 +11229,7 @@ Graphics.prototype.beginFill = function (color, alpha)
     this._$fills[this._$fills.length] = [Graphics.BEGIN_PATH];
 
     // add Fill Style
-    var rgba = this.$intToRGBA(color, alpha);
-    this._$fillStyles[this._$fillStyles.length] = [Graphics.FILL_STYLE, rgba.R, rgba.G, rgba.B, rgba.A];
+    this._$fillStyles[this._$fillStyles.length] = [Graphics.FILL_STYLE, new GraphicsSolidFill(color, alpha)];
 
     // restart
     this._$restart();
@@ -12465,8 +12441,7 @@ GraphicsSolidFill.prototype._$toRGBA = function ()
 var GraphicsStroke = function (
     thickness, pixel_hinting, scale_mode,
     caps, joints, miter_limit, fill
-)
-{
+) {
 
     // default
     this._$thickness    = 0;
@@ -12513,16 +12488,13 @@ Object.defineProperties(GraphicsStroke.prototype, {
 
             switch (caps) {
 
-                case CapsStyle.NONE:
-                    this._$caps = "butt";
-                    break;
-
+                case CapsStyle.ROUND:
                 case CapsStyle.SQUARE:
                     this._$caps = caps;
                     break;
 
                 default:
-                    this._$caps = CapsStyle.ROUND;
+                    this._$caps = CapsStyle.NONE;
                     break;
 
             }
@@ -12575,7 +12547,7 @@ Object.defineProperties(GraphicsStroke.prototype, {
          * @return {number}
          */
         get: function () {
-            return this._$miterLimit
+            return this._$miterLimit;
         },
         /**
          * @param  {number} miter_limit
@@ -12636,7 +12608,7 @@ Object.defineProperties(GraphicsStroke.prototype, {
                 case LineScaleMode.NONE:
                 case LineScaleMode.NORMAL:
                 case LineScaleMode.VERTICAL:
-                    this._$scaleMode = LineScaleMode.NONE;
+                    this._$scaleMode = scale_mode;
                     break;
 
                 default:
@@ -12672,8 +12644,7 @@ Object.defineProperties(GraphicsStroke.prototype, {
                 thickness = 255;
             }
 
-            this._$thickness = thickness * 20;
-
+            this._$thickness = +(thickness * 20);
         }
     }
 });
@@ -32730,24 +32701,27 @@ VectorToCanvas.prototype.toCanvas2D = function (cache)
                 str += "ctx.arc(" + a[1] + "," + a[2] + "," + a[3] + ",0 , Math.PI*2, false);";
                 break;
             case Graphics.FILL_STYLE:
-                str += "var r =  Math.max(0, Math.min(("+ a[1] +" * ct[0]) + ct[4], 255))|0;";
-                str += "var g =  Math.max(0, Math.min(("+ a[2] +" * ct[1]) + ct[5], 255))|0;";
-                str += "var b =  Math.max(0, Math.min(("+ a[3] +" * ct[2]) + ct[6], 255))|0;";
-                str += "var a = +Math.max(0, Math.min(("+ a[4] +" * 255 * ct[3]) + ct[7], 255)) / 255;";
+                var fill = a[1]._$toRGBA();
+                str += "var r =  Math.max(0, Math.min(("+ fill.R +" * ct[0]) + ct[4], 255))|0;";
+                str += "var g =  Math.max(0, Math.min(("+ fill.G +" * ct[1]) + ct[5], 255))|0;";
+                str += "var b =  Math.max(0, Math.min(("+ fill.B +" * ct[2]) + ct[6], 255))|0;";
+                str += "var a = +Math.max(0, Math.min(("+ fill.A +" * 255 * ct[3]) + ct[7], 255)) / 255;";
                 str += "ctx.fillStyle = 'rgba('+r+', '+g+', '+b+', '+a+')';";
                 break;
             case Graphics.STROKE_STYLE:
                 /** @var {GraphicsStroke} graphicsStroke */
                 var graphicsStroke = a[1];
-                var rgba = graphicsStroke.fill._$toRGBA();
+                var stroke = graphicsStroke.fill._$toRGBA();
 
-                str += "var r =  Math.max(0, Math.min(("+ rgba.R +" * ct[0]) + ct[4], 255))|0;";
-                str += "var g =  Math.max(0, Math.min(("+ rgba.G +" * ct[1]) + ct[5], 255))|0;";
-                str += "var b =  Math.max(0, Math.min(("+ rgba.B +" * ct[2]) + ct[6], 255))|0;";
-                str += "var a = +Math.max(0, Math.min(("+ rgba.A +" * 255 * ct[3]) + ct[7], 255)) / 255;";
+                var caps = graphicsStroke.caps === CapsStyle.NONE ? "butt" : graphicsStroke.caps;
+
+                str += "var r =  Math.max(0, Math.min(("+ stroke.R +" * ct[0]) + ct[4], 255))|0;";
+                str += "var g =  Math.max(0, Math.min(("+ stroke.G +" * ct[1]) + ct[5], 255))|0;";
+                str += "var b =  Math.max(0, Math.min(("+ stroke.B +" * ct[2]) + ct[6], 255))|0;";
+                str += "var a = +Math.max(0, Math.min(("+ stroke.A +" * 255 * ct[3]) + ct[7], 255)) / 255;";
                 str += "ctx.strokeStyle = 'rgba('+r+', '+g+', '+b+', '+a+')';";
                 str += "ctx.lineWidth   = Math.max("+ graphicsStroke.thickness * 20 +", 1 / min_scale);";
-                str += "ctx.lineCap     = '"+ graphicsStroke.caps +"';";
+                str += "ctx.lineCap     = '"+ caps +"';";
                 str += "ctx.lineJoin    = '"+ graphicsStroke.joints +"';";
                 str += "ctx.miterLimit  = "+  graphicsStroke.miterLimit +";";
                 break;

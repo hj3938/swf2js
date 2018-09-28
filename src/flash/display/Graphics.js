@@ -307,8 +307,8 @@ Graphics.prototype._$buildCommand = function ()
     }
 
     // reset
-    this._$pointer   = {x:0, y:0};
-    this._$lineStart = {x:0, y:0};
+    this._$pointer   = { x: 0, y: 0 };
+    this._$lineStart = { x: 0, y: 0 };
 
     return this.$vtc.buildCommand(recodes);
 
@@ -335,7 +335,7 @@ Graphics.prototype._$hit = function (x, y, matrix)
 
         }
 
-        this._$command(ctx, [1,1,1,1,0,0,0,0], true, this.$min(matrix[0], matrix[3]));
+        this._$command(ctx, [1, 1, 1, 1, 0, 0, 0, 0], true, this.$min(matrix[0], matrix[3]));
 
         if (ctx.isPointInPath(x, y)) {
             return true;
@@ -882,29 +882,6 @@ Graphics.prototype.beginBitmapFill = function (bitmap, matrix, repeat, smooth)
  */
 Graphics.prototype.beginFill = function (color, alpha)
 {
-
-    if (typeof color === "string") {
-        color = this.$colorStringToInt(color);
-    }
-
-    // alpha
-    alpha = +alpha;
-    switch (typeof alpha) {
-        case "number":
-
-            alpha = alpha * 100;
-            if (alpha > 100) {
-                alpha = 100;
-            }
-
-            break;
-
-        default:
-
-            alpha = 100;
-            break;
-    }
-
     // init fill style
     this._$beginFill();
 
@@ -912,8 +889,7 @@ Graphics.prototype.beginFill = function (color, alpha)
     this._$fills[this._$fills.length] = [Graphics.BEGIN_PATH];
 
     // add Fill Style
-    var rgba = this.$intToRGBA(color, alpha);
-    this._$fillStyles[this._$fillStyles.length] = [Graphics.FILL_STYLE, rgba.R, rgba.G, rgba.B, rgba.A];
+    this._$fillStyles[this._$fillStyles.length] = [Graphics.FILL_STYLE, new GraphicsSolidFill(color, alpha)];
 
     // restart
     this._$restart();

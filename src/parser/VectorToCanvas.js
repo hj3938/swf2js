@@ -483,24 +483,27 @@ VectorToCanvas.prototype.toCanvas2D = function (cache)
                 str += "ctx.arc(" + a[1] + "," + a[2] + "," + a[3] + ",0 , Math.PI*2, false);";
                 break;
             case Graphics.FILL_STYLE:
-                str += "var r =  Math.max(0, Math.min(("+ a[1] +" * ct[0]) + ct[4], 255))|0;";
-                str += "var g =  Math.max(0, Math.min(("+ a[2] +" * ct[1]) + ct[5], 255))|0;";
-                str += "var b =  Math.max(0, Math.min(("+ a[3] +" * ct[2]) + ct[6], 255))|0;";
-                str += "var a = +Math.max(0, Math.min(("+ a[4] +" * 255 * ct[3]) + ct[7], 255)) / 255;";
+                var fill = a[1]._$toRGBA();
+                str += "var r =  Math.max(0, Math.min(("+ fill.R +" * ct[0]) + ct[4], 255))|0;";
+                str += "var g =  Math.max(0, Math.min(("+ fill.G +" * ct[1]) + ct[5], 255))|0;";
+                str += "var b =  Math.max(0, Math.min(("+ fill.B +" * ct[2]) + ct[6], 255))|0;";
+                str += "var a = +Math.max(0, Math.min(("+ fill.A +" * 255 * ct[3]) + ct[7], 255)) / 255;";
                 str += "ctx.fillStyle = 'rgba('+r+', '+g+', '+b+', '+a+')';";
                 break;
             case Graphics.STROKE_STYLE:
                 /** @var {GraphicsStroke} graphicsStroke */
                 var graphicsStroke = a[1];
-                var rgba = graphicsStroke.fill._$toRGBA();
+                var stroke = graphicsStroke.fill._$toRGBA();
 
-                str += "var r =  Math.max(0, Math.min(("+ rgba.R +" * ct[0]) + ct[4], 255))|0;";
-                str += "var g =  Math.max(0, Math.min(("+ rgba.G +" * ct[1]) + ct[5], 255))|0;";
-                str += "var b =  Math.max(0, Math.min(("+ rgba.B +" * ct[2]) + ct[6], 255))|0;";
-                str += "var a = +Math.max(0, Math.min(("+ rgba.A +" * 255 * ct[3]) + ct[7], 255)) / 255;";
+                var caps = graphicsStroke.caps === CapsStyle.NONE ? "butt" : graphicsStroke.caps;
+
+                str += "var r =  Math.max(0, Math.min(("+ stroke.R +" * ct[0]) + ct[4], 255))|0;";
+                str += "var g =  Math.max(0, Math.min(("+ stroke.G +" * ct[1]) + ct[5], 255))|0;";
+                str += "var b =  Math.max(0, Math.min(("+ stroke.B +" * ct[2]) + ct[6], 255))|0;";
+                str += "var a = +Math.max(0, Math.min(("+ stroke.A +" * 255 * ct[3]) + ct[7], 255)) / 255;";
                 str += "ctx.strokeStyle = 'rgba('+r+', '+g+', '+b+', '+a+')';";
                 str += "ctx.lineWidth   = Math.max("+ graphicsStroke.thickness * 20 +", 1 / min_scale);";
-                str += "ctx.lineCap     = '"+ graphicsStroke.caps +"';";
+                str += "ctx.lineCap     = '"+ caps +"';";
                 str += "ctx.lineJoin    = '"+ graphicsStroke.joints +"';";
                 str += "ctx.miterLimit  = "+  graphicsStroke.miterLimit +";";
                 break;

@@ -11,8 +11,7 @@
 var GraphicsStroke = function (
     thickness, pixel_hinting, scale_mode,
     caps, joints, miter_limit, fill
-)
-{
+) {
 
     // default
     this._$thickness    = 0;
@@ -59,16 +58,13 @@ Object.defineProperties(GraphicsStroke.prototype, {
 
             switch (caps) {
 
-                case CapsStyle.NONE:
-                    this._$caps = "butt";
-                    break;
-
+                case CapsStyle.ROUND:
                 case CapsStyle.SQUARE:
                     this._$caps = caps;
                     break;
 
                 default:
-                    this._$caps = CapsStyle.ROUND;
+                    this._$caps = CapsStyle.NONE;
                     break;
 
             }
@@ -121,7 +117,7 @@ Object.defineProperties(GraphicsStroke.prototype, {
          * @return {number}
          */
         get: function () {
-            return this._$miterLimit
+            return this._$miterLimit;
         },
         /**
          * @param  {number} miter_limit
@@ -182,7 +178,7 @@ Object.defineProperties(GraphicsStroke.prototype, {
                 case LineScaleMode.NONE:
                 case LineScaleMode.NORMAL:
                 case LineScaleMode.VERTICAL:
-                    this._$scaleMode = LineScaleMode.NONE;
+                    this._$scaleMode = scale_mode;
                     break;
 
                 default:
@@ -218,8 +214,7 @@ Object.defineProperties(GraphicsStroke.prototype, {
                 thickness = 255;
             }
 
-            this._$thickness = thickness * 20;
-
+            this._$thickness = +(thickness * 20);
         }
     }
 });

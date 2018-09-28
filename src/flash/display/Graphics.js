@@ -402,13 +402,13 @@ Graphics.prototype._$setEdgeBounds = function (x, y)
                 root = 1;
             }
 
-            var distance = (this._$lineWidth / 2) / this.$tan(this.$acos(a / root) / 2);
-            var radian   = this.$atan2(y2 - y1, x2 - x1) * 2;
-            var angle    = radian * 180 / this.$PI;
-            var sign     = (angle < 0) ? -1 : 1;
+            var radian   = this.$acos(a / root);
+            var distance = (this._$lineWidth / 2) / this.$tan(radian / 2);
+            console.log("distance", distance/20);
+            var vector   = this.$atan2(y2 - y1, x2 - x1) + radian * -1;
 
-            var mx = x2 + this.$cos(radian) * distance;
-            var my = y2 + this.$sin(radian) * distance * sign;
+            var mx = x2 + this.$cos(vector) * distance;
+            var my = y2 + this.$sin(vector) * distance;
 
             // set edge bounds
             if (this._$lineBounds === null) {
@@ -541,8 +541,8 @@ Graphics.prototype._$setLineBounds = function (x, y)
     var radian90 = 0.5 * this.$PI;
 
     // vector
-    var radian1 = this.$atan2(y - this._$pointer.y, x - this._$pointer.x);
-    var radian2 = this.$atan2(this._$pointer.y - y, this._$pointer.x - x);
+    var radian1 = this.$atan2(y - this._$pointer.y, x - this._$pointer.x); // to end point
+    var radian2 = this.$atan2(this._$pointer.y - y, this._$pointer.x - x); // to start point
 
     // default
     this._$lineBounds = {
@@ -588,6 +588,7 @@ Graphics.prototype._$setLineBounds = function (x, y)
             break;
 
     }
+
 
     // correction
     var radian3 = radian1 + radian90;
@@ -1107,10 +1108,11 @@ Graphics.prototype.cubicCurveTo = function (
     anchor_y   = +(anchor_y   * 20);
 
     // set bounds
-    this._$setBounds(anchor_x,     anchor_y);
-    this._$setBounds(control_x1,   control_y1);
-    this._$setBounds(control_x2,   control_y2);
-    this._$setEdgeBounds(anchor_x, anchor_y);
+    this._$setBounds(control_x1,     control_y1);
+    this._$setBounds(control_x2,     control_y2);
+    this._$setEdgeBounds(control_x2, control_y2);
+    this._$setBounds(anchor_x,       anchor_y);
+    this._$setEdgeBounds(anchor_x,   anchor_y);
 
     if (this._$doFill || this._$doLine) {
 
@@ -1176,9 +1178,10 @@ Graphics.prototype.curveTo = function (control_x, control_y, anchor_x, anchor_y)
     anchor_x  = +(anchor_x  * 20);
     anchor_y  = +(anchor_y  * 20);
 
-    this._$setBounds(control_x,    control_y);
-    this._$setBounds(anchor_x,     anchor_y);
-    this._$setEdgeBounds(anchor_x, anchor_y);
+    this._$setBounds(control_x,     control_y);
+    this._$setEdgeBounds(control_x, control_y);
+    this._$setBounds(anchor_x,      anchor_y);
+    this._$setEdgeBounds(anchor_x,  anchor_y);
 
     if (this._$doFill || this._$doLine) {
 
@@ -1570,7 +1573,6 @@ Graphics.prototype.drawTriangles = function (vertices, indices, uvt_data, cullin
 
                     i = (i + 1) | 0;
                 }
-
             }
         }
     }
@@ -1704,118 +1706,24 @@ Graphics.prototype.lineStyle = function (
             // init
             this._$beginLine();
 
-
-            if (typeof color === "string") {
-                color = this.$colorStringToInt(color);
-            }
-
-            // alpha
-            alpha = +alpha;
-            switch (typeof alpha) {
-                case "number":
-
-                    alpha = alpha * 100;
-                    if (alpha > 100) {
-                        alpha = 100;
-                    }
-
-                    break;
-
-                default:
-
-                    alpha = 100;
-                    break;
-            }
-
-            // build rgba
-            var rgba = this.$intToRGBA(color, alpha);
-
-
-            // line width
-            if (typeof thickness !== "number") {
-                thickness = thickness|0;
-            }
-
-            if (thickness < 0) {
-                thickness = 0;
-            }
-
-            if (thickness > 255) {
-                thickness = 255;
-            }
-            thickness = thickness * 20;
-
-
-            // line cap
-            switch (caps) {
-                case CapsStyle.NONE:
-                    caps = "butt";
-                    break;
-                case CapsStyle.SQUARE:
-                    break;
-                default:
-                    caps = CapsStyle.ROUND;
-                    break;
-            }
-            this._$caps = caps;
-
-            // line join
-            switch (joints) {
-                case JointStyle.BEVEL:
-                case JointStyle.MITER:
-                    break;
-                default:
-                    joints = JointStyle.ROUND;
-                    break;
-            }
-
-
-            // miter limit
-            if (miter_limit === undefined) {
-                miter_limit = 10;
-            }
-
-            if (typeof miter_limit !== "number") {
-                miter_limit = miter_limit|0;
-            }
-
-            if (miter_limit < 1) {
-                miter_limit = 1;
-            }
-
-            if (miter_limit > 255) {
-                miter_limit = 255;
-            }
+            var graphicsStroke = new GraphicsStroke(
+                thickness,
+                pixel_hinting,
+                scale_mode,
+                caps,
+                joints,
+                miter_limit,
+                new GraphicsSolidFill(color, alpha)
+            );
 
             // set miter limit
             if (joints === JointStyle.MITER) {
-                this._$miterLimit = miter_limit;
+                this._$miterLimit = graphicsStroke.miterLimit;
             }
-
-
-            // scale flag
-            switch (scale_mode) {
-                case LineScaleMode.HORIZONTAL:
-                case LineScaleMode.NONE:
-                case LineScaleMode.NORMAL:
-                case LineScaleMode.VERTICAL:
-                    break;
-                default:
-                    scale_mode = LineScaleMode.NORMAL;
-                    break;
-            }
-
-
-            // set data
-            var data = [Graphics.STROKE_STYLE,
-                rgba.R, rgba.G, rgba.B, rgba.A,
-                thickness, caps, joints, miter_limit
-            ];
-
+            this._$lineWidth  = graphicsStroke.thickness * 20;
 
             // set style
-            this._$lineWidth  = thickness;
-            this._$lineStyles[this._$lineStyles.length] = data;
+            this._$lineStyles[this._$lineStyles.length] = [Graphics.STROKE_STYLE, graphicsStroke];
 
             // init line
             this._$doLine = true;

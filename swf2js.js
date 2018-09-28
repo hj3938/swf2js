@@ -8603,10 +8603,10 @@ DisplayObject.prototype.getRect = function (target_coordinate_space)
     }
 
     return new Rectangle(
-        rect.xMin,
-        rect.yMin,
-        this.$abs(rect.xMax - rect.xMin),
-        this.$abs(rect.yMax - rect.yMin)
+        rect.xMin / 20,
+        rect.yMin / 20,
+        this.$abs(rect.xMax - rect.xMin) / 20,
+        this.$abs(rect.yMax - rect.yMin) / 20
     );
 };
 
@@ -9390,6 +9390,7 @@ Sprite.prototype._$getBounds = function (matrix)
             ? this.$boundsMatrix(this.graphics._$getBounds(), matrix)
             : this.graphics._$getBounds();
 
+
         if (matrix) {
             for (var name in gBounds) {
 
@@ -9474,11 +9475,36 @@ Sprite.prototype._$hit = function (x, y, matrix)
  * @constructor
  */
 var AVLoader = function () {};
+
+/**
+ * extends
+ * @type {Loader}
+ */
+AVLoader.prototype = Object.create(AVLoader.prototype);
+AVLoader.prototype.constructor = AVLoader;
 /**
  * @constructor
  */
 var AVM1Movie = function () {};
 
+/**
+ * extends
+ * @type {DisplayObject}
+ */
+AVM1Movie.prototype = Object.create(DisplayObject.prototype);
+AVM1Movie.prototype.constructor = AVM1Movie;
+
+/**
+ * @param  {array}   matrix
+ * @param  {array}   color_transform
+ * @param  {boolean} is_clip
+ * @param  {boolean} visible
+ * @return void
+ */
+AVM1Movie.prototype._$draw = function (matrix, color_transform, is_clip, visible)
+{
+
+};
 /**
  * @type {{ACTIONSCRIPT2: number, ACTIONSCRIPT3: number}}
  */
@@ -10716,13 +10742,13 @@ Graphics.prototype._$setEdgeBounds = function (x, y)
                 root = 1;
             }
 
-            var distance = (this._$lineWidth / 2) / this.$tan(this.$acos(a / root) / 2);
-            var radian   = this.$atan2(y2 - y1, x2 - x1) * 2;
-            var angle    = radian * 180 / this.$PI;
-            var sign     = (angle < 0) ? -1 : 1;
+            var radian   = this.$acos(a / root);
+            var distance = (this._$lineWidth / 2) / this.$tan(radian / 2);
+            console.log("distance", distance/20);
+            var vector   = this.$atan2(y2 - y1, x2 - x1) + radian * -1;
 
-            var mx = x2 + this.$cos(radian) * distance;
-            var my = y2 + this.$sin(radian) * distance * sign;
+            var mx = x2 + this.$cos(vector) * distance;
+            var my = y2 + this.$sin(vector) * distance;
 
             // set edge bounds
             if (this._$lineBounds === null) {
@@ -10855,8 +10881,8 @@ Graphics.prototype._$setLineBounds = function (x, y)
     var radian90 = 0.5 * this.$PI;
 
     // vector
-    var radian1 = this.$atan2(y - this._$pointer.y, x - this._$pointer.x);
-    var radian2 = this.$atan2(this._$pointer.y - y, this._$pointer.x - x);
+    var radian1 = this.$atan2(y - this._$pointer.y, x - this._$pointer.x); // to end point
+    var radian2 = this.$atan2(this._$pointer.y - y, this._$pointer.x - x); // to start point
 
     // default
     this._$lineBounds = {
@@ -10902,6 +10928,7 @@ Graphics.prototype._$setLineBounds = function (x, y)
             break;
 
     }
+
 
     // correction
     var radian3 = radian1 + radian90;
@@ -11421,10 +11448,11 @@ Graphics.prototype.cubicCurveTo = function (
     anchor_y   = +(anchor_y   * 20);
 
     // set bounds
-    this._$setBounds(anchor_x,     anchor_y);
-    this._$setBounds(control_x1,   control_y1);
-    this._$setBounds(control_x2,   control_y2);
-    this._$setEdgeBounds(anchor_x, anchor_y);
+    this._$setBounds(control_x1,     control_y1);
+    this._$setBounds(control_x2,     control_y2);
+    this._$setEdgeBounds(control_x2, control_y2);
+    this._$setBounds(anchor_x,       anchor_y);
+    this._$setEdgeBounds(anchor_x,   anchor_y);
 
     if (this._$doFill || this._$doLine) {
 
@@ -11490,9 +11518,10 @@ Graphics.prototype.curveTo = function (control_x, control_y, anchor_x, anchor_y)
     anchor_x  = +(anchor_x  * 20);
     anchor_y  = +(anchor_y  * 20);
 
-    this._$setBounds(control_x,    control_y);
-    this._$setBounds(anchor_x,     anchor_y);
-    this._$setEdgeBounds(anchor_x, anchor_y);
+    this._$setBounds(control_x,     control_y);
+    this._$setEdgeBounds(control_x, control_y);
+    this._$setBounds(anchor_x,      anchor_y);
+    this._$setEdgeBounds(anchor_x,  anchor_y);
 
     if (this._$doFill || this._$doLine) {
 
@@ -11884,7 +11913,6 @@ Graphics.prototype.drawTriangles = function (vertices, indices, uvt_data, cullin
 
                     i = (i + 1) | 0;
                 }
-
             }
         }
     }
@@ -12018,118 +12046,24 @@ Graphics.prototype.lineStyle = function (
             // init
             this._$beginLine();
 
-
-            if (typeof color === "string") {
-                color = this.$colorStringToInt(color);
-            }
-
-            // alpha
-            alpha = +alpha;
-            switch (typeof alpha) {
-                case "number":
-
-                    alpha = alpha * 100;
-                    if (alpha > 100) {
-                        alpha = 100;
-                    }
-
-                    break;
-
-                default:
-
-                    alpha = 100;
-                    break;
-            }
-
-            // build rgba
-            var rgba = this.$intToRGBA(color, alpha);
-
-
-            // line width
-            if (typeof thickness !== "number") {
-                thickness = thickness|0;
-            }
-
-            if (thickness < 0) {
-                thickness = 0;
-            }
-
-            if (thickness > 255) {
-                thickness = 255;
-            }
-            thickness = thickness * 20;
-
-
-            // line cap
-            switch (caps) {
-                case CapsStyle.NONE:
-                    caps = "butt";
-                    break;
-                case CapsStyle.SQUARE:
-                    break;
-                default:
-                    caps = CapsStyle.ROUND;
-                    break;
-            }
-            this._$caps = caps;
-
-            // line join
-            switch (joints) {
-                case JointStyle.BEVEL:
-                case JointStyle.MITER:
-                    break;
-                default:
-                    joints = JointStyle.ROUND;
-                    break;
-            }
-
-
-            // miter limit
-            if (miter_limit === undefined) {
-                miter_limit = 10;
-            }
-
-            if (typeof miter_limit !== "number") {
-                miter_limit = miter_limit|0;
-            }
-
-            if (miter_limit < 1) {
-                miter_limit = 1;
-            }
-
-            if (miter_limit > 255) {
-                miter_limit = 255;
-            }
+            var graphicsStroke = new GraphicsStroke(
+                thickness,
+                pixel_hinting,
+                scale_mode,
+                caps,
+                joints,
+                miter_limit,
+                new GraphicsSolidFill(color, alpha)
+            );
 
             // set miter limit
             if (joints === JointStyle.MITER) {
-                this._$miterLimit = miter_limit;
+                this._$miterLimit = graphicsStroke.miterLimit;
             }
-
-
-            // scale flag
-            switch (scale_mode) {
-                case LineScaleMode.HORIZONTAL:
-                case LineScaleMode.NONE:
-                case LineScaleMode.NORMAL:
-                case LineScaleMode.VERTICAL:
-                    break;
-                default:
-                    scale_mode = LineScaleMode.NORMAL;
-                    break;
-            }
-
-
-            // set data
-            var data = [Graphics.STROKE_STYLE,
-                rgba.R, rgba.G, rgba.B, rgba.A,
-                thickness, caps, joints, miter_limit
-            ];
-
+            this._$lineWidth  = graphicsStroke.thickness * 20;
 
             // set style
-            this._$lineWidth  = thickness;
-            this._$lineStyles[this._$lineStyles.length] = data;
+            this._$lineStyles[this._$lineStyles.length] = [Graphics.STROKE_STYLE, graphicsStroke];
 
             // init line
             this._$doLine = true;
@@ -12265,20 +12199,98 @@ Graphics.prototype.readGraphicsData = function (recurse)
     return new Vector();
 };
 /**
- * @param bitmapData
- * @param matrix
- * @param repeat
- * @param smooth
+ * @param {BitmapData} bitmap_data
+ * @param {Matrix}     matrix
+ * @param {boolean}    repeat
+ * @param {boolean}    smooth
  * @constructor
  */
-var GraphicsBitmapFill = function (bitmapData, matrix, repeat, smooth)
+var GraphicsBitmapFill = function (bitmap_data, matrix, repeat, smooth)
 {
-    this._bitmapData = null;
-    this._matrix     = null;
-    this._repeat     = true;
-    this._smooth     = false;
+    this._$bitmapData = null;
+    this._$matrix     = null;
+    this._$repeat     = true;
+    this._$smooth     = false;
+
+
 };
 
+/**
+ * extends
+ * @type {OriginalObject}
+ */
+GraphicsBitmapFill.prototype = Object.create(OriginalObject.prototype);
+GraphicsBitmapFill.prototype.constructor = GraphicsBitmapFill;
+
+/**
+ * properties
+ */
+Object.defineProperties(GraphicsBitmapFill.prototype, {
+    bitmapData: {
+        /**
+         * @return {BitmapData|null}
+         */
+        get: function () {
+            return this._$bitmapData;
+        },
+        /**
+         * @param {BitmapData} bitmap_data
+         */
+        set: function (bitmap_data) {
+            if (bitmap_data instanceof BitmapData) {
+                this._$bitmapData = bitmap_data;
+            }
+        }
+    },
+    matrix: {
+        /**
+         * @return {Matrix|null}
+         */
+        get: function () {
+            return this._$matrix;
+        },
+        /**
+         * @param {Matrix} matrix
+         */
+        set: function (matrix) {
+            if (matrix instanceof Matrix) {
+                this._$matrix = matrix;
+            }
+        }
+    },
+    repeat: {
+        /**
+         * @return {boolean}
+         */
+        get: function () {
+            return this._$repeat;
+        },
+        /**
+         * @param {boolean} repeat
+         */
+        set: function (repeat) {
+            if (typeof repeat === "boolean") {
+                this._$repeat = repeat;
+            }
+        }
+    },
+    smooth: {
+        /**
+         * @return {boolean}
+         */
+        get: function () {
+            return this._$smooth;
+        },
+        /**
+         * @param {boolean} smooth
+         */
+        set: function (smooth) {
+            if (typeof smooth === "boolean") {
+                this._$smooth = smooth;
+            }
+        }
+    }
+});
 /**
  * @constructor
  */
@@ -12350,37 +12362,328 @@ var GraphicsShaderFill = function (shader, matrix)
     this._matrix = null;
 };
 /**
- * @param color
- * @param alpha
+ * @param {number} color
+ * @param {number} alpha
  * @constructor
  */
 var GraphicsSolidFill = function (color, alpha)
 {
+    // default
     this._$color = 0;
-    this._$alpha = 1.0;
+    this._$alpha = 1;
+
+    // init
+    this.color = color;
+    this.alpha = alpha;
+};
+
+/**
+ * extends
+ * @type {OriginalObject}
+ */
+GraphicsSolidFill.prototype = Object.create(OriginalObject.prototype);
+GraphicsSolidFill.prototype.constructor = GraphicsSolidFill;
+
+/**
+ * properties
+ */
+Object.defineProperties(GraphicsSolidFill.prototype, {
+    alpha: {
+        /**
+         * @returns {number}
+         */
+        get: function () {
+            return +(this._$alpha / 100);
+        },
+        /**
+         * @param  {number} alpha
+         * @return void
+         */
+        set: function (alpha) {
+
+            alpha = +alpha;
+            if (this.$isNaN(alpha)) {
+                alpha = 1;
+            }
+
+            alpha = +(alpha * 100);
+            if (alpha > 100) {
+                alpha = 100;
+            }
+
+            this._$alpha = +alpha;
+
+        }
+    },
+    color: {
+        /**
+         * @return {number}
+         */
+        get: function () {
+            return this._$color;
+        },
+        /**
+         * @param  {number|string} color
+         * @return void
+         */
+        set: function (color) {
+
+            if (typeof color === "string") {
+                color = this.$colorStringToInt(color);
+            }
+
+            this._$color = color|0;
+        }
+    }
+});
+
+/**
+ * @return {string}
+ */
+GraphicsSolidFill.prototype.toString = function ()
+{
+    return "[object GraphicsSolidFill]";
+};
+
+/**
+ * @return {{R: number, G: number, B: number, A: number}}
+ */
+GraphicsSolidFill.prototype._$toRGBA = function ()
+{
+    return this.$intToRGBA(this.color, this.alpha * 100);
 };
 /**
- * @param thickness
- * @param pixelHinting
- * @param scaleMode
- * @param caps
- * @param joints
- * @param miterLimit
- * @param fill
+ * @param {number}  thickness
+ * @param {boolean} pixel_hinting
+ * @param {string}  scale_mode
+ * @param {string}  caps
+ * @param {string}  joints
+ * @param {number}  miter_limit
+ * @param {*} fill
  * @constructor
  */
 var GraphicsStroke = function (
-    thickness, pixelHinting, scaleMode,
-    caps, joints, miterLimit, fill
+    thickness, pixel_hinting, scale_mode,
+    caps, joints, miter_limit, fill
 )
 {
-    this._$thickness    = "";
+
+    // default
+    this._$thickness    = 0;
     this._$pixelHinting = false;
-    this._$scaleMode    = "normal";
-    this._$caps         = "none";
-    this._$joints       = "round";
-    this._$miterLimit   = 3.0;
+    this._$scaleMode    = LineScaleMode.NORMAL;
+    this._$caps         = CapsStyle.NONE;
+    this._$joints       = JointStyle.ROUND;
+    this._$miterLimit   = 10;
     this._$fill         = null;
+
+    // init
+    this.thickness    = thickness;
+    this.pixelHinting = pixel_hinting;
+    this.scaleMode    = scale_mode;
+    this.caps         = caps;
+    this.joints       = joints;
+    this.miterLimit   = miter_limit;
+    this.fill         = fill;
+};
+
+/**
+ * extends
+ * @type {OriginalObject}
+ */
+GraphicsStroke.prototype = Object.create(OriginalObject.prototype);
+GraphicsStroke.prototype.constructor = GraphicsStroke;
+
+/**
+ * properties
+ */
+Object.defineProperties(GraphicsStroke.prototype, {
+    caps: {
+        /**
+         * @returns {string}
+         */
+        get: function () {
+            return this._$caps;
+        },
+        /**
+         * @param  {string} caps
+         * @return void
+         */
+        set: function (caps) {
+
+            switch (caps) {
+
+                case CapsStyle.NONE:
+                    this._$caps = "butt";
+                    break;
+
+                case CapsStyle.SQUARE:
+                    this._$caps = caps;
+                    break;
+
+                default:
+                    this._$caps = CapsStyle.ROUND;
+                    break;
+
+            }
+        }
+    },
+    fill: {
+        /**
+         * @return {*}
+         */
+        get: function () {
+            return this._$fill;
+        },
+        /**
+         * @param {*} fill
+         */
+        set: function (fill) {
+            this._$fill = fill;
+        }
+    },
+    joints: {
+        /**
+         * @return {string}
+         */
+        get: function () {
+            return this._$joints;
+        },
+        /**
+         * @param  {string} joints
+         * @return void
+         */
+        set: function (joints) {
+
+            switch (joints) {
+
+                case JointStyle.BEVEL:
+                case JointStyle.MITER:
+                    this._$joints = joints;
+                    break;
+
+                default:
+                    this._$joints = JointStyle.ROUND;
+                    break;
+
+            }
+
+        }
+    },
+    miterLimit: {
+        /**
+         * @return {number}
+         */
+        get: function () {
+            return this._$miterLimit
+        },
+        /**
+         * @param  {number} miter_limit
+         * @return void
+         */
+        set: function (miter_limit) {
+
+            miter_limit = +miter_limit;
+
+            if (this.$isNaN(miter_limit)) {
+                miter_limit = 10;
+            }
+
+            if (miter_limit < 1) {
+                miter_limit = 1;
+            }
+
+            if (miter_limit > 255) {
+                miter_limit = 255;
+            }
+
+            this._$miterLimit = miter_limit;
+        }
+    },
+    pixelHinting: {
+        /**
+         * @return {boolean}
+         */
+        get: function () {
+            return this._$pixelHinting;
+        },
+        /**
+         * @param  {boolean} pixel_hinting
+         * @return void
+         */
+        set: function (pixel_hinting) {
+            if (typeof pixel_hinting === "boolean") {
+                this._$pixelHinting = pixel_hinting;
+            }
+        }
+    },
+    scaleMode: {
+        /**
+         * @return {string}
+         */
+        get: function () {
+            return this._$scaleMode;
+        },
+        /**
+         * @param  {string} scale_mode
+         * @return void
+         */
+        set: function (scale_mode) {
+
+            switch (scale_mode) {
+
+                case LineScaleMode.HORIZONTAL:
+                case LineScaleMode.NONE:
+                case LineScaleMode.NORMAL:
+                case LineScaleMode.VERTICAL:
+                    this._$scaleMode = LineScaleMode.NONE;
+                    break;
+
+                default:
+                    this._$scaleMode = LineScaleMode.NORMAL;
+                    break;
+            }
+
+        }
+    },
+    thickness: {
+        /**
+         * @return {number}
+         */
+        get: function () {
+            return this._$thickness / 20;
+        },
+        /**
+         * @param  {number} thickness
+         * @return void
+         */
+        set: function (thickness) {
+
+            thickness = +thickness;
+            if (this.$isNaN(thickness)) {
+                thickness = 0;
+            }
+
+            if (thickness < 0) {
+                thickness = 0;
+            }
+
+            if (thickness > 255) {
+                thickness = 255;
+            }
+
+            this._$thickness = thickness * 20;
+
+        }
+    }
+});
+
+/**
+ * @return {string}
+ */
+GraphicsStroke.prototype.toString = function ()
+{
+    return "[object GraphicsStroke]";
 };
 /**
  * @param vertices
@@ -12454,6 +12757,18 @@ var Loader = function ()
  */
 Loader.prototype = Object.create(DisplayObjectContainer.prototype);
 Loader.prototype.constructor = Loader;
+
+/**
+ * @param  {array}   matrix
+ * @param  {array}   color_transform
+ * @param  {boolean} is_clip
+ * @param  {boolean} visible
+ * @return void
+ */
+Loader.prototype._$draw = function (matrix, color_transform, is_clip, visible)
+{
+
+};
 /**
  * @constructor
  */
@@ -24397,6 +24712,19 @@ Packages.prototype = {
                 return true;
             }
         },
+        "utils": {
+            "clearInterval": window.clearInterval,
+            "clearTimeout": window.clearTimeout,
+            "describeType": null,
+            "escapeMultiByte": null,
+            "getDefinitionByName": null,
+            "getQualifiedClassName": null,
+            "getQualifiedSuperclassName": null,
+            "getTimer": null,
+            "setInterval": window.setInterval,
+            "setTimeout": window.setTimeout,
+            "unescapeMultiByte": null
+        },
         "xml": {
             "XMLDocument": XMLDocument,
             "XMLNode": XMLNode,
@@ -32409,15 +32737,19 @@ VectorToCanvas.prototype.toCanvas2D = function (cache)
                 str += "ctx.fillStyle = 'rgba('+r+', '+g+', '+b+', '+a+')';";
                 break;
             case Graphics.STROKE_STYLE:
-                str += "var r =  Math.max(0, Math.min(("+ a[1] +" * ct[0]) + ct[4], 255))|0;";
-                str += "var g =  Math.max(0, Math.min(("+ a[2] +" * ct[1]) + ct[5], 255))|0;";
-                str += "var b =  Math.max(0, Math.min(("+ a[3] +" * ct[2]) + ct[6], 255))|0;";
-                str += "var a = +Math.max(0, Math.min(("+ a[4] +" * 255 * ct[3]) + ct[7], 255)) / 255;";
+                /** @var {GraphicsStroke} graphicsStroke */
+                var graphicsStroke = a[1];
+                var rgba = graphicsStroke.fill._$toRGBA();
+
+                str += "var r =  Math.max(0, Math.min(("+ rgba.R +" * ct[0]) + ct[4], 255))|0;";
+                str += "var g =  Math.max(0, Math.min(("+ rgba.G +" * ct[1]) + ct[5], 255))|0;";
+                str += "var b =  Math.max(0, Math.min(("+ rgba.B +" * ct[2]) + ct[6], 255))|0;";
+                str += "var a = +Math.max(0, Math.min(("+ rgba.A +" * 255 * ct[3]) + ct[7], 255)) / 255;";
                 str += "ctx.strokeStyle = 'rgba('+r+', '+g+', '+b+', '+a+')';";
-                str += "ctx.lineWidth   = Math.max("+ a[5] +", 1 / min_scale);";
-                str += "ctx.lineCap     = '"+ a[6] +"';";
-                str += "ctx.lineJoin    = '"+ a[7] +"';";
-                str += "ctx.miterLimit  = "+ a[8] +";";
+                str += "ctx.lineWidth   = Math.max("+ graphicsStroke.thickness * 20 +", 1 / min_scale);";
+                str += "ctx.lineCap     = '"+ graphicsStroke.caps +"';";
+                str += "ctx.lineJoin    = '"+ graphicsStroke.joints +"';";
+                str += "ctx.miterLimit  = "+  graphicsStroke.miterLimit +";";
                 break;
             case Graphics.END_FILL:
                 str += "if (!is_clip) { ctx.fill(); }";

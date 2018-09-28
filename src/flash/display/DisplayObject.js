@@ -1163,10 +1163,10 @@ DisplayObject.prototype.getRect = function (target_coordinate_space)
     }
 
     return new Rectangle(
-        rect.xMin,
-        rect.yMin,
-        this.$abs(rect.xMax - rect.xMin),
-        this.$abs(rect.yMax - rect.yMin)
+        rect.xMin / 20,
+        rect.yMin / 20,
+        this.$abs(rect.xMax - rect.xMin) / 20,
+        this.$abs(rect.yMax - rect.yMin) / 20
     );
 };
 

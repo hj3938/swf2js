@@ -860,14 +860,7 @@ describe("Graphics.js lineStyle test", function()
 
         // line style
         expect(g._$lineStyles[0][0]).toBe(Graphics.STROKE_STYLE);
-        expect(g._$lineStyles[0][1]).toBe(0);
-        expect(g._$lineStyles[0][2]).toBe(255);
-        expect(g._$lineStyles[0][3]).toBe(0);
-        expect(g._$lineStyles[0][4]).toBe(1);
-        expect(g._$lineStyles[0][5]).toBe(g._$lineWidth);
-        expect(g._$lineStyles[0][6]).toBe(CapsStyle.ROUND);
-        expect(g._$lineStyles[0][7]).toBe(JointStyle.MITER);
-        expect(g._$lineStyles[0][8]).toBe(1);
+        expect(g._$lineStyles[0][1] instanceof GraphicsStroke).toBe(true);
 
 
         g
@@ -887,14 +880,7 @@ describe("Graphics.js lineStyle test", function()
 
         // line style
         expect(g._$lineStyles[0][0]).toBe(Graphics.STROKE_STYLE);
-        expect(g._$lineStyles[0][1]).toBe(0);
-        expect(g._$lineStyles[0][2]).toBe(0);
-        expect(g._$lineStyles[0][3]).toBe(255);
-        expect(g._$lineStyles[0][4]).toBe(0.5);
-        expect(g._$lineStyles[0][5]).toBe(g._$lineWidth);
-        expect(g._$lineStyles[0][6]).toBe("butt");
-        expect(g._$lineStyles[0][7]).toBe(JointStyle.BEVEL);
-        expect(g._$lineStyles[0][8]).toBe(255);
+        expect(g._$lineStyles[0][1] instanceof GraphicsStroke).toBe(true);
 
     });
 
@@ -915,14 +901,7 @@ describe("Graphics.js lineStyle test", function()
 
         // line style
         expect(g._$lineStyles[0][0]).toBe(Graphics.STROKE_STYLE);
-        expect(g._$lineStyles[0][1]).toBe(0);
-        expect(g._$lineStyles[0][2]).toBe(255);
-        expect(g._$lineStyles[0][3]).toBe(0);
-        expect(g._$lineStyles[0][4]).toBe(1);
-        expect(g._$lineStyles[0][5]).toBe(g._$lineWidth);
-        expect(g._$lineStyles[0][6]).toBe(CapsStyle.ROUND);
-        expect(g._$lineStyles[0][7]).toBe(JointStyle.MITER);
-        expect(g._$lineStyles[0][8]).toBe(1);
+        expect(g._$lineStyles[0][1] instanceof GraphicsStroke).toBe(true);
 
 
         g
@@ -936,14 +915,7 @@ describe("Graphics.js lineStyle test", function()
 
         // line style
         expect(g._$lineStyles[0][0]).toBe(Graphics.STROKE_STYLE);
-        expect(g._$lineStyles[0][1]).toBe(0);
-        expect(g._$lineStyles[0][2]).toBe(0);
-        expect(g._$lineStyles[0][3]).toBe(255);
-        expect(g._$lineStyles[0][4]).toBe(0.5);
-        expect(g._$lineStyles[0][5]).toBe(g._$lineWidth);
-        expect(g._$lineStyles[0][6]).toBe("butt");
-        expect(g._$lineStyles[0][7]).toBe(JointStyle.BEVEL);
-        expect(g._$lineStyles[0][8]).toBe(255);
+        expect(g._$lineStyles[0][1] instanceof GraphicsStroke).toBe(true);
 
     });
 

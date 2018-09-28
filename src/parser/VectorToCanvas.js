@@ -490,15 +490,19 @@ VectorToCanvas.prototype.toCanvas2D = function (cache)
                 str += "ctx.fillStyle = 'rgba('+r+', '+g+', '+b+', '+a+')';";
                 break;
             case Graphics.STROKE_STYLE:
-                str += "var r =  Math.max(0, Math.min(("+ a[1] +" * ct[0]) + ct[4], 255))|0;";
-                str += "var g =  Math.max(0, Math.min(("+ a[2] +" * ct[1]) + ct[5], 255))|0;";
-                str += "var b =  Math.max(0, Math.min(("+ a[3] +" * ct[2]) + ct[6], 255))|0;";
-                str += "var a = +Math.max(0, Math.min(("+ a[4] +" * 255 * ct[3]) + ct[7], 255)) / 255;";
+                /** @var {GraphicsStroke} graphicsStroke */
+                var graphicsStroke = a[1];
+                var rgba = graphicsStroke.fill._$toRGBA();
+
+                str += "var r =  Math.max(0, Math.min(("+ rgba.R +" * ct[0]) + ct[4], 255))|0;";
+                str += "var g =  Math.max(0, Math.min(("+ rgba.G +" * ct[1]) + ct[5], 255))|0;";
+                str += "var b =  Math.max(0, Math.min(("+ rgba.B +" * ct[2]) + ct[6], 255))|0;";
+                str += "var a = +Math.max(0, Math.min(("+ rgba.A +" * 255 * ct[3]) + ct[7], 255)) / 255;";
                 str += "ctx.strokeStyle = 'rgba('+r+', '+g+', '+b+', '+a+')';";
-                str += "ctx.lineWidth   = Math.max("+ a[5] +", 1 / min_scale);";
-                str += "ctx.lineCap     = '"+ a[6] +"';";
-                str += "ctx.lineJoin    = '"+ a[7] +"';";
-                str += "ctx.miterLimit  = "+ a[8] +";";
+                str += "ctx.lineWidth   = Math.max("+ graphicsStroke.thickness * 20 +", 1 / min_scale);";
+                str += "ctx.lineCap     = '"+ graphicsStroke.caps +"';";
+                str += "ctx.lineJoin    = '"+ graphicsStroke.joints +"';";
+                str += "ctx.miterLimit  = "+  graphicsStroke.miterLimit +";";
                 break;
             case Graphics.END_FILL:
                 str += "if (!is_clip) { ctx.fill(); }";

@@ -376,6 +376,19 @@ Packages.prototype = {
                 return true;
             }
         },
+        "utils": {
+            "clearInterval": window.clearInterval,
+            "clearTimeout": window.clearTimeout,
+            "describeType": null,
+            "escapeMultiByte": null,
+            "getDefinitionByName": null,
+            "getQualifiedClassName": null,
+            "getQualifiedSuperclassName": null,
+            "getTimer": null,
+            "setInterval": window.setInterval,
+            "setTimeout": window.setTimeout,
+            "unescapeMultiByte": null
+        },
         "xml": {
             "XMLDocument": XMLDocument,
             "XMLNode": XMLNode,
